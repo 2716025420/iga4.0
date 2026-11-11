@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bpc8j7i7q7te6"]
+
+[ext_resource type="Script" uid="uid://uaq7oxq82c05" path="res://tools/tests/scene_reset.gd" id="1_5bbna"]
+
+[node name="SceneResetRegression" type="Node" unique_id=1229164793]
+script = ExtResource("1_5bbna")

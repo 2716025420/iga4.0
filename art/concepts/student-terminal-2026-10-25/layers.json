@@ -1,0 +1,55 @@
+{
+  "method": "builtin image_gen precise-object-edit",
+  "note": "Text and content removed; structural UI plates preserve concept composition. Runtime uses original pixel registration.",
+  "layers": [
+    {
+      "page": "overview",
+      "source": "art/concepts/student-terminal-2026-10-25/overview.png",
+      "output": "assets/ui/student_terminal/layouts/overview.png",
+      "generated": "exec-773be75d-1b74-4d6a-8249-3d5e37cfae7e.png",
+      "prompt": "Use-case: precise-object-edit, reusable GAME UI STRUCTURAL LAYER EXTRACTION. Edit THIS full overview IGA concept image. Keep EXACT full canvas composition, SAME tablet/device if present, SAME existing background and lighting, SAME perspective and exact positions, sizes and shapes of all panel frames, buttons and plates. Preserve original thin borders, translucent pale blue/ivory/mint surfaces, gentle botanical corner ornaments and highlights. Remove EVERY text, letter, number, title, counter, category caption, label, status string, currency symbol, arrow, icon, glyph and badge from the ENTIRE image. Clear all illustration/content inside product cards/portraits/badges/details so those areas are blank pale ivory but KEEP their original tiles and panel frames exactly. All screen text and badges will be drawn live by Godot later. No text-like scribbles. Do not move or resize any panel, button, device, outer background or border. Do not invent new widgets.   The result must be a faithful blank structural layer from this concept, not a redesign. 16:9 opaque, do not crop."
+    },
+    {
+      "page": "zodiac",
+      "source": "art/concepts/student-terminal-2026-10-25/zodiac.png",
+      "output": "assets/ui/student_terminal/layouts/zodiac.png",
+      "generated": "exec-882da437-a3e2-47fd-853b-b82364919afc.png",
+      "prompt": "Use-case: precise-object-edit, reusable GAME UI STRUCTURAL LAYER EXTRACTION. Edit THIS full zodiac IGA concept image. Keep EXACT full canvas composition, SAME tablet/device if present, SAME existing background and lighting, SAME perspective and exact positions, sizes and shapes of all panel frames, buttons and plates. Preserve original thin borders, translucent pale blue/ivory/mint surfaces, gentle botanical corner ornaments and highlights. Remove EVERY text, letter, number, title, counter, category caption, label, status string, currency symbol, arrow, icon, glyph and badge from the ENTIRE image. Clear all illustration/content inside product cards/portraits/badges/details so those areas are blank pale ivory but KEEP their original tiles and panel frames exactly. All screen text and badges will be drawn live by Godot later. No text-like scribbles. Do not move or resize any panel, button, device, outer background or border. Do not invent new widgets.   The result must be a faithful blank structural layer from this concept, not a redesign. 16:9 opaque, do not crop."
+    },
+    {
+      "page": "cards",
+      "source": "art/concepts/student-terminal-2026-10-25/cards.png",
+      "output": "assets/ui/student_terminal/layouts/cards.png",
+      "generated": "exec-1dc08fac-9245-484f-9486-cab126682dd4.png",
+      "prompt": "Use-case: precise-object-edit, reusable GAME UI STRUCTURAL LAYER EXTRACTION. Edit THIS full cards IGA concept image. Keep EXACT full canvas composition, SAME tablet/device if present, SAME existing background and lighting, SAME perspective and exact positions, sizes and shapes of all panel frames, buttons and plates. Preserve original thin borders, translucent pale blue/ivory/mint surfaces, gentle botanical corner ornaments and highlights. Remove EVERY text, letter, number, title, counter, category caption, label, status string, currency symbol, arrow, icon, glyph and badge from the ENTIRE image. Clear all illustration/content inside product cards/portraits/badges/details so those areas are blank pale ivory but KEEP their original tiles and panel frames exactly. All screen text and badges will be drawn live by Godot later. No text-like scribbles. Do not move or resize any panel, button, device, outer background or border. Do not invent new widgets.   The result must be a faithful blank structural layer from this concept, not a redesign. 16:9 opaque, do not crop."
+    },
+    {
+      "page": "journal",
+      "source": "art/concepts/student-terminal-2026-10-25/journal.png",
+      "output": "assets/ui/student_terminal/layouts/journal.png",
+      "generated": "exec-b25368b6-40bc-4dc0-8f9e-c73bc8d180d9.png",
+      "prompt": "Use-case: precise-object-edit, reusable GAME UI STRUCTURAL LAYER EXTRACTION. Edit THIS full journal IGA concept image. Keep EXACT full canvas composition, SAME tablet/device if present, SAME existing background and lighting, SAME perspective and exact positions, sizes and shapes of all panel frames, buttons and plates. Preserve original thin borders, translucent pale blue/ivory/mint surfaces, gentle botanical corner ornaments and highlights. Remove EVERY text, letter, number, title, counter, category caption, label, status string, currency symbol, arrow, icon, glyph and badge from the ENTIRE image. Clear all illustration/content inside product cards/portraits/badges/details so those areas are blank pale ivory but KEEP their original tiles and panel frames exactly. All screen text and badges will be drawn live by Godot later. No text-like scribbles. Do not move or resize any panel, button, device, outer background or border. Do not invent new widgets.   The result must be a faithful blank structural layer from this concept, not a redesign. 16:9 opaque, do not crop."
+    },
+    {
+      "page": "contacts",
+      "source": "art/concepts/student-terminal-2026-10-25/contacts.png",
+      "output": "assets/ui/student_terminal/layouts/contacts.png",
+      "generated": "exec-d3be5c6a-b457-494f-9016-2c66dfdb3587.png",
+      "prompt": "Use-case: precise-object-edit, reusable GAME UI STRUCTURAL LAYER EXTRACTION. Edit THIS full contacts IGA concept image. Keep EXACT full canvas composition, SAME tablet/device if present, SAME existing background and lighting, SAME perspective and exact positions, sizes and shapes of all panel frames, buttons and plates. Preserve original thin borders, translucent pale blue/ivory/mint surfaces, gentle botanical corner ornaments and highlights. Remove EVERY text, letter, number, title, counter, category caption, label, status string, currency symbol, arrow, icon, glyph and badge from the ENTIRE image. Clear all illustration/content inside product cards/portraits/badges/details so those areas are blank pale ivory but KEEP their original tiles and panel frames exactly. All screen text and badges will be drawn live by Godot later. No text-like scribbles. Do not move or resize any panel, button, device, outer background or border. Do not invent new widgets.   The result must be a faithful blank structural layer from this concept, not a redesign. 16:9 opaque, do not crop."
+    },
+    {
+      "page": "inventory",
+      "source": "art/concepts/student-terminal-2026-10-25/inventory.png",
+      "output": "assets/ui/student_terminal/layouts/inventory.png",
+      "generated": "exec-47d91c8d-5955-413b-b5ca-529ef8c5d204.png",
+      "prompt": "Use-case: precise-object-edit, reusable GAME UI STRUCTURAL LAYER EXTRACTION. Edit THIS full inventory IGA concept image. Keep EXACT full canvas composition, SAME tablet/device if present, SAME existing background and lighting, SAME perspective and exact positions, sizes and shapes of all panel frames, buttons and plates. Preserve original thin borders, translucent pale blue/ivory/mint surfaces, gentle botanical corner ornaments and highlights. Remove EVERY text, letter, number, title, counter, category caption, label, status string, currency symbol, arrow, icon, glyph and badge from the ENTIRE image. Clear all illustration/content inside product cards/portraits/badges/details so those areas are blank pale ivory but KEEP their original tiles and panel frames exactly. All screen text and badges will be drawn live by Godot later. No text-like scribbles. Do not move or resize any panel, button, device, outer background or border. Do not invent new widgets. For the LEFT inventory list only, erase individual item row plates as well so runtime can draw any number of rows. Keep the right detail panel, top filter button plates and sidebar.  The result must be a faithful blank structural layer from this concept, not a redesign. 16:9 opaque, do not crop."
+    },
+    {
+      "page": "shop",
+      "source": "art/concepts/student-terminal-2026-10-25/shop.png",
+      "output": "assets/ui/student_terminal/layouts/shop.png",
+      "generated": "exec-ee280802-54fe-4710-9a09-81edb7d528fa.png",
+      "prompt": "Use-case: precise-object-edit, reusable GAME UI STRUCTURAL LAYER EXTRACTION. Edit THIS full shop IGA concept image. Keep EXACT full canvas composition, SAME tablet/device if present, SAME existing background and lighting, SAME perspective and exact positions, sizes and shapes of all panel frames, buttons and plates. Preserve original thin borders, translucent pale blue/ivory/mint surfaces, gentle botanical corner ornaments and highlights. Remove EVERY text, letter, number, title, counter, category caption, label, status string, currency symbol, arrow, icon, glyph and badge from the ENTIRE image. Clear all illustration/content inside product cards/portraits/badges/details so those areas are blank pale ivory but KEEP their original tiles and panel frames exactly. All screen text and badges will be drawn live by Godot later. No text-like scribbles. Do not move or resize any panel, button, device, outer background or border. Do not invent new widgets.  Remove product pictures but keep the six product tile plates. Keep this as a PHYSICAL SHOP COUNTER UI, with NO tablet and NO terminal sidebar. The result must be a faithful blank structural layer from this concept, not a redesign. 16:9 opaque, do not crop."
+    }
+  ]
+}

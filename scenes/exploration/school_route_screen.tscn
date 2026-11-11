@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://clpwq6jef6cje"]
+
+[ext_resource type="Script" uid="uid://dia8n65jhvs4k" path="res://scripts/exploration/school_route_screen.gd" id="1_ks1su"]
+
+[node name="SchoolRouteScreen" type="Control" unique_id=2010208739]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_ks1su")

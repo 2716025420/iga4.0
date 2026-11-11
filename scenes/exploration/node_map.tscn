@@ -1,0 +1,169 @@
+[gd_scene format=3 uid="uid://fy7u3i2o5p8a"]
+
+[ext_resource type="Script" uid="uid://cju11jnhr2h20" path="res://scripts/exploration/node_map.gd" id="1_map_script"]
+[ext_resource type="Theme" uid="uid://dq375erxl6v0w" path="res://main_theme.tres" id="1_x0a38"]
+[ext_resource type="Script" uid="uid://cktnilyudgiil" path="res://scripts/exploration/lines_canvas.gd" id="2_lines_script"]
+[ext_resource type="Texture2D" uid="uid://cmcdhvj3qc6y1" path="res://assets/backgrounds/phase_two/school_gate.png" id="3_x0a38"]
+
+[node name="NodeMap" type="Control" unique_id=1087326932]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_x0a38")
+script = ExtResource("1_map_script")
+
+[node name="Background" type="TextureRect" parent="." unique_id=808309266]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_x0a38")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TopBar" type="Panel" parent="." unique_id=976538803]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="ChapterTitle" type="Label" parent="TopBar" unique_id=669260513]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 30.0
+offset_top = -15.0
+offset_right = 350.0
+offset_bottom = 15.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.98, 0.79, 0.34, 1)
+theme_override_font_sizes/font_size = 18
+text = "第一章 · 放学后的那条路"
+
+[node name="PlayerInfo" type="HBoxContainer" parent="TopBar" unique_id=426730237]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -15.0
+offset_right = 150.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="HPLabel" type="Label" parent="TopBar/PlayerInfo" unique_id=1043986843]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.84, 0.45, 1)
+theme_override_font_sizes/font_size = 15
+text = "体力 120 / 120"
+
+[node name="ScrapLabel" type="Label" parent="TopBar/PlayerInfo" unique_id=758468453]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "练习点数: 150"
+
+[node name="RetreatButton" type="Button" parent="TopBar" unique_id=192889045]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -20.0
+offset_right = -30.0
+offset_bottom = 20.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "返回休息室"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1066734290]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MapCanvas" type="Control" parent="ScrollContainer" unique_id=568171145]
+custom_minimum_size = Vector2(1300, 580)
+layout_mode = 2
+
+[node name="LinesCanvas" type="Control" parent="ScrollContainer/MapCanvas" unique_id=360092377]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_lines_script")
+
+[node name="NodesContainer" type="Control" parent="ScrollContainer/MapCanvas" unique_id=1718074906]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="EventModal" type="Panel" parent="." unique_id=1668488640]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -140.0
+offset_right = 260.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="EventModal" unique_id=358966570]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 25.0
+offset_top = 20.0
+offset_right = -25.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="EventModal/VBox" unique_id=619079554]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.79, 0.34, 1)
+theme_override_font_sizes/font_size = 20
+text = "校园补给"
+horizontal_alignment = 1
+
+[node name="Desc" type="RichTextLabel" parent="EventModal/VBox" unique_id=1135047882]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "准备继续校园行程。"
+
+[node name="ConfirmBtn" type="Button" parent="EventModal/VBox" unique_id=1919166739]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "继续行程"

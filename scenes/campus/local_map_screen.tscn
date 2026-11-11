@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cske6w1yi6wgb"]
+
+[ext_resource type="Script" uid="uid://evvrbgu265ou" path="res://scripts/campus/map_screen.gd" id="1_26s0a"]
+
+[node name="LocalMapScreen" type="Control" unique_id=2100274015]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_26s0a")

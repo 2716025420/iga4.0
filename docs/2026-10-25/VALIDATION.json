@@ -1,0 +1,1904 @@
+{
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "platform": "Windows; OpenGL Compatibility; NVIDIA GTX 1660 Ti; Dummy audio",
+  "startup_120_frames": "passed",
+  "runs": [
+    {
+      "mode": "headless",
+      "suites": [
+        {
+          "suite": "regions",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 539,
+          "failures": [],
+          "renderer": "headless"
+        },
+        {
+          "suite": "home",
+          "passed": true,
+          "exit_code": 0,
+          "cases": [
+            {
+              "checks": 58,
+              "failures": 0,
+              "region": "nomos"
+            },
+            {
+              "checks": 58,
+              "failures": 0,
+              "region": "agora"
+            },
+            {
+              "checks": 58,
+              "failures": 0,
+              "region": "techne"
+            }
+          ],
+          "checks": 174,
+          "failures": [],
+          "renderer": "headless"
+        },
+        {
+          "suite": "scenes",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 386,
+          "failures": [],
+          "renderer": "headless"
+        }
+      ],
+      "screenshots": 0
+    },
+    {
+      "mode": "1600x900",
+      "suites": [
+        {
+          "suite": "regions",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 559,
+          "failures": [],
+          "renderer": "Windows"
+        },
+        {
+          "suite": "home",
+          "passed": true,
+          "exit_code": 0,
+          "cases": [
+            {
+              "checks": 66,
+              "failures": 0,
+              "region": "nomos"
+            },
+            {
+              "checks": 66,
+              "failures": 0,
+              "region": "agora"
+            },
+            {
+              "checks": 66,
+              "failures": 0,
+              "region": "techne"
+            }
+          ],
+          "checks": 198,
+          "failures": [],
+          "renderer": "Windows"
+        },
+        {
+          "suite": "scenes",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 432,
+          "failures": [],
+          "renderer": "Windows"
+        }
+      ],
+      "screenshots": 90
+    },
+    {
+      "mode": "1920x1080",
+      "suites": [
+        {
+          "suite": "regions",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 559,
+          "failures": [],
+          "renderer": "Windows",
+          "capture_pixels": [
+            [
+              1920,
+              1080
+            ]
+          ]
+        },
+        {
+          "suite": "home",
+          "passed": true,
+          "exit_code": 0,
+          "cases": [
+            {
+              "checks": 66,
+              "failures": 0,
+              "region": "nomos"
+            },
+            {
+              "checks": 66,
+              "failures": 0,
+              "region": "agora"
+            },
+            {
+              "checks": 66,
+              "failures": 0,
+              "region": "techne"
+            }
+          ],
+          "checks": 198,
+          "failures": [],
+          "renderer": "Windows",
+          "capture_pixels": [
+            [
+              1920,
+              1080
+            ]
+          ]
+        },
+        {
+          "suite": "scenes",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 432,
+          "failures": [],
+          "renderer": "Windows",
+          "capture_pixels": [
+            [
+              1920,
+              1080
+            ]
+          ]
+        }
+      ],
+      "screenshots": 90
+    }
+  ],
+  "asset_audit": {
+    "art_assets": 39,
+    "preserved_home_originals": 6,
+    "archived_files": 320,
+    "archived_bytes": 240810032,
+    "retired_runtime_paths_or_uids": 0
+  },
+  "test_method": "Production autoloads, actual scenes and Viewport mouse/key events in disposable APPDATA/LOCALAPPDATA. No normal player save writes. Fullscreen QA overrides only the disposable test window, not player settings.",
+  "resolution_note": "Initial 1920 windowed captures were physically clamped by Windows to 1886x1061. They are excluded from final evidence. The final 1920 run uses fullscreen; every PNG IHDR was checked.",
+  "scope": "Scene regression and inspected rendered pages; not full manual P6 or final art/story approval. Native masters are 1672x941 (some 1671x941), accurately recorded in ART.json.",
+  "source_hashes": {
+    "main_theme.tres": "63174480f1e7e849c8accbf72dc24755ac562d06b5aed5049fb28282f9a48e1b",
+    "project.godot": "d5196eba9df9ef44ccad76a145c9cb12982b0431e77395a53275d148a9a32d03",
+    "scenes/campus/campus_screen.tscn": "56def6a6b58de96e8449e63b308fe302bc2d698c8adeb5c7aea9e9df739852e3",
+    "scenes/campus/local_map_screen.tscn": "c1167a5db3b4fbcd107486b5764ee384b0f3033fcdac9e1c1f32ed8ee620e019",
+    "scenes/campus/region_atlas_screen.tscn": "2817867fa27fff23e4f2642d3a8638d1d18f912d312c75c642cf389e21159c7a",
+    "scenes/combat/combat_card_ui.tscn": "5034170ddf528ec061c7a6e32925307d13f5f1177a64a30a2d19fcc9643d5242",
+    "scenes/combat/combat_screen.tscn": "44eda207954502e5110b4d0a46e873bdcdfd03cd888d76a284ac4a77c0339135",
+    "scenes/combat/enemy_unit_ui.tscn": "95a2a912f0bc9a1834426e336501e0c5b19c778dc93ee1f3d12bff6dc444e619",
+    "scenes/exploration/node_map.tscn": "018b8997ab4003d21ef3d275a5b8a3aa283391e721684314cf33de5ef3520217",
+    "scenes/exploration/school_route_screen.tscn": "d88e0286322f621ddd78f3d214e8970d4f47a5e55b4e6a4181cfc1e64eb8cf95",
+    "scenes/home/home_screen.tscn": "f433c15586c7391af3d19b9a99492e39afacb1f2d683770f9989454bf8cd146c",
+    "scenes/story/dialogue_screen.tscn": "b824c55f055594d77cf4051b18810ddd65e29d207835c470e87fa694af4d992b",
+    "scenes/title/title_screen.tscn": "789a7a527cdeaf092084c1bf642dd9c8cbba6c1be8c04b5aeb1099a16279326c",
+    "scenes/world_map/world_map.tscn": "bde10558330feb9e5693d4f10280b67e85e706eff86944db05a63b53488fa542",
+    "scripts/campus/campus_dialogue_ui.gd": "bfe4556355e73a83a43280c828a30c5845ecf6ad5d773ef85c9c38b41ec61c0a",
+    "scripts/campus/campus_life.gd": "5416e1666d60ac3fd761acc2ffc00f1ec3a19c1fd6f15963fb56120dd0f89d53",
+    "scripts/campus/campus_places.gd": "f0064f06f4892f4bdb34bb76e23e04ba0e773db4b2a412951885fee4ee124e60",
+    "scripts/campus/campus_screen.gd": "62c5be1e724d77a74a551fbcf650a2b313af96573574a5b7d1ae7d7462b109bf",
+    "scripts/campus/home_object_button.gd": "c0821c1493b285c5dcbfa75af61b2455a72088480e6d89039605e6dd1564f8fd",
+    "scripts/campus/map_page_geometry.gd": "33c23385292eec6c5137efd40471edbe5afc39b34b7432da2698efb519d32020",
+    "scripts/campus/map_page_ui.gd": "9f5dab349fa6084a8041675675a97cf7f5228cfe7e18bb7dd052b2ebea3d0f42",
+    "scripts/campus/map_screen.gd": "920174b2fecbc184d5c2b63e7db345740d29d96fcaf2cfa857b24f280cd9fd1e",
+    "scripts/campus/region_atlas_view.gd": "4f377adb4f4d728288e1fcc85bc64848f9ab3b3c504c7558da99650aaebf56b0",
+    "scripts/campus/region_catalog.gd": "9ce6732623966beefa90aaffc66907baafa37abb09277524b76f757f8bb7f262",
+    "scripts/campus/region_geometry.gd": "1c5f611cb39763799424ff9daaeda28c76e621ccc3bf6fa2d21e15c22fedcb8a",
+    "scripts/campus/region_home_layout.gd": "1c0d6c20063c554bfb730873c5adcdbdfe4ed7166f09588e8aaf856ae6c6dcb1",
+    "scripts/campus/region_home_view.gd": "f299c516f028b385011acbc7e5e47749caedad4ce539df1b2fd32f39f16207a8",
+    "scripts/campus/region_map_view.gd": "5908509682316e26f426f5a2edd434bc4e7d8d7b94a52059a1c076d82b91a02e",
+    "scripts/campus/scene_design_catalog.gd": "3bb35c7e43db2278bdbc6ad4ab3be49290887d3fdf25586cbdf99168a1a332ce",
+    "scripts/campus/scene_object_view.gd": "4df22bed209fa30dc3e9b60790af0dd32ff49d0fe7e5b347d82b40ed9c14d014",
+    "scripts/campus/techne_home_view.gd": "af6db5740a5f056424629d9a9461e69ce03d80071020d261262bb34e5725c2c9",
+    "scripts/campus/territory_button.gd": "564cbb87f7bb388c7f2811a0a114c39127504e69dd594e6a11c8302440404f8d",
+    "scripts/campus/world_region_content.gd": "bc262336d24de099dcdda02a0645ff7d958a4d950921abc3faded96a851de1ba",
+    "scripts/combat/combat_card_ui.gd": "d4d459299eb5df88b64522c24ce9c6b4daad4b4aafa40ef58fce1b9d2100a45a",
+    "scripts/combat/combat_presentation.gd": "358608af3c880f86e2fbee7f39beb3c9c4cbdf2fb846ebe792d3f79ed79b4adc",
+    "scripts/combat/combat_screen.gd": "c0b51a5a77ee3e8d37747f77f9e6e9ff778168cb95f4b62844d0b979706fc763",
+    "scripts/combat/enemy_unit_ui.gd": "bb168c1343633a17fd40b4186c0105118711bc1b6889fcc1c8e99b9d972aef9d",
+    "scripts/combat/floating_text.gd": "27906d6c86e7800e131599ef03be7f1b4ae5f188b5d01bbc235f328438fe9350",
+    "scripts/data_models/card_data.gd": "52321829ea1c2e755a59f53f726549cd34a4e2ed17b5e7b18d6edca965f48d29",
+    "scripts/data_models/enemy_data.gd": "b0d8a5f5ddac8415e0bd2c46e08bfc1b72b168e8cdd5f540093dd7b27499c97c",
+    "scripts/data_models/item_catalog.gd": "9699901e06269f84e56aff1e218bf32209b00452b9da1bea7fad738c2ce27c65",
+    "scripts/data_models/map_node_data.gd": "9b95320df389f9117f32d3ace9adad504317dcb61782ef6fd6a76f0046ab9980",
+    "scripts/exploration/lines_canvas.gd": "6efbae29b5c6f2961272996e9d80f661b615a64db15784a7ac25047f134178f9",
+    "scripts/exploration/node_map.gd": "058884fbec155cc2a5a3c0d4ac9db0ba70fd8fe1881972298a3cb0151bb3658e",
+    "scripts/exploration/school_route_screen.gd": "7aa2b011171586c5cbd8da5048faef855b5b9f722bfd23cc0d76ecc717b9ec3e",
+    "scripts/global/audio_manager.gd": "9e460dfb7ee10e61cb41dd948d8a1f326a8b583bc427ac5608b4ebecebaf01cc",
+    "scripts/global/calendar_content.gd": "257933292b59289c6658471e0c414b0e36721a30278d30001613bf1376414509",
+    "scripts/global/combat_skin.gd": "1f193522ea5841859d4aeb27a99eb44af659623470a68038c77284190e8753a5",
+    "scripts/global/day_cycle.gd": "165dbf4d5f7728c3ba8a01e504afdfece228e1320d765c23571bb93e39c0c5ad",
+    "scripts/global/daylight_ui.gd": "72f21600ee35c7cfeb233dd22a6863bbbdbbca8cb97fa84be9d1662860efbb95",
+    "scripts/global/exploration_content.gd": "192ac18f08d5bb7959129c4e15f18f290b7992ac70d3e88dea23628b57393079",
+    "scripts/global/game_state.gd": "47256f7e0227c5a1bad14ce93574a561516285337aed2421e8e91c2b5501e148",
+    "scripts/global/phase_two_content.gd": "9c1dc65e3ba1b3cdf3884e31f9b9bef6b987e2b09615a414a83111e0dcd2e8df",
+    "scripts/global/phase_two_skin.gd": "1ba4dd0c162d536743da944ce5d27d3300c67697d19ca3a8e4c5f41cbaa5c74c",
+    "scripts/global/player_journey.gd": "2d585c2f066ab065c4cf6424d6968945e97f5fb35e282d7a8c31d119998c0851",
+    "scripts/global/save_manager.gd": "2fd18265c816b70655348efef48b68950f9f5a1f9b4c9df39651c5d14bb8d082",
+    "scripts/global/scene_manager.gd": "c2d629bd2f464e2cfe1b5c27c1c284a4844556ea580abfebbc8f8e0ef5e02b4b",
+    "scripts/global/scene_skin.gd": "bad9cce96b3c4d9327ed55043a9249ae0f0cd4f949c72e704010e87b14f0682d",
+    "scripts/global/school_exploration_flow.gd": "bb291ef128af2ff77c9e1fb3058d4e8a8e8f287fcac5cecd907c13e07b1e18c8",
+    "scripts/global/school_exploration_routes.gd": "afec927fb74ac78187cec64d597dc77915d0b4976409e5e70a1d8c7f34f35c6a",
+    "scripts/global/theme_palette.gd": "acc11def2977809e7e3db1937686374066da16eab67efef35545e38d206acedf",
+    "scripts/home/campus_guide_panel.gd": "1f5fe5632f07f27f440482f2967136dee23e976d481866de00e61a6a44d674c2",
+    "scripts/home/home_panels.gd": "fdcefee466381bec8678e80849f8b02e5294e77fcf945f207d6a42696d444e0c",
+    "scripts/home/home_portrait_actor.gd": "6d9789ec751919bcd5847f75e0ae7eea147cb1858c85d3570ffebb8a17d9945d",
+    "scripts/home/home_screen.gd": "1edd4da586943924ae34aeb9ea65caaa81a3d007fcdff76cb2de3298e1d832c7",
+    "scripts/home/player_workspace.gd": "450801be1489cf1e7d61eaf6ccfac656f760df2fb1f51abcaf06f6beb2ab3298",
+    "scripts/home/school_object_panels.gd": "c922f90fb649c4e59e2113063040acb2b9b7dd01b80b8682399a1d250a67be1a",
+    "scripts/story/dialogue_screen.gd": "f3fcbd369a927aabb73dc2c85088ab6dd35c6d68745c0f51db4d4786ef249e82",
+    "scripts/story/school_dialogue_presentation.gd": "319dddb952fed3b543de20578e2c4ad9c30f393642b072453d8bd708f3530775",
+    "scripts/title/title_screen.gd": "347563430f9241c3fc99d18425a83f316ec03c3a57236fb7ecac2b1c582bb2d5",
+    "scripts/ui/battle_entry_transition.gd": "267bdc0e3679ad2bf05860c08545ad18dfeb777812416ea1c618b12e5536de5e",
+    "scripts/ui/game_menu.gd": "7f9c8a9ed9e7202c6f0ff934c95e6f93a7088581292843796218a31faf4b89f3",
+    "scripts/ui/notebook_ui.gd": "0187f2f3be69f51ea80bf58276f5703afff6f5bc35893f8d58c99913e426babd",
+    "scripts/ui/reward_card_popup.gd": "eb4481ea0a860836264285a33d65f18cf9bae94f89469ca84b6437f8bda8e93c",
+    "scripts/ui/scene_loading_screen.gd": "162b7176bf69b18e2f29653a0ac1d07dd0740b5df904e78bb839606262fe0227",
+    "scripts/ui/scene_surface_ui.gd": "2066b5198db0179197cbdf6fa91a2476ef84e5c01d59b21ac3d3a874255f0a5f",
+    "scripts/ui/school_card_carousel.gd": "2d64811a48fb735504a9f6d09a5102eb7f912238c1ad3c068110f1e4c0918923",
+    "scripts/ui/school_object_ui.gd": "d3d05c819fe7e8d3803e3cfec6e1df10c5c85888cc5e928215120c67ad686f34",
+    "scripts/ui/school_paper_surface.gd": "487a845eea464fd04ca4828665760b5506b0845fad70d6b430a6bbe0e87daea4",
+    "scripts/ui/settings_page.gd": "ad1cb455e7d4a7882d9edc9dbd8cc4c54c8820906c4fed52abf5c1c06ad32c9a",
+    "scripts/world_map/world_map.gd": "8c9c45e6ade16574d82df7374d4eab5e4b8dc25aa1c2cb0ebdf6a28e5fb17924",
+    "tools/tests/home_objects.gd": "ae840afcb092e62de7102c0b5196e3444aad67a8666fc1303351ee2d13cf7e92",
+    "tools/tests/home_objects.tscn": "880e220d78a70202133bf65b913d51a779f500ade4eefb99ff34f97f9bc9d25a",
+    "tools/tests/p5_regions.gd": "2ae66828b03c8fa795a90456938a330216f4a5244ba74e77b4a65c6b88fb7697",
+    "tools/tests/p5_regions.tscn": "419045d593f1c3da70d6b22a2315b6a1f677db7d129f57f4dbb2ceed1f26bf43",
+    "tools/tests/scene_reset.gd": "ad0319c175b3d3285b3e3fca10faed3571d63deef12530afcff6e1028f529906",
+    "tools/tests/scene_reset.tscn": "5290f7cd0854e3829ea2eebe841ce22d99c75adb96bd800b2f6a0b30ab0c9733"
+  },
+  "screenshots": [
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/arete_original_home.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "acd013debfdd29c8bf7b897199d8f7e5e95a7ec95eb99157ad19d2ca2a41dc4f"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/legacy_resistance_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "675bc54df9cb112d764d0b0b0bc4863ef3d8e49ff772d5736cfe41e69600d6a1"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/legacy_sanctuary_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "d8647e6ef792db1bf482a53622827869075d97277c2b7ed2b792db7382bf6fe7"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/region_failed_alliance_entry.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "a798332bb3e51538b10241e43be38b8ceb981f886bf8ffb09f9faba75b5df9e2"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/region_failed_alliance_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "08f10df62d425a2abf2b556d5a8b36b355b4afee3d76ba21b96cc3ba37be2970"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/region_iga_church_entry.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "63babeadeadb446c9aa1fe1395e70a3c6a30ca5e22e8be8e000918d9890936cf"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/region_iga_church_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "5df2c06653b68d9ebe3dc2c9300836a94207d1cd5c7f779ea00d0ad83450d446"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_agora_entry.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "2cda946820b6d117304c3545aefb2f5c65b6b7cee3c911766872239562cdba55"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_agora_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "3aad3b75a9af8a265dc81001b1b13af616623849459869b35676f6cd432cacf4"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_agora_partner_home.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "82ae08b5f4f2928b93afc0b26fcd8167e82835e60749ab93fdb821a980237f10"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_arete_entry.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "acd013debfdd29c8bf7b897199d8f7e5e95a7ec95eb99157ad19d2ca2a41dc4f"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_arete_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "7872d17eac636737b10aeb34d014f437f09f44af2676b1e6d11709c716b08d0f"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_nomos_entry.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "2c0701976a603ecc92a23262dc1711746795a2e9951bcbb6a4c1ce60c857d4c3"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_nomos_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "b5391a15029fe6bea824643caf8e194cd7191a6d094b5c97931e0f3915966b65"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_nomos_partner_home.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "34e8b713153407919aba7282d1e198202f7aee4cb73531f1735b6a516b940064"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_techne_entry.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "98031b0810d04d9686ac1cd95b2656ebb49410f85f7d7af0ebffb6a5db03a37c"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_techne_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "ff250f62f428eac22a7c5d810bac440cc4e097f7e36e4e883152a9d12e277c2f"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/university_techne_partner_home.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "2b725f850e1a2f4814af7034ab496797e28d57773dd674c5915728aaa5464215"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/world_locked.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "dbcb01d93b9c134a0aba2c019f138f3f861b23cad3bbf1c0a01a2dd0c3947321"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/regions/world_unlocked.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "acec9a1588d02ca3a0de61d05af93632874e411ba23b210a7ca6d1ac6195f2b0"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/agora_hover.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "ba26d384367a7a52722c7c3fdd7d9f8079b20f879b0545b725c12056f672d5ea"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/agora_long_date.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "fef5331d34678c85e6741fedcd90929774e41e584d2894c66bf60b43b8df7dd3"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/agora_normal.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "2cda946820b6d117304c3545aefb2f5c65b6b7cee3c911766872239562cdba55"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/agora_pressed.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "8da733ff8ce686f2a33512e3c94cd34fb07589314ebc3b870a26de735f6c2233"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/agora_selected_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "ea809c965505e98e9ad1ced53a30e32915841df533752dfc2847db9be92c656b"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/agora_selected_partner_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "0f47d3289d5648d3030cd1a162eac0d492640f5ed0b7af80842e4b8b865e7b7f"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/agora_selected_records.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "1d855f367ce3c4131b7a64902f996ee7a35d8842cca5affc4f1d395a908d3e48"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/agora_selected_workshop.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "b68da8d65f681c7b87b456e0819c7e832fb043552f3a9a4a1a4a9e7b24d60ea3"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/nomos_hover.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "4cecd7c4fecf606332e627d9a9ffe82d27d01de7e7a22b07b6e8d51481463437"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/nomos_long_date.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "ae570af9d68abbb16581e83e38599a8b31fef9561001753a9004f94b88362029"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/nomos_normal.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "2c0701976a603ecc92a23262dc1711746795a2e9951bcbb6a4c1ce60c857d4c3"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/nomos_pressed.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "b8d5eb60dbdca2880a27f73279eade7851f83b0e64fb9d9cffa724fe86e9ec2e"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/nomos_selected_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "7fb952fbadd5c251bd11f1ded6e1ed06446b35cf5bc0ce62fa35050f5bf79cf7"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/nomos_selected_partner_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "e6825a5f964577bfe235c2810e0b06334a68193bce8ec513d187849a567cea95"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/nomos_selected_records.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "c89e8c3854c3493853c80e08c08161b1536ea1e250ae6a8a6461ebbc4100b41e"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/nomos_selected_workshop.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "e2bdc9a1dfa954dba329c01f01ec4ebf4ccd97f4b89302ce839c4cda828f359a"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/techne_hover.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "44febbc8cd7449f5674c3467fc095656a3162724800ca1e5a4fa96c616ee15a2"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/techne_long_date.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "fbbdc437215a5994ca78711db5e5156a07f485e97082b3af831c5139a19d9cae"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/techne_normal.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "500f42abd80f75aee5a46f2525155b975926cbe073a819e0535929d9c3a9e63b"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/techne_pressed.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "7567a5b06342a613a4d103799b22e810aec4b435d6d3179655d5c7e95033aa27"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/techne_selected_map.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "76d0e9c85a9d23695ced43d2fff27e84401d2682707d54c0e4e0a30bf5b84db3"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/techne_selected_partner_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "99a4c8d1168134bbf00cfc0bfff6b36297ace83d0a354cbb66f364f0e0a7330e"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/techne_selected_records.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "ef3b7fdc227636c09d4e4a53d132608c351e588d457c2b85311e1c9adba11d32"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/final1600/captures/home/techne_selected_workshop.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "726e468706a9576d02b75ba58b7b36fc4f6d9935d07fc576069989a1e40e0969"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/arrival_region_failed_alliance.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "18564adef9b132550476627b27812b59354f434da2a32e069d48028fca711d7a"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/arrival_region_iga_church.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "c8f6cace2fd72bccc17b0097ad41a5b982ba27babfae48c5e25ab79620bdd6a3"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/arrival_university_arete.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "84013500911c6a55ba1d48dd1fe8badd8b5a0cde566a8407fb8ffa83bdcf286b"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/dialogue_library.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "5f0c219ecc75e56bc01477cbfa9a0066112600868c4f104612e410738776eae0"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/dialogue_rooftop.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "dc4275498ff6357286f1359aaa9d7c2d3de59910a67cbe5d6a40aee3ee6f9795"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/dialogue_shop.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "ae2557b9d53c70efdef703bc3057846a41e45851a6a7f7181d131cd39a861277"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/gym_training.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "71e6ad0113eaa7bc4bcc19ca2fed234e31bd886fe6a4b6cdb9ca8a5ead5cc61c"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/gym_workshop.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "25b3f3b13b2b59b99251e2cb161d857a39fc2f5d210f1d50a330a662ca440f8b"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/home_agora.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "d03521482214bfe0e0dbfa1a3545a8bf7b05abaf859bb56120747918bfdfcfa5"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/home_nomos.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "0587b9a9639118fba5e2d3d302ad61dc06ccf6ed1ef49db5215352901ec93ae6"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/home_techne.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "a934bfa1e60edb1fac260f1b38a91d7328ba00307ab25ea41a3ff9848b5deba0"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/map_region_failed_alliance.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "552cef99c2e633645925b8c7806bdf6c07e50a28ff7605128263032c18a57b0e"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/map_region_iga_church.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "5df2c06653b68d9ebe3dc2c9300836a94207d1cd5c7f779ea00d0ad83450d446"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/map_resistance.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "0c72b5330678bb6d1ed94012ee0f01b1437596e7ca81af7f2952c4f78f04c719"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/map_sanctuary.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "abde1abfa0fd57209b4ed4af227a095a25c3f1863a03996076ea7f530e0937b7"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/map_university_agora.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "3aad3b75a9af8a265dc81001b1b13af616623849459869b35676f6cd432cacf4"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/map_university_nomos.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "b5391a15029fe6bea824643caf8e194cd7191a6d094b5c97931e0f3915966b65"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/map_university_techne.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "324f34e5969fcf678d94046896f64a6ab2607adcf7e9827cdf6d24cc83ab959d"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/place_gym.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "1c24ee094e59135258b1b3f813e74c448eccc47ebcac002747d0a47ca5abaa01"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/place_library.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "ad67aaddaf38e237363b591b54e651c7ff6321d4d7c18e183c59963b67f49716"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/place_rooftop.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "33795dc7454d9dad739bf83caca217e4d33928bb8d705cfb08c612be24297370"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/place_shop.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "7899b89baff02cb9a13d2f475c9d862d0b1399f4ac6d00f282fdca3850542969"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_alliance_drill.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "b09baeb5010c5b3713c906574fd5f0a66627782816d7d089510d13ec8e1b9a41"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_alliance_hq.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "030aa08f4c6e711ee08f59da8144e786e6b6a4aed49fb0a97391c52b0da43efd"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_alliance_intel.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "c21b3a733362ad5d2fa1dd4cc7b55dfe65264a233b4b70bbc7daea2b6f50c4c9"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_alliance_quarters.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "12360ce2bfb52dbdac423d22743fba84b8e3d582fd7c19655b27454a3c185642"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_alliance_supply.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "4ed046db5f51cd8e357a5e0d82a274138b1f0c66c9941663a82d130e8c8c060f"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_arete_beach_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "d2a5b305df723bfa9b57802d49e57a0614227eca01f2240f9e84994ba7893692"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_arete_coast_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "414f13688b75e55da217349e50ac679d3c9f354f532cff3d3c1f189a1b45ae5d"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_region_failed_alliance_dungeon_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "67332edb6a462653b7fdaf19b0b692736187fb1bd255a5d3eb3ad9cc633d50c7"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_region_failed_alliance_feature_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "286b6a765294e4a7585a2a5cc889da19af7e36b3dcb974c95c61a387ece1364c"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_region_failed_alliance_gateway_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "54cf108d8ed748e8dc928038ef0dc05184fd03fcc515d27d96db25c28571f98f"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_region_failed_alliance_shop_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "abbfee2b9797577b9eb8a1d1163dbf49ab2909c0f444c12c1c63e3bc9c563bd0"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_region_iga_church_dungeon_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "15dc222a3003739ceda1616be5bc3ec02c5715509cebee501fadf35d3e80fc0a"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_region_iga_church_feature_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "4d9325be62fdc644a38cd9fb5f094c2f97917eb313d3e35c62f234fd16e4f401"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_region_iga_church_gateway_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "63babeadeadb446c9aa1fe1395e70a3c6a30ca5e22e8be8e000918d9890936cf"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_region_iga_church_shop_test.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "90b863470f69171a6cb6dcb03d3517384da3452e85813be1d8a05dfbe41652d8"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_sanctuary_archive.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "912607c7dc1f3c82c75edc77ad123d5e4635febad41a4d0c2611dde885232c6e"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_sanctuary_cathedral.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "fb865e4ee8b6b22232b2c8aa0376af2bf4b6f38e44ee038f766d3a7ab1471b16"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_sanctuary_garden.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "30bb9a8393a42e09870d521c7ebe8489e5d3c45b96f0ae61bc22063d406d5762"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_sanctuary_hall.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "e4d76962cc42546bba5e6fad569acdeede82cfc0591605bf0453b3e998b04c87"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_sanctuary_lodging.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "6f2f529c427801794dfe14dfea7cf097680965f30e5ff153f8cf9176994db4d3"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_stockroom.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "c6e8f646a3c7f5f3953a54bdb92ca71c83bd9d0ca4a4802ce9e6d5d167a540b9"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/scene_study.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "318967b1417864da7d336e88b29c2a006efc35bfd2f6ea4016530caadc7edb30"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/world_locked.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "e298f73ec05d9a1bcfd7e4057f610d348cc4ffb2f815188c896247e86e8b78ca"
+    },
+    {
+      "run": "1600x900",
+      "local_file": ".godot/scene-reset-2026-10-25/polish1600/captures/scenes/world_open.png",
+      "pixels": [
+        1600,
+        900
+      ],
+      "sha256": "351580a081239ca61b9cb7231664b10a37faef0f1b7c8adce58d8d07544fa940"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/agora_hover.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "8afa44fd1375066abc790c85b5541ac289eb9dbfe70b6c5a6e974ee454939961"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/agora_long_date.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "002f0ef6c926ecf1e7d9a2de7448f5e258774e3431a65fdd74f3a890a0fb1cae"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/agora_normal.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "422c665c77308e6ff15cfc9757cda444b00f875aa7b9eb8047b3d877893a0900"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/agora_pressed.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "6c7bb9f63fac6942bc19b8ef34cee010219547c8e196889aee17fc405a337922"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/agora_selected_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "d1a79ecec7ee89bff2a777cd6581adb218e84f5f455613e7cb146e0bc4dede00"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/agora_selected_partner_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "18d33a74f20fd67ba58f9ab928f87245f859fe6c358de14d98c630982c5c6ab4"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/agora_selected_records.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "fd9b58d7d5d571bebfa279b0cc0a7370f7e786af37184a534519f1256e856b22"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/agora_selected_workshop.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "1d9fc1e47dc3a6f5d72aa2b41c2118bc7ff2c17afeb8148dfabcc1e5dd634e80"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/nomos_hover.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "4c364895d48f33083267b8e39ad1a0844520db86ee564f1322e2b16518661db0"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/nomos_long_date.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "e20703afec1314f507423e502d50ed10fb1bc2997cd0a39a70d38f5f21757b7f"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/nomos_normal.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "acf32b87cab5515cdcbe6e0e0238a896e8392d1632b640cf33b7be9ec26f376d"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/nomos_pressed.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "101abda884a478de61bb57ee506cfcc3f389a051dfa0998fe18f97e387278ffc"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/nomos_selected_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "7422776e2d4b1e67b0de3bdddd206fb1e02c3b52bb8358658d2da2771a9e578f"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/nomos_selected_partner_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "4c56643325fce9bf452db2c3d1c87f4b14affa58290d3ba8b11c8ad88c6dde92"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/nomos_selected_records.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "d924783dc9118e8a01e5b262d2f4af556d2facb953273a99532d68d19da13f7a"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/nomos_selected_workshop.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "0bb1673fe9a101ddb5ee473cca8c86e71870bde68ac2ed72035be6013288e051"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/techne_hover.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "72cf6011e06e886ced5913511c5a401e60c792a76cce27d55e1b38c9c8d6ff67"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/techne_long_date.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "03c1e4634ef30b20bf463550349a67014a0bbaf715f120bfd98ecad9a3fa5301"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/techne_normal.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "c375734ad6beb590a5b9aead0f7ab46fa7b8588de1e01943ab49ae4abca1f943"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/techne_pressed.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "f5bb811da4acbb73ef30c4b41b69ceac37be34fb37930dafb2522b44c9214ff3"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/techne_selected_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "f17c6c57bfe356ef4a82957f5187cdc3921fce53ee7dfdb60f686e2f2b10c861"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/techne_selected_partner_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "dd1423e6edea925ab1df5b5a66232451d6651859efb19d169ae7021c60694c8c"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/techne_selected_records.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "a7d0f44e9e9a12b01ebc913619993ae3a9a5777edeaafb2ee7e935812a97cf54"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/home/techne_selected_workshop.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "0729af4416a59bb7c25fc3b1cbfe917d468aa506bde9ef13ff8b838832f46024"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/arete_original_home.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "9f71cd86f1c0bd770508ae408272d586a3f1c3325ba91802220c408a31e5a95b"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/legacy_resistance_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "8e73b492c9dcd55dea858fd3ce9ad8d7d820509fff90a9d13818f32e88e0881c"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/legacy_sanctuary_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "8bc64114381102b01eb12c22451213f7f63a6f1c93875c0128c1d8886cb11a13"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/region_failed_alliance_entry.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "f2b00cb14e211296aadd56b22e2f9ca664b472591facb099d74999d231e00ce1"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/region_failed_alliance_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "b228ca2ccb87587c41854726fe683cba09e65fac017ed2dc2af53576f0bd9906"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/region_iga_church_entry.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "1a6c6f691fd020011eca090d4b99e03a81c04f38f904563979cdc1b90cb6688f"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/region_iga_church_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "d66174434296f2533fc29448cc9b63a46d39bb9e62cec076f5e0ca2c0420beb8"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_agora_entry.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "422c665c77308e6ff15cfc9757cda444b00f875aa7b9eb8047b3d877893a0900"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_agora_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "006bca0789ea900e5cb3133f706c3fe64103eb5e9fbaac1379dab39e53386bd1"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_agora_partner_home.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "6cd0deedd8b53e1c75b98903fca5c583ea5aaaeeafdc3d3807dabead4a7f4507"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_arete_entry.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "9f71cd86f1c0bd770508ae408272d586a3f1c3325ba91802220c408a31e5a95b"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_arete_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "46bf5698b55f14edaa947393b1ef58beeef788ab7495984db1bbbb0bdf16cfac"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_nomos_entry.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "acf32b87cab5515cdcbe6e0e0238a896e8392d1632b640cf33b7be9ec26f376d"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_nomos_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "9adaeeb73b9405b9d44aaecb255b159c9353d98dd167e776eb44626961e0e634"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_nomos_partner_home.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "251eaed9aea216952f390e125829f53670aab8d279fde7b54e2ba313e5669390"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_techne_entry.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "314c0a2745cb0f486dc27bf7ea96f9714d6b648ade29490c078d6777ee4a3fa1"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_techne_map.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "0ea98e4643c8c04499ebbe3b2ecf4c039c0529cc9076c2fb2b1e79839e8f9eca"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/university_techne_partner_home.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "2cc32dab9161898fd856956ffe2fc37f5769d9f672da47532af19da0ec859dd2"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/world_locked.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "7a5bb77c333e81cd9a3059e8b48591311cc9bf3669868177d461a08496ee3380"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/regions/world_unlocked.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "3dae2a934a2233d8752752b28757f142a43b416ee063f0f1120212e48773cdc9"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/arrival_region_failed_alliance.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "4f42af57ebf548de8df136bc0039d6f782482d3f4055a9719844ae362c5545f6"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/arrival_region_iga_church.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "a0e98c18642ca6f54a088569004c8b2e0137594ae011b68e617d04667ccc0651"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/arrival_university_arete.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "72ff5773cde32061953eb3b50bd1dbef8adf8c915216de1922174bd6489440a9"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/dialogue_library.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "a83fecc8b75466d7540a84f50383fd496e4d8b58f55ade2b6766fd2f079059e9"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/dialogue_rooftop.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "0c2edd53654cfa737ac5dffa957c08595a28c2b3a8196ebedc4b5d826ad7714c"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/dialogue_shop.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "b4ead9a41e0163702334e0214ff47c00776bbfe2fcf26b7742e73eb1042e8ac4"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/gym_training.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "95e4f9dc7205810aadf4ba7557fcf7b7fa1054bb1c1b7e386262d3f0400950a8"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/gym_workshop.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "96938ae1f901e9b4ea79431a63a695126ffea95cd510c3840be6efbfc438f0ca"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/home_agora.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "c542b38d02da0e89d2440428cb99a50dc662188fdbc836567bdcbd447bca341b"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/home_nomos.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "4486cb725f01f6e99782b67d4f82d87252dde241766e879efa83d20cff8b8371"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/home_techne.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "2d130c52b8f30b81aa453978bfcdf1cb5b9ea20b867b66b04ea7b939568739b2"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/map_region_failed_alliance.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "b228ca2ccb87587c41854726fe683cba09e65fac017ed2dc2af53576f0bd9906"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/map_region_iga_church.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "d66174434296f2533fc29448cc9b63a46d39bb9e62cec076f5e0ca2c0420beb8"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/map_resistance.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "8e73b492c9dcd55dea858fd3ce9ad8d7d820509fff90a9d13818f32e88e0881c"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/map_sanctuary.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "8bc64114381102b01eb12c22451213f7f63a6f1c93875c0128c1d8886cb11a13"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/map_university_agora.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "006bca0789ea900e5cb3133f706c3fe64103eb5e9fbaac1379dab39e53386bd1"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/map_university_nomos.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "9adaeeb73b9405b9d44aaecb255b159c9353d98dd167e776eb44626961e0e634"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/map_university_techne.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "0ea98e4643c8c04499ebbe3b2ecf4c039c0529cc9076c2fb2b1e79839e8f9eca"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/place_gym.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "37b05f5780824b82c80f7f15afc5ecb42b753c0cd739221ea348efe4cd8dd0d7"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/place_library.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "48c0326fbed7f8cd8b5b78164e47348a2eef919e10c90f9e9c8a433c3fdbda7c"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/place_rooftop.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "c66bc694d2d8e1daa5520dc6f8fe11cfbb8150f6b90d75f8f3cd6513c3dea8b5"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/place_shop.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "db3849aa830eff0baec56924bcab1b660b0b29935f2aaec47aac734c7d34f945"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_alliance_drill.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "10a04249aaee26a7a80d7356f5aad9e192ed4f98a2e0f49a74e8ea980026b5c9"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_alliance_hq.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "0aa11c06def88a689316b5eb07a8727a59ce9e2cc0808722873a4f3580b14758"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_alliance_intel.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "f3cb9e0cd69a4ef2311f404be20d2a41e5439f6c99ba93085201f4e1bdbdafef"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_alliance_quarters.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "2a7df2a087a1cac663fa128ce6aa34c6c959df47154bee8d314b72aa889f235e"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_alliance_supply.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "ad9a7942765db37cff5abf00b6866c49ace7ca8f6a75b645caaf376761d7354c"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_arete_beach_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "ac19549e18b8b27303b0ffaaf2e6fd797d773720e8e49f5a0287fe968c7e6f19"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_arete_coast_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "b588b3d02a00c3e17ea2a34b3e59dfeb0c9a9b1f3c25192341fd48ce8e377d7a"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_region_failed_alliance_dungeon_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "60b7b74fd12834e29a6d38e84f653d95e64d1be272b71ec059e8b8ec6e2190a0"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_region_failed_alliance_feature_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "c77657976357985986782d5545b28512fa5b2bbfb1eb2803f82d1deb32ad78e0"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_region_failed_alliance_gateway_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "f2b00cb14e211296aadd56b22e2f9ca664b472591facb099d74999d231e00ce1"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_region_failed_alliance_shop_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "6dc0839963f9d4150ced8060ea11417bd63689ee98a42b41d8bf283bbd0aba31"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_region_iga_church_dungeon_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "89586059ce0f57ed938de2dfdb3f7a51eb4713dc59a56b9c0da30bbc5f0d9a2a"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_region_iga_church_feature_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "d41801d20e7c336e272d08cc78a2b47cd3c46f22f1f912feb6c201cde93047d5"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_region_iga_church_gateway_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "1a6c6f691fd020011eca090d4b99e03a81c04f38f904563979cdc1b90cb6688f"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_region_iga_church_shop_test.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "c4e3104636d05da6b4caccafb2764c4313c239d2345958e2a816ab1f1cb618dd"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_sanctuary_archive.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "ebafa1e021bafeab26996086ff307856b1c69003d60b0322b874cac8c11d613c"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_sanctuary_cathedral.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "7a807119145bbd68f40ab818a1021391082b79510444d85e0acd111b6d75b187"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_sanctuary_garden.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "d619736d62b2248f4116d833a72010e66f5f1dc1648fa88c1dee69b64756c9ff"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_sanctuary_hall.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "0f2740caa77509de9e3c713cfc6ca0ca6b8dfd4de72f31906cc1a574e5ac205d"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_sanctuary_lodging.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "f81c69ef86ac2815428953e054a6c2d891e5504b803cef1b98eba41ace8886d3"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_stockroom.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "81b34a2d21a90a53722d03b0d58eb769b89e9802ae9ff6a7bc442654259e2d35"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/scene_study.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "946185f6d163ab94a6a2edfc395bff07feb57b70c71404a49d5905759153a932"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/world_locked.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "b0cbbc433fd07b42f868f390a16e955fb63cc031c2bc8fa69fefc0a91aca79e0"
+    },
+    {
+      "run": "1920x1080",
+      "local_file": ".godot/scene-reset-2026-10-25/exact1920/captures/scenes/world_open.png",
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "6c1453a86bd22a61d0c4eb9caa3d0ef6cf7c45a9639aa4dbb69d3b55c46ae7c6"
+    }
+  ],
+  "final_session": {
+    "fresh_progress_restored": true,
+    "settings_restored": true,
+    "normal_isolated_saves_unchanged": true,
+    "saved_files": 4,
+    "scene": "res://scenes/home/home_screen.tscn",
+    "review_error": null
+  },
+  "shared_page_review": [
+    "records",
+    "system menu",
+    "settings",
+    "training selector",
+    "card workspace",
+    "existing formal dialogue chrome asset"
+  ],
+  "source_hash_policy": "UTF-8 text normalized to LF without BOM; binary art and captures are hashed byte-for-byte."
+}

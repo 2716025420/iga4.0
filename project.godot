@@ -1,0 +1,51 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Inorganic General Alien"
+run/main_scene="res://scenes/title/title_screen.tscn"
+config/features=PackedStringArray("4.7", "Mobile")
+config/icon="res://icon.svg"
+
+[autoload]
+
+GameState="*res://scripts/global/game_state.gd"
+SceneManager="*res://scripts/global/scene_manager.gd"
+AudioManager="*res://scripts/global/audio_manager.gd"
+MCPRuntimeServer="*res://addons/godot_mcp_toolkit/runtime/mcp_runtime_server.gd"
+SaveManager="*uid://dxl7o5h23bsd"
+CampusLife="*uid://bltkg0epwb7lx"
+DayCycle="*uid://cluef6s2gqjms"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1600.0
+window/size/window_height_override=900.0
+window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_mcp_toolkit/plugin.cfg")
+
+[gui]
+
+timers/tooltip_delay_sec=86400.0
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="mobile"

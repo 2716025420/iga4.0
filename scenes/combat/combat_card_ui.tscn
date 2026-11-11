@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://b8d3laj8m4n2p"]
+
+[ext_resource type="Script" uid="uid://1m5pxusp5wf5" path="res://scripts/combat/combat_card_ui.gd" id="1_card_script"]
+
+[node name="CombatCardUI" type="PanelContainer" unique_id=990486022]
+custom_minimum_size = Vector2(190, 160)
+offset_right = 190.0
+offset_bottom = 160.0
+pivot_offset = Vector2(95, 80)
+script = ExtResource("1_card_script")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=1900596442]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="VBox" unique_id=105785983]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="VBox/Header" unique_id=842708644]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "找准空隙"
+
+[node name="TypeBadge" type="Label" parent="VBox/Header" unique_id=251290519]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = " 攻击 "
+
+[node name="DescLabel" type="RichTextLabel" parent="VBox" unique_id=1729543370]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "对单个目标造成 [color=#ff5555]25点[/color] 伤害。"
+
+[node name="Footer" type="HBoxContainer" parent="VBox" unique_id=1606288455]
+layout_mode = 2
+
+[node name="LevelLabel" type="Label" parent="VBox/Footer" unique_id=818882939]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.79, 0.34, 1)
+theme_override_font_sizes/font_size = 11
+text = "等级 1"
+
+[node name="CDHintLabel" type="Label" parent="VBox/Footer" unique_id=721305906]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "基础冷却 0"
+horizontal_alignment = 2
+
+[node name="CDBadge" type="PanelContainer" parent="." unique_id=1018777328]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="CDLabel" type="Label" parent="CDBadge" unique_id=366584390]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "2 回合后可用"
+horizontal_alignment = 1
+vertical_alignment = 1

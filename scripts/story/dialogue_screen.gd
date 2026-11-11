@@ -1,0 +1,400 @@
+class_name DialogueScreen
+extends Control
+
+signal dialogue_completed(dialogue_id: String)
+
+@onready var bg_texture: TextureRect = $Background
+@onready var left_char_sprite: TextureRect = $CharArea/LeftChar
+@onready var right_char_sprite: TextureRect = $CharArea/RightChar
+@onready var nameplate: Label = $DialogueBox/Margin/VBox/Nameplate
+@onready var text_label: RichTextLabel = $DialogueBox/Margin/VBox/TextLabel
+@onready var choices_container: VBoxContainer = $ChoicesArea/ChoicesContainer
+@onready var choices_panel: PanelContainer = $ChoicesArea
+@onready var auto_button: Button = $ControlBar/AutoButton
+@onready var skip_button: Button = $ControlBar/SkipButton
+
+var current_dialogue_id: String = ""
+var current_lines: Array[Dictionary] = []
+var line_index: int = 0
+
+var is_typing: bool = false
+var is_auto: bool = false
+var full_current_text: String = ""
+var tween_typing: Tween
+
+# 角色立绘资源缓存
+var character_sprites: Dictionary = {}
+var _dialogue_finishing: bool = false
+var _line_generation: int = 0
+var pause_button: Button
+var record_button: Button
+var history_panel: Control
+var history_text: RichTextLabel
+var history: Array[Dictionary] = []
+var _history_keys: Dictionary = {}
+var _archive_mode := false
+var _exploration_mode := false
+var _calendar_mode := false
+var story_presentation: SchoolDialoguePresentation
+
+func _ready() -> void:
+	theme = DaylightUI.get_theme()
+	choices_panel.visible = false
+	auto_button.toggled.connect(_on_auto_toggled)
+	skip_button.pressed.connect(_on_skip_pressed)
+	pause_button = Button.new()
+	pause_button.name = "PauseButton"
+	pause_button.pressed.connect(_on_pause_pressed)
+	add_child(pause_button)
+	_build_history()
+	story_presentation = SchoolDialoguePresentation.new()
+	add_child(story_presentation)
+	story_presentation.build(self)
+	resized.connect(_layout_story_scene)
+	var d_id := GameState.pending_dialogue_id
+	load_dialogue(d_id if d_id != "" else "campus_morning")
+
+func _layout_story_scene() -> void:
+	if is_instance_valid(story_presentation): story_presentation.update_scene()
+
+func load_dialogue(dialogue_id: String) -> void:
+	_line_generation += 1
+	if tween_typing and tween_typing.is_valid(): tween_typing.kill()
+	_dialogue_finishing = false
+	_archive_mode = GameState.archive_dialogue_id != ""
+	if _archive_mode: dialogue_id = GameState.archive_dialogue_id
+	pause_button.text = "回到记录" if _archive_mode else "暂离"
+	_exploration_mode = not _archive_mode and GameState.exploration_active and SchoolExplorationFlow.enabled() and GameState.exploration_state.get("stage", "") == "dialogue"
+	_calendar_mode = not _archive_mode and not _exploration_mode and DayCycle.is_event_dialogue(dialogue_id)
+	current_dialogue_id = dialogue_id
+	left_char_sprite.visible = false
+	right_char_sprite.visible = false
+	line_index = 0
+	if _exploration_mode:
+		var node := GameState.get_exploration_node(str(GameState.exploration_state.get("current_node_id", "")))
+		current_dialogue_id = "exploration:" + str(node.get("id", ""))
+		current_lines = SchoolExplorationRoutes.dialogue_lines(node)
+		line_index = clampi(int(GameState.exploration_state.get("dialogue_line", 0)), 0, current_lines.size())
+	else:
+		current_lines = _get_script_lines(dialogue_id)
+		var node_id: String = PhaseTwoContent.node_for_dialogue(dialogue_id)
+		if not _archive_mode and node_id != "" and GameState.phase_two_checkpoint.get("node_id", "") == node_id and GameState.phase_two_checkpoint.get("stage", "") == "dialogue":
+			line_index = clampi(int(GameState.phase_two_checkpoint.get("line_index", 0)), 0, maxi(0, current_lines.size()-1))
+	if _calendar_mode:
+		line_index = clampi(int(DayCycle.pending_event().get("line_index",0)),0,maxi(0,current_lines.size()-1))
+		pause_button.text = "保存并暂离"
+	auto_button.set_pressed_no_signal(is_auto)
+	SchoolObjectUI.set_selected(auto_button,is_auto)
+	choices_panel.visible = false
+	if is_instance_valid(history_panel): history_panel.visible = false
+	_show_next_line()
+	DaylightUI.layout(self)
+
+func _get_script_lines(d_id: String) -> Array[Dictionary]:
+	return PhaseTwoContent.lines_for(d_id)
+
+func _show_next_line() -> void:
+	if _dialogue_finishing:
+		return
+	if line_index >= current_lines.size():
+		_finish_dialogue()
+		return
+	_checkpoint_line()
+	_line_generation += 1
+	var generation := _line_generation
+	var data := current_lines[line_index]
+	nameplate.text = " " + data.get("speaker", "旁白") + " "
+	_refresh_speaker_avatar(data)
+	var sprite_path := PhaseTwoContent.dialogue_character_path(data.get("char", "ye_zhou"), _speaker_emotion(data))
+	var speaking_sprite: TextureRect = left_char_sprite if data.get("side", "left") == "left" else right_char_sprite
+	var other_sprite: TextureRect = right_char_sprite if speaking_sprite == left_char_sprite else left_char_sprite
+	speaking_sprite.visible = sprite_path != ""
+	if sprite_path != "":
+		speaking_sprite.texture = load(sprite_path)
+		speaking_sprite.modulate = Color.WHITE
+	other_sprite.modulate = Color(0.76, 0.74, 0.78)
+	full_current_text = data.get("text", "")
+	text_label.text = full_current_text
+	text_label.visible_characters = 0
+	is_typing = true
+	if tween_typing and tween_typing.is_valid():
+		tween_typing.kill()
+	tween_typing = create_tween()
+	tween_typing.tween_property(text_label, "visible_characters", full_current_text.length(), full_current_text.length() * SaveManager.typing_interval())
+	await tween_typing.finished
+	if generation == _line_generation and not _dialogue_finishing:
+		_reveal_current_line()
+
+func _refresh_speaker_avatar(data: Dictionary) -> void:
+	var portrait := nameplate.get_node_or_null("SpeakerPortrait") as TextureRect
+	if not portrait:
+		portrait = TextureRect.new()
+		portrait.name = "SpeakerPortrait"
+		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		portrait.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		nameplate.add_child(portrait)
+		portrait.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		portrait.position = Vector2.ZERO
+		portrait.size = Vector2(88, 88)
+	portrait.position = Vector2(-155, 68)
+	portrait.size = Vector2(136, 170)
+	nameplate.custom_minimum_size.y = 0
+	var speaker_name := str(data.get("speaker", "旁白")).strip_edges()
+	var character_id := str(data.get("char", ""))
+	if not character_id in ["ye_zhou", "jiang_zi", "yang_zi_ying", "liu_yu_long"]:
+		portrait.visible = false
+		portrait.texture = null
+		nameplate.text = speaker_name
+		return
+	var avatar_emotion: String = {"neutral": "neutral", "happy": "happy", "worried": "concerned"}.get(_speaker_emotion(data), "neutral")
+	var path := "res://assets/sprites/characters/phase_two/expressions/%s_%s.png" % [character_id, avatar_emotion]
+	if not ResourceLoader.exists(path):
+		portrait.visible = false
+		portrait.texture = null
+		nameplate.text = speaker_name
+		return
+	portrait.texture = load(path) as Texture2D
+	portrait.visible = portrait.texture != null
+	nameplate.text = speaker_name
+
+func _speaker_emotion(data: Dictionary) -> String:
+	var explicit_emotion := str(data.get("emotion", "")).strip_edges().to_lower()
+	if explicit_emotion != "":
+		if explicit_emotion == "concerned":
+			explicit_emotion = "worried"
+		return explicit_emotion if explicit_emotion in ["neutral", "happy", "shy", "surprised", "angry", "worried"] else "neutral"
+	var copy := str(data.get("text", "")).to_lower()
+	for keyword in ["danger", "命令", "受伤", "危险", "异常", "停下", "权限"]:
+		if copy.contains(keyword):
+			return "worried"
+	for keyword in ["笑", "早！", "谢谢", "面包", "借口", "汽水"]:
+		if copy.contains(keyword):
+			return "happy"
+	return "neutral"
+
+func _reveal_current_line() -> void:
+	if _dialogue_finishing or line_index >= current_lines.size():
+		return
+	is_typing = false
+	_remember_line(line_index)
+	text_label.visible_characters = -1
+	var data := current_lines[line_index]
+	if data.has("choices") and not data["choices"].is_empty():
+		_show_choices(data["choices"])
+	elif is_auto:
+		var generation := _line_generation
+		await get_tree().create_timer(1.2).timeout
+		if generation == _line_generation and is_auto and not is_typing and not choices_panel.visible and not _dialogue_finishing:
+			line_index += 1
+			_show_next_line()
+
+func _show_choices(choices: Array) -> void:
+	for c in choices_container.get_children():
+		choices_container.remove_child(c)
+		c.queue_free()
+	
+	choices_panel.visible = true
+	for item in choices:
+		var btn = Button.new()
+		btn.text = " ▶  " + item.get("text", "")
+		btn.custom_minimum_size = Vector2(0, 78)
+		btn.add_theme_font_size_override("font_size", 28)
+		var color := Color("#D89A88") if choices_container.get_child_count() % 2 == 0 else Color("#A79AC2")
+		for state in ["normal", "hover", "pressed", "focus"]:
+			var style := StyleBoxFlat.new()
+			style.bg_color = color.lightened(0.12) if state in ["hover", "focus"] else color
+			style.border_color = Color("#FFF2DF")
+			style.set_border_width_all(1)
+			style.set_content_margin_all(15)
+			btn.add_theme_stylebox_override(state, style)
+		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]: btn.add_theme_color_override(state, Color("#FFF8ED"))
+		btn.pressed.connect(func(): _on_choice_selected(item))
+		choices_container.add_child(btn)
+	if choices_container.get_child_count() > 0: choices_container.get_child(0).grab_focus.call_deferred()
+
+func _on_choice_selected(item: Dictionary) -> void:
+	if not choices_panel.visible or _dialogue_finishing:
+		return
+	choices_panel.visible = false
+	history.append({"speaker": "选择", "text": str(item.get("text", ""))})
+	if not _archive_mode and not _exploration_mode and item.has("favor_char") and item.has("favor_add"):
+		GameState.add_companion_favor(item["favor_char"], item["favor_add"])
+	
+	line_index += 1
+	_show_next_line()
+
+func _finish_dialogue() -> void:
+	if _dialogue_finishing or SceneManager.is_transitioning:
+		return
+	_dialogue_finishing = true
+	_line_generation += 1
+	if tween_typing and tween_typing.is_valid():
+		tween_typing.kill()
+	if _archive_mode:
+		_return_from_memory()
+		return
+	if _calendar_mode:
+		DayCycle.complete_event()
+		return
+	if _exploration_mode:
+		SchoolExplorationFlow.checkpoint_dialogue(current_lines.size())
+		if GameState.complete_exploration_node(str(GameState.exploration_state.get("current_node_id", ""))):
+			dialogue_completed.emit(current_dialogue_id)
+			SceneManager.change_scene(SceneManager.TargetScene.EXPLORATION)
+		else:
+			_dialogue_finishing = false
+		return
+	GameState.pending_dialogue_id = ""
+	dialogue_completed.emit(current_dialogue_id)
+	match current_dialogue_id:
+		"school_gate":
+			GameState.companions["liu_yu_long"]["unlocked"] = true
+			GameState.set_story_flag("school_gate_done", true)
+			GameState.advance_story_time( 8, 5)
+		"school_affairs":
+			GameState.companions["jiang_zi"]["unlocked"] = true
+			GameState.set_story_flag("school_affairs_done", true)
+			GameState.advance_story_time( 10, 20)
+		"after_school": GameState.advance_story_time( 17, 25)
+		"yang_rescue":
+			GameState.set_story_flag("yang_rescued_player", true)
+			GameState.advance_story_time( 17, 40)
+		"campus_morning", "chapter_1_intro", "prologue_intro":
+			GameState.set_story_flag("prologue_completed", true)
+			GameState.advance_story_time( 8, 0)
+	if current_dialogue_id.begins_with("chat_"):
+		SceneManager.change_scene(SceneManager.TargetScene.HOME)
+	elif current_dialogue_id in ["principal_confrontation", "chapter_1_pre_boss"]:
+		GameState.set_story_flag("principal_briefing_done",true)
+		GameState.phase_two_checkpoint = {"node_id":"n5_boss","stage":"combat"}
+		GameState.advance_story_time(17,55)
+		GameState._open_phase_two_node("n5_boss")
+	else:
+		var node_id: String = PhaseTwoContent.node_for_dialogue(current_dialogue_id)
+		if not GameState.complete_phase_two_step(node_id):
+			SceneManager.change_scene(SceneManager.TargetScene.HOME)
+
+func _on_pause_pressed() -> void:
+	if _dialogue_finishing or SceneManager.is_transitioning:
+		return
+	if _archive_mode:
+		_dialogue_finishing = true
+		_line_generation += 1
+		if tween_typing and tween_typing.is_valid(): tween_typing.kill()
+		_return_from_memory()
+		return
+	_checkpoint_line()
+	if _calendar_mode:
+		SaveManager.save_game()
+		SceneManager.change_scene(SceneManager.TargetScene.TITLE)
+		return
+	_dialogue_finishing = true
+	_line_generation += 1
+	if tween_typing and tween_typing.is_valid(): tween_typing.kill()
+	if _exploration_mode: GameState.pause_exploration()
+	else: GameState.pause_phase_two_chapter()
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		_advance()
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not event is InputEventKey or not event.pressed or event.echo: return
+	if event.keycode == KEY_ESCAPE:
+		if is_instance_valid(history_panel) and history_panel.visible: history_panel.hide()
+		else: _on_pause_pressed()
+		get_viewport().set_input_as_handled()
+	elif event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE] and not choices_panel.visible:
+		_advance()
+		get_viewport().set_input_as_handled()
+
+func _advance() -> void:
+	if _dialogue_finishing or SceneManager.is_transitioning or choices_panel.visible or (is_instance_valid(history_panel) and history_panel.visible): return
+	if is_typing:
+		if tween_typing and tween_typing.is_valid(): tween_typing.kill()
+		_reveal_current_line()
+	else:
+		line_index += 1
+		_show_next_line()
+
+func _on_auto_toggled(toggled_on: bool) -> void:
+	SchoolObjectUI.set_selected(auto_button,toggled_on)
+	if _dialogue_finishing or SceneManager.is_transitioning:
+		return
+	is_auto = toggled_on
+	if is_auto and not is_typing and not choices_panel.visible:
+		line_index += 1
+		_show_next_line()
+
+func _on_skip_pressed() -> void:
+	if _dialogue_finishing or SceneManager.is_transitioning or (is_instance_valid(history_panel) and history_panel.visible): return
+	if choices_panel.visible: return
+	if tween_typing and tween_typing.is_valid(): tween_typing.kill()
+	_line_generation += 1
+	while line_index < current_lines.size():
+		_remember_line(line_index)
+		if not current_lines[line_index].get("choices", []).is_empty():
+			_show_next_line()
+			if tween_typing and tween_typing.is_valid(): tween_typing.kill()
+			_reveal_current_line()
+			return
+		line_index += 1
+	_finish_dialogue()
+
+func _return_from_memory() -> void:
+	GameState.archive_dialogue_id = ""
+	GameState.archive_return_tab = "journey"
+	CampusLife.restore_saved_location()
+
+func _checkpoint_line() -> void:
+	if _archive_mode: return
+	if _calendar_mode: DayCycle.checkpoint_event(line_index)
+	elif _exploration_mode: SchoolExplorationFlow.checkpoint_dialogue(line_index)
+	else: GameState.checkpoint_phase_two_dialogue(current_dialogue_id, line_index)
+
+func _remember_line(index: int) -> void:
+	if index < 0 or index >= current_lines.size(): return
+	var key := current_dialogue_id + ":" + str(index)
+	if _history_keys.has(key): return
+	_history_keys[key] = true
+	history.append({"speaker": str(current_lines[index].get("speaker", "旁白")), "text": str(current_lines[index].get("text", ""))})
+
+func _build_history() -> void:
+	record_button = Button.new()
+	record_button.name = "RecordButton"
+	record_button.text = "记录"
+	$ControlBar.add_child(record_button)
+	record_button.pressed.connect(_open_history)
+	history_panel = Control.new()
+	history_panel.name = "HistoryPanel"
+	history_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	history_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(history_panel)
+	SchoolPaperSurface.create(history_panel, "HistoryBacking", Rect2(230, 145, 1460, 790), Color("#F5F1EC"))
+	SchoolObjectUI.text(history_panel, "Title", "对话记录", Rect2(295, 177, 800, 70), 44)
+	history_text = RichTextLabel.new()
+	history_text.name = "HistoryText"
+	history_text.bbcode_enabled = false
+	history_text.add_theme_color_override("default_color", SchoolObjectUI.INK)
+	history_text.add_theme_font_size_override("normal_font_size", 30)
+	history_text.add_theme_constant_override("line_separation", 14)
+	history_panel.add_child(history_text)
+	DaylightUI.place(history_text, 295, 280, 1310, 560)
+	var close := SchoolObjectUI.hit(history_panel, "CloseHistory", Rect2(1540, 177, 70, 65), "×", 38)
+	SchoolObjectUI.style_close_button(close)
+	close.pressed.connect(func(): history_panel.hide(); record_button.grab_focus())
+	history_panel.hide()
+
+func _open_history() -> void:
+	if _dialogue_finishing or SceneManager.is_transitioning: return
+	is_auto = false
+	auto_button.set_pressed_no_signal(false)
+	SchoolObjectUI.set_selected(auto_button,false)
+	var rows: PackedStringArray = []
+	for entry in history: rows.append(str(entry["speaker"]) + "\n" + str(entry["text"]))
+	history_text.text = "\n\n".join(rows) if not rows.is_empty() else "继续阅读后，这里会留下对话。"
+	history_panel.show()
+	history_panel.move_to_front()
+	history_panel.get_node("CloseHistory").grab_focus()

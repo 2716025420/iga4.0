@@ -1,0 +1,54 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Multi-device & MCP config ignores
+.mcp.json
+.agents/mcp_config.json
+.agents/**/mcp_config.json
+
+# Local exports and builds
+export_presets.cfg
+build/
+
+# Test preview screenshots
+*_preview.png
+*_preview.png.import
+
+# Local archives, generated masters and verification captures
+archive/
+docs/**/*.png
+docs/**/*.jpg
+docs/**/*.jpeg
+docs/**/*.webp
+docs/**/*.ogv
+docs/**/*.import
+docs/**/screenshots/
+docs/**/masters/
+docs/**/previews/
+docs/**/rejected/
+docs/**/contact_sheets/
+docs/**/retired_home_layers/
+docs/**/rollback_sources/
+
+# Live local player snapshots and failed review captures
+docs/**/STATE*.json
+docs/**/LIVE_AND_DISK*.json
+docs/**/REAL_FILES*.json
+docs/**/FAILURE*.json
+docs/**/WORKSPACE_FAILURE*.json
+docs/**/FINAL_SESSION.json
+docs/**/capture_before.json
+docs/**/applied_requests/
+docs/**/interaction_motion/
+tools/visual_review/*_regression_cases.mjs
+tools/visual_review/review_home_composition_v3_cases.mjs
+
+# Machine-local agent configuration and credentials
+.agents/
+.codex/
+.env
+.env.*
+node_modules/
+*.log
+*.tmp

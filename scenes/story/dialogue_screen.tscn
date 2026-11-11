@@ -1,0 +1,149 @@
+[gd_scene format=3 uid="uid://baec8021btnew"]
+
+[ext_resource type="Theme" uid="uid://dq375erxl6v0w" path="res://main_theme.tres" id="1_obpyx"]
+[ext_resource type="Script" uid="uid://dt0f5clb3yfb0" path="res://scripts/story/dialogue_screen.gd" id="1_story_script"]
+[ext_resource type="Texture2D" uid="uid://ulo0s8371i6c" path="res://assets/backgrounds/phase_two/morning_road.png" id="3_obpyx"]
+
+[node name="DialogueScreen" type="Control" unique_id=477480036]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_obpyx")
+script = ExtResource("1_story_script")
+
+[node name="Background" type="TextureRect" parent="." unique_id=718627819]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_obpyx")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CharArea" type="Control" parent="." unique_id=411844278]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -160.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LeftChar" type="TextureRect" parent="CharArea" unique_id=447716117]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = -420.0
+offset_right = 380.0
+grow_vertical = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RightChar" type="TextureRect" parent="CharArea" unique_id=288666604]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -420.0
+offset_right = -80.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DialogueBox" type="PanelContainer" parent="." unique_id=1135201994]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = -180.0
+offset_right = -60.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="DialogueBox" unique_id=1310761946]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
+
+[node name="VBox" type="VBoxContainer" parent="DialogueBox/Margin" unique_id=876718310]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Nameplate" type="Label" parent="DialogueBox/Margin/VBox" unique_id=2046098482]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.79, 0.34, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = " 叶舟 "
+
+[node name="TextLabel" type="RichTextLabel" parent="DialogueBox/Margin/VBox" unique_id=789299410]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = "故事马上开始。"
+
+[node name="ChoicesArea" type="PanelContainer" parent="." unique_id=855749641]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -120.0
+offset_right = 280.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ChoicesContainer" type="VBoxContainer" parent="ChoicesArea" unique_id=1436881208]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="ControlBar" type="HBoxContainer" parent="." unique_id=390379104]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -260.0
+offset_top = 20.0
+offset_right = -30.0
+offset_bottom = 55.0
+grow_horizontal = 0
+theme_override_constants/separation = 12
+alignment = 2
+
+[node name="AutoButton" type="Button" parent="ControlBar" unique_id=1840640023]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+toggle_mode = true
+text = "自动"
+
+[node name="SkipButton" type="Button" parent="ControlBar" unique_id=1908352689]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "跳过此段"

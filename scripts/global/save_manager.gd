@@ -1,0 +1,198 @@
+class_name SaveService
+extends Node
+
+signal save_state_changed
+const SAVE_VERSION := 1
+var save_path: String = "user://saves/slot_1.json"
+var settings_path: String = "user://settings.json"
+var active_session: bool = false
+const DEFAULT_SETTINGS := {"master_volume": 0.8, "music_volume": 0.8, "sfx_volume": 0.8, "fullscreen": false, "text_speed": 1, "reduced_motion": false}
+var settings: Dictionary = DEFAULT_SETTINGS.duplicate()
+var last_error: String = ""
+var _pending: bool = false
+var _saving: bool = false
+
+func _ready() -> void:
+	var saved := _read_json(settings_path)
+	settings = _validated_settings(saved)
+	_apply_settings()
+	SceneManager.scene_transition_completed.connect(request_autosave)
+	for signal_name in ["profile_changed", "materials_changed", "deck_changed", "inventory_changed", "exploration_changed", "story_flag_updated", "companion_favor_changed"]:
+		GameState.connect(signal_name, request_autosave)
+
+func request_autosave(_arg1: Variant = null, _arg2: Variant = null) -> void:
+	if not active_session or _pending or _saving: return
+	_pending = true
+	_autosave.call_deferred()
+
+func _autosave() -> void:
+	_pending = false
+	if not active_session or SceneManager.is_transitioning: return
+	save_game()
+
+func _read_json(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path): return {}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null or file.get_length() > 8388608: return {}
+	var data: Variant = JSON.parse_string(file.get_as_text())
+	return data if data is Dictionary else {}
+
+func _valid_save(path: String) -> Dictionary:
+	var data := _read_json(path)
+	var version: Variant = data.get("version", -1)
+	if not GameState._whole_number(version) or int(version) != SAVE_VERSION or not data.get("progress") is Dictionary: return {}
+	return data if GameState.validate_progress(data["progress"]) else {}
+
+func get_save_metadata(path: String = "") -> Dictionary:
+	if path == "": path = save_path
+	var data := _valid_save(path)
+	var backup := false
+	if data.is_empty():
+		data = _valid_save(path + ".bak")
+		backup = not data.is_empty()
+	var progress: Dictionary = data.get("progress", {})
+	return {"available": not data.is_empty(), "backup": backup, "saved_at": data.get("saved_at", 0), "day": progress.get("game_day", 1), "hour": progress.get("game_hour", 7), "minute": progress.get("game_minute", 35), "chapter": progress.get("current_chapter_id", ""), "hp": progress.get("player_current_hp", 0)}
+
+func _write_json(path: String, data: Dictionary, backup: bool = false) -> bool:
+	if not path.begins_with("user://") or path.contains(".."):
+		last_error = "无法保存，请检查存储位置。"
+		return false
+	var absolute := ProjectSettings.globalize_path(path)
+	if DirAccess.make_dir_recursive_absolute(absolute.get_base_dir()) != OK:
+		last_error = "无法创建保存目录。"
+		return false
+	var temporary := absolute + ".tmp"
+	var file := FileAccess.open(temporary, FileAccess.WRITE)
+	if file == null:
+		last_error = "保存失败，请重试。"
+		return false
+	file.store_string(JSON.stringify(data))
+	file.flush()
+	file.close()
+	if backup and not _valid_save(path).is_empty():
+		if DirAccess.copy_absolute(absolute, absolute + ".bak") != OK:
+			last_error = "无法保存进度备份。"
+			DirAccess.remove_absolute(temporary)
+			return false
+	if DirAccess.rename_absolute(temporary, absolute) != OK:
+		last_error = "保存失败，原进度已保留。"
+		DirAccess.remove_absolute(temporary)
+		return false
+	return true
+
+func save_game() -> bool:
+	if not active_session or _saving: return false
+	var scene := get_tree().current_scene
+	if scene is CombatScreen:
+		if scene.result_modal.visible:
+			if scene.get("_combat_outcome") != "defeat" or not scene.get("_defeat_settled"): return false
+		elif scene.is_animating or not scene.is_player_turn: return false
+	_saving = true
+	if scene is CombatScreen and not scene.result_modal.visible: scene._save_combat_checkpoint()
+	var progress := GameState.export_progress()
+	var current := _valid_save(save_path)
+	var success := GameState.validate_progress(progress)
+	if not success: last_error = "进度校验失败，原有存档已保留。"
+	# Compare both sides after JSON numeric normalization, preserving a meaningful backup.
+	var normalized: Dictionary = JSON.parse_string(JSON.stringify(progress))
+	if success and (current.is_empty() or current["progress"] != normalized):
+		success = _write_json(save_path, {"version": SAVE_VERSION, "saved_at": int(Time.get_unix_time_from_system()), "progress": progress}, true)
+	_saving = false
+	if success: last_error = ""
+	save_state_changed.emit()
+	return success
+
+func start_new_game() -> bool:
+	if not GameState.new_game():
+		last_error = "无法开始新游戏。"
+		return false
+	active_session = true
+	return save_game()
+
+func continue_game() -> bool:
+	var data := _valid_save(save_path)
+	var recovered := false
+	if data.is_empty():
+		data = _valid_save(save_path + ".bak")
+		recovered = not data.is_empty()
+	if data.is_empty() or not GameState.import_progress(data["progress"]):
+		last_error = "存档暂时无法读取，可以开始新游戏。"
+		return false
+	active_session = true
+	last_error = "已从备份恢复进度。" if recovered else ""
+	return true
+
+func manual_slot_path(slot: int) -> String:
+	return save_path.get_base_dir().path_join("manual_%d.json" % slot) if slot in range(1, 4) else ""
+
+func save_manual_slot(slot: int) -> bool:
+	var path := manual_slot_path(slot)
+	if path == "" or not active_session or _saving:
+		last_error = "当前无法保存进度。"
+		return false
+	var progress := GameState.export_progress()
+	if not GameState.validate_progress(progress):
+		last_error = "进度校验失败，原有存档已保留。"
+		return false
+	var success := _write_json(path, {"version": SAVE_VERSION, "saved_at": int(Time.get_unix_time_from_system()), "progress": progress}, true)
+	if success: last_error = ""
+	save_state_changed.emit()
+	return success
+
+func load_manual_slot(slot: int) -> bool:
+	var path := manual_slot_path(slot)
+	if path == "": return false
+	var data := _valid_save(path)
+	var recovered := false
+	if data.is_empty():
+		data = _valid_save(path + ".bak")
+		recovered = not data.is_empty()
+	if data.is_empty():
+		last_error = "这个存档暂时无法读取。"
+		return false
+	var was_active := active_session
+	active_session = false
+	var success := GameState.import_progress(data["progress"])
+	active_session = true if success else was_active
+	last_error = ("已从备份恢复进度。" if recovered else "") if success else "这个存档暂时无法读取。"
+	return success
+
+func _validated_settings(values: Dictionary) -> Dictionary:
+	var result := DEFAULT_SETTINGS.duplicate()
+	for key in ["master_volume", "music_volume", "sfx_volume"]:
+		var value: Variant = values.get(key)
+		if typeof(value) in [TYPE_FLOAT, TYPE_INT] and is_finite(float(value)):
+			result[key] = clampf(float(value), 0.0, 1.0)
+	for key in ["fullscreen", "reduced_motion"]:
+		if values.get(key) is bool: result[key] = values[key]
+	if GameState._whole_number(values.get("text_speed")):
+		result["text_speed"] = clampi(int(values["text_speed"]), 0, 3)
+	return result
+
+func update_settings(values: Dictionary) -> bool:
+	var candidate := _validated_settings(values)
+	if not _write_json(settings_path, candidate): return false
+	settings = candidate
+	_apply_settings()
+	last_error = ""
+	return true
+
+func apply_settings(volume: float, fullscreen: bool) -> bool:
+	var candidate := settings.duplicate()
+	candidate.merge({"master_volume": volume, "fullscreen": fullscreen}, true)
+	return update_settings(candidate)
+
+func _apply_settings() -> void:
+	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(0.0001, float(settings["master_volume"]))))
+	AudioServer.set_bus_mute(0, float(settings["master_volume"]) <= 0.0)
+	AudioManager.set_channel_volumes(float(settings["music_volume"]), float(settings["sfx_volume"]))
+	get_window().mode = Window.MODE_FULLSCREEN if settings["fullscreen"] else Window.MODE_WINDOWED
+
+func typing_interval() -> float:
+	return [0.045, 0.025, 0.012, 0.0][int(settings["text_speed"])]
+
+func motion_duration(duration: float) -> float:
+	return 0.0 if bool(settings["reduced_motion"]) else duration
+
+func get_applied_settings() -> Dictionary:
+	return {"master_volume": db_to_linear(AudioServer.get_bus_volume_db(0)), "muted": AudioServer.is_bus_mute(0), "fullscreen": get_window().mode == Window.MODE_FULLSCREEN}

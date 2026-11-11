@@ -1,0 +1,26 @@
+{
+  "mode": "builtin image_gen",
+  "source": "art/concepts/student-terminal-2026-10-25/overview.png",
+  "generated": "exec-55954f77-0966-4d9a-b494-61409d23cc1c.png",
+  "target": "assets/ui/student_terminal/greeting.png",
+  "prompt": "Use-case: background-extraction / UI layer extraction. Reference image is the COMPLETE approved-direction IGA overview UI concept. Extract ONLY the watercolor school-building / sunny campus illustration from the RIGHT HALF of the large greeting card near image coordinates x730..1118 y282..506. Keep its EXACT original placement and scale on the same 16:9 full-size canvas. Everything else must be genuinely transparent alpha, including device, outer scene, all panels, ALL text, status numbers and icons. Left edge of extracted campus illustration fades softly to transparent, so it can be composited back onto the pale greeting card behind live text. No new art, no new text, do not put illustration anywhere else. Preserve the original illustration's sunlight, sky, school silhouette and trees. Output transparent background, full 16:9 original canvas.",
+  "registration": {
+    "source_pixels": [
+      720,
+      305,
+      800,
+      412
+    ],
+    "target_canvas_pixels": [
+      718,
+      282,
+      400,
+      224
+    ],
+    "canvas": [
+      1672,
+      941
+    ]
+  },
+  "note": "Transparent extracted illustration fitted to the original greeting panel; live text remains separate."
+}

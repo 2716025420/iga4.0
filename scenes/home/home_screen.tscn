@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://c8oam2p4k5l1v"]
+
+[ext_resource type="Script" uid="uid://b1iqd4bmy0frt" path="res://scripts/home/home_screen.gd" id="1_home_script"]
+[ext_resource type="Theme" uid="uid://dq375erxl6v0w" path="res://main_theme.tres" id="23_main_theme"]
+
+[node name="HomeScreen" type="Control" unique_id=942347734]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("23_main_theme")
+script = ExtResource("1_home_script")

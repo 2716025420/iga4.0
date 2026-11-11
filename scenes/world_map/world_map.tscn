@@ -1,0 +1,136 @@
+[gd_scene format=3 uid="uid://b7v6c5x403a2q"]
+
+[ext_resource type="Theme" uid="uid://dq375erxl6v0w" path="res://main_theme.tres" id="1_kvdqv"]
+[ext_resource type="Script" uid="uid://8kq7c1b6bl6b" path="res://scripts/world_map/world_map.gd" id="1_world_script"]
+[ext_resource type="Texture2D" uid="uid://cmcdhvj3qc6y1" path="res://assets/backgrounds/phase_two/school_gate.png" id="3_kvdqv"]
+
+[node name="WorldMap" type="Control" unique_id=2043823505]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_kvdqv")
+script = ExtResource("1_world_script")
+
+[node name="Background" type="TextureRect" parent="." unique_id=932351146]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_kvdqv")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TopBar" type="Panel" parent="." unique_id=94201913]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="Title" type="Label" parent="TopBar" unique_id=704329405]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 30.0
+offset_top = -15.0
+offset_right = 350.0
+offset_bottom = 15.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.98, 0.79, 0.34, 1)
+theme_override_font_sizes/font_size = 20
+text = "校园篇章"
+
+[node name="BackButton" type="Button" parent="TopBar" unique_id=1346759485]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -20.0
+offset_right = -30.0
+offset_bottom = 20.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "返回休息室"
+
+[node name="MapCanvas" type="Control" parent="." unique_id=21322349]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 60.0
+offset_right = -380.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RegionCh1" type="Button" parent="MapCanvas" unique_id=629262571]
+custom_minimum_size = Vector2(220, 80)
+layout_mode = 0
+offset_left = 120.0
+offset_top = 180.0
+offset_right = 340.0
+offset_bottom = 260.0
+text = "第一章
+放学后的那条路"
+
+[node name="RegionCh2" type="Button" parent="MapCanvas" unique_id=1307408335]
+custom_minimum_size = Vector2(220, 80)
+layout_mode = 0
+offset_left = 420.0
+offset_top = 120.0
+offset_right = 640.0
+offset_bottom = 200.0
+text = "后续篇章
+整理中"
+
+[node name="RegionCh3" type="Button" parent="MapCanvas" unique_id=316952050]
+custom_minimum_size = Vector2(220, 80)
+layout_mode = 0
+offset_left = 480.0
+offset_top = 340.0
+offset_right = 700.0
+offset_bottom = 420.0
+text = "自由活动
+整理中"
+
+[node name="InfoPanel" type="PanelContainer" parent="." unique_id=957996264]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 60.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="InfoPanel" unique_id=285950898]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="InfoPanel/VBox" unique_id=1800585503]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.79, 0.34, 1)
+theme_override_font_sizes/font_size = 18
+text = "校园篇章"
+autowrap_mode = 2
+
+[node name="DescLabel" type="RichTextLabel" parent="InfoPanel/VBox" unique_id=746191343]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "选择今天要去的地方。"
+
+[node name="EnterButton" type="Button" parent="InfoPanel/VBox" unique_id=1954939421]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "开始今日行程"

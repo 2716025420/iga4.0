@@ -1,0 +1,252 @@
+[gd_scene format=3 uid="uid://d1g4h7kak2l5m"]
+
+[ext_resource type="Script" uid="uid://c3gxj0odqagqm" path="res://scripts/combat/combat_screen.gd" id="1_combat_script"]
+[ext_resource type="Theme" uid="uid://dq375erxl6v0w" path="res://main_theme.tres" id="1_opihc"]
+[ext_resource type="Texture2D" uid="uid://c1cc06tqalsjq" path="res://assets/backgrounds/phase_two/battle_campus.png" id="3_opihc"]
+[ext_resource type="Texture2D" uid="uid://6k82jnfd3g4u" path="res://assets/sprites/characters/phase_three/combat/ye_zhou_idle.png" id="4_n2tvx"]
+
+[node name="CombatScreen" type="Control" unique_id=1193319302]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_opihc")
+script = ExtResource("1_combat_script")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1753744730]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_opihc")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TopInfo" type="Control" parent="." unique_id=1382246259]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 80.0
+grow_horizontal = 2
+
+[node name="TurnBanner" type="Label" parent="TopInfo" unique_id=2136538484]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -250.0
+offset_top = 15.0
+offset_right = 250.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "叶舟行动"
+horizontal_alignment = 1
+
+[node name="RoundLabel" type="Label" parent="TopInfo" unique_id=306960361]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -150.0
+offset_top = 15.0
+offset_right = -20.0
+offset_bottom = 45.0
+grow_horizontal = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 16
+text = "第 1 回合"
+horizontal_alignment = 2
+
+[node name="PlayerArea" type="Control" parent="." unique_id=1146802515]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = -480.0
+offset_right = 320.0
+offset_bottom = -200.0
+grow_vertical = 0
+
+[node name="ProtagonistSprite" type="TextureRect" parent="PlayerArea" unique_id=70390267]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_n2tvx")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PlayerHPBar" type="ProgressBar" parent="PlayerArea" unique_id=392343310]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+max_value = 120.0
+value = 120.0
+show_percentage = false
+
+[node name="HPLabel" type="Label" parent="PlayerArea/PlayerHPBar" unique_id=1467338651]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 13
+text = "120 / 120"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayerShieldLabel" type="Label" parent="PlayerArea" unique_id=601218992]
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = -25.0
+offset_bottom = -2.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.12, 0.56, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "护盾 30"
+horizontal_alignment = 1
+
+[node name="PlayerStatusLabel" type="Label" parent="PlayerArea" unique_id=994108452]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -12.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.65, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="EnemyArea" type="Control" parent="." unique_id=83228778]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -780.0
+offset_top = -240.0
+offset_right = -40.0
+offset_bottom = 60.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="EnemiesContainer" type="HBoxContainer" parent="EnemyArea" unique_id=1117554380]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="HandArea" type="Control" parent="." unique_id=1891251106]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -190.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="CardsContainer" type="HBoxContainer" parent="HandArea" unique_id=1188056888]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 10.0
+offset_right = -40.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="FloatingAnchor" type="Control" parent="." unique_id=1848566817]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ResultModal" type="Panel" parent="." unique_id=781835507]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -160.0
+offset_right = 260.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="ResultModal" unique_id=1934666042]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = 25.0
+offset_right = -30.0
+offset_bottom = -25.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="ResultModal/VBox" unique_id=1263143818]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 24
+text = "暂时安全了"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="RichTextLabel" parent="ResultModal/VBox" unique_id=775270291]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "确认周围安全，准备继续行程。"
+
+[node name="ConfirmButton" type="Button" parent="ResultModal/VBox" unique_id=359658181]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "继续行程"

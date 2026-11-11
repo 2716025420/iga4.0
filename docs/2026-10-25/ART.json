@@ -1,0 +1,515 @@
+{
+  "policy": "Full concepts, clean environment layers, extracted alpha UI and original Home masters remain distinct. All geometry/architecture beyond confirmed setting is a reversible TEST proposal. Text and input are live Godot controls. Native image sizes are recorded accurately.",
+  "assets": [
+    {
+      "key": "concept_rooftop",
+      "path": "art/concepts/scene-reset-2026-10-25/rooftop.png",
+      "source": null,
+      "sha256": "43579e181492dda8916f22538e3e1b6f4ff018460842f24c14e31f8b2aa8d0c8",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2642181,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Asset: complete 1920x1080 16:9 game interface concept master for Inorganic General Alien, TEST environment proposal. Make one full-bleed single scene, not a collage. A breezy rooftop of a Japanese-style coastal university at midsummer, blue sky, sunlit concrete, safe wire fence, distant sea and campus, a wooden bench and a small note beside it. Slight elevated eye-level wide composition, spacious and quiet. Two diegetic clickable areas: bench at x=1160 y=420 w=380 h=380 labeled '聊聊天', the note on bench at x=550 y=650 w=330 h=210 labeled '看看纸条'. No characters; leave a quiet empty standing area as an unmarked future character space. Style: youthful Japanese anime campus game, hand-painted gouache/watercolor, simplified confident shapes, natural light, clean coherent environment, limited detail and strong atmospheric composition. Full UI is part of concept: discreet title '教学楼天台' at (65,45), small date line '10月1日 · 早晨' at (70,110). Top right two small readable warm paper tabs '校园地图' and '菜单'. Each of the two named environmental interaction areas has only one small cream paper label anchored naturally close to its object with understated dark blue type and a tiny arrow. Label surface no larger than 300x70 on a 1920 canvas, no duplicate bottom action bar, no tooltip, no focus outline, no large floating panels. The environment is much more prominent than labels. UI labels must not obscure interactive objects. No other text, no invented story, no school logos, no UI from old games. Render the complete concept including all UI surfaces, then it will be reconstructed with live text and input."
+    },
+    {
+      "key": "clean_rooftop",
+      "path": "assets/ui/scene_reset/places/rooftop.png",
+      "source": "art/concepts/scene-reset-2026-10-25/rooftop.png",
+      "sha256": "127545c352b323f7328da200130f83f73d0af12d5e0d2fb4deb9d6d0754c3567",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2524981,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target: the attached full game scene concept. Make the identical complete scene with identical canvas, camera, object sizes and positions, light and architecture. Remove ONLY all game UI overlays: title/date paper labels, map/menu labels, action captions and arrows. Reconstruct the small room/sky surfaces behind those overlays. Keep every real object such as the bench, paper note, open book, counter, clipboard, gym board and bag at exactly the same position and size. Preserve all meaningful negative space. Do not add characters, signage, text or new objects. Clean full-bleed environment layer, no transparency, no UI of any kind. Furniture will be split at runtime directly from this same registered mother so do not crop or rearrange."
+    },
+    {
+      "key": "concept_library",
+      "path": "art/concepts/scene-reset-2026-10-25/library.png",
+      "source": null,
+      "sha256": "f6c45e071e89722b23eaf1971b6f2cfc72d095c0e619a22898fcd4bfc8bd4e72",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2290224,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Asset: complete 1920x1080 16:9 game interface concept master for Inorganic General Alien, TEST environment proposal. Make one full-bleed single scene, not a collage. A warm airy coastal university library, double-height shelves, large sunlit windows, pale timber, uncluttered reading table in foreground and small service desk on the right. Only two diegetic clickable areas: a well-sized open book on foreground table x=400 y=590 w=500 h=340 labeled '翻阅书页'; a service desk x=1270 y=420 w=430 h=420 labeled '和同学聊聊'. No characters. Preserve clear open floor and realistic furniture scale. Style: youthful Japanese anime campus game, hand-painted gouache/watercolor, simplified confident shapes, natural light, clean coherent environment, limited detail and strong atmospheric composition. Full UI is part of concept: discreet title '图书馆' at (65,45), small date line '10月1日 · 早晨' at (70,110). Top right two small readable warm paper tabs '校园地图' and '菜单'. Each of the two named environmental interaction areas has only one small cream paper label anchored naturally close to its object with understated dark blue type and a tiny arrow. Label surface no larger than 300x70 on a 1920 canvas, no duplicate bottom action bar, no tooltip, no focus outline, no large floating panels. The environment is much more prominent than labels. UI labels must not obscure interactive objects. No other text, no invented story, no school logos, no UI from old games. Render the complete concept including all UI surfaces, then it will be reconstructed with live text and input."
+    },
+    {
+      "key": "clean_library",
+      "path": "assets/ui/scene_reset/places/library.png",
+      "source": "art/concepts/scene-reset-2026-10-25/library.png",
+      "sha256": "f1afb93c7b42ccfaacf26fdd20870f30f33c32d55f1dd90e5f49aa4e886224b9",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2203033,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target: the attached full game scene concept. Make the identical complete scene with identical canvas, camera, object sizes and positions, light and architecture. Remove ONLY all game UI overlays: title/date paper labels, map/menu labels, action captions and arrows. Reconstruct the small room/sky surfaces behind those overlays. Keep every real object such as the bench, paper note, open book, counter, clipboard, gym board and bag at exactly the same position and size. Preserve all meaningful negative space. Do not add characters, signage, text or new objects. Clean full-bleed environment layer, no transparency, no UI of any kind. Furniture will be split at runtime directly from this same registered mother so do not crop or rearrange."
+    },
+    {
+      "key": "concept_gym",
+      "path": "art/concepts/scene-reset-2026-10-25/gym.png",
+      "source": null,
+      "sha256": "36397498bc6324e8d488a97b1f136e6808ab6eea660ba1e828379e2768f59aa0",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2316421,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Asset: complete 1920x1080 16:9 game interface concept master for Inorganic General Alien, TEST environment proposal. Make one full-bleed single scene, not a collage. A bright university indoor gym in summer, wood sports floor and tall windows, restrained blue/cream palette, full spacious court as primary visual. Two diegetic clickable areas: a modest training board or equipment trolley x=1230 y=320 w=450 h=450 labeled '模拟训练'; a small card bag and bench at x=280 y=650 w=500 h=240 labeled '整理行动卡'. No characters, no holograms, no giant menus, no technology city. Style: youthful Japanese anime campus game, hand-painted gouache/watercolor, simplified confident shapes, natural light, clean coherent environment, limited detail and strong atmospheric composition. Full UI is part of concept: discreet title '体育馆' at (65,45), small date line '10月1日 · 早晨' at (70,110). Top right two small readable warm paper tabs '校园地图' and '菜单'. Each of the two named environmental interaction areas has only one small cream paper label anchored naturally close to its object with understated dark blue type and a tiny arrow. Label surface no larger than 300x70 on a 1920 canvas, no duplicate bottom action bar, no tooltip, no focus outline, no large floating panels. The environment is much more prominent than labels. UI labels must not obscure interactive objects. No other text, no invented story, no school logos, no UI from old games. Render the complete concept including all UI surfaces, then it will be reconstructed with live text and input."
+    },
+    {
+      "key": "clean_gym",
+      "path": "assets/ui/scene_reset/places/gym.png",
+      "source": "art/concepts/scene-reset-2026-10-25/gym.png",
+      "sha256": "ba813b1c7fff2b5e34e15ca25aab9aa7f655f4717cfc569a1ef9f4b8c131374a",
+      "pixels": [
+        1671,
+        941
+      ],
+      "bytes": 2270519,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target: the attached full game scene concept. Make the identical complete scene with identical canvas, camera, object sizes and positions, light and architecture. Remove ONLY all game UI overlays: title/date paper labels, map/menu labels, action captions and arrows. Reconstruct the small room/sky surfaces behind those overlays. Keep every real object such as the bench, paper note, open book, counter, clipboard, gym board and bag at exactly the same position and size. Preserve all meaningful negative space. Do not add characters, signage, text or new objects. Clean full-bleed environment layer, no transparency, no UI of any kind. Furniture will be split at runtime directly from this same registered mother so do not crop or rearrange."
+    },
+    {
+      "key": "concept_shop",
+      "path": "art/concepts/scene-reset-2026-10-25/shop.png",
+      "source": null,
+      "sha256": "fdd752ae876ffad01ae1fd889cc985af7515c7fc5a01058c5e108b0ad48b2478",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2285750,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Asset: complete 1920x1080 16:9 game interface concept master for Inorganic General Alien, TEST environment proposal. Make one full-bleed single scene, not a collage. An inviting small contemporary university campus shop, soft daylight, tidy shelves of stationery and drinks, simple checkout counter on right, delivery cartons modestly stacked beside rear door. Two diegetic clickable areas: counter x=1270 y=450 w=430 h=390 labeled '和同学聊聊'; a clipboard beside cartons at x=400 y=560 w=490 h=300 labeled '看看送货单'. No characters and no buying selling prices or invented shop economy. Style: youthful Japanese anime campus game, hand-painted gouache/watercolor, simplified confident shapes, natural light, clean coherent environment, limited detail and strong atmospheric composition. Full UI is part of concept: discreet title '校园商店' at (65,45), small date line '10月1日 · 早晨' at (70,110). Top right two small readable warm paper tabs '校园地图' and '菜单'. Each of the two named environmental interaction areas has only one small cream paper label anchored naturally close to its object with understated dark blue type and a tiny arrow. Label surface no larger than 300x70 on a 1920 canvas, no duplicate bottom action bar, no tooltip, no focus outline, no large floating panels. The environment is much more prominent than labels. UI labels must not obscure interactive objects. No other text, no invented story, no school logos, no UI from old games. Render the complete concept including all UI surfaces, then it will be reconstructed with live text and input."
+    },
+    {
+      "key": "clean_shop",
+      "path": "assets/ui/scene_reset/places/shop.png",
+      "source": "art/concepts/scene-reset-2026-10-25/shop.png",
+      "sha256": "7ac44213c594030c283e7dd3d4b2e081bfc27ae66f309b47be5041da32508e08",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2191119,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target: the attached full game scene concept. Make the identical complete scene with identical canvas, camera, object sizes and positions, light and architecture. Remove ONLY all game UI overlays: title/date paper labels, map/menu labels, action captions and arrows. Reconstruct the small room/sky surfaces behind those overlays. Keep every real object such as the bench, paper note, open book, counter, clipboard, gym board and bag at exactly the same position and size. Preserve all meaningful negative space. Do not add characters, signage, text or new objects. Clean full-bleed environment layer, no transparency, no UI of any kind. Furniture will be split at runtime directly from this same registered mother so do not crop or rearrange."
+    },
+    {
+      "key": "concept_map_nomos",
+      "path": "art/concepts/scene-reset-2026-10-25/map_nomos.png",
+      "source": null,
+      "sha256": "743003aa8387ce20b810b96768d2f07974a02e95df582b4326a4aca12ab3dd28",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3430993,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Make a COMPLETE 1920x1080 16:9 illustrated Godot game district-map concept for IGA. An oblique aerial walkable university district, a naturally rolling public park with spacious paths, public square and open civic structures. Sage gray and restrained gray-green, warm neutral stone, stable calm freedom. One huge living tree containing a little tavern is the single implemented destination, prominent near center-left x=830 y=570 on a 1920x1080 canvas. It has one small nearby integrated parchment label '巨树酒馆'. Other park spaces are decorative only; no extra invented destination labels. Full-bleed hand-painted youthful anime/gouache scenery with confident simplified shapes, cohesive readable spatial relations, generous open space, meaningful architectural scale. Not a grid of cards, not a flat wireframe, not split panels. Integrate all UI: understated '诺莫斯 · 地区地图' heading upper left at x=70 y=40, small '10月1日 · 早晨' below; two tiny paper navigation labels '世界地图' and '返回地点' upper right. Destination names in small environmental paper tags near corresponding landmarks with subtle arrows. A discreet '测试地理提案' caption along bottom edge; geography is a reversible visual proposal, not formal canon. No other readable text, no new people, no invented mechanics, no gigantic borders. UI belongs naturally in the complete concept; it will be rebuilt as real controls."
+    },
+    {
+      "key": "concept_map_agora",
+      "path": "art/concepts/scene-reset-2026-10-25/map_agora.png",
+      "source": null,
+      "sha256": "e68c98f25fa501668b3b66f5b53e83a068e979ec398b79e7f3324b39833d2a92",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2912142,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Make a COMPLETE 1920x1080 16:9 illustrated Godot game district-map concept for IGA. An oblique aerial district composition contrasting an opulent golden commercial skyline of casino fronts, hotels and financial plazas in distance with a plain shared dormitory building in a controlled forced-labor compound at the near right foreground x=1230 y=720. Not a poverty settlement; no starving figures, violence or invented machines. Single implemented destination is the modest dormitory, marked by a small paper label '集体宿舍'. No casino gameplay buttons or stock prices; social institutions only conveyed visually. Full-bleed hand-painted youthful anime/gouache scenery with confident simplified shapes, cohesive readable spatial relations, generous open space, meaningful architectural scale. Not a grid of cards, not a flat wireframe, not split panels. Integrate all UI: understated '阿戈拉 · 地区地图' heading upper left at x=70 y=40, small '10月1日 · 早晨' below; two tiny paper navigation labels '世界地图' and '返回地点' upper right. Destination names in small environmental paper tags near corresponding landmarks with subtle arrows. A discreet '测试地理提案' caption along bottom edge; geography is a reversible visual proposal, not formal canon. No other readable text, no new people, no invented mechanics, no gigantic borders. UI belongs naturally in the complete concept; it will be rebuilt as real controls."
+    },
+    {
+      "key": "concept_map_techne",
+      "path": "art/concepts/scene-reset-2026-10-25/map_techne.png",
+      "source": null,
+      "sha256": "910ceb3ed83114d91e6e56c5c7844783ae80ffd8db14692b2dbf3678cf93c363",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3293828,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Make a COMPLETE 1920x1080 16:9 illustrated Godot game district-map concept for IGA. An oblique aerial university district centered on a collective research and manufacturing workshop at x=930 y=580, strong black/white masses with controlled tiny red and green accents. Calm spaces for many forms of craft, design and improving products, not a futuristic tech megacity or only industrial machinery. Main workshop has a small integrated label '研究制造室'. No other invented destination labels. Full-bleed hand-painted youthful anime/gouache scenery with confident simplified shapes, cohesive readable spatial relations, generous open space, meaningful architectural scale. Not a grid of cards, not a flat wireframe, not split panels. Integrate all UI: understated '忒克捏 · 地区地图' heading upper left at x=70 y=40, small '10月1日 · 早晨' below; two tiny paper navigation labels '世界地图' and '返回地点' upper right. Destination names in small environmental paper tags near corresponding landmarks with subtle arrows. A discreet '测试地理提案' caption along bottom edge; geography is a reversible visual proposal, not formal canon. No other readable text, no new people, no invented mechanics, no gigantic borders. UI belongs naturally in the complete concept; it will be rebuilt as real controls."
+    },
+    {
+      "key": "concept_map_failed",
+      "path": "art/concepts/scene-reset-2026-10-25/map_failed.png",
+      "source": null,
+      "sha256": "07f21551808d86a7c138d0ec7613c793f5cd60a11fac695c4e2ec65c3fcd329e",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3311221,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Make a COMPLETE 1920x1080 16:9 illustrated Godot game district-map concept for IGA. An oblique aerial everyday community meeting district with warm lived-in but adequately supplied collective facilities, lively public square, modest reused civic structures, brick, fabric awnings, greenery. Dignity and belonging, not a starving slum or mature underground revolutionary army. No people required. Four clear landmarks in irregular connected spatial layout: central meeting plaza x=900 y=570 label '剧情入口'; open practice court upper right x=1500 y=380 label '副本入口'; modest supplies kiosk lower right x=1480 y=800 label '商店'; notice and activity corner lower left x=480 y=770 label '特殊功能'. NO Home, NO bedroom, NO headquarters Home. Full-bleed hand-painted youthful anime/gouache scenery with confident simplified shapes, cohesive readable spatial relations, generous open space, meaningful architectural scale. Not a grid of cards, not a flat wireframe, not split panels. Integrate all UI: understated '失败者同盟 · 地区地图' heading upper left at x=70 y=40, small '10月1日 · 早晨' below; two tiny paper navigation labels '世界地图' and '返回地点' upper right. Destination names in small environmental paper tags near corresponding landmarks with subtle arrows. A discreet '测试地理提案' caption along bottom edge; geography is a reversible visual proposal, not formal canon. No other readable text, no new people, no invented mechanics, no gigantic borders. UI belongs naturally in the complete concept; it will be rebuilt as real controls."
+    },
+    {
+      "key": "concept_map_church",
+      "path": "art/concepts/scene-reset-2026-10-25/map_church.png",
+      "source": null,
+      "sha256": "acadad4cf3e68ab247877ece44323633f60be816642ea8fec2711ccdd5bc1847",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3176854,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Make a COMPLETE 1920x1080 16:9 illustrated Godot game district-map concept for IGA. An oblique aerial peaceful human religious district of light stone terraces, an ordinary chapel courtyard, shaded arcades and gardens. Biblical architectural inspiration without supernatural proof, mystical special-card users or secret identity reveals. Ordinary everyday faith setting; no confirmed saints or relic positions. Four landmarks connected by irregular paths: arrival forecourt x=1000 y=670 label '剧情入口'; large chapel courtyard upper center x=1130 y=350 label '副本入口'; ordinary provisions kiosk lower left x=470 y=790 label '商店'; a small public consultation pavilion right x=1520 y=700 label '特殊功能'. NO Home or sleeping residence. Full-bleed hand-painted youthful anime/gouache scenery with confident simplified shapes, cohesive readable spatial relations, generous open space, meaningful architectural scale. Not a grid of cards, not a flat wireframe, not split panels. Integrate all UI: understated 'IGA信仰教团 · 地区地图' heading upper left at x=70 y=40, small '10月1日 · 早晨' below; two tiny paper navigation labels '世界地图' and '返回地点' upper right. Destination names in small environmental paper tags near corresponding landmarks with subtle arrows. A discreet '测试地理提案' caption along bottom edge; geography is a reversible visual proposal, not formal canon. No other readable text, no new people, no invented mechanics, no gigantic borders. UI belongs naturally in the complete concept; it will be rebuilt as real controls."
+    },
+    {
+      "key": "concept_map_legacy_alliance",
+      "path": "art/concepts/scene-reset-2026-10-25/map_legacy_alliance.png",
+      "source": null,
+      "sha256": "d922ff785884d23ad68f73db70a3ed2227898c2d448e8965d9b2c3f90ee72009",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3313911,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Complete 1920x1080 landscape game interface concept for IGA. A coherent elevated illustrated civic compound with five irregular connected zones: meeting hall center x=960 y=540, radio/notice corner left-upper x=480 y=340, practice yard right-upper x=1470 y=360, supply store left-lower x=440 y=790, simple shared quarters right-lower x=1480 y=800. Respect that this is only the OLD prototype compatibility district; DO NOT equate it to the newly named Failed Alliance. Calm brick/wood, slate blue, warm orange accents, public services and greenery. Small destination tags exactly '指挥所', '情报站', '演练场', '补给处', '休整区'. No new people or story. Match a youthful Japanese anime/gouache campus game: confident simplified painted shapes, gentle sunlight, atmosphere, legible visual hierarchy and coherent scene. Integrate full UI: quiet '旧反抗联盟' heading upper left, small '测试概念 · 地理关系待确认' subtitle; small upper-right paper navigation labels '世界地图' and '返回地点' (for the world atlas use only '返回地区'). Meaningful landmarks carry small cream paper labels; no bottom action bar, no cards laid out as a dashboard, no invented gameplay. Empty future character areas rather than new characters."
+    },
+    {
+      "key": "concept_map_legacy_sanctuary",
+      "path": "art/concepts/scene-reset-2026-10-25/map_legacy_sanctuary.png",
+      "source": null,
+      "sha256": "38daeb12df9cd59ae1d9766ce8aa542269e99aa1d760b2d5fe8683f3f4575735",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2913915,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Complete 1920x1080 landscape game interface concept for IGA. A coherent elevated illustrated quiet light-stone religious/civic campus with five irregular linked spaces: common hall center-lower x=960 y=730, great chapel upper-center x=990 y=340, archive left-middle x=470 y=540, garden right-middle x=1500 y=530, guest lodging left-lower x=460 y=850. This is the OLD prototype compatibility district, not the new IGA Church. Cool ivory, gentle sage and restrained gold, ordinary peaceful architecture, no divine miracles. Small destination tags exactly '会所', '圣堂', '文献馆', '庭院', '旅舍'. Match a youthful Japanese anime/gouache campus game: confident simplified painted shapes, gentle sunlight, atmosphere, legible visual hierarchy and coherent scene. Integrate full UI: quiet '旧教会圣地' heading upper left, small '测试概念 · 地理关系待确认' subtitle; small upper-right paper navigation labels '世界地图' and '返回地点' (for the world atlas use only '返回地区'). Meaningful landmarks carry small cream paper labels; no bottom action bar, no cards laid out as a dashboard, no invented gameplay. Empty future character areas rather than new characters."
+    },
+    {
+      "key": "concept_coast",
+      "path": "art/concepts/scene-reset-2026-10-25/coast.png",
+      "source": null,
+      "sha256": "361872a99a9002e3335425e6f730cf46b115c249aee52a7acace808b969488f0",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2736770,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Complete 1920x1080 landscape game interface concept for IGA. An eye-level summer coastal promenade linking university town to a broad beach, clear blue ocean, stairs down to sand on right, coastal road and a bench shaded by trees to left, restrained city silhouette in distance. Youthful daily-life atmosphere, no people or new story. Full game scene with two tiny object interaction labels: one at the bench x=600 y=650 reads '看看海风', one near stairs x=1350 y=650 reads '前往海滩'. Camera leaves view of sea as primary composition. Match a youthful Japanese anime/gouache campus game: confident simplified painted shapes, gentle sunlight, atmosphere, legible visual hierarchy and coherent scene. Integrate full UI: quiet '沿海道路与海滩' heading upper left, small '测试概念 · 地理关系待确认' subtitle; small upper-right paper navigation labels '世界地图' and '返回地点' (for the world atlas use only '返回地区'). Meaningful landmarks carry small cream paper labels; no bottom action bar, no cards laid out as a dashboard, no invented gameplay. Empty future character areas rather than new characters."
+    },
+    {
+      "key": "concept_world",
+      "path": "art/concepts/scene-reset-2026-10-25/world.png",
+      "source": null,
+      "sha256": "d7979d83d8a694ca7e127dc460c0967fbc2e6e77c3bbaeae94ba4536ead2da05",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2909087,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: ui-mockup. Complete 1920x1080 landscape game interface concept for IGA. One complete hand-painted abstract travel-landscape atlas with six organically arranged distinctive district silhouettes, joined by faint sketch paths and watercolor washes, NOT a grid of cards and NOT a formal geographic map. NO shared university campus; these are four independent university regions and two story regions. A sage green public park with giant tree upper-left x=350 y=310 label '诺莫斯'; bright coastal summer university lower-left x=380 y=740 label '阿瑞忒'; black-white craft/research workshops upper-center x=940 y=300 label '忒克捏'; opulent golden commerce city upper-right x=1520 y=330 label '阿戈拉'; adequate everyday community square lower-center x=940 y=760 label '失败者同盟'; quiet ordinary light-stone faith district lower-right x=1510 y=760 label 'IGA信仰教团'. No Home houses for last two. Small integrated paper name labels by each region, not huge panels. Reserve bottom 100px for tiny compatibility navigation in runtime. Theme differences should be strong, but no people, exact canon geography or invented plot. Match a youthful Japanese anime/gouache campus game: confident simplified painted shapes, gentle sunlight, atmosphere, legible visual hierarchy and coherent scene. Integrate full UI: quiet '地区旅行图' heading upper left, small '测试概念 · 地理关系待确认' subtitle; small upper-right paper navigation labels '世界地图' and '返回地点' (for the world atlas use only '返回地区'). Meaningful landmarks carry small cream paper labels; no bottom action bar, no cards laid out as a dashboard, no invented gameplay. Empty future character areas rather than new characters."
+    },
+    {
+      "key": "home_clean_nomos",
+      "path": "assets/ui/scene_reset/homes/nomos_clean.png",
+      "source": "docs/2026-10-24/p5-delivery/concepts/nomos-spatial-pending.png",
+      "sha256": "904ca4bd53e2cf175e8850c99f62a154f0fdae7ec1300a0fcbc0053613f353e7",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2731209,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target: the attached latest approved spatial Home concept. Produce the SAME complete room composition and SAME native aspect ratio, camera, perspective, all furniture sizes, furniture positions, lighting, textures and architectural lines. Remove ONLY ALL game UI: every title, date, number, menu tab, label/button/paper tag, icon, arrow, TEST text, white dashed future person silhouette and its white lettering. Reconstruct the small areas behind removed UI plausibly with the existing room surface. KEEP ALL actual furniture and interactive room objects already visible: book/card racks or card bag, journal, maps, desks, seats. Do NOT isolate objects, do NOT move or rescale furniture, do NOT change the scene or crop. No readable writing or UI overlays anywhere. The clean full-room image will itself be the exact registered source of the interactive furniture layers, so preserve composition rigorously. No people."
+    },
+    {
+      "key": "home_ui_nomos",
+      "path": "assets/ui/scene_reset/homes/nomos_ui.png",
+      "source": "docs/2026-10-24/p5-delivery/concepts/nomos-spatial-pending.png",
+      "sha256": "d5659e48838bc78566416bc58665f913b6eab6ba7bccf4d7b8abd6d7eca9e10b",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 358481,
+      "alpha": true,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: background-extraction. Edit target: this complete game Home concept. Extract ONLY the UI label and menu surfaces into a transparent RGBA overlay in exactly the SAME canvas, placement, proportions, perspective, and native aspect ratio. Keep the physical decorative paper/wood-tag/ivory plate silhouettes and small tabs above the four interaction captions, plus any cream date backing and the small menu pill. ERASE ALL WORDS, CHARACTERS, NUMBERS, ARROWS, ICONS, logos and TEST text so every kept UI surface is blank. Remove the entire room, furniture, all shadows belonging to the room, and the dashed person placeholder. Genuine alpha=0 transparency everywhere except the blank UI surfaces and their own very subtle paper edges/shadows. No checkerboard, no opaque background. Do not arrange a sprite sheet; keep original source-space registration precisely. This is a production layer to put behind live text, not a new design."
+    },
+    {
+      "key": "home_clean_agora",
+      "path": "assets/ui/scene_reset/homes/agora_clean.png",
+      "source": "docs/2026-10-24/p5-delivery/concepts/agora-spatial-pending.png",
+      "sha256": "cc8562954000926f3a2ff184bf6ee7b0aadb8dd2b3fce9ef0d58b0a4c859cdff",
+      "pixels": [
+        1671,
+        941
+      ],
+      "bytes": 2512017,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target: the attached latest approved spatial Home concept. Produce the SAME complete room composition and SAME native aspect ratio, camera, perspective, all furniture sizes, furniture positions, lighting, textures and architectural lines. Remove ONLY ALL game UI: every title, date, number, menu tab, label/button/paper tag, icon, arrow, TEST text, white dashed future person silhouette and its white lettering. Reconstruct the small areas behind removed UI plausibly with the existing room surface. KEEP ALL actual furniture and interactive room objects already visible: book/card racks or card bag, journal, maps, desks, seats. Do NOT isolate objects, do NOT move or rescale furniture, do NOT change the scene or crop. No readable writing or UI overlays anywhere. The clean full-room image will itself be the exact registered source of the interactive furniture layers, so preserve composition rigorously. No people."
+    },
+    {
+      "key": "home_ui_agora",
+      "path": "assets/ui/scene_reset/homes/agora_ui.png",
+      "source": "docs/2026-10-24/p5-delivery/concepts/agora-spatial-pending.png",
+      "sha256": "399f45b00f893f098013aaa7b099167e182f1c2af4e004fdbe96ae8031bfd3cd",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 217027,
+      "alpha": true,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: background-extraction. Edit target: this complete game Home concept. Extract ONLY the UI label and menu surfaces into a transparent RGBA overlay in exactly the SAME canvas, placement, proportions, perspective, and native aspect ratio. Keep the physical decorative paper/wood-tag/ivory plate silhouettes and small tabs above the four interaction captions, plus any cream date backing and the small menu pill. ERASE ALL WORDS, CHARACTERS, NUMBERS, ARROWS, ICONS, logos and TEST text so every kept UI surface is blank. Remove the entire room, furniture, all shadows belonging to the room, and the dashed person placeholder. Genuine alpha=0 transparency everywhere except the blank UI surfaces and their own very subtle paper edges/shadows. No checkerboard, no opaque background. Do not arrange a sprite sheet; keep original source-space registration precisely. This is a production layer to put behind live text, not a new design."
+    },
+    {
+      "key": "home_clean_techne",
+      "path": "assets/ui/scene_reset/homes/techne_clean.png",
+      "source": "docs/2026-10-24/p5-delivery/concepts/techne-spatial-pending.png",
+      "sha256": "f6a7d12d8d6f76c4c8f0827e84db27420b4f00237e19b8235d5c3e53f628edf6",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2811485,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target: the attached latest approved spatial Home concept. Produce the SAME complete room composition and SAME native aspect ratio, camera, perspective, all furniture sizes, furniture positions, lighting, textures and architectural lines. Remove ONLY ALL game UI: every title, date, number, menu tab, label/button/paper tag, icon, arrow, TEST text, white dashed future person silhouette and its white lettering. Reconstruct the small areas behind removed UI plausibly with the existing room surface. KEEP ALL actual furniture and interactive room objects already visible: book/card racks or card bag, journal, maps, desks, seats. Do NOT isolate objects, do NOT move or rescale furniture, do NOT change the scene or crop. No readable writing or UI overlays anywhere. The clean full-room image will itself be the exact registered source of the interactive furniture layers, so preserve composition rigorously. No people."
+    },
+    {
+      "key": "home_ui_techne",
+      "path": "assets/ui/scene_reset/homes/techne_ui.png",
+      "source": "docs/2026-10-24/p5-delivery/concepts/techne-spatial-pending.png",
+      "sha256": "1e30718e7decb17516931bf5e69779051072098f00135332a7107aaf6638908c",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 367142,
+      "alpha": true,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: background-extraction. Edit target: this complete game Home concept. Extract ONLY the UI label and menu surfaces into a transparent RGBA overlay in exactly the SAME canvas, placement, proportions, perspective, and native aspect ratio. Keep the physical decorative paper/wood-tag/ivory plate silhouettes and small tabs above the four interaction captions, plus any cream date backing and the small menu pill. ERASE ALL WORDS, CHARACTERS, NUMBERS, ARROWS, ICONS, logos and TEST text so every kept UI surface is blank. Remove the entire room, furniture, all shadows belonging to the room, and the dashed person placeholder. Genuine alpha=0 transparency everywhere except the blank UI surfaces and their own very subtle paper edges/shadows. No checkerboard, no opaque background. Do not arrange a sprite sheet; keep original source-space registration precisely. This is a production layer to put behind live text, not a new design."
+    },
+    {
+      "key": "campus_ui",
+      "path": "assets/ui/scene_reset/campus_surfaces.png",
+      "source": "art/concepts/scene-reset-2026-10-25/library.png",
+      "sha256": "6790006cb171728824f5157f21f8f875f55fddccb25b7f264d7d436d2d7e509b",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 171328,
+      "alpha": true,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: background-extraction. From the reference complete game scene, retain ONLY its six small cream paper UI label surfaces: title/date at upper left, map/menu at upper right, the two object action labels. Keep exactly the same full canvas, size, shape, positions, and perspective. Remove ALL text and every arrow, then remove the entire library including furniture/room/light. All other pixels must be genuine alpha=0 transparency. Preserve only blank paper plates with their subtle painted edges and their own tiny shadows. No checkerboard or colored backdrop. This is a registered transparent production UI layer, not a new arrangement."
+    },
+    {
+      "key": "clean_map_agora",
+      "path": "assets/ui/scene_reset/maps/map_agora.png",
+      "source": "art/concepts/scene-reset-2026-10-25/map_agora.png",
+      "sha256": "c284d4ac8bce0e1aa154a2d3eccc821f4a06c59dd36f5516502dc76867aacd16",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2715991,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. This image is the edit target, a complete IGA district-map concept. Keep the exact whole illustrated environment, camera, all buildings, trees, paths, landscape, proportions, colors and lighting. Remove ALL interface elements and ALL writing: heading/date paper surfaces, every destination paper tag and arrow including blank labels, map/back navigation, symbols and bottom caption/lines. Reconstruct only where those UI overlays were, preserving all architecture beneath. No new people, destination changes or objects. Full-bleed clean map background, same native canvas/aspect, no text or UI anywhere. Runtime labels and polygon hot areas will be registered to this mother, so do not reframe."
+    },
+    {
+      "key": "clean_map_failed",
+      "path": "assets/ui/scene_reset/maps/map_failed.png",
+      "source": "art/concepts/scene-reset-2026-10-25/map_failed.png",
+      "sha256": "283f1890eb5f4961a64125925e101179f4df2ad15291592cbf215db990d3d03d",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3310663,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. This image is the edit target, a complete IGA district-map concept. Keep the exact whole illustrated environment, camera, all buildings, trees, paths, landscape, proportions, colors and lighting. Remove ALL interface elements and ALL writing: heading/date paper surfaces, every destination paper tag and arrow including blank labels, map/back navigation, symbols and bottom caption/lines. Reconstruct only where those UI overlays were, preserving all architecture beneath. No new people, destination changes or objects. Full-bleed clean map background, same native canvas/aspect, no text or UI anywhere. Runtime labels and polygon hot areas will be registered to this mother, so do not reframe."
+    },
+    {
+      "key": "clean_map_church",
+      "path": "assets/ui/scene_reset/maps/map_church.png",
+      "source": "art/concepts/scene-reset-2026-10-25/map_church.png",
+      "sha256": "cedccbaebec2eba4f6ecbbc9aa438c37fca144cec5e7c42b4bd39f978df44ae0",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3007076,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. This image is the edit target, a complete IGA district-map concept. Keep the exact whole illustrated environment, camera, all buildings, trees, paths, landscape, proportions, colors and lighting. Remove ALL interface elements and ALL writing: heading/date paper surfaces, every destination paper tag and arrow including blank labels, map/back navigation, symbols and bottom caption/lines. Reconstruct only where those UI overlays were, preserving all architecture beneath. No new people, destination changes or objects. Full-bleed clean map background, same native canvas/aspect, no text or UI anywhere. Runtime labels and polygon hot areas will be registered to this mother, so do not reframe."
+    },
+    {
+      "key": "clean_map_legacy_alliance",
+      "path": "assets/ui/scene_reset/maps/map_legacy_alliance.png",
+      "source": "art/concepts/scene-reset-2026-10-25/map_legacy_alliance.png",
+      "sha256": "702448a4729cae0a03dce1b5fbb5cba1d6440a7dd82974f1002c7eeaf8b41d65",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3213676,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target is the attached complete game concept. Preserve exactly the whole scene illustration, camera, all environment features and their positions and sizes, lighting and colors. Remove ALL UI and writing: all title/date/navigation paper surfaces, destination labels, icons, arrows, subtitle captions, symbols and UI connector lines. Remove any visible people without changing architecture. Reconstruct only the small areas covered by those overlays. Same native full-canvas aspect ratio, no reframing or rearrangement, no new objects. The result is a clean background for registered live text and polygon interaction; absolutely no baked words, menu controls or paper labels."
+    },
+    {
+      "key": "clean_map_legacy_sanctuary",
+      "path": "assets/ui/scene_reset/maps/map_legacy_sanctuary.png",
+      "source": "art/concepts/scene-reset-2026-10-25/map_legacy_sanctuary.png",
+      "sha256": "f94bae66eae92b2746332a06db8d1e246ef06627a18df5cb29e865a27b37d132",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2800826,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target is the attached complete game concept. Preserve exactly the whole scene illustration, camera, all environment features and their positions and sizes, lighting and colors. Remove ALL UI and writing: all title/date/navigation paper surfaces, destination labels, icons, arrows, subtitle captions, symbols and UI connector lines. Remove any visible people without changing architecture. Reconstruct only the small areas covered by those overlays. Same native full-canvas aspect ratio, no reframing or rearrangement, no new objects. The result is a clean background for registered live text and polygon interaction; absolutely no baked words, menu controls or paper labels."
+    },
+    {
+      "key": "clean_coast",
+      "path": "assets/ui/scene_reset/places/coast.png",
+      "source": "art/concepts/scene-reset-2026-10-25/coast.png",
+      "sha256": "d9bec0c5e8056187a6e1a99caa68b0122db1ecd1c3c2517d15a737e681157a81",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2657493,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target is the attached complete game concept. Preserve exactly the whole scene illustration, camera, all environment features and their positions and sizes, lighting and colors. Remove ALL UI and writing: all title/date/navigation paper surfaces, destination labels, icons, arrows, subtitle captions, symbols and UI connector lines. Remove any visible people without changing architecture. Reconstruct only the small areas covered by those overlays. Same native full-canvas aspect ratio, no reframing or rearrangement, no new objects. The result is a clean background for registered live text and polygon interaction; absolutely no baked words, menu controls or paper labels."
+    },
+    {
+      "key": "clean_world",
+      "path": "assets/ui/scene_reset/maps/world.png",
+      "source": "art/concepts/scene-reset-2026-10-25/world.png",
+      "sha256": "681bc7fe95ae3ad632a8a676c73f893b8c83877ba1dd0300d127f2eae68f7c87",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 2772849,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Use case: precise-object-edit. Edit target is the attached complete game concept. Preserve exactly the whole scene illustration, camera, all environment features and their positions and sizes, lighting and colors. Remove ALL UI and writing: all title/date/navigation paper surfaces, destination labels, icons, arrows, subtitle captions, symbols and UI connector lines. Remove any visible people without changing architecture. Reconstruct only the small areas covered by those overlays. Same native full-canvas aspect ratio, no reframing or rearrangement, no new objects. The result is a clean background for registered live text and polygon interaction; absolutely no baked words, menu controls or paper labels."
+    },
+    {
+      "key": "clean_map_nomos",
+      "path": "assets/ui/scene_reset/maps/map_nomos.png",
+      "source": "art/concepts/scene-reset-2026-10-25/map_nomos.png",
+      "sha256": "a06d59c856002b11bcd0499699f7841c19585ca857c75391d81b610c8e1d4d82",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3359596,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Edit this exact map. Remove all game UI and all paper labels, text, arrows and navigation. Keep the illustrated buildings, huge tree tavern, park, paths, landscape and camera exactly unchanged. Reconstruct small areas covered by UI. Same full image size and composition. Clean illustrated map background only, no text, no UI, no people."
+    },
+    {
+      "key": "clean_map_techne",
+      "path": "assets/ui/scene_reset/maps/map_techne.png",
+      "source": "art/concepts/scene-reset-2026-10-25/map_techne.png",
+      "sha256": "f4631ee521c6bcad06acc0537c864b6d1ba0e60dca1ae882f71f048866aa084b",
+      "pixels": [
+        1672,
+        941
+      ],
+      "bytes": 3268817,
+      "alpha": false,
+      "method": "OpenAI image_gen generation/edit; generated edit may repaint small details. Runtime furniture uses the identical clean mother, without independent rescaling.",
+      "prompt": "Edit this exact Techne campus map. Remove all game UI, all paper labels, text, arrows and navigation buttons. Keep the illustrated workshop buildings, paths, large tree tavern, garden and camera unchanged. Repaint only where UI was removed so this is a clean full-screen game environment. No new text or interfaces."
+    },
+    {
+      "key": "home_records",
+      "path": "assets/ui/scene_reset/icons/home_records.svg",
+      "source": null,
+      "sha256": "22f12ff95746569f775816c4dc74b1b14fba1cdd6381b87454ee14b695e107cd",
+      "bytes": 286,
+      "method": "New hand-drawn vector fallback or small readable icon."
+    },
+    {
+      "key": "status_allowance",
+      "path": "assets/ui/scene_reset/icons/status_allowance.svg",
+      "source": null,
+      "sha256": "9f03559cdd65a4fca331dbb4a80821b4b94d22b7c28a07c3ccf91cf83f239f52",
+      "bytes": 349,
+      "method": "New hand-drawn vector fallback or small readable icon."
+    },
+    {
+      "key": "status_practice",
+      "path": "assets/ui/scene_reset/icons/status_practice.svg",
+      "source": null,
+      "sha256": "2e71b3bfe316abd2d05f4368d3551e7257273a3671020bf1e4cef070c08778d9",
+      "bytes": 277,
+      "method": "New hand-drawn vector fallback or small readable icon."
+    },
+    {
+      "key": "paper_button",
+      "path": "assets/ui/scene_reset/paper_button.svg",
+      "source": null,
+      "sha256": "6342bc58b354961777b835f88773b1594157e1acc49fdce89bee85df0862419a",
+      "bytes": 372,
+      "method": "New hand-drawn vector fallback or small readable icon."
+    },
+    {
+      "key": "paper_panel",
+      "path": "assets/ui/scene_reset/paper_panel.svg",
+      "source": null,
+      "sha256": "99f32966941a5164a6f0a8316f8f28d63655c5a95ad5af3b103d5163abf87ebf",
+      "bytes": 385,
+      "method": "New hand-drawn vector fallback or small readable icon."
+    },
+    {
+      "key": "primary_button",
+      "path": "assets/ui/scene_reset/primary_button.svg",
+      "source": null,
+      "sha256": "8d05328dabc41eaac26c4a1e35cfa758b5429f51803c4afd3796e3bfbdf26059",
+      "bytes": 371,
+      "method": "New hand-drawn vector fallback or small readable icon."
+    }
+  ]
+}

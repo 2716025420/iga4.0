@@ -1,0 +1,673 @@
+class_name PlayerWorkspace
+extends Control
+
+signal close_requested
+signal action_requested(action: String, payload: Dictionary)
+const INK := Color("#303D51")
+const MUTED := Color("#687487")
+const BLUE := Color("#526D87")
+const CORAL := Color("#BA6A58")
+const IVORY := Color("#F7F3E8")
+# Central projection screen: keep live content clear of the painted frame.
+const RECORDS_BODY_RECT := Rect2(590,156,825,652)
+const RECORDS_BODY_SOURCE := Rect2(420,166,875,691)
+var panel_kind := "workshop"
+var current_tab := "journey"
+var selected_card_id := ""
+var context: Dictionary = {}
+var refs: Dictionary = {}
+var snapshot: Dictionary = {}
+var card_filter := "all"
+var material_quality := "common"
+var preset_index := 0
+var _drafts: Dictionary = {}
+var replacing_card_id := ""
+var warehouse_category := "all"
+var warehouse_sort := "number"
+var warehouse_descending := false
+var inventory_query := ""
+var selected_item_id := ""
+var journey_mode := "memories"
+var _scroll_positions: Dictionary = {}
+var _revision := 0
+
+static func create(kind: String, panel_context: Dictionary = {}) -> PlayerWorkspace:
+ if kind not in ["workshop","records"]: return null
+ var panel := PlayerWorkspace.new()
+ panel.panel_kind = kind
+ panel.current_tab = str(panel_context.get("tab","journey"))
+ if panel.current_tab not in ["journey","growth","classmates","warehouse"]: panel.current_tab = "journey"
+ panel.refresh(panel_context)
+ return panel
+
+func refresh(panel_context: Dictionary = {}) -> void:
+ var focus_name := ""
+ var caret := -1
+ if is_inside_tree():
+  var focused := get_viewport().gui_get_focus_owner()
+  if focused != null and is_ancestor_of(focused):
+   focus_name = str(focused.name)
+   if focused is LineEdit: caret = focused.caret_column
+ for node in find_children("*", "ScrollContainer", true, false):
+  _scroll_positions[str(node.name)] = node.scroll_vertical
+ context.merge(panel_context,true)
+ selected_card_id = str(context.get("selected_card_id",selected_card_id))
+ snapshot = HomePanels.content_snapshot(panel_kind,selected_card_id)
+ selected_card_id = str(snapshot["selected_card"].get("id",""))
+ if replacing_card_id != selected_card_id or _draft().has(replacing_card_id): replacing_card_id = ""
+ _revision += 1
+ for child in get_children():
+  remove_child(child)
+  child.queue_free()
+ refs.clear()
+ size = Vector2(1920,1080)
+ theme = DaylightUI.get_theme().duplicate() as Theme
+ theme.set_font("font","Button",theme.default_font)
+ theme.set_font("font","Label",theme.default_font)
+ mouse_filter = Control.MOUSE_FILTER_STOP
+ set_meta("full_scene_overlay",true)
+ set_meta("design_size",size)
+ _surface(self,"ScreenBase",Rect2(0,0,1920,1080),Color("#D7E0E4") if panel_kind == "workshop" else Color("#D9BC90"))
+ SchoolObjectUI.art(self,"WorkspaceArt","res://assets/ui/player_experience/" + ("prep_scene_room.png" if panel_kind == "workshop" else "records_room.png"))
+ SchoolObjectUI.art(self,"WorkspaceStructure","res://assets/ui/player_experience/" + ("prep_scene_structure_neutral_v2.png" if panel_kind == "workshop" else "records_structure.png"))
+ if panel_kind == "workshop": _render_workshop()
+ else: _render_records()
+ var close := _plate_button(self,"CloseButton","×",Rect2(1815,20,85,75),panel_kind == "workshop")
+ close.add_theme_font_size_override("font_size",42)
+ close.pressed.connect(func(): close_requested.emit())
+ refs["close_button"] = close
+ var feedback := str(context.get("message",""))
+ if feedback != "":
+  _surface(self,"FeedbackPlate",Rect2(90,160,610,37) if panel_kind == "workshop" else Rect2(550,1030,880,36),IVORY)
+  _text(self,"ActionFeedback",feedback,Rect2(102,160,586,37) if panel_kind == "workshop" else Rect2(562,1030,856,36),22,CORAL,true)
+ for button in find_children("*","Button",true,false): SchoolObjectUI.borderless(button)
+ _restore_state.call_deferred(focus_name,caret,_revision)
+
+func _restore_state(focus_name: String, caret: int, revision: int) -> void:
+ if revision != _revision or not is_inside_tree(): return
+ for node in find_children("*", "ScrollContainer", true, false):
+  node.scroll_vertical = int(_scroll_positions.get(str(node.name),0))
+ if focus_name != "":
+  var target := find_child(focus_name,true,false) as Control
+  if target != null and (not target is BaseButton or not target.disabled):
+   target.grab_focus()
+   if target is LineEdit and caret >= 0: target.caret_column = caret
+
+func _text(parent: Control, node_name: String, copy: String, rect: Rect2, font_size: int = 26, color: Color = INK, centered: bool = false) -> Label:
+ var node := SchoolObjectUI.text(parent,node_name,copy,rect,font_size,color,centered)
+ node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+ node.clip_text = true
+ node.set_deferred("size",rect.size)
+ node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+ return node
+
+func _surface(parent: Control, node_name: String, rect: Rect2, color: Color = IVORY, border: Color = Color("#8293A2")) -> Panel:
+ var node := SchoolObjectUI.slab(parent,node_name,rect,color)
+ var style := node.get_theme_stylebox("panel") as StyleBoxFlat
+ style.set_corner_radius_all(2)
+ style.border_color = border
+ return node
+
+func _button(parent: Control, node_name: String, copy: String, rect: Rect2, primary: bool = false, selected: bool = false) -> Button:
+ var node := Button.new()
+ node.name = node_name
+ node.text = copy
+ node.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+ node.add_theme_font_size_override("font_size",25)
+ for state in ["normal","hover","pressed","hover_pressed","focus","disabled"]:
+  var style := StyleBoxFlat.new()
+  style.bg_color = CORAL if primary else (BLUE if selected else IVORY)
+  if state == "hover": style.bg_color = Color("#CA7770") if primary else (Color("#6888A3") if selected else Color("#E1EBEE"))
+  if state in ["pressed","hover_pressed"]: style.bg_color = style.bg_color.darkened(0.14)
+  if state == "disabled": style.bg_color = Color("#D5D7D5")
+  style.border_color = Color("#DBA261") if state == "focus" else Color(0.32,0.43,0.55,0.55 if selected else 0.18)
+  style.set_border_width_all(2 if state == "focus" else 1)
+  style.set_corner_radius_all(6)
+  node.add_theme_stylebox_override(state,style)
+ for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+  node.add_theme_color_override(key,Color.WHITE if primary or selected else INK)
+ node.add_theme_color_override("font_disabled_color",Color("#647080"))
+ parent.add_child(node)
+ DaylightUI.place(node,rect.position.x,rect.position.y,rect.size.x,rect.size.y)
+ SchoolObjectUI.set_selected(node,selected)
+ return node
+
+func _scroll(parent: Control, node_name: String, rect: Rect2) -> Control:
+ var scroll := ScrollContainer.new()
+ scroll.name = node_name
+ scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+ parent.add_child(scroll)
+ DaylightUI.place(scroll,rect.position.x,rect.position.y,rect.size.x,rect.size.y)
+ var list := Control.new()
+ list.name = node_name+"Content"
+ scroll.add_child(list)
+ refs[node_name] = scroll
+ return list
+
+func _art(parent: Control, node_name: String, path: String, rect: Rect2) -> TextureRect:
+ var node := SchoolObjectUI.art(parent,node_name,path,rect)
+ if ResourceLoader.exists(path): node.texture = SceneSkin.illustration_texture(path)
+ return node
+
+func _nav_button(parent: Control, node_name: String, copy: String, rect: Rect2, active: bool = false) -> Button:
+ # The art is neutral; live state is a light fill that never draws an outline.
+ var button := _plate_button(parent,node_name,copy,rect,true)
+ if active:
+  var wash := StyleBoxFlat.new()
+  wash.bg_color = Color(1.0,0.94,0.78,0.13)
+  wash.set_corner_radius_all(6)
+  button.add_theme_stylebox_override("normal",wash)
+ SchoolObjectUI.set_selected(button,active)
+ return button
+
+func _plate_button(parent: Control, node_name: String, copy: String, rect: Rect2, white_text: bool = false) -> Button:
+ var button := SchoolObjectUI.hit(parent,node_name,rect,copy,27)
+ if white_text:
+  for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: button.add_theme_color_override(key,Color.WHITE)
+ return button
+
+func _action_art(parent: Control, node_name: String, card_id: String, rect: Rect2) -> TextureRect:
+ var regions := {"wrench_smash":Rect2(615,210,330,260),"scrap_shield":Rect2(950,220,255,255),"icy_soda":Rect2(1225,210,315,260),"overclock_torch":Rect2(625,477,322,280),"fake_cheque":Rect2(941,480,290,272),"steel_barricade":Rect2(1232,480,310,280)}
+ var art := SchoolObjectUI.art(parent,node_name,"",rect)
+ if regions.has(card_id) and ResourceLoader.exists("res://assets/ui/player_experience/prep_action_atlas.png"):
+  var atlas := AtlasTexture.new()
+  atlas.atlas = load("res://assets/ui/player_experience/prep_action_atlas.png")
+  atlas.region = regions[card_id]
+  atlas.filter_clip = true
+  art.texture = atlas
+ else:
+  var texture_path := SceneSkin.card_illustration_path(card_id)
+  if ResourceLoader.exists(texture_path): art.texture = SceneSkin.illustration_texture(texture_path)
+ return art
+
+func _render_workshop() -> void:
+ _text(self,"Title","卡牌整理",Rect2(95,20,530,95),64,Color("#FFF5DC"))
+ _text(self,"Subtitle","整理行动卡，找到顺手的配合节奏。",Rect2(145,111,510,47),25,Color("#FFF5DC"))
+ _text(self,"Resources","练习点  %d" % GameState.scrap_metal,Rect2(1530,22,265,55),27,Color.WHITE,true)
+ var loadouts: Array = GameState.player_profile["loadouts"]
+ var saved: Array = loadouts[preset_index]["card_ids"] if preset_index < loadouts.size() else []
+ var preset_rects := [Rect2(714,79,140,49),Rect2(875,79,129,49),Rect2(1020,79,140,49)]
+ for i in 3:
+  var preset := _nav_button(self,"Preset%d" % i,"方案%d" % (i+1),preset_rects[i],i == preset_index)
+  preset.pressed.connect(func(): preset_index = i; replacing_card_id = ""; refresh())
+ var save := _plate_button(self,"SaveLoadout","保存",Rect2(1191,80,142,48),true)
+ save.disabled = _draft() == saved or not PlayerJourney.deck_summary(_draft())["ready"]
+ save.pressed.connect(func(): action_requested.emit("save_loadout",{"index":preset_index,"card_ids":_draft().duplicate()}))
+ var applied := PlayerJourney.active_loadout_index() == preset_index
+ var dirty := _draft() != saved
+ var apply := _plate_button(self,"ApplyLoadout","应用中" if applied else "应用",Rect2(1356,80,148,48),true)
+ apply.disabled = not PlayerJourney.deck_summary(saved)["ready"] or applied or dirty
+ apply.pressed.connect(func(): replacing_card_id = ""; action_requested.emit("apply_loadout",{"index":preset_index}))
+ var keys := ["all","attack","guard","heal","support"]
+ var names := ["全部","进攻","防护","恢复","支援"]
+ var filter_rects := [Rect2(816,207,131,43),Rect2(974,207,119,43),Rect2(1117,207,119,43),Rect2(1261,207,119,43),Rect2(1404,207,119,43)]
+ for i in keys.size():
+  var filter := _nav_button(self,"Filter_"+keys[i],names[i],filter_rects[i],card_filter == keys[i])
+  filter.pressed.connect(func(): card_filter = keys[i]; _scroll_positions["CardLibraryScroll"] = 0; refresh())
+ var list := _scroll(self,"CardLibraryScroll",Rect2(800,272,760,533))
+ var visible_cards: Array = []
+ for card in snapshot["cards"]:
+  var type: int = int(card["type"])
+  if card_filter == "all" or (card_filter == "attack" and type == 0) or (card_filter == "guard" and type in [1,4]) or (card_filter == "heal" and type == 2) or (card_filter == "support" and type == 3): visible_cards.append(card)
+ list.custom_minimum_size = Vector2(735,maxi(530,ceili(visible_cards.size()/3.0)*267))
+ var cards := {}
+ for i in visible_cards.size():
+  var data: Dictionary = visible_cards[i]
+  var id: String = data["id"]
+  var card := _button(list,"Card_"+id,"",Rect2((i%3)*246,(i/3)*267,230,251))
+  for state in ["normal","hover","pressed"]:
+   var style := card.get_theme_stylebox(state).duplicate() as StyleBoxFlat
+   style.bg_color = Color("#FFF9E8") if state == "hover" else (Color("#E3EAF0") if state == "pressed" else (Color("#F5E2BE") if id == selected_card_id else Color("#FBF0D8")))
+   style.set_border_width_all(0)
+   style.set_corner_radius_all(8)
+   card.add_theme_stylebox_override(state,style)
+  SchoolObjectUI.set_selected(card,id == selected_card_id)
+  _action_art(card,"CardArt",id,Rect2(16,14,198,159))
+  _text(card,"CardName",data["name"],Rect2(14,177,202,38),27)
+  _text(card,"CardState","等级%d · 冷却%d%s" % [data["level"],data["cooldown"]," · 已编入" if _draft().has(id) else ""],Rect2(14,216,202,30),20,BLUE)
+  card.set_meta("hint_light_text",true)
+  card.pressed.connect(func(): replacing_card_id = ""; action_requested.emit("select_card",{"card_id":id}))
+  cards[id] = card
+ refs["card_buttons"] = cards
+ if visible_cards.is_empty(): _text(list,"EmptyCards","这类行动卡还没有解锁。\n继续行程，试试新的搭配。",Rect2(40,135,650,170),28,Color("#FFF5DC"),true)
+ _render_card_detail()
+ _render_deck()
+
+func _render_card_detail() -> void:
+ if selected_card_id == "":
+  _text(self,"EmptyDetail","还没有行动卡。继续今天的行程吧。",Rect2(185,300,460,200),30)
+  return
+ var card: CardData = GameState.get_card(selected_card_id)
+ _text(self,"SelectedCardName",card.name,Rect2(190,205,465,62),38)
+ _action_art(self,"SelectedCardArt",selected_card_id,Rect2(180,278,470,215))
+ _text(self,"SelectedCardEffect",card.get_plain_description(),Rect2(190,500,465,87),27)
+ _text(self,"UpgradePreview",card.get_upgrade_preview_text().replace(" | ","   ").replace(" -> "," → "),Rect2(190,592,465,75),25,BLUE)
+ var quote := PlayerJourney.training_quote(selected_card_id,material_quality)
+ for i in 3:
+  var quality: String = ["common","fine","rare"][i]
+  var cost := PlayerJourney.training_quote(selected_card_id,quality)
+  var button := _plate_button(self,"Material_"+quality,"%s ×%d" % [PlayerJourney.QUALITIES[quality],cost["amount"]],Rect2(198+i*157,687,131,41))
+  if material_quality == quality:
+   var wash := StyleBoxFlat.new()
+   wash.bg_color = Color(0.32,0.43,0.55,0.08)
+   wash.set_corner_radius_all(6)
+   button.add_theme_stylebox_override("normal",wash)
+  button.disabled = card.level >= card.max_level
+  SchoolObjectUI.set_selected(button,material_quality == quality)
+  _text(self,"Owned_"+quality,"持有%d" % GameState.exploration_materials[quality],Rect2(190+i*157,738,147,29),21,BLUE,true)
+  button.pressed.connect(func(): material_quality = quality; refresh())
+ _text(self,"TrainingReason",quote["reason"],Rect2(190,770,465,31),22,MUTED)
+ var train := _plate_button(self,"TrainButton","练习 · %d点" % quote["points"] if card.level < card.max_level else "最高等级",Rect2(213,809,273,51),true)
+ train.disabled = not quote["ok"]
+ train.pressed.connect(func(): action_requested.emit("upgrade_card",{"card_id":selected_card_id,"quality":material_quality}))
+ var removing := _draft().duplicate()
+ removing.erase(selected_card_id)
+ var keep_attack: bool = _draft().has(selected_card_id) and PlayerJourney.deck_summary(_draft())["ready"] and not PlayerJourney.deck_summary(removing)["ready"]
+ var equip := _plate_button(self,"EquipButton","保留攻击卡" if keep_attack else ("移出" if _draft().has(selected_card_id) else ("替换" if _draft().size() >= 5 else "编入")),Rect2(526,796,151,46))
+ equip.disabled = keep_attack
+ SchoolObjectUI.fit_surface(train,-14,3,0.96)
+ SchoolObjectUI.fit_surface(equip,-8,2,0.96)
+ equip.pressed.connect(_equip_selected)
+ refs["train_button"] = train
+ refs["equip_button"] = equip
+
+func cancel_pending() -> bool:
+ if replacing_card_id == "": return false
+ replacing_card_id = ""
+ refresh()
+ return true
+
+func _equip_selected() -> void:
+ if _draft().has(selected_card_id):
+  var next := _draft().duplicate()
+  next.erase(selected_card_id)
+  if PlayerJourney.deck_summary(_draft())["ready"] and not PlayerJourney.deck_summary(next)["ready"]:
+   context["message"] = GameState.DECK_RULE_MESSAGE
+   refresh()
+   return
+  _drafts[preset_index] = next
+  refresh()
+ elif _draft().size() >= 5:
+  replacing_card_id = selected_card_id
+  refresh()
+  var slot := find_child("Slot0",true,false) as Button
+  if slot != null: slot.grab_focus.call_deferred()
+ else: _put_draft_card(selected_card_id)
+
+func _render_deck() -> void:
+ _text(self,"DeckTitle","出牌顺序\n%d / 5" % _draft().size(),Rect2(115,936,163,90),27,INK,true)
+ var deck := PlayerJourney.deck_summary(_draft())
+ _text(self,"DeckSummary",deck["text"].replace("  "," · ")+"\n"+deck["reason"],Rect2(1420,934,380,105),24,INK)
+ if replacing_card_id != "":
+  _surface(self,"ReplacePlate",Rect2(790,824,780,66),IVORY)
+  _text(self,"ReplacePrompt","选择下方槽位，替换为「%s」" % GameState.get_card(replacing_card_id).name,Rect2(805,831,580,50),26,CORAL)
+  _button(self,"CancelReplace","取消",Rect2(1390,833,160,45)).pressed.connect(func(): replacing_card_id = ""; refresh())
+ for i in 5:
+  var id: String = _draft()[i] if i < _draft().size() else ""
+  var slot := HomePanels.EquipSlot.new()
+  slot.name = "Slot%d" % i
+  slot.slot_index = i
+  slot.card_id = id
+  slot.deck_ids = _draft()
+  slot.card_name = GameState.get_card(id).name if id != "" else ""
+  slot.drag_enabled = replacing_card_id == ""
+  for state in ["normal","hover","pressed","hover_pressed","disabled","focus"]:
+   slot.add_theme_stylebox_override(state,_slot_style(replacing_card_id != "" or state == "focus",state))
+  add_child(slot)
+  DaylightUI.place(slot,298+i*216,934,200,90)
+  _text(slot,"Number",str(i+1).pad_zeros(2),Rect2(2,3,30,24),18,BLUE)
+  if i < 4:
+   var divider := SchoolObjectUI.rule(slot,"OrderDivider",Rect2(207,20,1,52))
+   divider.color = Color(0.32,0.42,0.53,0.20)
+  if id != "":
+   var icon := _action_art(slot,"Art",id,Rect2(25,17,79,68))
+   slot.drag_texture = icon.texture
+   _text(slot,"Name",slot.card_name,Rect2(105,17,93,68),23)
+  else: _text(slot,"Empty","＋",Rect2(30,15,140,65),37,BLUE,true)
+  slot.pressed.connect(func():
+   if replacing_card_id != "" and id != "":
+    var replacement := replacing_card_id
+    replacing_card_id = ""
+    _put_draft_card(replacement,i)
+   elif id != "": action_requested.emit("select_card",{"card_id":id})
+   elif selected_card_id != "" and not _draft().has(selected_card_id): _put_draft_card(selected_card_id,i)
+  )
+  slot.move_requested.connect(func(from_index: int,to_index: int):
+   replacing_card_id = ""
+   _move_draft_card(from_index,to_index)
+  )
+
+func _slot_style(active: bool, state: String = "normal") -> StyleBoxFlat:
+ var style := StyleBoxFlat.new()
+ # The long paper strip already supplies the surface; retain its grain.
+ style.bg_color = Color(0.32,0.43,0.55,0.0)
+ if state == "hover": style.bg_color.a = 0.07
+ if state in ["pressed","hover_pressed"]: style.bg_color.a = 0.12
+ if active: style.bg_color.a = maxf(style.bg_color.a,0.08)
+ style.set_border_width_all(0)
+ style.set_corner_radius_all(10)
+ return style
+
+func _render_records() -> void:
+ _text(self,"Title","校园记录",Rect2(82,40,398,108),65)
+ _text(self,"IndexCaption","那些放学后的时光，\n都被好好记住了。",Rect2(87,148,335,98),26,BLUE,true)
+ var keys := ["journey","growth","classmates","warehouse"]
+ var names := ["行程足迹","成长目标","同学档案","物品收纳"]
+ var symbols := ["◉","↗","◇","□"]
+ for i in keys.size():
+  var tab := SchoolObjectUI.hit(self,"Tab_"+keys[i],Rect2(72,300+i*110,360,100),"",31)
+  _text(tab,"Symbol",symbols[i],Rect2(18,15,65,70),43,Color.WHITE,true)
+  _text(tab,"Title",names[i],Rect2(98,16,242,68),33,Color.WHITE)
+  if current_tab == keys[i]:
+   var wash := StyleBoxFlat.new()
+   wash.bg_color = Color(1.0,0.96,0.84,0.13)
+   wash.set_corner_radius_all(8)
+   tab.add_theme_stylebox_override("normal",wash)
+  SchoolObjectUI.set_selected(tab,current_tab == keys[i])
+  tab.pressed.connect(func(): current_tab = keys[i]; context["message"] = ""; refresh())
+ _text(self,"ArchiveTime",GameState.get_formatted_time(),Rect2(97,250,320,42),23,INK,true)
+ if not ResourceLoader.exists("res://assets/ui/player_experience/records_structure.png"):
+  _surface(self,"ArchiveContent",Rect2(530,145,910,740),IVORY)
+  _surface(self,"HistoryDrawer",Rect2(1500,145,380,740),IVORY)
+ var body := Control.new()
+ body.name = "RecordsContent"
+ body.mouse_filter = Control.MOUSE_FILTER_PASS
+ body.clip_contents = true
+ body.position = RECORDS_BODY_RECT.position
+ body.size = RECORDS_BODY_SOURCE.size
+ var factor := minf(RECORDS_BODY_RECT.size.x / body.size.x,RECORDS_BODY_RECT.size.y / body.size.y)
+ body.scale = Vector2.ONE * factor
+ add_child(body)
+ var before := get_children()
+ match current_tab:
+  "journey": _render_journey()
+  "growth": _render_growth()
+  "classmates": _render_classmates()
+  "warehouse": _render_warehouse()
+ # Reparent the whole page so text, fields, scrolling and hit areas share one transform.
+ for child in get_children():
+  if not before.has(child) and child is Control:
+   child.reparent(body,false)
+   child.position -= RECORDS_BODY_SOURCE.position
+ _render_history()
+ var complete: bool = snapshot["completed"]
+ _text(self,"CurrentObjective","行程已完成 · 回看熟悉的片段" if complete else str(snapshot["current_title"]),Rect2(565,946,850,69),28,Color("#FCF6E8"))
+ var next := SchoolObjectUI.hit(self,"ContinueJourney",Rect2(1460,946,354,83),"整理卡组" if complete else "继续行程",33)
+ for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: next.add_theme_color_override(state,Color.WHITE)
+ next.pressed.connect(func(): action_requested.emit("open_workshop" if complete else "start_chapter",{}))
+
+func _render_journey() -> void:
+ _text(self,"ChapterTitle","第一章 · 放学后的那条路",Rect2(420,170,790,55),34)
+ _text(self,"ChapterProgress","已走过 %d / %d 段 · %s" % [snapshot["completed_count"],snapshot["total_steps"],"行程完成" if snapshot["completed"] else "继续写下今天的经历"],Rect2(420,226,790,42),24,MUTED)
+ _button(self,"MemoryTab","经历与回看",Rect2(420,285,260,48),false,journey_mode == "memories").pressed.connect(func(): journey_mode = "memories"; refresh())
+ _button(self,"ClueTab","调查线索",Rect2(705,285,240,48),false,journey_mode == "clues").pressed.connect(func(): journey_mode = "clues"; refresh())
+ if journey_mode == "clues":
+  _text(self,"InvestigationRecord",snapshot["record_anomaly"],Rect2(430,370,765,330),30)
+  return
+ var list := _scroll(self,"JourneyScroll",Rect2(420,357,875,500))
+ var source := HomePanels.new()
+ var entries := source._known_records()
+ source.free()
+ list.custom_minimum_size = Vector2(850,maxi(480,entries.size()*171))
+ var memories := {}
+ for entry in PlayerJourney.memories(): memories[entry["node"]] = entry["dialogue_id"]
+ refs["memory_buttons"] = {}
+ for i in entries.size():
+  var entry: Dictionary = entries[i]
+  var y := i*171
+  SchoolObjectUI.rule(list,"MemorySplice%d" % i,Rect2(0,y+158,848,1))
+  _surface(list,"FilmWindow%d" % i,Rect2(0,y+6,282,142),Color("#A48B74"),Color("#B69B80"))
+  SchoolObjectUI.art(list,"Scene%d" % i,"res://assets/backgrounds/phase_two/%s.png" % entry["scene"],Rect2(16,y+12,250,130))
+  for hole in 6:
+   _surface(list,"PerforationL%d_%d" % [i,hole],Rect2(4,y+16+hole*21,7,11),IVORY,IVORY)
+   _surface(list,"PerforationR%d_%d" % [i,hole],Rect2(271,y+16+hole*21,7,11),IVORY,IVORY)
+  _text(list,"MemoryTitle%d" % i,entry["title"],Rect2(302,y+10,530,40),27)
+  _text(list,"MemoryCopy%d" % i,entry["copy"],Rect2(302,y+52,530,62),23,MUTED)
+  if memories.has(entry["node"]):
+   var id: String = memories[entry["node"]]
+   var replay := _button(list,"Replay_"+id,"回看",Rect2(693,y+114,135,32))
+   replay.add_theme_font_size_override("font_size",21)
+   replay.pressed.connect(func(): action_requested.emit("replay_memory",{"dialogue_id":id}))
+   refs["memory_buttons"][id] = replay
+  else: _text(list,"BattleSummary%d" % i,"已完成 · 遭遇记录",Rect2(220,y+114,520,32),21,BLUE)
+ if entries.is_empty(): _text(list,"EmptyMemories","今天的故事还没开始。\n先一起走到学校吧。",Rect2(20,80,730,180),30,MUTED,true)
+
+func _render_growth() -> void:
+ _text(self,"GrowthTitle","把每一次进步留在这里",Rect2(420,170,790,60),34)
+ _text(self,"GrowthHint","永久目标 · 达成后手动领取奖励",Rect2(420,238,790,42),24,MUTED)
+ var list := _scroll(self,"GrowthScroll",Rect2(420,305,795,550))
+ var goals := PlayerJourney.milestones()
+ list.custom_minimum_size = Vector2(772,goals.size()*167)
+ refs["milestone_buttons"] = {}
+ for i in goals.size():
+  var goal: Dictionary = goals[i]
+  var y := i*167
+  _surface(list,"Goal_"+goal["id"],Rect2(0,y,770,151),Color("#F4EBDC"),Color("#D6C6AB"))
+  _text(list,"Title",goal["title"],Rect2(18,y+8,540,40),29)
+  _text(list,"Condition",goal["condition"]+" · "+goal["progress"],Rect2(18,y+51,540,46),23,MUTED)
+  _text(list,"Reward",goal["reward"],Rect2(18,y+102,540,38),23,CORAL)
+  var claim := _button(list,"Claim_"+goal["id"],"已领取" if goal["claimed"] else ("领取" if goal["ready"] else "未达成"),Rect2(584,y+44,166,65),bool(goal["ready"]) and not goal["claimed"])
+  claim.disabled = goal["claimed"] or not goal["ready"]
+  claim.pressed.connect(func(): action_requested.emit("claim_milestone",{"id":goal["id"]}))
+  refs["milestone_buttons"][goal["id"]] = claim
+
+func _render_classmates() -> void:
+ _text(self,"ClassmatesTitle","见过的同学，各有自己的计划",Rect2(420,170,790,80),33)
+ var met: Array = []
+ for actor in snapshot["cast"]:
+  if actor["id"] == "ye_zhou" or GameState.companions.get(actor["id"],{}).get("unlocked",false): met.append(actor)
+ var list := _scroll(self,"ClassmatesScroll",Rect2(420,280,795,575))
+ var y := 0.0
+ for i in met.size():
+  var actor: Dictionary = met[i]
+  var bio := _text(list,"Bio%d" % i,PhaseTwoContent.ACTORS[actor["id"]]["bio"],Rect2(183,0,560,90),24,MUTED)
+  bio.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+  # Measure at the final wrapped width; the card and scroll extent grow with the copy.
+  var bio_height := maxf(90.0,bio.get_minimum_size().y)
+  var row_height := maxf(208.0,105.0+bio_height+24.0)
+  var plate := _surface(list,"Classmate_"+actor["id"],Rect2(0,y,770,row_height),Color("#F4EBDC"),Color("#D6C6AB"))
+  plate.clip_contents = true
+  list.move_child(plate,bio.get_index())
+  bio.position = Vector2(183,y+105)
+  bio.size = Vector2(560,bio_height)
+  SchoolObjectUI.art(list,"Portrait%d" % i,actor["portrait"],Rect2(16,y+12,145,180))
+  _text(list,"Name%d" % i,actor["name"],Rect2(183,y+12,560,48),31)
+  _text(list,"Subtitle%d" % i,actor["subtitle"],Rect2(183,y+62,560,40),24,BLUE)
+  y += row_height+18.0
+ list.custom_minimum_size = Vector2(772,maxf(575.0,y))
+
+func _inventory_field(control: Control, option: bool = false) -> void:
+ for state in (["normal","hover","pressed","hover_pressed","disabled"] if option else ["normal","read_only"]):
+  var style := StyleBoxFlat.new()
+  style.bg_color = Color(0.32,0.48,0.56,0.08) if state == "hover" else Color.TRANSPARENT
+  style.border_color = Color("#647A8F") if state in ["hover","pressed","hover_pressed"] else Color("#A89579")
+  style.set_border_width_all(0)
+  style.content_margin_left = 9
+  style.content_margin_right = 9
+  style.content_margin_top = 4
+  style.content_margin_bottom = 4
+  control.add_theme_stylebox_override(state,style)
+ var focus := StyleBoxFlat.new()
+ focus.bg_color = Color.TRANSPARENT
+ focus.border_color = Color("#5D82A2")
+ focus.set_border_width_all(0)
+ control.add_theme_stylebox_override("focus",focus)
+ for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color","font_disabled_color"]:
+  control.add_theme_color_override(state,INK)
+ if option:
+  var popup: PopupMenu = control.get_popup()
+  var plate := StyleBoxFlat.new()
+  plate.bg_color = IVORY
+  plate.border_color = Color("#A89579")
+  plate.set_border_width_all(1)
+  plate.set_content_margin_all(8)
+  popup.add_theme_stylebox_override("panel",plate)
+  var selection := StyleBoxFlat.new()
+  selection.bg_color = Color("#D8E4E8")
+  popup.add_theme_stylebox_override("hover",selection)
+  popup.add_theme_color_override("font_color",INK)
+  popup.add_theme_color_override("font_hover_color",INK)
+  popup.add_theme_font_size_override("font_size",23)
+
+func _render_warehouse() -> void:
+ _text(self,"WarehouseTitle","物品收纳",Rect2(420,166,400,58),36)
+ var keys := ["all","material","quest","item"]
+ for i in keys.size():
+  var filter := _button(self,"InventoryFilter_"+keys[i],ItemCatalog.CATEGORIES[keys[i]],Rect2(420+i*155,239,143,46),false,warehouse_category == keys[i])
+  filter.pressed.connect(func(): warehouse_category = keys[i]; _scroll_positions["InventoryScroll"] = 0; refresh())
+ # Paint borders on independent frames, outside the native field clipping.
+ var search_frame := _surface(self,"InventorySearchFrame",Rect2(420,303,320,50),IVORY,Color("#A89579"))
+ var search := LineEdit.new()
+ search.name = "InventorySearch"
+ search.placeholder_text = "搜索名称或拼音"
+ search.text = inventory_query
+ search.add_theme_font_size_override("font_size",24)
+ _inventory_field(search)
+ search.add_theme_color_override("font_color",INK)
+ search.add_theme_color_override("font_placeholder_color",MUTED)
+ search.add_theme_color_override("caret_color",INK)
+ add_child(search)
+ DaylightUI.place(search,422,305,316,46)
+ search.focus_entered.connect(func():
+  var style := search_frame.get_theme_stylebox("panel") as StyleBoxFlat
+  style.bg_color = Color("#E8EFF0")
+  style.set_border_width_all(1)
+ )
+ search.focus_exited.connect(func():
+  var style := search_frame.get_theme_stylebox("panel") as StyleBoxFlat
+  style.bg_color = IVORY
+  style.set_border_width_all(1)
+ )
+ search.text_changed.connect(func(value: String): inventory_query = value; _scroll_positions["InventoryScroll"] = 0; refresh())
+ var sort_frame := _surface(self,"InventorySortFrame",Rect2(755,303,270,50),IVORY,Color("#A89579"))
+ var sort := OptionButton.new()
+ sort.name = "InventorySort"
+ for name_copy in ["物品序号","拼音首字母","获得时间"]: sort.add_item(name_copy)
+ sort.selected = ["number","pinyin","acquired"].find(warehouse_sort)
+ sort.add_theme_font_size_override("font_size",23)
+ _inventory_field(sort,true)
+ sort.add_theme_color_override("font_color",INK)
+ add_child(sort)
+ DaylightUI.place(sort,757,305,266,46)
+ sort.focus_entered.connect(func():
+  var style := sort_frame.get_theme_stylebox("panel") as StyleBoxFlat
+  style.border_color = BLUE
+  style.set_border_width_all(2)
+ )
+ sort.focus_exited.connect(func():
+  var style := sort_frame.get_theme_stylebox("panel") as StyleBoxFlat
+  style.border_color = Color("#A89579")
+  style.set_border_width_all(1)
+ )
+ sort.item_selected.connect(func(index: int): warehouse_sort = ["number","pinyin","acquired"][index]; warehouse_descending = warehouse_sort == "acquired"; refresh())
+ _button(self,"InventorySortDirection","降序" if warehouse_descending else "升序",Rect2(1043,303,158,50)).pressed.connect(func(): warehouse_descending = not warehouse_descending; refresh())
+ var items: Array = []
+ for item in GameState.get_inventory_snapshot()["items"]:
+  if warehouse_category != "all" and warehouse_category != item["category"]: continue
+  var query := inventory_query.strip_edges().to_lower()
+  if query != "" and not (str(item["name"]).to_lower().contains(query) or str(item["pinyin"]).contains(query)): continue
+  items.append(item)
+ items.sort_custom(_compare_inventory_items)
+ var selected: Dictionary = {}
+ for item in items:
+  if item["id"] == selected_item_id: selected = item
+ if selected.is_empty() and not items.is_empty(): selected = items[0]
+ selected_item_id = str(selected.get("id",""))
+ var list := _scroll(self,"InventoryScroll",Rect2(420,369,795,244))
+ list.custom_minimum_size = Vector2(772,maxi(240,items.size()*88))
+ refs["inventory_order"] = []
+ refs["inventory_item_buttons"] = {}
+ for i in items.size():
+  var item: Dictionary = items[i]
+  var id: String = item["id"]
+  refs["inventory_order"].append(id)
+  var button := _button(list,"InventoryItem_"+id,"",Rect2(0,i*88,770,78),false,id == selected_item_id)
+  _art(button,"Icon",str(item["icon"]),Rect2(12,6,65,65))
+  var color := Color.WHITE if id == selected_item_id else INK
+  _text(button,"Name","%03d  %s" % [item["number"],item["name"]],Rect2(93,6,465,63),25,color)
+  _text(button,"Quantity","×%d" % item["quantity"],Rect2(570,6,180,63),27,color,true)
+  button.pressed.connect(func(): selected_item_id = id; refresh())
+  refs["inventory_item_buttons"][id] = button
+ if items.is_empty(): _text(list,"EmptyInventory","没有符合条件的物品。",Rect2(20,60,730,100),28,MUTED,true)
+ _surface(self,"InventoryDetail",Rect2(420,631,790,143),Color("#EAE0CA"),Color("#D6C6AB"))
+ var acquisition: Dictionary = selected.get("acquired",{})
+ var date_copy := "此前已持有 · 时间未记录" if acquisition.is_empty() else "最近获得："+DayCycleService.date_label(int(acquisition["day"]),int(acquisition["hour"]))
+ _text(self,"AcquiredTime",date_copy if not selected.is_empty() else "物品会妥善保存在这里",Rect2(438,635,754,35),21,BLUE)
+ var item_description := RichTextLabel.new()
+ item_description.name = "SelectedItemDescription"
+ item_description.text = str(selected.get("description","训练中收集的材料和物品会放进这里。"))
+ item_description.fit_content = false
+ item_description.scroll_active = true
+ item_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+ item_description.add_theme_font_size_override("normal_font_size",24)
+ item_description.add_theme_color_override("default_color",INK)
+ item_description.mouse_filter = Control.MOUSE_FILTER_PASS
+ add_child(item_description)
+ DaylightUI.place(item_description,438,675,754,91)
+ var use := _button(self,"UseDrink","饮品补给 · 恢复35",Rect2(420,782,366,58))
+ use.disabled = not PlayerJourney.safe_at_home() or GameState.energy_drinks < 1 or GameState.player_current_hp >= GameState.player_max_hp
+ use.pressed.connect(func(): action_requested.emit("use_drink",{}))
+ refs["inventory_selected"] = selected
+
+func _compare_inventory_items(a: Dictionary,b: Dictionary) -> bool:
+ var comparison := 0
+ match warehouse_sort:
+  "pinyin": comparison = str(a["pinyin"]).naturalnocasecmp_to(str(b["pinyin"]))
+  "acquired":
+   var a_order := int(a.get("acquired",{}).get("order",0))
+   var b_order := int(b.get("acquired",{}).get("order",0))
+   if (a_order == 0) != (b_order == 0): return a_order != 0
+   comparison = signi(a_order-b_order)
+  _: comparison = signi(int(a["number"])-int(b["number"]))
+ if comparison == 0: return int(a["number"]) < int(b["number"])
+ return comparison > 0 if warehouse_descending else comparison < 0
+
+func _render_history() -> void:
+ _text(self,"HistoryTitle","最近训练",Rect2(1548,160,284,60),34)
+ _text(self,"HistoryHint","模拟路线与训练收获",Rect2(1548,227,284,68),23,MUTED)
+ var entries: Array = GameState.player_profile["exploration_log"]
+ var list := _scroll(self,"HistoryScroll",Rect2(1548,315,294,566))
+ list.custom_minimum_size = Vector2(288,maxi(545,entries.size()*272))
+ for i in entries.size():
+  var entry: Dictionary = entries[i]
+  var y := i*272
+  var route_name := "校园路线"
+  for dungeon in snapshot["dungeons"]:
+   if dungeon["id"] == entry["dungeon_id"]: route_name = str(dungeon["title"])
+  SchoolObjectUI.rule(list,"Splice%d" % i,Rect2(0,y,286,1))
+  _text(list,"Route",route_name,Rect2(8,y+10,272,43),27)
+  _text(list,"Status","%s · %d处" % [{"completed":"已完成","defeat":"未能走完","retreated":"主动撤离"}[entry["status"]],entry["visited"]],Rect2(8,y+55,272,48),24,BLUE)
+  var earned: Dictionary = entry["earned"]
+  var materials: Dictionary = earned["materials"]
+  _text(list,"Gains","收获 %d练习点\n普%d · 精%d · 稀%d\n消费 %d点\n%s" % [earned["scrap_metal"],materials["common"],materials["fine"],materials["rare"],entry["spent_points"],DayCycleService.date_label(int(entry["day"]),int(entry["hour"]))],Rect2(8,y+108,272,145),23,MUTED)
+ if entries.is_empty(): _text(list,"EmptyHistory","还没有训练记录。\n\n走完、撤离或失败后，\n经历会留在这里。",Rect2(8,75,272,280),26,MUTED,true)
+
+func _draft() -> Array:
+ if not _drafts.has(preset_index):
+  var entries: Array = GameState.player_profile["loadouts"]
+  _drafts[preset_index] = entries[preset_index]["card_ids"].duplicate() if preset_index < entries.size() else []
+ return _drafts[preset_index]
+
+func _put_draft_card(card_id: String, index: int = -1) -> void:
+ if not GameState.unlocked_card_ids.has(card_id) or _draft().has(card_id): return
+ var ids := _draft().duplicate()
+ if index >= 0 and index < ids.size(): ids[index] = card_id
+ elif ids.size() < 5: ids.append(card_id)
+ if PlayerJourney.deck_summary(_draft())["ready"] and not PlayerJourney.deck_summary(ids)["ready"]:
+  context["message"] = GameState.DECK_RULE_MESSAGE
+  refresh()
+  return
+ _drafts[preset_index] = ids
+ refresh()
+
+func _move_draft_card(from_index: int, to_index: int) -> void:
+ var ids := _draft()
+ if from_index < 0 or from_index >= ids.size() or to_index < 0 or to_index >= 5: return
+ var moved: String = ids[from_index]
+ if to_index < ids.size():
+  ids[from_index] = ids[to_index]
+  ids[to_index] = moved
+ else:
+  ids.remove_at(from_index)
+  ids.append(moved)
+ refresh()

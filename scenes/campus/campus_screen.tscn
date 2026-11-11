@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://clmagl7l4tw5"]
+
+[ext_resource type="Script" uid="uid://dc52p6o5sccmn" path="res://scripts/campus/campus_screen.gd" id="1_yt3bo"]
+
+[node name="CampusScreen" type="Control" unique_id=2062082934]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_yt3bo")

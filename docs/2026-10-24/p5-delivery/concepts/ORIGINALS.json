@@ -1,0 +1,59 @@
+{
+  "policy": "All six concept PNG files are preserved byte-for-byte. New layers and screenshots are separate files.",
+  "originals": [
+    {
+      "path": "docs/2026-10-24/p5-delivery/concepts/agora-pending.png",
+      "sha256": "64c6552e7e902054b40d9e8dff189f14b19a00c9230d1aa80afdced6c44af4ff",
+      "pixels": [
+        1672,
+        941
+      ],
+      "preserved_from_commit": "d86f6e943040a347ed024629c294584874eff11a"
+    },
+    {
+      "path": "docs/2026-10-24/p5-delivery/concepts/agora-spatial-pending.png",
+      "sha256": "0d2863fa2fda0efac9f6402af7924ad24e1037d844adf3fc63b2d6245852dfe1",
+      "pixels": [
+        1672,
+        941
+      ],
+      "preserved_from_commit": "d86f6e943040a347ed024629c294584874eff11a"
+    },
+    {
+      "path": "docs/2026-10-24/p5-delivery/concepts/nomos-pending.png",
+      "sha256": "2b35ba5be1e783af6f85c8588ac74154ee0a4bf35badb49c7b7039adefcfc04a",
+      "pixels": [
+        1672,
+        941
+      ],
+      "preserved_from_commit": "d86f6e943040a347ed024629c294584874eff11a"
+    },
+    {
+      "path": "docs/2026-10-24/p5-delivery/concepts/nomos-spatial-pending.png",
+      "sha256": "9b2f11299a227992b9c6b4faf85e330c81438007fb1276e191182b7a32b3d8e2",
+      "pixels": [
+        1672,
+        941
+      ],
+      "preserved_from_commit": "d86f6e943040a347ed024629c294584874eff11a"
+    },
+    {
+      "path": "docs/2026-10-24/p5-delivery/concepts/techne-pending.png",
+      "sha256": "4449b8dcd7e17fb7615a58e688cdcaf5019c79256642f48c48984a17c19096a0",
+      "pixels": [
+        1672,
+        941
+      ],
+      "preserved_from_commit": "d86f6e943040a347ed024629c294584874eff11a"
+    },
+    {
+      "path": "docs/2026-10-24/p5-delivery/concepts/techne-spatial-pending.png",
+      "sha256": "cc7c3cad8cb75042bf0e7e215deee04b812f8a26d55caac37e1b15e429519336",
+      "pixels": [
+        1672,
+        941
+      ],
+      "preserved_from_commit": "d86f6e943040a347ed024629c294584874eff11a"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bgwtbhrmm74gv"]
+
+[ext_resource type="Script" uid="uid://evvrbgu265ou" path="res://scripts/campus/map_screen.gd" id="1_kwajm"]
+
+[node name="RegionAtlasScreen" type="Control" unique_id=1477053089]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_kwajm")
+map_level = "world"
