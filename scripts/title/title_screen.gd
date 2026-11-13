@@ -41,15 +41,17 @@ func _ready() -> void:
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	backdrop = ColorRect.new()
 	backdrop.name = "ModalBackdrop"
-	backdrop.color = Color(0.22, 0.20, 0.28, 0.40)
+	backdrop.color = Color(0.22, 0.20, 0.28, 0.44)
 	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
 	backdrop.visible = false
 	presentation.add_child(backdrop)
-	DaylightUI.place(backdrop, 0, 0, DESIGN.x, DESIGN.y)
+	DaylightUI.place(backdrop, -600, -300, 3120, 1680)
+	_wire_menu_focus()
 	_refresh_save()
 	SaveManager.save_state_changed.connect(_refresh_save)
 	resized.connect(_layout)
 	_layout()
+	_focus_default_row()
 
 func _layout() -> void:
 	var room := presentation.get_node_or_null("RoomArt") as TextureRect
@@ -73,6 +75,10 @@ func _label(node_name: String, text: String, font_size: int, position: Vector2, 
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", Color("#303A67"))
+	label.add_theme_color_override("font_shadow_color", Color(1.0, 0.98, 0.93, 0.62))
+	label.add_theme_constant_override("shadow_offset_x", 0)
+	label.add_theme_constant_override("shadow_offset_y", 2)
+	label.add_theme_constant_override("shadow_outline_size", 2)
 	if serif: label.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
 	presentation.add_child(label)
 	DaylightUI.place(label, position.x, position.y, extent.x, extent.y)
@@ -101,7 +107,10 @@ func _menu_row(node_name: String, text: String, top: float) -> Button:
 	button.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
 	button.add_theme_font_size_override("font_size", 34)
 	button.add_theme_color_override("font_color", Color("#303A67"))
-	button.add_theme_color_override("font_disabled_color", Color("#898496"))
+	button.add_theme_color_override("font_hover_color", Color("#222B54"))
+	button.add_theme_color_override("font_pressed_color", Color("#222B54"))
+	button.add_theme_color_override("font_focus_color", Color("#222B54"))
+	button.add_theme_color_override("font_disabled_color", Color("#67657C"))
 	button.add_theme_stylebox_override("normal", _row_style(Color.TRANSPARENT))
 	button.add_theme_stylebox_override("hover", _row_style(Color(0.79,0.73,0.87,0.48)))
 	button.add_theme_stylebox_override("pressed", _row_style(Color(0.72,0.65,0.82,0.55)))
@@ -117,10 +126,26 @@ func _button(parent: Control, node_name: String, text: String, position: Vector2
 	var button := Button.new()
 	button.name = node_name
 	button.text = text
-	button.add_theme_font_size_override("font_size", 34)
-	CombatSkin.button(button, primary)
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.add_theme_font_size_override("font_size", 32)
+	var base := Color("#D66B5A") if primary else Color("#EFE6D5")
+	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+		var box := StyleBoxFlat.new()
+		box.bg_color = base
+		if state == "hover":
+			box.bg_color = base.lightened(0.06) if primary else base.darkened(0.05)
+		elif state in ["pressed", "hover_pressed"]:
+			box.bg_color = base.darkened(0.10)
+		box.border_color = Color("#B95343") if primary else Color("#D4C6B4")
+		box.set_border_width_all(1)
+		box.set_corner_radius_all(12)
+		button.add_theme_stylebox_override(state, box)
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(key, Color("#FFFDF8") if primary else Color("#303A67"))
 	parent.add_child(button)
 	DaylightUI.place(button, position.x, position.y, extent.x, extent.y)
+	SchoolObjectUI.borderless(button)
 	return button
 
 func _refresh_save() -> void:
@@ -163,7 +188,9 @@ func _open_modal(kind: String, heading: String, copy: String = "") -> void:
 	DaylightUI.place(modal, 490, 260, 940, 530)
 	var title := Label.new()
 	title.text = heading
+	title.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
 	title.add_theme_font_size_override("font_size", 44)
+	title.add_theme_color_override("font_color", Color("#303A67"))
 	modal.add_child(title)
 	DaylightUI.place(title, 60, 40, 700, 66)
 	if copy != "":
@@ -171,9 +198,25 @@ func _open_modal(kind: String, heading: String, copy: String = "") -> void:
 		description.text = copy
 		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		description.add_theme_font_size_override("font_size", 30)
+		description.add_theme_color_override("font_color", Color("#4E5372"))
 		modal.add_child(description)
 		DaylightUI.place(description, 60, 145, 820, 130)
 	for button in [continue_button, new_button, settings_button, quit_button]: button.disabled = true
+
+func _wire_menu_focus() -> void:
+	var rows := [continue_button, new_button, settings_button, quit_button]
+	for idx in rows.size():
+		var btn: Button = rows[idx]
+		var prev: Button = rows[posmod(idx - 1, rows.size())]
+		var nxt: Button = rows[(idx + 1) % rows.size()]
+		btn.focus_neighbor_top = btn.get_path_to(prev)
+		btn.focus_neighbor_bottom = btn.get_path_to(nxt)
+		btn.focus_previous = btn.get_path_to(prev)
+		btn.focus_next = btn.get_path_to(nxt)
+
+func _focus_default_row() -> void:
+	if is_instance_valid(continue_button):
+		(new_button if continue_button.disabled else continue_button).grab_focus()
 
 func _close_modal() -> void:
 	if is_instance_valid(modal):
@@ -191,9 +234,9 @@ func _settings() -> void:
 	if backdrop.visible or is_instance_valid(settings_page): return
 	for button in [continue_button, new_button, settings_button, quit_button]: button.disabled = true
 	settings_page = GameSettingsPage.new()
-	presentation.add_child(settings_page)
+	add_child(settings_page)
 	settings_page.close_requested.connect(func():
-		presentation.remove_child(settings_page)
+		remove_child(settings_page)
 		settings_page.queue_free()
 		settings_page = null
 		for button in [new_button, settings_button, quit_button]: button.disabled = false

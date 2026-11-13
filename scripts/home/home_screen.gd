@@ -279,7 +279,7 @@ func _build_modals_layer() -> void:
 	modal_backdrop.color = Color(0.22, 0.20, 0.29, 0.40)
 	modal_backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
 	modals_layer.add_child(modal_backdrop)
-	_place(modal_backdrop, Vector2.ZERO, DESIGN_SIZE)
+	_place(modal_backdrop, Vector2(-600, -300), Vector2(3120, 1680))
 	modal_backdrop.gui_input.connect(_on_backdrop_gui_input)
 	modals_layer.visible = false
 
@@ -482,6 +482,8 @@ func _hide_all_modals() -> void:
 func _set_hotspots_enabled(enabled: bool) -> void:
 	if is_instance_valid(title_label): title_label.visible = enabled
 	if is_instance_valid(subtitle_label): subtitle_label.visible = enabled
+	if is_instance_valid(menu_button): menu_button.visible = enabled
+	if is_instance_valid(top_bar): top_bar.visible = enabled
 	if is_instance_valid(story_button): story_button.disabled = not enabled
 	for button in hotspots_layer.find_children("*","Button",true,false):
 		button.disabled = not enabled
@@ -506,11 +508,11 @@ func _open_system_menu() -> void:
 	if SceneManager.is_transitioning or is_instance_valid(system_menu): return
 	_hide_all_modals()
 	system_menu = GameMenu.new()
-	presentation.add_child(system_menu)
+	add_child(system_menu)
 	_set_hotspots_enabled(false)
 	menu_button.disabled = true
 	system_menu.close_requested.connect(func():
-		presentation.remove_child(system_menu)
+		remove_child(system_menu)
 		system_menu.queue_free()
 		system_menu = null
 		_set_hotspots_enabled(true)

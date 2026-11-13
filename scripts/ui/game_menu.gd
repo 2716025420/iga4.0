@@ -2,7 +2,14 @@ class_name GameMenu
 extends Control
 
 signal close_requested
+
+const DESIGN := Vector2(1920.0, 1080.0)
+const INK := Color("#2D3A46")
+const MUTED := Color("#6A7078")
+
 var page: String = "main"
+var stage: Control
+var shade: ColorRect
 var content: Control
 var settings_page: GameSettingsPage
 var feedback: String = ""
@@ -11,52 +18,109 @@ func _ready() -> void:
 	name = "GameMenu"
 	theme = DaylightUI.get_theme()
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	DaylightUI.place(self, 0, 0, 1920, 1080)
-	var shade := ColorRect.new()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	shade = ColorRect.new()
 	shade.name = "MenuBackdrop"
-	shade.color = Color(0.14, 0.16, 0.24, 0.50)
+	shade.color = Color(0.14, 0.16, 0.24, 0.52)
 	shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
-	DaylightUI.place(shade, 0, 0, 1920, 1080)
 	shade.gui_input.connect(func(event: InputEvent):
-		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed: go_back()
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			go_back()
 	)
-	SchoolObjectUI.art(self, "PencilTinArtwork", "res://assets/ui/school_objects/menu.png")
+
+	stage = Control.new()
+	stage.name = "MenuStage"
+	stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage.size = DESIGN
+	add_child(stage)
+
+	SchoolObjectUI.art(stage, "PencilTinArtwork", "res://assets/ui/school_objects/menu.png")
 	var tin_input := Control.new()
 	tin_input.name = "PencilTinInput"
 	tin_input.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(tin_input)
+	stage.add_child(tin_input)
 	DaylightUI.place(tin_input, 875, 72, 1015, 965)
+
+	resized.connect(_layout)
+	Platform.input_mode_changed.connect(_on_input_mode_changed)
+	_layout()
 	_render_main()
+
+func _layout() -> void:
+	if not is_instance_valid(stage):
+		return
+	var extent := size
+	if extent.x <= 0.0 or extent.y <= 0.0:
+		extent = get_viewport_rect().size
+	if extent.x <= 0.0 or extent.y <= 0.0:
+		extent = DESIGN
+	var factor := minf(extent.x / DESIGN.x, extent.y / DESIGN.y)
+	stage.scale = Vector2.ONE * factor
+	stage.position = (extent - DESIGN * factor) / 2.0
+
+func _on_input_mode_changed(_touch: bool) -> void:
+	if page == "help" and is_instance_valid(content) and stage.visible:
+		_render_help()
 
 func _clear(next_page: String, heading: String, copy: String) -> void:
 	page = next_page
 	if is_instance_valid(content):
-		remove_child(content)
+		stage.remove_child(content)
 		content.queue_free()
 	content = Control.new()
 	content.name = "MenuContent"
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(content)
-	DaylightUI.place(content, 0, 0, 1920, 1080)
-	if next_page != "main": SchoolObjectUI.slab(content, "PageInterior", Rect2(932, 433, 750, 523), Color("#F2E9DF"))
+	stage.add_child(content)
+	DaylightUI.place(content, 0, 0, DESIGN.x, DESIGN.y)
+	if next_page != "main":
+		SchoolObjectUI.slab(content, "PageInterior", Rect2(932, 433, 750, 523), Color("#F2E9DF"))
 	SchoolObjectUI.text(content, "Heading", heading, Rect2(1105, 178, 450, 106), 58)
 	var caption := SchoolObjectUI.text(content, "Caption", copy, Rect2(1108, 300, 430, 72), 25, SchoolObjectUI.MUTED)
 	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var close := SchoolObjectUI.hit(content, "CloseButton", Rect2(1755, 133, 66, 66), "×", 46)
 	close.pressed.connect(go_back)
-	SchoolObjectUI.text(content, "MenuFeedback", feedback, Rect2(1000, 938, 650, 36), 23, SchoolObjectUI.PURPLE, true)
-	# Every menu page creates its own buttons. Hide focus outlines on each refresh.
+	SchoolObjectUI.text(content, "MenuFeedback", feedback, Rect2(1180, 902, 470, 36), 22, SchoolObjectUI.PURPLE, true)
 	_apply_borderless_buttons.call_deferred(content)
 
 func _apply_borderless_buttons(target: Control) -> void:
-	if not is_instance_valid(target) or target != content: return
+	if not is_instance_valid(target) or target != content:
+		return
 	for button in target.find_children("*", "Button", true, false):
 		SchoolObjectUI.borderless(button)
 
+func _style_pill(button: Button, fill: Color, text_color: Color = INK, border_color: Color = Color("#D4C6B4")) -> void:
+	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+		var box := StyleBoxFlat.new()
+		box.bg_color = fill
+		if state == "hover":
+			box.bg_color = fill.lightened(0.06) if fill.get_luminance() < 0.5 else fill.darkened(0.05)
+		elif state in ["pressed", "hover_pressed"]:
+			box.bg_color = fill.darkened(0.10)
+		elif state == "disabled":
+			box.bg_color = Color("#DCD5C7")
+		box.border_color = border_color
+		box.set_border_width_all(1 if state != "disabled" else 0)
+		box.set_corner_radius_all(9)
+		button.add_theme_stylebox_override(state, box)
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(key, text_color)
+	button.add_theme_color_override("font_disabled_color", Color("#707680"))
+
 func _render_main() -> void:
 	_clear("main", "片刻休息", "收好今天的进度，\n再慢慢出发。")
-	var items := [["resume", "继续游戏", "返回放学后的教室"], ["save", "保存进度", "记录到手动存档"], ["load", "读取存档", "回到记下的那一刻"], ["settings", "游戏设置", "声音、显示与阅读"], ["help", "操作说明", "查看快捷键与基本规则"], ["title", "返回标题", "保存自动进度后返回"], ["quit", "退出游戏", "保存自动进度后退出"]]
+	var items := [
+		["resume", "继续游戏", "返回放学后的教室"],
+		["save", "保存进度", "记录到手动存档"],
+		["load", "读取存档", "回到记下的那一刻"],
+		["settings", "游戏设置", "声音、显示与阅读"],
+		["help", "操作说明", "查看操控与基本规则"],
+		["title", "返回标题", "保存自动进度后返回"],
+		["quit", "退出游戏", "保存自动进度后退出"]
+	]
 	for index in items.size():
 		var item: Array = items[index]
 		var rect := Rect2(945, 453, 726, 125) if index == 0 else Rect2(943 + ((index - 1) % 2) * 371, 604 + ((index - 1) / 2) * 112, 351, 96)
@@ -75,6 +139,7 @@ func _render_main() -> void:
 		row.pressed.connect(_activate.bind(str(item[0])))
 	_wire_main_focus()
 	content.get_node("Menu_resume").grab_focus()
+
 func _wire_main_focus() -> void:
 	# Use logical rows: the broad resume button makes spatial guessing ambiguous.
 	var graph := {
@@ -102,36 +167,69 @@ func _wire_main_focus() -> void:
 		for pair in [["focus_next", order[(index + 1) % order.size()]], ["focus_previous", order[posmod(index - 1, order.size())]]]:
 			button.set(pair[0], button.get_path_to(content.get_node("CloseButton" if pair[1] == "close" else "Menu_" + pair[1])))
 
-
-
 func _activate(action: String) -> void:
-	if SceneManager.is_transitioning: return
+	if SceneManager.is_transitioning:
+		return
 	match action:
-		"resume": close_requested.emit()
-		"save", "load": _render_slots(action)
-		"settings": _open_settings()
-		"help": _render_help()
-		"title": _confirm("返回标题？", "当前进度会先自动保存。手动存档仍可在菜单中读取。", _return_title)
-		"quit": _confirm("保存并退出？", "下次可以从标题页继续，也可以读取手动存档。", _quit_game)
+		"resume":
+			close_requested.emit()
+		"save", "load":
+			_render_slots(action)
+		"settings":
+			_open_settings()
+		"help":
+			_render_help()
+		"title":
+			_confirm("返回标题？", "当前进度会先自动保存。手动存档仍可在菜单中读取。", _return_title)
+		"quit":
+			_confirm("保存并退出？", "下次可以从标题页继续，也可以读取手动存档。", _quit_game)
 
 func _render_slots(mode: String) -> void:
 	_clear(mode, "保存进度" if mode == "save" else "读取存档", "手动存档独立保留。\n自动进度不会覆盖它们。")
+	var slot_actions: Array[Button] = []
 	for slot in range(1, 4):
 		var metadata: Dictionary = SaveManager.get_save_metadata(SaveManager.manual_slot_path(slot))
-		var paper := SchoolObjectUI.slab(content, "Slot_%d" % slot, Rect2(951, 449 + (slot - 1) * 148, 707, 130), Color("#F9F4EC"))
+		var paper := SchoolObjectUI.slab(content, "Slot_%d" % slot, Rect2(951, 446 + (slot - 1) * 144, 707, 130), Color("#FBF6EC"))
+		var card_style := paper.get_theme_stylebox("panel") as StyleBoxFlat
+		if card_style != null:
+			card_style.border_color = Color("#D6C8B4")
+			card_style.set_border_width_all(1)
+			card_style.set_corner_radius_all(10)
 		NotebookUI.icon(paper, "save" if mode == "save" else "load", Vector2(24, 24))
 		NotebookUI.label(paper, "Title", "手动存档 %02d" % slot, Vector2(80, 12), Vector2(390, 44), 30)
 		NotebookUI.label(paper, "Metadata", NotebookUI.saved_copy(metadata), Vector2(28, 58), Vector2(480, 64), 23, NotebookUI.MUTED)
-		SchoolObjectUI.slab(paper, "ActionColor", Rect2(539, 34, 140, 68), Color("#DDD8ED"))
-		var action := SchoolObjectUI.hit(paper, "SlotAction", Rect2(539, 34, 140, 68), ("覆盖" if metadata["available"] else "保存") if mode == "save" else "读取", 30)
+		var action := SchoolObjectUI.hit(paper, "SlotAction", Rect2(536, 31, 144, 68), ("覆盖" if metadata["available"] else "保存") if mode == "save" else "读取", 28)
 		action.disabled = mode == "load" and not metadata["available"]
+		_style_pill(action, Color("#5C7861"), Color("#FFFDF8"), Color("#4B6450"))
 		action.pressed.connect(func():
 			if mode == "save":
-				if metadata["available"]: _confirm("覆盖手动存档 %02d？" % slot, "覆盖前会保留一份备份。其他存档不会受到影响。", _save_slot.bind(slot))
-				else: _save_slot(slot)
-			else: _confirm("读取手动存档 %02d？" % slot, "当前进度会先自动保存，然后从所选记录继续。", _load_slot.bind(slot))
+				if metadata["available"]:
+					_confirm("覆盖手动存档 %02d？" % slot, "覆盖前会保留一份备份。其他存档不会受到影响。", _save_slot.bind(slot))
+				else:
+					_save_slot(slot)
+			else:
+				_confirm("读取手动存档 %02d？" % slot, "当前进度会先自动保存，然后从所选记录继续。", _load_slot.bind(slot))
 		)
-	SchoolObjectUI.hit(content, "BackToMenu", Rect2(960, 900, 260, 54), "返回菜单", 28).pressed.connect(_render_main)
+		slot_actions.append(action)
+
+	var back := SchoolObjectUI.hit(content, "BackToMenu", Rect2(952, 888, 210, 56), "‹  返回菜单", 26)
+	_style_pill(back, Color("#EFE6D5"), INK, Color("#D4C6B4"))
+	back.pressed.connect(_render_main)
+
+	var enabled_buttons: Array[Button] = []
+	for btn in slot_actions:
+		if not btn.disabled:
+			enabled_buttons.append(btn)
+	enabled_buttons.append(back)
+	for i in enabled_buttons.size():
+		var cur := enabled_buttons[i]
+		var prev := enabled_buttons[posmod(i - 1, enabled_buttons.size())]
+		var nxt := enabled_buttons[(i + 1) % enabled_buttons.size()]
+		cur.focus_neighbor_top = cur.get_path_to(prev)
+		cur.focus_neighbor_bottom = cur.get_path_to(nxt)
+		cur.focus_previous = cur.get_path_to(prev)
+		cur.focus_next = cur.get_path_to(nxt)
+	enabled_buttons[0].grab_focus()
 
 func _save_slot(slot: int) -> void:
 	feedback = "手动存档 %02d 已保存。" % slot if SaveManager.save_manual_slot(slot) else SaveManager.last_error
@@ -158,46 +256,75 @@ func _return_title() -> void:
 	SceneManager.change_scene(SceneManager.TargetScene.TITLE)
 
 func _quit_game() -> void:
-	if not SaveManager.active_session or SaveManager.save_game(): get_tree().quit()
+	if not SaveManager.active_session or SaveManager.save_game():
+		get_tree().quit()
 	else:
 		feedback = SaveManager.last_error
 		_render_main()
 
 func _open_settings() -> void:
-	content.visible = false
+	shade.visible = false
+	stage.visible = false
 	settings_page = GameSettingsPage.new()
 	add_child(settings_page)
 	settings_page.close_requested.connect(func():
 		remove_child(settings_page)
 		settings_page.queue_free()
 		settings_page = null
+		shade.visible = true
+		stage.visible = true
 		_render_main()
 	)
 
 func _confirm(heading: String, copy: String, callback: Callable) -> void:
 	var previous := page
 	_clear("confirm_" + previous, heading, "")
-	var explanation := SchoolObjectUI.text(content, "ConfirmationCopy", copy, Rect2(985, 500, 640, 250), 32)
+	var explanation := SchoolObjectUI.text(content, "ConfirmationCopy", copy, Rect2(972, 490, 668, 240), 30)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	SchoolObjectUI.slab(content, "ConfirmColor", Rect2(1358, 836, 265, 80), Color("#DAD2E9"))
-	SchoolObjectUI.hit(content, "ConfirmAction", Rect2(1358, 836, 265, 80), "确认", 32).pressed.connect(callback)
-	var cancel := SchoolObjectUI.hit(content, "CancelAction", Rect2(985, 836, 265, 80), "取消", 32)
+	var cancel := SchoolObjectUI.hit(content, "CancelAction", Rect2(972, 836, 280, 78), "取消", 30)
+	_style_pill(cancel, Color("#EFE6D5"), INK, Color("#D4C6B4"))
 	cancel.pressed.connect(go_back)
+	var confirm := SchoolObjectUI.hit(content, "ConfirmAction", Rect2(1360, 836, 280, 78), "确认", 30)
+	_style_pill(confirm, Color("#D66B5A"), Color("#FFFDF8"), Color("#B95343"))
+	confirm.pressed.connect(callback)
+	cancel.focus_neighbor_right = cancel.get_path_to(confirm)
+	confirm.focus_neighbor_left = confirm.get_path_to(cancel)
 	cancel.grab_focus()
 
 func _render_help() -> void:
 	_clear("help", "操作说明", "随时停下来，整理好下一步。")
-	var help := "Esc   打开菜单 / 返回上一层\nE      在教室打开卡牌整理\n\n行动卡：点击可用卡牌执行行动。\n多名对手：先点击要应对的目标。\n结束回合：对手行动，卡牌推进冷却。\n\n进度会在关键行动后自动保存。\n手动存档适合保留重要的分支或阶段。\n训练路线暂离后，可以从校园体育馆继续。战斗中选择逃跑会直接判负。"
-	SchoolObjectUI.text(content, "HelpCopy", help, Rect2(980, 460, 650, 414), 27)
-	SchoolObjectUI.hit(content, "BackToMenu", Rect2(980, 898, 285, 54), "返回菜单", 28).pressed.connect(_render_main)
+	var pc_help := "Esc   打开菜单 / 返回上一层\nE       在教室打开卡牌整理\n\n行动卡：点击或按键选择可用卡牌执行行动。\n多名对手：先点击要应对的目标。\n结束回合：对手行动，卡牌推进冷却。\n\n进度会在关键行动后自动保存。\n手动存档适合保留重要的分支或阶段。\n训练路线暂离后，可从校园体育馆继续；战斗中选择逃跑会直接判负。"
+	var touch_help := "菜单：点击右上「菜单」或使用系统返回键返回\n教室整理：点击桌面蓝皮卡盒整理卡组，橙色幻灯片盒看档案\n\n行动卡：点选卡牌确认效果后打出执行行动。\n多名对手：先点选需要应对的对手目标。\n结束回合：对手开始行动，卡牌推进冷却。\n\n进度会在关键行动后自动保存，手动存档可保留重要分支。\n训练路线暂离后，可从校园体育馆继续；战斗逃跑会直接判负。"
+	var copy_box := RichTextLabel.new()
+	copy_box.name = "HelpCopy"
+	copy_box.bbcode_enabled = false
+	copy_box.fit_content = false
+	copy_box.scroll_active = true
+	copy_box.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy_box.text = Platform.hint(pc_help, touch_help)
+	copy_box.add_theme_font_size_override("normal_font_size", 24)
+	copy_box.add_theme_color_override("default_color", INK)
+	copy_box.add_theme_constant_override("line_separation", 8)
+	copy_box.mouse_filter = Control.MOUSE_FILTER_PASS
+	content.add_child(copy_box)
+	DaylightUI.place(copy_box, 964, 456, 686, 412)
+	var back := SchoolObjectUI.hit(content, "BackToMenu", Rect2(952, 888, 210, 56), "‹  返回菜单", 26)
+	_style_pill(back, Color("#EFE6D5"), INK, Color("#D4C6B4"))
+	back.pressed.connect(_render_main)
+	back.grab_focus()
 
 func go_back() -> void:
-	if SceneManager.is_transitioning: return
+	if SceneManager.is_transitioning:
+		return
 	if is_instance_valid(settings_page):
 		settings_page.request_close()
 	elif page.begins_with("confirm_"):
 		var previous := page.trim_prefix("confirm_")
-		if previous in ["save", "load"]: _render_slots(previous)
-		else: _render_main()
-	elif page == "main": close_requested.emit()
-	else: _render_main()
+		if previous in ["save", "load"]:
+			_render_slots(previous)
+		else:
+			_render_main()
+	elif page == "main":
+		close_requested.emit()
+	else:
+		_render_main()
