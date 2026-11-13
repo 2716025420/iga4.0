@@ -1,39 +1,42 @@
 class_name ShopCounterTheme
 extends RefCounted
 
-## Self-contained warm paper/storefront theme for CampusShopPanel (decoupled from retired TerminalUI).
+## Self-contained warm daylight watercolor theme for CampusShopPanel (registered to campus_shop_ui_clean.png at 1920x1080).
 const DESIGN := Vector2(1920.0, 1080.0)
-const NATIVE := Vector2(1672.0, 941.0)
+const NATIVE := Vector2(1920.0, 1080.0)
 const PLATE_PATH := "res://assets/ui/campus_life/shop_counter_plate.png"
+const WIDE_BG_PATH := "res://assets/ui/campus_life/campus_shop_bg_wide.png"
+const UI_LAYER_PATH := "res://assets/ui/campus_life/campus_shop_ui_clean.png"
 
-const PAPER := Color("#F6F2E5")
-const INK := Color("#294963")
-const MUTED := Color("#627786")
-const HIGHLIGHT := Color("#3E657E")
-const ACCENT := Color("#D8EAE2")
+const PAPER := Color("#F7F0E0")
+const INK := Color("#303B45")
+const MUTED := Color("#5C6668")
+const HIGHLIGHT := Color("#BA6A58")
+const SAGE := Color("#5E7560")
+const ACCENT := Color("#EFE7D4")
 
 const SHOP_RECTS := {
-	"LocationName": [139, 79, 1060, 65],
-	"LocalService": [142, 145, 1025, 45],
-	"Balance": [1207, 130, 185, 45],
-	"CloseButton": [1414, 91, 125, 59],
-	"Mode_buy": [131, 230, 151, 55],
-	"Mode_sell": [297, 230, 178, 55],
-	"Talk": [572, 230, 200, 55],
-	"Category_cards": [131, 301, 262, 56],
-	"Category_materials": [408, 301, 278, 56],
-	"Category_supplies": [700, 301, 278, 56],
-	"SelectedName": [1064, 218, 471, 57],
-	"ProductPreview": [1064, 285, 473, 185],
-	"Description": [1070, 495, 460, 70],
-	"UnitPrice": [1070, 579, 460, 45],
-	"QuantityMinus": [1070, 630, 103, 55],
-	"Quantity": [1214, 630, 60, 55],
-	"QuantityPlus": [1302, 630, 93, 55],
-	"Total": [1070, 706, 460, 45],
-	"ConfirmTrade": [1070, 759, 467, 67],
-	"Feedback": [136, 831, 1350, 35],
-	"Rules": [169, 863, 1300, 35],
+	"LocationName": [172, 118, 480, 48],
+	"LocalService": [172, 168, 480, 36],
+	"Balance": [1336, 148, 193, 52],
+	"CloseButton": [1549, 148, 198, 52],
+	"Mode_buy": [670, 146, 142, 52],
+	"Mode_sell": [826, 146, 174, 52],
+	"Talk": [1018, 146, 280, 52],
+	"Category_cards": [198, 224, 294, 46],
+	"Category_materials": [533, 224, 294, 46],
+	"Category_supplies": [868, 224, 294, 46],
+	"SelectedName": [1308, 338, 424, 46],
+	"ProductPreview": [1318, 386, 404, 124],
+	"Description": [1314, 514, 412, 92],
+	"UnitPrice": [1314, 608, 412, 36],
+	"QuantityMinus": [1356, 650, 94, 79],
+	"Quantity": [1464, 650, 110, 79],
+	"QuantityPlus": [1588, 650, 94, 79],
+	"Total": [1304, 742, 432, 46],
+	"ConfirmTrade": [1358, 801, 323, 79],
+	"Feedback": [460, 949, 1000, 36],
+	"Rules": [460, 1004, 1000, 38],
 }
 
 static func panel(parent: Control, node_name: String, rect: Rect2, fill: Color = Color("#FAF8F0")) -> Panel:
@@ -50,17 +53,17 @@ static func text(parent: Control, node_name: String, copy: String, rect: Rect2, 
 	node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	return node
 
-static func prose(parent: Control, node_name: String, copy: String, rect: Rect2, font_size: int = 24) -> RichTextLabel:
+static func prose(parent: Control, node_name: String, copy: String, rect: Rect2, font_size: int = 19) -> RichTextLabel:
 	var node := RichTextLabel.new()
 	node.name = node_name
 	node.bbcode_enabled = false
 	node.fit_content = false
-	node.scroll_active = true
+	node.scroll_active = false
 	node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	node.text = copy
 	node.add_theme_font_size_override("normal_font_size", font_size)
 	node.add_theme_color_override("default_color", INK)
-	node.add_theme_constant_override("line_separation", 8)
+	node.add_theme_constant_override("line_separation", 3)
 	parent.add_child(node)
 	DaylightUI.place(node, rect.position.x, rect.position.y, rect.size.x, rect.size.y)
 	return node
@@ -70,74 +73,96 @@ static func button(parent: Control, node_name: String, copy: String, rect: Rect2
 	node.name = node_name
 	node.text = copy
 	node.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	node.add_theme_font_size_override("font_size", 24)
+	node.add_theme_font_size_override("font_size", 23)
 	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
 		var style := StyleBoxFlat.new()
-		style.bg_color = HIGHLIGHT if highlighted else ACCENT
+		style.bg_color = SAGE if highlighted else PAPER
 		if state == "hover":
-			style.bg_color = Color("#34576F") if highlighted else Color("#E5F2EB")
+			style.bg_color = Color("#4E6450") if highlighted else Color("#FFFDF7")
 		elif state in ["pressed", "hover_pressed"]:
-			style.bg_color = style.bg_color.darkened(0.10)
+			style.bg_color = style.bg_color.darkened(0.08)
 		elif state == "disabled":
-			style.bg_color = Color("#E5ECE8")
-		style.border_color = Color("#AEC4C9")
+			style.bg_color = Color("#E7DFCE")
+		style.border_color = Color("#4C604E") if highlighted else Color("#C4B399")
 		style.set_border_width_all(1)
 		style.set_corner_radius_all(10)
 		node.add_theme_stylebox_override(state, style)
 	node.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		node.add_theme_color_override(key, Color.WHITE if highlighted else INK)
-	node.add_theme_color_override("font_disabled_color", Color("#8B9BA2"))
+		node.add_theme_color_override(key, Color("#FFFDF7") if highlighted else INK)
+	node.add_theme_color_override("font_disabled_color", Color("#988E7F"))
 	parent.add_child(node)
 	DaylightUI.place(node, rect.position.x, rect.position.y, rect.size.x, rect.size.y)
 	SchoolObjectUI.set_selected(node, highlighted)
 	return node
 
 static func apply(host: Control) -> void:
-	for node in host.find_children("*", "TextureRect", true, false):
-		if node.get_meta("shop_dynamic_patch", false):
-			node.get_parent().remove_child(node)
-			node.queue_free()
 	var art := host.find_child("LocalShopBackground", true, false) as TextureRect
 	if art != null and ResourceLoader.exists(PLATE_PATH):
 		art.texture = load(PLATE_PATH) as Texture2D
 		art.stretch_mode = TextureRect.STRETCH_SCALE
 	for panel_node in host.find_children("*", "Panel", true, false):
-		panel_node.hide()
+		if panel_node.name not in ["FooterBacking", "FeedbackBacking"]:
+			panel_node.hide()
+		else:
+			var fstyle := panel_node.get_theme_stylebox("panel") as StyleBoxFlat
+			if fstyle != null:
+				fstyle.bg_color = Color(0.98, 0.95, 0.88, 0.94) if panel_node.name == "FeedbackBacking" else Color(0.97, 0.94, 0.87, 0.88)
+				fstyle.border_color = Color("#BA6A58") if panel_node.name == "FeedbackBacking" else Color("#C4B399")
+				fstyle.set_corner_radius_all(10)
 	for btn in host.find_children("*", "Button", true, false):
-		_overlay(btn)
+		var keep_pill := btn.name.begins_with("Mode_") or btn.name.begins_with("Category_") or btn.name == "Talk"
+		if not keep_pill:
+			var tile_selected := btn.name.begins_with("Product_") and btn.name == "Product_" + str(host.selected_id)
+			_overlay(btn, tile_selected)
 		if btn.name == "ConfirmTrade":
 			for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 				btn.add_theme_color_override(key, Color("#FFFDF7"))
-			btn.add_theme_color_override("font_disabled_color", Color("#E4EFE7"))
-		elif btn.name.begins_with("Mode_") or btn.name.begins_with("Category_") or btn.name in ["Talk", "CloseButton", "QuantityMinus", "QuantityPlus"]:
+			btn.add_theme_color_override("font_disabled_color", Color(0.96, 0.92, 0.86, 0.72))
+			btn.add_theme_font_size_override("font_size", 24)
+		elif btn.name in ["CloseButton", "QuantityMinus", "QuantityPlus"]:
 			for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 				btn.add_theme_color_override(key, INK)
+			btn.add_theme_font_size_override("font_size", 28 if btn.name.begins_with("Quantity") else 23)
 	for id in SHOP_RECTS:
 		var node := host.find_child(id, true, false) as Control
 		if node != null:
 			_register(node, SHOP_RECTS[id])
-	_blank_patch(host, [129, 374, 855, 463], [104, 374, 14, 463])
-	_blank_patch(host, [128, 297, 855, 63], [104, 297, 14, 63])
-	var texture: Texture2D = load(PLATE_PATH) as Texture2D if ResourceLoader.exists(PLATE_PATH) else null
+	for centered_id in ["Balance", "SelectedName", "UnitPrice", "Quantity", "Total", "Feedback", "Rules"]:
+		var lbl := host.find_child(centered_id, true, false) as Label
+		if lbl != null:
+			lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var loc_lbl := host.find_child("LocationName", true, false) as Label
+	if loc_lbl != null:
+		loc_lbl.add_theme_font_size_override("font_size", 32)
+	var svc_lbl := host.find_child("LocalService", true, false) as Label
+	if svc_lbl != null:
+		svc_lbl.add_theme_font_size_override("font_size", 20)
+	var qty_lbl := host.find_child("Quantity", true, false) as Label
+	if qty_lbl != null:
+		qty_lbl.add_theme_font_size_override("font_size", 30)
+	var total_lbl := host.find_child("Total", true, false) as Label
+	if total_lbl != null:
+		total_lbl.add_theme_font_size_override("font_size", 21)
+	var unit_lbl := host.find_child("UnitPrice", true, false) as Label
+	if unit_lbl != null:
+		unit_lbl.add_theme_font_size_override("font_size", 22)
+	var sel_lbl := host.find_child("SelectedName", true, false) as Label
+	if sel_lbl != null:
+		sel_lbl.add_theme_font_size_override("font_size", 30)
 	var index := 0
 	for tile in host.refs.get("products", {}).values():
-		_register(tile, [131 + (index % 3) * 289, 377 + (index / 3) * 235, 271, 221])
-		if texture != null:
-			_plate(tile, texture, Rect2(131, 377, 271, 221))
-		_register(tile.get_node("ProductArt"), [20, 13, 231, 133])
-		_register(tile.get_node("ProductName"), [20, 153, 231, 35])
-		_register(tile.get_node("Price"), [20, 191, 231, 26])
+		_register(tile, [198 + (index % 3) * 335, 326 + (index / 3) * 302, 294, 262])
+		_register(tile.get_node("ProductArt"), [22, 16, 250, 146])
+		var pname := tile.get_node("ProductName") as Label
+		_register(pname, [18, 168, 258, 42])
+		pname.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		pname.add_theme_font_size_override("font_size", 25)
+		var pprice := tile.get_node("Price") as Label
+		_register(pprice, [18, 212, 258, 32])
+		pprice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		pprice.add_theme_font_size_override("font_size", 20)
 		index += 1
-	if texture != null:
-		for id in ["buy", "sell"]:
-			var mode_node := host.find_child("Mode_" + id, true, false) as Button
-			if mode_node != null:
-				_plate(mode_node, texture, Rect2(131, 230, 151, 55) if id == host.mode else Rect2(297, 230, 178, 55))
-		for id in ["cards", "materials", "supplies"]:
-			var node := host.find_child("Category_" + id, true, false) as Button
-			if node != null:
-				_plate(node, texture, Rect2(131, 301, 262, 56) if id == host.category else Rect2(408, 301, 278, 56))
 
 static func _rect(values: Array) -> Rect2:
 	return Rect2(Vector2(values[0], values[1]) * DESIGN / NATIVE, Vector2(values[2], values[3]) * DESIGN / NATIVE)
@@ -148,43 +173,27 @@ static func _register(node: Control, values: Array) -> void:
 	node.size = rect.size
 	node.set_meta("concept_source_rect", Rect2(values[0], values[1], values[2], values[3]))
 
-static func _overlay(btn: Button) -> void:
-	for state in ["normal", "disabled", "focus"]:
-		btn.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+static func _overlay(btn: Button, selected_tile: bool = false) -> void:
+	if selected_tile:
+		var sel := StyleBoxFlat.new()
+		sel.bg_color = Color(0.73, 0.42, 0.35, 0.09)
+		sel.border_color = HIGHLIGHT
+		sel.set_border_width_all(2)
+		sel.set_corner_radius_all(10)
+		btn.add_theme_stylebox_override("normal", sel)
+	else:
+		btn.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
+	if btn.name == "ConfirmTrade":
+		var dis := StyleBoxFlat.new()
+		dis.bg_color = Color(0.88, 0.85, 0.80, 0.45)
+		dis.set_corner_radius_all(12)
+		btn.add_theme_stylebox_override("disabled", dis)
+	else:
+		btn.add_theme_stylebox_override("disabled", StyleBoxEmpty.new())
+	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	for state in ["hover", "pressed", "hover_pressed"]:
 		var wash := StyleBoxFlat.new()
-		wash.bg_color = Color(0.2, 0.42, 0.51, 0.07 if state == "hover" else 0.15)
-		wash.set_corner_radius_all(12)
+		wash.bg_color = Color(0.45, 0.35, 0.25, 0.08 if state == "hover" else 0.16)
+		wash.set_corner_radius_all(10)
 		btn.add_theme_stylebox_override(state, wash)
-
-static func _plate(btn: Button, texture: Texture2D, region: Rect2) -> void:
-	var crop := AtlasTexture.new()
-	crop.atlas = texture
-	crop.region = region
-	var style := StyleBoxTexture.new()
-	style.texture = crop
-	style.set_texture_margin_all(14)
-	btn.add_theme_stylebox_override("normal", style)
-	for state in ["hover", "pressed", "hover_pressed"]:
-		var wash := style.duplicate() as StyleBoxTexture
-		wash.modulate_color = Color(0.94, 1.0, 1.0) if state == "hover" else Color(0.86, 0.93, 0.94)
-		btn.add_theme_stylebox_override(state, wash)
-
-static func _blank_patch(host: Control, target: Array, source: Array) -> void:
-	var image := host.find_child("LocalShopBackground", true, false) as TextureRect
-	if image == null or image.texture == null:
-		return
-	var patch := TextureRect.new()
-	patch.name = "DynamicListBacking"
-	patch.set_meta("shop_dynamic_patch", true)
-	patch.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	patch.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	patch.stretch_mode = TextureRect.STRETCH_SCALE
-	var crop := AtlasTexture.new()
-	crop.atlas = image.texture
-	crop.region = Rect2(source[0], source[1], source[2], source[3])
-	patch.texture = crop
-	image.get_parent().add_child(patch)
-	image.get_parent().move_child(patch, image.get_index() + 1)
-	_register(patch, target)
 

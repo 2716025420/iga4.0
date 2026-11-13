@@ -1,5 +1,22 @@
 > **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
 
+## 2026-11-13 v2 美术包全量接入（新三校 Home、地区商店、探索宽屏及暖纸控件）
+
+- **Wave A · 新三所大学 Home 与地区商店（仍保持 `TEST` 状态，未改动未确认剧情与经济规则）**：
+  - 导入并按中心 `1920×1080` 裁切三校宽屏背景与透明 UI 层：`assets/ui/scene_reset/homes/{nomos,agora,techne}_{clean_wide,clean,ui}.png`（`clean_wide` 为 `2340×1080`）；导入地区商店 `assets/ui/campus_life/{campus_shop_bg_wide,shop_counter_plate,campus_shop_ui_clean}.png`。
+  - `scripts/campus/{region_home_layout,region_home_view}.gd`：三校 Home `native` 统一为 `Vector2(1920, 1080)` 并接入 `WideRoomBackground`（`Rect2(-210, 0, 2340, 1080)`）铺满 20:9 边缘；重标定物件热区多边形与手绘木牌 `inset`/`menu_inset`/`date_backing` 实时标签、阿戈拉深色钟面字色 `#2F3A36` 及通用浅色钟面阴影，消除按钮边界碰撞重合与 `tab` 旧参数。
+  - `scripts/campus/{campus_shop_panel,shop_counter_theme,campus_screen}.gd`：接入 `WideShopBackground` / `ShopUILayer`，重置 `SHOP_RECTS`（`1920×1080`）对位货架与剪贴板，收敛 `ShopCounterTheme` 至手账暖纸/木柜配色并取消右侧说明 `RichTextLabel` 滚动条（字号调至 `19`）；为买卖反馈增加浅纸底托 `FeedbackBacking`，并在 `CampusScreen` 优先以宽屏背景执行 `Platform.fit_stage()`。
+- **Wave B · 训练菜单、对话选项条与战斗顶栏（`scripts/home/campus_guide_panel.gd`、`scripts/story/dialogue_screen.gd`、`scripts/combat/combat_presentation.gd`）**：
+  - `CampusGuidePanel` 接入 `assets/ui/school_objects/{campus_guide_warm,campus_ticket_warm}.png`，补充右侧托盘遮蔽底板 `TicketWellBacking` 防止底层体育馆控件透底，重排标题、关闭键（`1782, 150`）与底栏，切换陶土红/暖米高亮配色。
+  - `DialogueScreen` 选项按钮接入 `assets/ui_core/theme/dialogue_choice_9slice.png`（九宫格切分 + 深炭墨文字）；`CombatPresentation` `TopHeaderRibbon` 接入 `assets/ui_core/theme/ribbon_header_9slice.png`。
+- **Wave C · 7 张 `2340×1080` 宽屏战斗/剧情/探索背景**：
+  - 导入 `assets/backgrounds/phase_two/{battle_campus,dusk_road,morning_road,school_gate,school_room}_wide.png` 与 `assets/backgrounds/phase_three/{exploration_campus,exploration_battle}_wide.png`。
+  - `scripts/global/daylight_ui.gd`、`scripts/story/school_dialogue_presentation.gd`、`scripts/exploration/node_map.gd` 优先加载 `*_wide.png` 并配合 `STRETCH_KEEP_ASPECT_COVERED` / `2340×1080` 对位与全宽对比暗带，消除 20:9（`1600×720`）黑边与接缝。
+- **验证状态与边界**：
+  - `PREFLIGHT INDENTATION: OK`；Godot `--headless` 4 套回归（`p5_regions` 542 项、`home_objects` 174 项、`scene_reset` 376 项、`zodiac_and_shop` 357 项，合计 1,449 项）全数通过，0 失败、0 错误。
+  - 实机 OpenGL 3.3 截图于 `1600×900`（16:9）与 `1600×720`（20:9）核查通过（覆盖三校 Home、校园商店卡片/材料与反馈条、体育馆暖纸训练券、`Exploration` 节点图、两场景战斗及带选项剧情对话）。
+  - **未决/注意**：商店库存与角色、剧情正式定稿、以及剩余旧未引用的历史资产清理继续遵循 `AGENTS.md`（不越权定稿正式设定；`.import` 随新增素材提交，`archive/` 不入库）。
+
 ## 2026-11-13 v1 美术包落地与阶段 1/2/4/6 风格及双端交互重构
 
 - **v1 素材与战斗矢量图标接入**：

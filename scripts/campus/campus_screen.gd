@@ -34,8 +34,12 @@ func _ready() -> void:
 
 func _layout() -> void:
  var background_tex: Texture2D = null
+ var wide_shop := presentation.find_child("WideShopBackground",true,false) as TextureRect
+ if wide_shop != null and wide_shop.visible and wide_shop.texture != null: background_tex = wide_shop.texture
+ var wide_room := presentation.find_child("WideRoomBackground",true,false) as TextureRect
+ if background_tex == null and wide_room != null and wide_room.texture != null: background_tex = wide_room.texture
  var place_bg := presentation.find_child("PlaceBackground",true,false) as TextureRect
- if place_bg != null: background_tex = place_bg.texture
+ if background_tex == null and place_bg != null: background_tex = place_bg.texture
  var room_bg := presentation.find_child("RoomBackground",true,false) as TextureRect
  if background_tex == null and room_bg != null: background_tex = room_bg.texture
  Platform.fit_stage(self,presentation,Color("#242A32"),background_tex)
@@ -151,6 +155,7 @@ func _open_workspace(kind: String, context: Dictionary = {}) -> void:
   _workspace.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  else:
   presentation.add_child(_workspace)
+ _layout()
  set_meta("region_modal_open",true)
  _workspace.close_requested.connect(_close_workspace)
  _workspace.action_requested.connect(_workspace_action)
@@ -168,6 +173,7 @@ func _close_workspace() -> void:
  var panel_parent := panel.get_parent()
  if panel_parent != null: panel_parent.remove_child(panel)
  panel.queue_free()
+ _layout()
  set_meta("region_modal_open",false)
  if is_instance_valid(object_home): object_home.select_object()
  if is_instance_valid(scene_objects): scene_objects.select_object()

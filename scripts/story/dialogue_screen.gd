@@ -196,20 +196,46 @@ func _show_choices(choices: Array) -> void:
 		c.queue_free()
 	
 	choices_panel.visible = true
+	var choice_tex_path := "res://assets/ui_core/theme/dialogue_choice_9slice.png"
+	var choice_atlas: AtlasTexture = null
+	if ResourceLoader.exists(choice_tex_path):
+		choice_atlas = AtlasTexture.new()
+		choice_atlas.atlas = load(choice_tex_path) as Texture2D
+		choice_atlas.region = Rect2(12, 14, 742, 132)
+		choice_atlas.filter_clip = true
 	for item in choices:
 		var btn = Button.new()
 		btn.text = " ▶  " + item.get("text", "")
 		btn.custom_minimum_size = Vector2(0, 78)
-		btn.add_theme_font_size_override("font_size", 28)
-		var color := Color("#D89A88") if choices_container.get_child_count() % 2 == 0 else Color("#A79AC2")
-		for state in ["normal", "hover", "pressed", "focus"]:
-			var style := StyleBoxFlat.new()
-			style.bg_color = color.lightened(0.12) if state in ["hover", "focus"] else color
-			style.border_color = Color("#FFF2DF")
-			style.set_border_width_all(1)
-			style.set_content_margin_all(15)
-			btn.add_theme_stylebox_override(state, style)
-		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]: btn.add_theme_color_override(state, Color("#FFF8ED"))
+		btn.add_theme_font_size_override("font_size", 26)
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		if choice_atlas != null:
+			for state in ["normal", "hover", "pressed", "hover_pressed"]:
+				var style := StyleBoxTexture.new()
+				style.texture = choice_atlas
+				style.texture_margin_left = 54
+				style.texture_margin_right = 26
+				style.texture_margin_top = 22
+				style.texture_margin_bottom = 22
+				style.content_margin_left = 48
+				style.content_margin_right = 28
+				style.content_margin_top = 14
+				style.content_margin_bottom = 14
+				style.modulate_color = Color(1.04, 1.03, 0.99) if state == "hover" else (Color(0.91, 0.89, 0.85) if state in ["pressed", "hover_pressed"] else Color.WHITE)
+				btn.add_theme_stylebox_override(state, style)
+			for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+				btn.add_theme_color_override(state, Color("#303B45"))
+			SchoolObjectUI.borderless(btn)
+		else:
+			var color := Color("#D89A88") if choices_container.get_child_count() % 2 == 0 else Color("#A79AC2")
+			for state in ["normal", "hover", "pressed", "focus"]:
+				var style := StyleBoxFlat.new()
+				style.bg_color = color.lightened(0.12) if state in ["hover", "focus"] else color
+				style.border_color = Color("#FFF2DF")
+				style.set_border_width_all(1)
+				style.set_content_margin_all(15)
+				btn.add_theme_stylebox_override(state, style)
+			for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]: btn.add_theme_color_override(state, Color("#FFF8ED"))
 		btn.pressed.connect(func(): _on_choice_selected(item))
 		choices_container.add_child(btn)
 	if choices_container.get_child_count() > 0: choices_container.get_child(0).grab_focus.call_deferred()

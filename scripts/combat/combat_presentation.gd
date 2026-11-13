@@ -105,6 +105,19 @@ static func layout(root: Control, extent: Vector2) -> void:
 	var header := root.get_node("TopInfo") as Control
 	_root_place(header, Vector2.ZERO, Vector2(1920, 88), factor, origin)
 	var ribbon := _ensure_panel(header, "TopHeaderRibbon", Color(0.15, 0.19, 0.30, 0.94), Color(0.90, 0.85, 0.76, 0.72), 0, 2)
+	var ribbon_path := "res://assets/ui_core/theme/ribbon_header_9slice.png"
+	if ResourceLoader.exists(ribbon_path):
+		var ribbon_atlas := AtlasTexture.new()
+		ribbon_atlas.atlas = load(ribbon_path) as Texture2D
+		ribbon_atlas.region = Rect2(12, 14, 996, 98)
+		ribbon_atlas.filter_clip = true
+		var ribbon_style := StyleBoxTexture.new()
+		ribbon_style.texture = ribbon_atlas
+		ribbon_style.texture_margin_left = 56
+		ribbon_style.texture_margin_right = 56
+		ribbon_style.texture_margin_top = 18
+		ribbon_style.texture_margin_bottom = 18
+		ribbon.add_theme_stylebox_override("panel", ribbon_style)
 	DaylightUI.place(ribbon, full_left - 8.0, 0.0, full_width + 16.0, 84.0)
 	var turn_tab := _ensure_panel(header, "TurnTabPaper", Color("#FBF4E6"), Color("#D4C4AD"), 10)
 	DaylightUI.place(turn_tab, 780, 8, 360, 68)

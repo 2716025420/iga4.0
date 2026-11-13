@@ -4,7 +4,11 @@ extends Control
 signal action_requested(item: Dictionary)
 signal map_requested
 signal menu_requested
-const SCALE := Vector2(1920.0/1672.0,1080.0/941.0)
+func _native() -> Vector2:
+ return layout.get("native",Vector2(1672,941))
+
+func _scale() -> Vector2:
+ return Vector2(1920.0,1080.0)/_native()
 var home_id := "techne_home_test"
 var layout: Dictionary
 var art: String
@@ -25,6 +29,9 @@ func _ready() -> void:
  art = "res://assets/ui/scene_reset/homes/"+str(layout["slug"])
  size = Vector2(1920,1080)
  mouse_filter = Control.MOUSE_FILTER_IGNORE
+ if ResourceLoader.exists(art+"_clean_wide.png"):
+  var wide := SchoolObjectUI.art(self,"WideRoomBackground",art+"_clean_wide.png",Rect2(-210,0,2340,1080))
+  wide.stretch_mode = TextureRect.STRETCH_SCALE
  var room := SchoolObjectUI.art(self,"RoomBackground",art+"_clean.png")
  room.stretch_mode = TextureRect.STRETCH_SCALE
  ui_layer = load(art+"_ui.png") as Texture2D
@@ -39,14 +46,15 @@ func _ready() -> void:
  remaining = SchoolObjectUI.text(self,"Remaining","",_rect(layout["remaining"]),24,Color(layout["clock_ink"]))
  remaining.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
  for text in [clock,remaining]:
-  text.add_theme_color_override("font_shadow_color",Color(0,0,0,0.3) if str(layout["slug"]) == "agora" else Color(1,1,1,0.55))
+  text.add_theme_color_override("font_shadow_color",Color(1,1,1,0.45))
   text.add_theme_constant_override("shadow_offset_y",1)
  var caption := SchoolObjectUI.text(self,"PreviewStatus","TEST · 人物与内容待完善",Rect2(70,1020,670,32),20,Color("#FFF7E7"))
  caption.add_theme_color_override("font_shadow_color",Color(0,0,0,0.75))
  caption.add_theme_constant_override("shadow_offset_y",1)
- var menu := _paper_button("OpenMenu",layout["menu"])
+ var menu_inset: Vector2 = layout.get("menu_inset",Vector2.ZERO)*_scale()
+ var menu := _paper_button("OpenMenu",layout["menu"],menu_inset)
  menu.text = "☰ 菜单"
- menu.add_theme_font_size_override("font_size",29)
+ menu.add_theme_font_size_override("font_size",27)
  menu.pressed.connect(func(): menu_requested.emit())
  refs["menu"] = menu
  _wire_focus()
@@ -55,21 +63,23 @@ func _ready() -> void:
  menu.grab_focus.call_deferred()
 
 func _rect(source: Rect2) -> Rect2:
- return Rect2(source.position*SCALE,source.size*SCALE)
+ return Rect2(source.position*_scale(),source.size*_scale())
 
 func _crop_ui(source: Rect2) -> AtlasTexture:
  var crop := AtlasTexture.new()
  crop.atlas = ui_layer
- var ratio := ui_layer.get_size()/Vector2(1672,941)
+ var ratio := ui_layer.get_size()/_native()
  crop.region = Rect2(source.position*ratio,source.size*ratio)
  crop.filter_clip = true
  return crop
 
-func _paper_button(node_name: String, source: Rect2) -> Button:
- var button := SchoolObjectUI.hit(self,node_name,_rect(source),"",29)
+func _paper_button(node_name: String, source: Rect2, inset: Vector2 = Vector2.ZERO) -> Button:
+ var button := SchoolObjectUI.hit(self,node_name,_rect(source),"",27)
  for state in ["normal","hover","pressed","hover_pressed","disabled"]:
   var style := StyleBoxTexture.new()
   style.texture = _crop_ui(source)
+  style.content_margin_left = inset.x
+  style.content_margin_top = inset.y
   style.modulate_color = Color(1.04,1.04,1.01) if state == "hover" else (Color(0.86,0.90,0.85) if state in ["pressed","hover_pressed"] else Color.WHITE)
   button.add_theme_stylebox_override(state,style)
  for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: button.add_theme_color_override(state,Color(layout["ink"]))
@@ -85,7 +95,8 @@ func _add_object(id: String, source: Texture2D) -> void:
  button.name = "Object_"+id
  add_child(button)
  var polygon := PackedVector2Array()
- for point in spec["polygon"]: polygon.append(Vector2(point[0],point[1])*source.get_size()/Vector2(1672,941))
+ var poly_scale := source.get_size()/_native()
+ for point in spec["polygon"]: polygon.append(Vector2(point[0],point[1])*poly_scale)
  button.configure_registered(source,polygon,Vector2(1920,1080)/source.get_size())
  button.set_meta("display_label",object_name+"\n"+copy)
  button.set_meta("object_id",id)
@@ -93,17 +104,18 @@ func _add_object(id: String, source: Texture2D) -> void:
  plate.focus_mode = Control.FOCUS_NONE
  button.label_plate = plate
  var tab := bool(spec.get("tab",false))
- var label_size: Vector2 = _rect(spec["label"]).size
+ var inset: Rect2 = _rect(spec["inset"]) if spec.has("inset") else Rect2(Vector2(18,0),Vector2(_rect(spec["label"]).size.x-36,_rect(spec["label"]).size.y))
  var name_ink := Color("#FAF3E5") if tab else Color(layout["ink"])
- var name_y := 15.0 if tab else 44.0
- var body_y := 57.0 if tab else 80.0
- var name_label := SchoolObjectUI.text(plate,"Object",object_name,Rect2(18,name_y,label_size.x-36,32),21,name_ink,true)
- var function_label := SchoolObjectUI.text(plate,"Function",copy+"  →",Rect2(18,body_y,label_size.x-36,52),30,Color(layout["ink"]),true)
- if str(layout["slug"]) == "techne":
-  var angle: float = {"workshop":-5.0,"records":-9.0,"map":5.0,"partner_test":9.0}[id]
-  for text in [name_label,function_label]:
-   text.pivot_offset = text.size/2.0
-   text.rotation_degrees = angle
+ var compact := inset.size.y < 76.0
+ var name_font := 15 if compact else 18
+ var body_font := 21 if compact else 25
+ var name_y := inset.position.y+(4.0 if compact else 8.0)
+ var body_y := inset.position.y+(22.0 if compact else 34.0)
+ var body_h := maxf(32.0,inset.size.y-(body_y-inset.position.y)-4.0)
+ var name_label := SchoolObjectUI.text(plate,"Object",object_name,Rect2(inset.position.x,name_y,inset.size.x,24),name_font,name_ink,true)
+ var function_label := SchoolObjectUI.text(plate,"Function",copy+"  →",Rect2(inset.position.x,body_y,inset.size.x,body_h),body_font,Color(layout["ink"]),true)
+ name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+ function_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
  objects[id] = button
  if id == "map": refs["map_button"] = button
  else: refs["actions"][id+str(spec["index"])] = button

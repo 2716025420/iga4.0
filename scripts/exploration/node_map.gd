@@ -228,7 +228,9 @@ func _ready_material_exploration() -> void:
 	reset_route_btn.pressed.connect(_on_material_retreat)
 	$TopBar.add_child(reset_route_btn)
 	var background := $Background as TextureRect
-	var background_path: String = "res://assets/backgrounds/phase_three/exploration_campus.png"
+	var background_path: String = "res://assets/backgrounds/phase_three/exploration_campus_wide.png"
+	if not ResourceLoader.exists(background_path):
+		background_path = "res://assets/backgrounds/phase_three/exploration_campus.png"
 	if ResourceLoader.exists(background_path): background.texture = load(background_path) as Texture2D
 	var canvas := $ScrollContainer/MapCanvas as Control
 	_material_surface = Panel.new()

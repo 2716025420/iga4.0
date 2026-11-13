@@ -34,7 +34,13 @@ func refresh(context: Dictionary = {}) -> void:
 	_canvas.size = size
 	add_child(_canvas)
 	refs.clear()
+	if ResourceLoader.exists(ShopCounterTheme.WIDE_BG_PATH):
+		var wide := SchoolObjectUI.art(_canvas,"WideShopBackground",ShopCounterTheme.WIDE_BG_PATH,Rect2(-210,0,2340,1080))
+		wide.stretch_mode = TextureRect.STRETCH_SCALE
 	SchoolObjectUI.art(_canvas,"LocalShopBackground",SceneDesignCatalog.place_path(CampusLife.current_location))
+	if ResourceLoader.exists(ShopCounterTheme.UI_LAYER_PATH):
+		var ui_layer := SchoolObjectUI.art(_canvas,"ShopUILayer",ShopCounterTheme.UI_LAYER_PATH)
+		ui_layer.stretch_mode = TextureRect.STRETCH_SCALE
 	ShopCounterTheme.panel(_canvas,"Header",Rect2(50,30,1820,135),Color("#F6F2E5"))
 	ShopCounterTheme.text(_canvas,"LocationName",str(RegionCatalog.REGIONS[CampusLife.current_region]["title"])+" · 商店柜台",Rect2(83,51,1260,64),43)
 	ShopCounterTheme.text(_canvas,"LocalService","普通卡牌与兴趣用品 · 需要到店办理",Rect2(85,114,1170,40),26,true)
@@ -73,7 +79,7 @@ func refresh(context: Dictionary = {}) -> void:
 		var product := CampusShopCatalog.definition(selected_id)
 		ShopCounterTheme.text(_canvas,"SelectedName",product["name"],Rect2(1250,213,550,57),38)
 		SchoolObjectUI.art(_canvas,"ProductPreview",product["icon"],Rect2(1250,278,550,180))
-		ShopCounterTheme.prose(_canvas,"Description",product["description"],Rect2(1250,495,550,115),27)
+		ShopCounterTheme.prose(_canvas,"Description",product["description"],Rect2(1314,514,412,92),19)
 		ShopCounterTheme.text(_canvas,"UnitPrice","单价 %d · 持有%d" % [int(product[mode]),int(product["owned"])],Rect2(1250,612,550,50),28)
 		var minus := ShopCounterTheme.button(_canvas,"QuantityMinus","−",Rect2(1250,674,95,60))
 		minus.disabled = quantity <= 1 or product["kind"] == "card"
@@ -90,9 +96,13 @@ func refresh(context: Dictionary = {}) -> void:
 		var ticket := _ticket
 		confirm.pressed.connect(_trade.bind(ticket,selected_id,quantity,mode))
 		refs["confirm"] = confirm
-	ShopCounterTheme.text(_canvas,"Feedback",message,Rect2(110,988,1640,35),23)
-	ShopCounterTheme.panel(_canvas,"FooterBacking",Rect2(75,1022,1765,50),Color("#F6F2E5"))
-	ShopCounterTheme.text(_canvas,"Rules","交易不消耗活动次数 · 星座卡与任务道具不参与交易",Rect2(110,1030,1700,38),24,true)
+	if message != "":
+		var fb := ShopCounterTheme.panel(_canvas,"FeedbackBacking",Rect2(440,946,1040,42),Color(0.98,0.95,0.88,0.94))
+		fb.name = "FeedbackBacking"
+	ShopCounterTheme.text(_canvas,"Feedback",message,Rect2(460,949,1000,36),21)
+	var footer := ShopCounterTheme.panel(_canvas,"FooterBacking",Rect2(440,1000,1040,46),Color(0.97,0.94,0.87,0.88))
+	footer.name = "FooterBacking"
+	ShopCounterTheme.text(_canvas,"Rules","交易不消耗活动次数 · 星座卡与任务道具不参与交易",Rect2(460,1004,1000,38),22,true)
 	ShopCounterTheme.apply(self)
 	if focus_name != "": _restore_focus.call_deferred(focus_name)
 

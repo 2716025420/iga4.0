@@ -15,7 +15,7 @@ func build(owner_screen: Control) -> void:
 	DaylightUI.place(background, 0, 0, 1920, 1080)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	for band in [Rect2(0, 0, 1920, 65), Rect2(0, 987, 1920, 93)]:
+	for band in [Rect2(-240, 0, 2400, 65), Rect2(-240, 987, 2400, 93)]:
 		var wash := ColorRect.new()
 		wash.name = "CaptionContrast" if band.position.y == 0 else "ControlsContrast"
 		wash.color = Color(0.18, 0.20, 0.28, 0.48 if band.position.y == 0 else 0.65)
@@ -99,7 +99,8 @@ func update_scene() -> void:
 	var id := str(screen.get("current_dialogue_id"))
 	var key := PhaseTwoContent.background_key(id)
 	if bool(screen.get("_exploration_mode")): key = "dusk_road"
-	var path := "res://assets/backgrounds/phase_two/%s.png" % key
+	var path := "res://assets/backgrounds/phase_two/%s_wide.png" % key
+	if not ResourceLoader.exists(path): path = "res://assets/backgrounds/phase_two/%s.png" % key
 	if ResourceLoader.exists(path): screen.get("bg_texture").texture = load(path)
 	var location: String = {"morning_road":"上学路", "school_gate":"校门前", "school_room":"课间", "dusk_road":"放学以后"}.get(key, "校园片段")
 	scene_caption.text = ("回忆片段" if bool(screen.get("_archive_mode")) else ("探索片段" if bool(screen.get("_exploration_mode")) else "校园片段")) + "   /   " + location
@@ -127,5 +128,11 @@ func update_scene() -> void:
 		elif ResourceLoader.exists(place_path): screen.get("bg_texture").texture = load(place_path)
 		scene_caption.text = GameState.get_detailed_time_string()+" / "+str(place["title"])
 	var bg_rect := screen.get("bg_texture") as TextureRect
+	if is_instance_valid(bg_rect):
+		bg_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		if bg_rect.texture != null and bg_rect.texture.get_width() > 2100:
+			DaylightUI.place(bg_rect, -210, 0, 2340, 1080)
+		else:
+			DaylightUI.place(bg_rect, 0, 0, 1920, 1080)
 	var bg_tex: Texture2D = bg_rect.texture if is_instance_valid(bg_rect) and bg_rect.visible else null
 	Platform.fit_stage(screen, self, Color("#242834"), bg_tex)

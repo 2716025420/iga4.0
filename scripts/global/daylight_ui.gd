@@ -193,16 +193,25 @@ static func layout(root: Control) -> void:
 		if str(root.name) == "DialogueScreen":
 			key = PhaseTwoContent.background_key(str(root.get("current_dialogue_id")))
 		var background := root.get_node("Background") as TextureRect
-		var path := "res://assets/backgrounds/phase_two/%s.png" % key
+		var path := "res://assets/backgrounds/phase_two/%s_wide.png" % key
+		if not ResourceLoader.exists(path):
+			path = "res://assets/backgrounds/phase_two/%s.png" % key
 		var exploration_background := ""
 		if str(root.name) == "NodeMap":
-			exploration_background = "res://assets/backgrounds/phase_three/exploration_campus.png"
+			exploration_background = "res://assets/backgrounds/phase_three/exploration_campus_wide.png"
+			if not ResourceLoader.exists(exploration_background):
+				exploration_background = "res://assets/backgrounds/phase_three/exploration_campus.png"
 		elif str(root.name) == "CombatScreen" and bool(root.get("_exploration_mode")):
-			exploration_background = "res://assets/backgrounds/phase_three/exploration_battle.png"
+			exploration_background = "res://assets/backgrounds/phase_three/exploration_battle_wide.png"
+			if not ResourceLoader.exists(exploration_background):
+				exploration_background = "res://assets/backgrounds/phase_three/exploration_battle.png"
 		if exploration_background != "" and ResourceLoader.exists(exploration_background):
 			path = exploration_background
 		if ResourceLoader.exists(path):
 			background.texture = load(path)
+		background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		background.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		background.modulate = Color.WHITE
 		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
