@@ -1,5 +1,14 @@
 > **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
 
+## 2026-11-13 校内路线界面重构 & v4 赛璐璐星座卡册与动画试点需求包
+
+- **审定推进 · `SchoolRouteScreen` 实机重构**：
+  - 按主创确认意见（校内预选赛为单一关卡/阶段，全国大赛为后期主线长期目标副本；`tournament_route_concept.png` 布局通过），导入 `assets/ui/school_objects/route_station_wide.png`（`2340×1080`）及 `.import`，重构 [school_route_screen.gd](scripts/exploration/school_route_screen.gd)：启用顶部缎带 `ribbon_header_9slice.png`、体能/练习点白底金边胶囊、横向 1→6→终点首领→出口羊皮纸进度条、带铜夹立牌卡片、左下携带卡组立架（接入 `card_frame_duel.png` 与新卡面插画）及右下路线状态牌，并修正 `_modal_paper()` 复用 `CombatSkin.paper()`。
+  - 已在 OpenGL `1600×900` 与 `1600×720` 双分辨率完成 `SchoolRouteScreen` 及 `ZodiacAlbumPanel` 实机截图目检。
+- **作废重设 & v4 需求包与动画调研**：
+  - v3 `zodiac_binder_concept.png` 作废不入库。已完成 **Figma / Canvas / tldraw 插件导入 Godot 4.7.2 Mobile** 可行性核查（`.fig`/`.tldr`/Lottie/MP4 不可直接运行，推荐转为 **SVG 矢量 + 透明分层部件 PNG + `4×2` 12fps 赛璐璐序列帧雪碧图 PNG + Godot `AnimationPlayer`/`Tween`/`AnimatedSprite2D`/Shader** 落地）。
+  - 本地已打包 [archive/IGA_GPT_Asset_Pack_Brief_v4.zip](archive/IGA_GPT_Asset_Pack_Brief_v4.zip)（含极简博物馆高级感星座图鉴 `1920×1080` 母图规范、90s 古早手绘赛璐璐拟人十二星座卡分批提示词及 Wave 4C 动画分件规格，未改动现有未定剧情与角色归属）。
+
 ## 2026-11-13 v3 美术包第一批生产接入（卡牌画框与水彩图标、五张宽屏背景及待审概念）
 
 - **Wave B 战斗卡牌与经济图标接入**：
