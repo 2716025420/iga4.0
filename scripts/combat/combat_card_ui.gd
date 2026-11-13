@@ -157,13 +157,16 @@ func layout_notebook_card(extent: Vector2 = CombatPresentation.CARD_SIZE) -> voi
 	header.add_theme_constant_override("separation", 5)
 	name_label.add_theme_font_size_override("font_size", 26)
 	name_label.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
-	var art_h := clampf(extent.y - 216.0, 82.0, 102.0)
-	var desc_y := 54.0 + art_h + 4.0
+	var art_h := clampf(extent.y - 178.0, 108.0, 130.0)
+	var desc_y := 54.0 + art_h + 6.0
 	var footer_y := extent.y - 44.0
-	DaylightUI.place(body.get_node("CardIllustration"), 20, 54, extent.x - 40, art_h)
-	DaylightUI.place(desc_label, 18, desc_y, extent.x - 36, footer_y - desc_y - 6.0)
-	desc_label.add_theme_font_size_override("normal_font_size", 23)
-	desc_label.add_theme_font_size_override("bold_font_size", 23)
+	var art_frame := body.get_node_or_null("CardArtFrame") as Panel
+	if is_instance_valid(art_frame):
+		DaylightUI.place(art_frame, 18, 52, extent.x - 36, art_h + 4.0)
+	DaylightUI.place(body.get_node("CardIllustration"), 22, 56, extent.x - 44, art_h - 4.0)
+	DaylightUI.place(desc_label, 16, desc_y, extent.x - 32, footer_y - desc_y - 6.0)
+	desc_label.add_theme_font_size_override("normal_font_size", 21)
+	desc_label.add_theme_font_size_override("bold_font_size", 21)
 	desc_label.add_theme_constant_override("line_separation", 1)
 	var footer := body.get_node("Footer") as HBoxContainer
 	DaylightUI.place(footer, 20, footer_y, extent.x - 40, 26)
@@ -255,6 +258,19 @@ func _update_display() -> void:
 
 func _refresh_card_illustration() -> void:
 	var box := $VBox as Control
+	var art_frame := box.get_node_or_null("CardArtFrame") as Panel
+	if art_frame == null:
+		art_frame = Panel.new()
+		art_frame.name = "CardArtFrame"
+		art_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var frame_box := StyleBoxFlat.new()
+		frame_box.bg_color = Color("#F5ECDB")
+		frame_box.border_color = Color("#D2C4AB")
+		frame_box.set_border_width_all(1)
+		frame_box.set_corner_radius_all(4)
+		art_frame.add_theme_stylebox_override("panel", frame_box)
+		box.add_child(art_frame)
+		box.move_child(art_frame, 1)
 	var art := box.get_node_or_null("CardIllustration") as TextureRect
 	if art == null:
 		art = TextureRect.new()
@@ -264,10 +280,11 @@ func _refresh_card_illustration() -> void:
 		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		box.add_child(art)
-		box.move_child(art, 1)
+		box.move_child(art, 2)
 	var asset := SceneSkin.card_illustration_path(card_data.id)
 	art.texture = SceneSkin.illustration_texture(asset)
 	art.visible = art.texture != null
+	art_frame.visible = art.visible
 	desc_label.scroll_active = false
 	layout_notebook_card()
 

@@ -96,17 +96,17 @@ func get_combat_summary() -> String:
 		CardType.ATTACK:
 			var hit_text := "全体伤害 %d" if target_type == TargetType.ALL_ENEMIES else "伤害 %d"
 			if burn_damage > 0 and burn_duration > 0:
-				return (hit_text % get_scaled_damage()) + "\n压制 %d 回合\n每回合 %d 伤害" % [burn_duration, get_scaled_burn_damage()]
+				return (hit_text % get_scaled_damage()) + " · 压制%d×%d回" % [get_scaled_burn_damage(), burn_duration]
 			return hit_text % get_scaled_damage()
 		CardType.DEFENSE:
-			return "护盾 %d\n持续 1 回合" % get_scaled_shield()
+			return "护盾 %d" % get_scaled_shield()
 		CardType.RECOVERY:
-			return "恢复 %d 体力\n每战最多 2 次" % get_scaled_heal()
+			return "恢复 %d · 限2次" % get_scaled_heal()
 		CardType.DEBUFF:
-			var target_text := "敌方伤害 -%d%%" if target_type == TargetType.ALL_ENEMIES else "伤害降低 %d%%"
-			return (target_text % roundi(get_scaled_attack_down() * 100)) + "\n持续 %d 回合" % debuff_duration
+			var target_text := "敌全体伤害 -%d%%" if target_type == TargetType.ALL_ENEMIES else "伤害 -%d%%"
+			return (target_text % roundi(get_scaled_attack_down() * 100)) + " · %d回" % debuff_duration
 		CardType.SPECIAL:
-			return "护盾 %d\n反击%d×2次\n持续 1 回合" % [get_scaled_shield(), get_scaled_reflect_damage()]
+			return "护盾 %d · 反击 %d×2" % [get_scaled_shield(), get_scaled_reflect_damage()]
 	return "无特殊效果"
 
 func get_plain_description() -> String:

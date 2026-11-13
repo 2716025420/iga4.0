@@ -33,13 +33,10 @@ func _ready() -> void:
  presentation.size = DESIGN
  backdrop.add_child(presentation)
  var panel := SchoolObjectUI.slab(presentation,"RewardPaper",Rect2(365,175,1190,730),Color("#F4EFE3"))
- var style := panel.get_theme_stylebox("panel") as StyleBoxFlat
- style.set_border_width_all(0)
- style.set_corner_radius_all(22)
- style.shadow_color = Color(0,0,0,0.22)
- style.shadow_size = 18
- SchoolObjectUI.text(presentation,"Heading","获得物品",Rect2(425,205,1000,85),46)
- SchoolObjectUI.text(presentation,"Hint","这一份收获，已经好好收下。",Rect2(430,292,1000,42),25,SchoolObjectUI.MUTED)
+ panel.add_theme_stylebox_override("panel",CombatSkin.paper(Vector4(24,24,24,24)))
+ var heading := SchoolObjectUI.text(presentation,"Heading","获得物品",Rect2(425,205,1000,85),46,Color("#303B45"))
+ heading.add_theme_font_override("font",load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+ SchoolObjectUI.text(presentation,"Hint","这一份收获，已经好好收下。",Rect2(430,292,1000,42),25,DaylightUI.MUTED)
  var scroll := ScrollContainer.new()
  scroll.name = "RewardScroll"
  scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -52,13 +49,7 @@ func _ready() -> void:
  entries.add_theme_constant_override("v_separation",18)
  scroll.add_child(entries)
  confirm = SchoolObjectUI.hit(presentation,"ConfirmRewards",Rect2(775,790,370,70),"收下",32)
- for state in ["normal","hover","pressed","hover_pressed"]:
-  var fill := StyleBoxFlat.new()
-  fill.bg_color = Color("#526D87") if state == "normal" else (Color("#6888A3") if state == "hover" else Color("#405970"))
-  fill.set_corner_radius_all(12)
-  confirm.add_theme_stylebox_override(state,fill)
- for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: confirm.add_theme_color_override(key,Color.WHITE)
- SchoolObjectUI.borderless(confirm)
+ CombatSkin.button(confirm,true)
  confirm.pressed.connect(dismiss)
  backdrop.resized.connect(_layout)
  backdrop.hide()
@@ -107,15 +98,17 @@ func _present_pending() -> void:
  DaylightUI.place(confirm,(DESIGN.x-370)/2.0,top+paper_height-115,370,70)
  for id in displayed:
   var data := _definition(str(id))
-  var card := SchoolObjectUI.slab(entries,"Reward_"+str(id).replace(":","_"),Rect2(0,0,card_width,164),Color("#FFFBF2"))
+  var card := SchoolObjectUI.slab(entries,"Reward_"+str(id).replace(":","_"),Rect2(0,0,card_width,164),Color("#FAF4E6"))
   card.custom_minimum_size = Vector2(card_width,164)
   var style := card.get_theme_stylebox("panel") as StyleBoxFlat
-  style.set_border_width_all(0)
-  style.set_corner_radius_all(14)
+  style.border_color = Color("#D8CBB4")
+  style.set_border_width_all(1)
+  style.set_corner_radius_all(10)
   SchoolObjectUI.art(card,"Icon",str(data.get("icon","")),Rect2(18,30,100,100))
-  SchoolObjectUI.text(card,"Name",str(data.get("name",id)),Rect2(138,18,345,45),29)
-  SchoolObjectUI.text(card,"Quantity","× %d" % int(displayed[id]),Rect2(138,64,345,40),28,Color("#BA6A58"))
-  var description := SchoolObjectUI.text(card,"Description",str(data.get("description","")),Rect2(138,104,card_width-165,52),20,SchoolObjectUI.MUTED)
+  var name_lbl := SchoolObjectUI.text(card,"Name",str(data.get("name",id)),Rect2(138,18,345,45),28,Color("#303B45"))
+  name_lbl.add_theme_font_override("font",load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+  SchoolObjectUI.text(card,"Quantity","× %d" % int(displayed[id]),Rect2(138,64,345,40),27,Color("#BA6A58"))
+  var description := SchoolObjectUI.text(card,"Description",str(data.get("description","")),Rect2(138,104,card_width-165,52),20,DaylightUI.MUTED)
   description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
   description.max_lines_visible = 2
   description.clip_text = true
@@ -125,6 +118,18 @@ func _present_pending() -> void:
  get_tree().paused = true
  backdrop.show()
  _layout()
+ var duration := SaveManager.motion_duration(0.16)
+ if duration > 0.0:
+  presentation.pivot_offset = DESIGN * 0.5
+  presentation.modulate.a = 0.0
+  presentation.scale = Vector2(0.97, 0.97)
+  var tween := create_tween().set_parallel(true)
+  tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+  tween.tween_property(presentation,"modulate:a",1.0,duration).set_trans(Tween.TRANS_CUBIC)
+  tween.tween_property(presentation,"scale",Vector2.ONE,duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+ else:
+  presentation.modulate.a = 1.0
+  presentation.scale = Vector2.ONE
  confirm.grab_focus()
 
 func _definition(id: String) -> Dictionary:

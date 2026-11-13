@@ -25,6 +25,12 @@ func _ready() -> void:
 	var bg_path := "res://assets/backgrounds/phase_three/title/background_wide.png"
 	if not ResourceLoader.exists(bg_path): bg_path = "res://assets/backgrounds/phase_three/title/background.png"
 	_art("RoomArt", bg_path)
+	var ambience := TitleAmbience.new()
+	ambience.name = "TitleAmbience"
+	ambience.host_screen = self
+	ambience.size = presentation.size
+	ambience.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	presentation.add_child(ambience)
 	_art("ForegroundArt", "res://assets/backgrounds/phase_three/title/foreground.png")
 	_label("GameTitle", "IGA", 110, Vector2(252, 142), Vector2(900, 150), true)
 	_rule(presentation, Vector2(256, 296), 488)
@@ -78,6 +84,76 @@ func _layout() -> void:
 				fg.material = mat
 		else:
 			fg.material = null
+
+class TitleAmbience extends Control:
+	var host_screen: Control = null
+	var _elapsed: float = 0.0
+	var _motes: Array[Dictionary] = []
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for i in 18:
+			var t: float = float(i) / 18.0
+			_motes.append({
+				"x": lerpf(490.0, 1490.0, fposmod(t * 1.61 + 0.13, 1.0)),
+				"y": lerpf(130.0, 910.0, fposmod(t * 2.29 + 0.31, 1.0)),
+				"r": 1.8 + float(i % 4) * 0.65,
+				"vx": 5.5 + float(i % 5) * 1.8,
+				"vy": 7.5 + float(i % 3) * 2.4,
+				"phase": t * TAU,
+				"alpha": 0.12 + float(i % 4) * 0.04,
+			})
+		set_process(true)
+
+	func _paused_or_reduced() -> bool:
+		if not is_visible_in_tree():
+			return true
+		if bool(SaveManager.settings.get("reduced_motion", false)):
+			return true
+		if host_screen != null:
+			var modal: Variant = host_screen.get("backdrop")
+			if modal is CanvasItem and (modal as CanvasItem).visible:
+				return true
+		return false
+
+	func _process(delta: float) -> void:
+		if not is_visible_in_tree():
+			return
+		if _paused_or_reduced():
+			if bool(SaveManager.settings.get("reduced_motion", false)) and _elapsed != 0.0:
+				_elapsed = 0.0
+				queue_redraw()
+			return
+		_elapsed += delta
+		queue_redraw()
+
+	func _draw() -> void:
+		if not is_visible_in_tree():
+			return
+		var reduced: bool = bool(SaveManager.settings.get("reduced_motion", false))
+		var t: float = 0.0 if reduced else _elapsed
+		var beam_shift: float = 0.0 if reduced else sin(t * 0.42) * 18.0
+		var beam_alpha: float = 0.036 + (0.0 if reduced else 0.01 * sin(t * 0.6))
+		draw_colored_polygon(PackedVector2Array([
+			Vector2(1010.0 + beam_shift, 0.0),
+			Vector2(1290.0 + beam_shift, 0.0),
+			Vector2(860.0 + beam_shift * 0.5, 1080.0),
+			Vector2(570.0 + beam_shift * 0.5, 1080.0),
+		]), Color(1.0, 0.96, 0.85, beam_alpha))
+		draw_colored_polygon(PackedVector2Array([
+			Vector2(1340.0 - beam_shift * 0.4, 0.0),
+			Vector2(1480.0 - beam_shift * 0.4, 0.0),
+			Vector2(1140.0 - beam_shift * 0.2, 1080.0),
+			Vector2(1010.0 - beam_shift * 0.2, 1080.0),
+		]), Color(1.0, 0.94, 0.80, beam_alpha * 0.72))
+		for m in _motes:
+			var phase: float = float(m["phase"]) + t * 0.85
+			var px: float = 470.0 + fposmod(float(m["x"]) - 470.0 + t * float(m["vx"]) + sin(phase * 0.5) * 8.0, 1040.0)
+			var py: float = 110.0 + fposmod(float(m["y"]) - 110.0 - t * float(m["vy"]), 820.0)
+			var shimmer: float = 0.75 + 0.25 * sin(phase)
+			var a: float = float(m["alpha"]) * shimmer
+			draw_circle(Vector2(px, py), float(m["r"]), Color(1.0, 0.97, 0.88, a))
+
 
 func _art(node_name: String, path: String) -> void:
 	var art := TextureRect.new()

@@ -113,7 +113,7 @@ func _shops() -> void:
 		confirm.pressed.emit()
 		await get_tree().process_frame
 		check(state.energy_crystals == money - 12, "same confirm callback is consumed once " + region)
-		check(counter.find_child("LocalShopBackground", true, false).texture.resource_path.ends_with("shop_counter_plate.png"), "counter uses migrated concept plate without student_terminal " + region)
+		check(counter.find_child("LocalShopBackground", true, false).texture.resource_path.ends_with("shop_counter_plate.png"), "counter uses migrated concept plate " + region)
 		await click(counter.find_child("Category_cards", true, false))
 		await capture("shop_" + region)
 		await key(KEY_ESCAPE)

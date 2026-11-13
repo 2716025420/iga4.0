@@ -26,6 +26,8 @@ var tween_typing: Tween
 var character_sprites: Dictionary = {}
 var _dialogue_finishing: bool = false
 var _line_generation: int = 0
+var _last_speaking_key: String = ""
+var _char_motion_tween: Tween = null
 var pause_button: Button
 var record_button: Button
 var history_panel: Control
@@ -105,14 +107,34 @@ func _show_next_line() -> void:
 	var data := current_lines[line_index]
 	nameplate.text = " " + data.get("speaker", "旁白") + " "
 	_refresh_speaker_avatar(data)
-	var sprite_path := PhaseTwoContent.dialogue_character_path(data.get("char", "ye_zhou"), _speaker_emotion(data))
-	var speaking_sprite: TextureRect = left_char_sprite if data.get("side", "left") == "left" else right_char_sprite
+	var speaker_char: String = str(data.get("char", "ye_zhou"))
+	var speaker_side: String = str(data.get("side", "left"))
+	var sprite_path := PhaseTwoContent.dialogue_character_path(speaker_char, _speaker_emotion(data))
+	var speaking_sprite: TextureRect = left_char_sprite if speaker_side == "left" else right_char_sprite
 	var other_sprite: TextureRect = right_char_sprite if speaking_sprite == left_char_sprite else left_char_sprite
+	var speaker_key: String = "%s:%s" % [speaker_side, speaker_char] if sprite_path != "" else ""
+	var speaker_changed: bool = speaker_key != "" and (speaker_key != _last_speaking_key or not speaking_sprite.visible)
+	_last_speaking_key = speaker_key
+	if _char_motion_tween != null and is_instance_valid(_char_motion_tween):
+		_char_motion_tween.kill()
+		_char_motion_tween = null
+	other_sprite.scale = Vector2.ONE
+	other_sprite.modulate = Color(0.76, 0.74, 0.78)
 	speaking_sprite.visible = sprite_path != ""
 	if sprite_path != "":
 		speaking_sprite.texture = load(sprite_path)
-		speaking_sprite.modulate = Color.WHITE
-	other_sprite.modulate = Color(0.76, 0.74, 0.78)
+		speaking_sprite.pivot_offset = Vector2(speaking_sprite.size.x * 0.5, speaking_sprite.size.y)
+		var motion_dur: float = SaveManager.motion_duration(0.18)
+		if speaker_changed and motion_dur > 0.0:
+			speaking_sprite.scale = Vector2(0.985, 0.985)
+			speaking_sprite.modulate = Color(1.0, 1.0, 1.0, 0.78)
+			_char_motion_tween = create_tween()
+			_char_motion_tween.set_parallel(true)
+			_char_motion_tween.tween_property(speaking_sprite, "scale", Vector2.ONE, motion_dur).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			_char_motion_tween.tween_property(speaking_sprite, "modulate", Color.WHITE, motion_dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		else:
+			speaking_sprite.scale = Vector2.ONE
+			speaking_sprite.modulate = Color.WHITE
 	full_current_text = data.get("text", "")
 	text_label.text = full_current_text
 	text_label.visible_characters = 0
@@ -398,8 +420,17 @@ func _build_history() -> void:
 	history_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	history_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(history_panel)
-	SchoolPaperSurface.create(history_panel, "HistoryBacking", Rect2(230, 145, 1460, 790), Color("#F5F1EC"))
-	SchoolObjectUI.text(history_panel, "Title", "对话记录", Rect2(295, 177, 800, 70), 44)
+	var history_backing := Panel.new()
+	history_backing.name = "HistoryBacking"
+	history_backing.mouse_filter = Control.MOUSE_FILTER_STOP
+	history_backing.add_theme_stylebox_override("panel", CombatSkin.paper(Vector4(24, 24, 24, 24)))
+	history_panel.add_child(history_backing)
+	DaylightUI.place(history_backing, 230, 145, 1460, 790)
+	var history_title := SchoolObjectUI.text(history_panel, "Title", "对话记录", Rect2(295, 177, 800, 70), 44)
+	var serif_path := "res://assets/fonts/NotoSerifSC-SemiBold.ttf"
+	if ResourceLoader.exists(serif_path):
+		history_title.add_theme_font_override("font", load(serif_path))
+	history_title.add_theme_color_override("font_color", Color("#303B45"))
 	history_text = RichTextLabel.new()
 	history_text.name = "HistoryText"
 	history_text.bbcode_enabled = false

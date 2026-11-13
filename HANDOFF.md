@@ -1,5 +1,22 @@
 > **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
 
+## 2026-11-13 UI 统一清理、轻量程序化动效与 v3 需求包
+
+- **v3 GPT 素材需求包与历史素材清理**：
+  - 本地已生成 `archive/IGA_GPT_Asset_Pack_Brief_v3.zip`（21 项 / 22.98 MB，`archive/` 不入库），按最新方向提供全宽 `2340×1080` 延伸图、水彩经济/材料图标、无繁琐规则文字的卡面插画及直线几何光影加载页延续规范；暂留最初 4 位角色立绘，移除废除的零引用冷色 `assets/ui/school_objects/campus_{guide,ticket}-v2.png`（及 `.import`）并清理 `tools/tests/zodiac_and_shop.gd` 中的 `student_terminal` 过时文案。
+- **UI 统一样式与可读性改进**：
+  - `scripts/ui/scene_surface_ui.gd`：`button()` 禁用底板设为暖纸调 `Color(0.91,0.88,0.82,0.96)`，并将 `font_disabled_color`（`Color(SceneSkin.INK, 0.82)`）置于 `SchoolObjectUI.borderless()` 之后，修复 `RegionAtlasView` 未解锁区域文字低对比发灰问题。
+  - `scripts/ui/reward_card_popup.gd`：`RewardPaper` 统一切换至 `CombatSkin.paper(Vector4(24,24,24,24))`（`paper_modal_9slice.png`）、`NotoSerifSC-SemiBold.ttf` 深墨标题、暖米金边框条目卡、`CombatSkin.button(confirm, true)` 及受 `SaveManager.motion_duration()` 控制的 `0.16s` 入场渐变。
+  - `scripts/data_models/card_data.gd` & `scripts/combat/combat_card_ui.gd`：`get_combat_summary()` 收敛为紧凑短摘要（修正为 `回` 单位，保留完整细节于 `get_dynamic_description()`/`get_plain_description()`），卡面插画增加 `CardArtFrame` 衬底框（`#F5ECDB`/`#D2C4AB`）并将 `art_h` 放大至 `clampf(extent.y - 178.0, 108.0, 130.0)`。
+  - `scripts/story/dialogue_screen.gd`：`_build_history()` 中的 `HistoryBacking` 换用 `CombatSkin.paper(Vector4(24,24,24,24))`（配合 `DaylightUI.place`）与衬线标题 `#303B45`；`_show_next_line()` 在说话角色/方位切换时加入基于 `SaveManager.motion_duration(0.18)` 的微幅落定缩放与透明度过渡。
+- **轻量环境动效（遵循 `reduced_motion` 与弹窗暂停）**：
+  - `scripts/ui/scene_loading_screen.gd`：`GameName` 由 `"放学以后"` 改为 `"Inorganic General Alien"`；加入纯矢量 `GeometricAmbience`（斜向几何光柱微扫与棱形光尘），隐藏或 `reduced_motion` 开启时自动停止更新。
+  - `scripts/title/title_screen.gd`：在 `RoomArt` 与 `ForegroundArt` 之间加入 `TitleAmbience`（斜向窗光与缓慢飘动微尘），弹窗 `backdrop` 打开或 `reduced_motion` 开启时自动暂停。
+- **验证状态与未决事项**：
+  - 实机 OpenGL 3.3 截图（`1600×900` 16:9 与 `1600×720` 20:9）核查通过标题页、区域旅行图禁用标签对比度、战斗手牌框画与紧凑标签、物品结算弹窗、对话与记录弹窗及几何加载页。
+  - `PREFLIGHT INDENTATION: OK`；Godot `--headless` 4 套回归（`p5_regions` 542 项、`home_objects` 174 项、`scene_reset` 376 项、`zodiac_and_shop` 357 项，合计 1,449 项）全数通过，0 失败、0 错误。
+  - **未决**：等待主创基于 `IGA_GPT_Asset_Pack_Brief_v3.zip` 产出的经济/卡牌插画/动画分件素材包；正式剧情、赛事规则及角色细节仍保持待定。
+
 ## 2026-11-13 v2 美术包全量接入（新三校 Home、地区商店、探索宽屏及暖纸控件）
 
 - **Wave A · 新三所大学 Home 与地区商店（仍保持 `TEST` 状态，未改动未确认剧情与经济规则）**：

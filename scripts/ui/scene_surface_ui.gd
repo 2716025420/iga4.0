@@ -25,11 +25,12 @@ static func button(parent: Control, node_name: String, copy: String, rect: Rect2
   var tint := Color.WHITE
   if state == "hover": tint = Color(1.035,1.04,1.015)
   elif state in ["pressed","hover_pressed"]: tint = Color(0.86,0.91,0.85)
-  elif state == "disabled": tint = Color(0.75,0.78,0.75,0.8)
+  elif state == "disabled": tint = Color(0.91,0.88,0.82,0.96)
   control.add_theme_stylebox_override(state,style(tint))
  for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
   control.add_theme_color_override(state,SceneSkin.INK)
  SchoolObjectUI.borderless(control)
+ control.add_theme_color_override("font_disabled_color",Color(SceneSkin.INK,0.82))
  return control
 
 static func heading(parent: Control, title: String) -> void:
