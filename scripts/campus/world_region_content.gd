@@ -297,8 +297,8 @@ const PLACES := {
    },
    {
     "id": "records",
-    "label": "智能终端",
-    "object_label": "随身终端"
+    "label": "随身档案",
+    "object_label": "档案手账"
    },
    {
     "id": "partner_test",
@@ -366,8 +366,8 @@ const PLACES := {
    },
    {
     "id": "records",
-    "label": "智能终端",
-    "object_label": "随身终端"
+    "label": "随身档案",
+    "object_label": "档案手账"
    },
    {
     "id": "partner_test",
@@ -405,8 +405,8 @@ const PLACES := {
    },
    {
     "id": "records",
-    "label": "智能终端",
-    "object_label": "随身终端"
+    "label": "随身档案",
+    "object_label": "档案手账"
    },
    {
     "id": "partner_test",
@@ -471,8 +471,8 @@ const PLACES := {
    },
    {
     "id": "records",
-    "label": "智能终端",
-    "object_label": "随身终端"
+    "label": "随身档案",
+    "object_label": "档案手账"
    }
   ]
  },
@@ -540,8 +540,8 @@ const PLACES := {
    },
    {
     "id": "records",
-    "label": "智能终端",
-    "object_label": "随身终端"
+    "label": "随身档案",
+    "object_label": "档案手账"
    }
   ]
  },
@@ -568,8 +568,8 @@ const PLACES := {
    },
    {
     "id": "records",
-    "label": "智能终端",
-    "object_label": "随身终端"
+    "label": "随身档案",
+    "object_label": "档案手账"
    }
   ]
  },
@@ -587,8 +587,8 @@ const PLACES := {
    },
    {
     "id": "records",
-    "label": "智能终端",
-    "object_label": "随身终端"
+    "label": "随身档案",
+    "object_label": "档案手账"
    }
   ]
  },
@@ -606,8 +606,8 @@ const PLACES := {
    },
    {
     "id": "records",
-    "label": "智能终端",
-    "object_label": "随身终端"
+    "label": "随身档案",
+    "object_label": "档案手账"
    }
   ]
  }

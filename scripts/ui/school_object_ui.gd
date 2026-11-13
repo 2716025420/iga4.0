@@ -32,15 +32,12 @@ static func hit(parent: Control, node_name: String, rect: Rect2, copy: String = 
 	button.add_theme_font_size_override("font_size", font_size)
 	for state in ["normal", "disabled"]:
 		button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
-	for state in ["hover", "pressed", "hover_pressed", "focus"]:
+	for state in ["hover", "pressed", "hover_pressed"]:
 		var wash := StyleBoxFlat.new()
 		wash.bg_color = Color(1.0,0.95,0.85,0.18) if state == "hover" else Color(0.22,0.32,0.46,0.18)
-		if state == "focus":
-			wash.bg_color = Color.TRANSPARENT
-			wash.border_color = Color("#DAAC62")
-			wash.set_border_width_all(2)
 		wash.set_corner_radius_all(8)
 		button.add_theme_stylebox_override(state,wash)
+	button.add_theme_stylebox_override("focus",StyleBoxEmpty.new())
 	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]: button.add_theme_color_override(key, INK)
 	button.add_theme_color_override("font_disabled_color", Color("#8C9095"))
 	parent.add_child(button)

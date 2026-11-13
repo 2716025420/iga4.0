@@ -62,6 +62,9 @@ static func layout(root: Control, extent: Vector2) -> void:
 		root.add_child(frame)
 		root.move_child(frame, 1)
 	_root_place(frame, Vector2.ZERO, DESIGN, factor, origin)
+	var platform := root.get_node_or_null("/root/Platform") as PlatformService
+	if platform != null:
+		platform.fill_backdrop(root, extent, frame, Color(0.92, 0.89, 0.83, 0.0), frame.texture)
 	var header := root.get_node("TopInfo") as Control
 	_root_place(header, Vector2.ZERO, Vector2(1920, 90), factor, origin)
 	var turn := header.get_node("TurnBanner") as Label

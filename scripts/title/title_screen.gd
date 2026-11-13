@@ -52,9 +52,8 @@ func _ready() -> void:
 	_layout()
 
 func _layout() -> void:
-	var factor := minf(size.x / DESIGN.x, size.y / DESIGN.y)
-	presentation.scale = Vector2.ONE * factor
-	presentation.position = (size - DESIGN * factor) / 2.0
+	var room := presentation.get_node_or_null("RoomArt") as TextureRect
+	Platform.fit_stage(self, presentation, Color("#EBE3D3"), room.texture if room != null else null)
 
 func _art(node_name: String, path: String) -> void:
 	var art := TextureRect.new()

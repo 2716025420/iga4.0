@@ -30,9 +30,12 @@ func _ready() -> void:
  _layout()
 
 func _layout() -> void:
- var factor := minf(size.x/1920.0,size.y/1080.0)
- presentation.scale = Vector2.ONE*factor
- presentation.position = (size-Vector2(1920,1080)*factor)/2.0
+ var bg_tex: Texture2D = null
+ var mother := view.get_node_or_null("ConceptMother") as TextureRect if is_instance_valid(view) else null
+ if mother != null: bg_tex = mother.texture
+ var atlas := view.get_node_or_null("TravelConcept") as TextureRect if is_instance_valid(view) else null
+ if bg_tex == null and atlas != null: bg_tex = atlas.texture
+ Platform.fit_stage(self,presentation,Color("#EAE1D1"),bg_tex)
 
 func _back() -> void:
  if SceneManager.is_transitioning: return

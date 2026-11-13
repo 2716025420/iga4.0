@@ -17,4 +17,4 @@ XDG_DATA_HOME="$test_dir/data" XDG_CONFIG_HOME="$test_dir/config" XDG_CACHE_HOME
  "${P5_TEST_SCENE:-res://tools/tests/p5_regions.tscn}" "${user_args[@]}" > "$test_dir/results.log" 2>&1 || status=$?
 cat "$test_dir/results.log"
 if [[ "$status" -ne 0 ]] || rg -q 'SCRIPT ERROR:|(^|[[:space:]])ERROR:|FAIL:' "$test_dir/results.log"; then exit 1; fi
-rg -q 'P5_RESULT|HOME_OBJECT_RESULT|SCENE_RESET_RESULT|TERMINAL_RESULT' "$test_dir/results.log"
+rg -q 'P5_RESULT|HOME_OBJECT_RESULT|SCENE_RESET_RESULT|ZODIAC_RESULT' "$test_dir/results.log"

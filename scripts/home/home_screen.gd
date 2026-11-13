@@ -15,7 +15,7 @@ const SUBTITLE_INK := Color("#646C86")
 const ENTRY_ORDER := ["lounge", "workshop", "records", "quest", "explore", "zodiac"]
 const ENTRY_TITLES := {
 	"lounge": "同学交流", "workshop": "卡牌整理",
-	"records": "智能终端", "quest": "校园地图", "explore": "进入第一章"
+	"records": "放映档案", "quest": "校园地图", "explore": "进入第一章"
 }
 
 var presentation: Control
@@ -334,9 +334,8 @@ func _refresh_artwork() -> void:
 func _layout_home_scene(_extent: Vector2 = Vector2.ZERO) -> void:
 	if not is_instance_valid(presentation):
 		return
-	var scale_factor := minf(size.x / DESIGN_SIZE.x, size.y / DESIGN_SIZE.y)
-	presentation.scale = Vector2.ONE * scale_factor
-	presentation.position = (size - DESIGN_SIZE * scale_factor) / 2.0
+	var bg_tex: Texture2D = room_art.texture if is_instance_valid(room_art) else null
+	Platform.fit_stage(self, presentation, Color("#EAE1CE"), bg_tex)
 	_layout_modal()
 
 func _update_top_bar() -> void:
@@ -392,15 +391,17 @@ func _open_panel(kind: String) -> void:
 	var factory_path: String = {"lounge": "res://scripts/home/school_object_panels.gd"}.get(kind, PANEL_FACTORY_PATH)
 	if kind == "workshop":
 		factory_path = "res://scripts/home/player_workspace.gd"
-	elif kind in ["records","zodiac"]:
-		factory_path = "res://scripts/home/student_terminal.gd"
+	elif kind == "records":
+		factory_path = "res://scripts/home/player_workspace.gd"
+	elif kind == "zodiac":
+		factory_path = "res://scripts/home/zodiac_album_panel.gd"
 	var factory: Variant = load(factory_path)
 	_set_feedback("")
 	var panel_context := _panel_context()
 	if kind == "records" and _records_open_tab != "":
 		panel_context["tab"] = _records_open_tab
 		_records_open_tab = ""
-	var candidate: Variant = factory.create("overview" if kind == "records" else kind, panel_context)
+	var candidate: Variant = factory.create(kind, panel_context)
 	if not candidate is Control:
 		push_warning("入口弹窗仍在等待对应概念图审核：" + kind)
 		return
@@ -585,6 +586,14 @@ func _on_panel_action(action: String, payload: Dictionary) -> void:
 		"open_workshop":
 			_hide_all_modals()
 			_open_workshop()
+			return
+		"open_records":
+			_hide_all_modals()
+			_open_panel("records")
+			return
+		"open_zodiac":
+			_hide_all_modals()
+			_open_panel("zodiac")
 			return
 		"close": _hide_all_modals()
 		"select_card": _select_card_for_details(card_id)

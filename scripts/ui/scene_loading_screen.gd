@@ -59,9 +59,8 @@ func _text(node_name: String, copy: String, rect: Rect2, font_size: int, color: 
 
 func _layout() -> void:
  if not is_instance_valid(presentation): return
- var factor := minf(size.x/DESIGN.x,size.y/DESIGN.y)
- presentation.scale = Vector2.ONE*factor
- presentation.position = (size-DESIGN*factor)/2.0
+ var dusk := presentation.get_node_or_null("DuskCorridor") as TextureRect
+ Platform.fit_stage(self,presentation,Color("#10374C"),dusk.texture if dusk != null else null)
 
 func present(destination: String) -> void:
  heading.text = destination

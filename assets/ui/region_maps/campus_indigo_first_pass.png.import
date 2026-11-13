@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://hr2c6whx17aa"
-path="res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.ctex"
+path.bptc="res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.bptc.ctex"
+path.astc="res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/ui/region_maps/campus_indigo_first_pass.png"
-dest_files=["res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.ctex"]
+dest_files=["res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.bptc.ctex", "res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

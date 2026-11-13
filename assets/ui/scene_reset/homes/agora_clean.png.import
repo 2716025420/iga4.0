@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dvev2dyfgr6jr"
-path="res://.godot/imported/agora_clean.png-8cd9b8e063c44da19d36b32b394d0218.ctex"
+path.bptc="res://.godot/imported/agora_clean.png-8cd9b8e063c44da19d36b32b394d0218.bptc.ctex"
+path.astc="res://.godot/imported/agora_clean.png-8cd9b8e063c44da19d36b32b394d0218.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/ui/scene_reset/homes/agora_clean.png"
-dest_files=["res://.godot/imported/agora_clean.png-8cd9b8e063c44da19d36b32b394d0218.ctex"]
+dest_files=["res://.godot/imported/agora_clean.png-8cd9b8e063c44da19d36b32b394d0218.bptc.ctex", "res://.godot/imported/agora_clean.png-8cd9b8e063c44da19d36b32b394d0218.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

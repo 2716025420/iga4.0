@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dm4yfjm3k6jp8"
-path="res://.godot/imported/home_room_night_v1.png-56e2f80d9406b3a46f6a92fba996af80.ctex"
+path.bptc="res://.godot/imported/home_room_night_v1.png-56e2f80d9406b3a46f6a92fba996af80.bptc.ctex"
+path.astc="res://.godot/imported/home_room_night_v1.png-56e2f80d9406b3a46f6a92fba996af80.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/ui/player_experience/home_room_night_v1.png"
-dest_files=["res://.godot/imported/home_room_night_v1.png-56e2f80d9406b3a46f6a92fba996af80.ctex"]
+dest_files=["res://.godot/imported/home_room_night_v1.png-56e2f80d9406b3a46f6a92fba996af80.bptc.ctex", "res://.godot/imported/home_room_night_v1.png-56e2f80d9406b3a46f6a92fba996af80.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

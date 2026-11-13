@@ -33,9 +33,12 @@ func _ready() -> void:
  _layout()
 
 func _layout() -> void:
- var factor := minf(size.x/DESIGN.x,size.y/DESIGN.y)
- presentation.scale = Vector2.ONE*factor
- presentation.position = (size-DESIGN*factor)/2.0
+ var background_tex: Texture2D = null
+ var place_bg := presentation.find_child("PlaceBackground",true,false) as TextureRect
+ if place_bg != null: background_tex = place_bg.texture
+ var room_bg := presentation.find_child("RoomBackground",true,false) as TextureRect
+ if background_tex == null and room_bg != null: background_tex = room_bg.texture
+ Platform.fit_stage(self,presentation,Color("#242A32"),background_tex)
 
 func _button(parent: Control, node_name: String, copy: String, rect: Rect2, primary: bool = false) -> Button:
  var button := SchoolObjectUI.hit(parent,node_name,rect,copy,27)
@@ -133,7 +136,11 @@ func _open_workspace(kind: String, context: Dictionary = {}) -> void:
  if is_instance_valid(object_home) and kind in ["workshop","records"]: object_home.select_object(kind)
  _workspace_focus = get_viewport().gui_get_focus_owner()
  if kind == "training": _workspace = CampusGuidePanel.create("quest",context)
- elif kind in ["records","warehouse"]: _workspace = StudentTerminal.create("inventory" if kind == "warehouse" else "overview",context)
+ elif kind == "zodiac": _workspace = ZodiacAlbumPanel.create("zodiac",context)
+ elif kind in ["records","warehouse"]:
+  var records_context := context.duplicate(true)
+  if kind == "warehouse" and not records_context.has("tab"): records_context["tab"] = "warehouse"
+  _workspace = PlayerWorkspace.create("records",records_context)
  elif kind == "shop":
   if not CampusShopCatalog.is_shop_location(location_id): return
   _workspace = CampusShopPanel.create()
@@ -172,6 +179,8 @@ func _workspace_action(action: String, payload: Dictionary) -> void:
    else: _workspace.refresh({"message":"这条路线暂不可用，请先继续或结束当前训练。"})
    return
   "open_workshop": _close_workspace(); _open_workspace("workshop"); return
+  "open_records": _close_workspace(); _open_workspace("records"); return
+  "open_zodiac": _close_workspace(); _open_workspace("zodiac"); return
   "select_card": _workspace.refresh({"selected_card_id":str(payload.get("card_id",""))}); return
   "save_loadout","apply_loadout":
    var index := int(payload.get("index",0))

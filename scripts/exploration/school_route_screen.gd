@@ -79,9 +79,8 @@ func _ready() -> void:
 
 func _layout_route() -> void:
 	if not is_instance_valid(presentation): return
-	var factor := minf(size.x/1920.0, size.y/1080.0)
-	presentation.scale = Vector2.ONE * factor
-	presentation.position = (size-SchoolObjectUI.DESIGN*factor)/2.0
+	var bg := get_node_or_null("Background") as TextureRect
+	Platform.fit_stage(self, presentation, Color("#EFE6D5"), bg.texture if bg != null else null)
 
 func _schedule_refresh() -> void:
 	if _refresh_pending: return

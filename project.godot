@@ -24,6 +24,7 @@ MCPRuntimeServer="*res://addons/godot_mcp_toolkit/runtime/mcp_runtime_server.gd"
 SaveManager="*uid://dxl7o5h23bsd"
 CampusLife="*uid://bltkg0epwb7lx"
 DayCycle="*uid://cluef6s2gqjms"
+Platform="*res://scripts/global/platform_service.gd"
 
 [display]
 
@@ -32,6 +33,8 @@ window/size/viewport_height=1080
 window/size/window_width_override=1600.0
 window/size/window_height_override=900.0
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation="landscape"
 
 [editor_plugins]
 
@@ -49,3 +52,4 @@ timers/tooltip_delay_sec=86400.0
 
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true

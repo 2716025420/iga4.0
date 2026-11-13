@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cb3n3cwd7uy8r"
-path="res://.godot/imported/campus_vermilion_first_pass.png-3c23660c2dd8eb51a67bc87695618374.ctex"
+path.bptc="res://.godot/imported/campus_vermilion_first_pass.png-3c23660c2dd8eb51a67bc87695618374.bptc.ctex"
+path.astc="res://.godot/imported/campus_vermilion_first_pass.png-3c23660c2dd8eb51a67bc87695618374.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/ui/region_maps/campus_vermilion_first_pass.png"
-dest_files=["res://.godot/imported/campus_vermilion_first_pass.png-3c23660c2dd8eb51a67bc87695618374.ctex"]
+dest_files=["res://.godot/imported/campus_vermilion_first_pass.png-3c23660c2dd8eb51a67bc87695618374.bptc.ctex", "res://.godot/imported/campus_vermilion_first_pass.png-3c23660c2dd8eb51a67bc87695618374.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

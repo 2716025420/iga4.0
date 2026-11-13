@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1cc06tqalsjq"
-path="res://.godot/imported/battle_campus.png-4bc818b691f166f51eecb0ab999eb96d.ctex"
+path.bptc="res://.godot/imported/battle_campus.png-4bc818b691f166f51eecb0ab999eb96d.bptc.ctex"
+path.astc="res://.godot/imported/battle_campus.png-4bc818b691f166f51eecb0ab999eb96d.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/backgrounds/phase_two/battle_campus.png"
-dest_files=["res://.godot/imported/battle_campus.png-4bc818b691f166f51eecb0ab999eb96d.ctex"]
+dest_files=["res://.godot/imported/battle_campus.png-4bc818b691f166f51eecb0ab999eb96d.bptc.ctex", "res://.godot/imported/battle_campus.png-4bc818b691f166f51eecb0ab999eb96d.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

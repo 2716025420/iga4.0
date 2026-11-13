@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ct5dsq6pd7i7v"
-path="res://.godot/imported/records_room.png-788aefff05217184402be92f4f475a74.ctex"
+path.bptc="res://.godot/imported/records_room.png-788aefff05217184402be92f4f475a74.bptc.ctex"
+path.astc="res://.godot/imported/records_room.png-788aefff05217184402be92f4f475a74.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/ui/player_experience/records_room.png"
-dest_files=["res://.godot/imported/records_room.png-788aefff05217184402be92f4f475a74.ctex"]
+dest_files=["res://.godot/imported/records_room.png-788aefff05217184402be92f4f475a74.bptc.ctex", "res://.godot/imported/records_room.png-788aefff05217184402be92f4f475a74.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

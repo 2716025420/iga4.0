@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://bqa6vt5ya52dl"]
-
-[ext_resource type="Script" uid="uid://duajla81c0gj5" path="res://tools/tests/student_terminal.gd" id="1_bv01y"]
-
-[node name="StudentTerminalTests" type="Node" unique_id=1595629340]
-script = ExtResource("1_bv01y")

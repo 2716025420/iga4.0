@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://duburplps4jky"
-path="res://.godot/imported/prep_scene_room.png-f39c43ac304f2dbb3592a6828af36d94.ctex"
+path.bptc="res://.godot/imported/prep_scene_room.png-f39c43ac304f2dbb3592a6828af36d94.bptc.ctex"
+path.astc="res://.godot/imported/prep_scene_room.png-f39c43ac304f2dbb3592a6828af36d94.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/ui/player_experience/prep_scene_room.png"
-dest_files=["res://.godot/imported/prep_scene_room.png-f39c43ac304f2dbb3592a6828af36d94.ctex"]
+dest_files=["res://.godot/imported/prep_scene_room.png-f39c43ac304f2dbb3592a6828af36d94.bptc.ctex", "res://.godot/imported/prep_scene_room.png-f39c43ac304f2dbb3592a6828af36d94.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

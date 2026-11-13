@@ -8,6 +8,7 @@ const ACCENT := Color("#72846E")
 const PAPER := Color("#F8F2E5")
 const ROOT := "res://assets/ui/scene_reset/"
 const DEDICATED := "res://assets/ui/phase_three/"
+const PANEL_SHEETS := ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","result_panel","dialogue_sheet"]
 const RETAINED := ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","card_paper","node_battle","node_rest","node_cache","node_elite","result_panel","dialogue_sheet"]
 const ILLUSTRATION_REGIONS := {
  "opening":Rect2(32,112,453,305),"bag":Rect2(56,131,419,274),
@@ -22,6 +23,8 @@ static func asset_path(key: String) -> String:
   if ResourceLoader.exists(ROOT+"campus_surfaces.png"): return ROOT+"campus_surfaces.png"
   return ROOT+("primary_button.svg" if key in ["button_primary","button_lavender"] else "paper_button.svg")
  if key == "card_frame": key = "card_paper"
+ if key in PANEL_SHEETS and ResourceLoader.exists(DEDICATED+"paper_panel.png"):
+  return DEDICATED+"paper_panel.png"
  if key in RETAINED and ResourceLoader.exists(DEDICATED+key+".png"):
   return DEDICATED+key+".png"
  return ROOT+"paper_panel.svg"

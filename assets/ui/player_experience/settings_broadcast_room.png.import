@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dksn7dvangbvc"
-path="res://.godot/imported/settings_broadcast_room.png-558dfa145e9596f56a346e59ccc47909.ctex"
+path.bptc="res://.godot/imported/settings_broadcast_room.png-558dfa145e9596f56a346e59ccc47909.bptc.ctex"
+path.astc="res://.godot/imported/settings_broadcast_room.png-558dfa145e9596f56a346e59ccc47909.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/ui/player_experience/settings_broadcast_room.png"
-dest_files=["res://.godot/imported/settings_broadcast_room.png-558dfa145e9596f56a346e59ccc47909.ctex"]
+dest_files=["res://.godot/imported/settings_broadcast_room.png-558dfa145e9596f56a346e59ccc47909.bptc.ctex", "res://.godot/imported/settings_broadcast_room.png-558dfa145e9596f56a346e59ccc47909.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

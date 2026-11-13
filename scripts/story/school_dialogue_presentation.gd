@@ -126,7 +126,6 @@ func update_scene() -> void:
 			screen.get("bg_texture").hide()
 		elif ResourceLoader.exists(place_path): screen.get("bg_texture").texture = load(place_path)
 		scene_caption.text = GameState.get_detailed_time_string()+" / "+str(place["title"])
-	var extent := screen.size
-	var factor := minf(extent.x / 1920.0, extent.y / 1080.0)
-	scale = Vector2.ONE * factor
-	position = (extent - SchoolObjectUI.DESIGN * factor) / 2.0
+	var bg_rect := screen.get("bg_texture") as TextureRect
+	var bg_tex: Texture2D = bg_rect.texture if is_instance_valid(bg_rect) and bg_rect.visible else null
+	Platform.fit_stage(screen, self, Color("#242834"), bg_tex)

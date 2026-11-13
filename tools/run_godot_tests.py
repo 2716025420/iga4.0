@@ -16,7 +16,7 @@ SUITES = {
     "regions": ("p5_regions", "P5_RESULT"),
     "home": ("home_objects", "HOME_OBJECT_RESULT"),
     "scenes": ("scene_reset", "SCENE_RESET_RESULT"),
-    "terminal": ("student_terminal", "TERMINAL_RESULT"),
+    "zodiac": ("zodiac_and_shop", "ZODIAC_RESULT"),
 }
 ERROR = re.compile(r"SCRIPT ERROR:|(?:^|\s)ERROR:|FAIL:", re.MULTILINE)
 

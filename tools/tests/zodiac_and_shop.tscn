@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tools/tests/zodiac_and_shop.gd" id="1_zodiac"]
+
+[node name="ZodiacAndShopTest" type="Node"]
+script = ExtResource("1_zodiac")
+

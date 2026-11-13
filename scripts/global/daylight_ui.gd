@@ -21,7 +21,7 @@ static func get_theme() -> Theme:
 	_theme = Theme.new()
 	var body := FontVariation.new()
 	body.base_font = load("res://assets/fonts/NotoSansSC-Regular.ttf")
-	body.variation_embolden = 0.65
+	body.variation_embolden = 0.0
 	_theme.default_font = body
 	_theme.default_font_size = 20
 	var serif: Font = load("res://assets/fonts/NotoSerifSC-SemiBold.ttf")

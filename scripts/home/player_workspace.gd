@@ -120,10 +120,11 @@ func _button(parent: Control, node_name: String, copy: String, rect: Rect2, prim
   if state == "hover": style.bg_color = Color("#CA7770") if primary else (Color("#6888A3") if selected else Color("#E1EBEE"))
   if state in ["pressed","hover_pressed"]: style.bg_color = style.bg_color.darkened(0.14)
   if state == "disabled": style.bg_color = Color("#D5D7D5")
-  style.border_color = Color("#DBA261") if state == "focus" else Color(0.32,0.43,0.55,0.55 if selected else 0.18)
-  style.set_border_width_all(2 if state == "focus" else 1)
+  style.border_color = Color(0.32,0.43,0.55,0.55 if selected else 0.18)
+  style.set_border_width_all(1)
   style.set_corner_radius_all(6)
   node.add_theme_stylebox_override(state,style)
+ node.add_theme_stylebox_override("focus",StyleBoxEmpty.new())
  for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
   node.add_theme_color_override(key,Color.WHITE if primary or selected else INK)
  node.add_theme_color_override("font_disabled_color",Color("#647080"))
@@ -391,7 +392,15 @@ func _render_records() -> void:
    child.position -= RECORDS_BODY_SOURCE.position
  _render_history()
  var complete: bool = snapshot["completed"]
- _text(self,"CurrentObjective","行程已完成 · 回看熟悉的片段" if complete else str(snapshot["current_title"]),Rect2(565,946,850,69),28,Color("#FCF6E8"))
+ _text(self,"CurrentObjective","行程已完成 · 回看熟悉的片段" if complete else str(snapshot["current_title"]),Rect2(565,946,620,69),28,Color("#FCF6E8"))
+ var zodiac_btn := SchoolObjectUI.hit(self,"OpenZodiac",Rect2(1205,950,225,74),"✦ 星座图鉴",27)
+ for state in ["normal","hover","pressed","hover_pressed"]:
+  var wash := StyleBoxFlat.new()
+  wash.bg_color = Color(1.0,0.96,0.88,0.10 if state == "normal" else 0.22)
+  wash.set_corner_radius_all(8)
+  zodiac_btn.add_theme_stylebox_override(state,wash)
+ for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: zodiac_btn.add_theme_color_override(state,Color.WHITE)
+ zodiac_btn.pressed.connect(func(): action_requested.emit("open_zodiac",{}))
  var next := SchoolObjectUI.hit(self,"ContinueJourney",Rect2(1460,946,354,83),"整理卡组" if complete else "继续行程",33)
  for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: next.add_theme_color_override(state,Color.WHITE)
  next.pressed.connect(func(): action_requested.emit("open_workshop" if complete else "start_chapter",{}))
@@ -427,7 +436,7 @@ func _render_journey() -> void:
    var id: String = memories[entry["node"]]
    var replay := _button(list,"Replay_"+id,"回看",Rect2(693,y+114,135,32))
    replay.add_theme_font_size_override("font_size",21)
-   replay.pressed.connect(func(): action_requested.emit("replay_memory",{"dialogue_id":id}))
+   replay.pressed.connect(func(): GameState.archive_return_tab = "journey"; action_requested.emit("replay_memory",{"dialogue_id":id}))
    refs["memory_buttons"][id] = replay
   else: _text(list,"BattleSummary%d" % i,"已完成 · 遭遇记录",Rect2(220,y+114,520,32),21,BLUE)
  if entries.is_empty(): _text(list,"EmptyMemories","今天的故事还没开始。\n先一起走到学校吧。",Rect2(20,80,730,180),30,MUTED,true)
