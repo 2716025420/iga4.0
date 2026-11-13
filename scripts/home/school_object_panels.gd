@@ -4,7 +4,10 @@ extends Control
 signal close_requested
 signal action_requested(action: String, payload: Dictionary)
 const CARD_SIZE := Vector2(440, 660)
-const CARD_STEP := 456.0
+const CARD_DISPLAY_WIDTH := 392.0
+const CARD_SCALE := CARD_DISPLAY_WIDTH / CARD_SIZE.x
+const CARD_DISPLAY_HEIGHT := CARD_SIZE.y * CARD_SCALE
+const CARD_STEP := 410.0
 const MOTIVES := {"yang_zi_ying": "想拍下这条路的夕阳。", "liu_yu_long": "想赢一场认真的比赛。", "jiang_zi": "想把今天的事务理清。"}
 const TOPICS := {"yang_zi_ying": "聊聊摄影", "liu_yu_long": "聊聊比赛", "jiang_zi": "聊聊近况"}
 const TINTS: Array[Color] = [Color("#E99383"), Color("#A396CE"), Color("#8EAFCE")]
@@ -21,6 +24,17 @@ static func create(kind: String, panel_context: Dictionary = {}) -> SchoolObject
 	panel.panel_kind = kind
 	panel.refresh(panel_context)
 	return panel
+
+func _ready() -> void:
+	Platform.input_mode_changed.connect(_on_input_mode_changed)
+
+func _on_input_mode_changed(_touch: bool) -> void:
+	_sync_browse_hint()
+
+func _sync_browse_hint() -> void:
+	var hint_label := refs.get("browse_hint") as Label
+	if not is_instance_valid(hint_label): return
+	hint_label.text = Platform.hint("拖动、滚轮或方向键浏览同学 · Esc 返回", "左右滑动浏览同学 · 点击卡片对话")
 
 func refresh(panel_context: Dictionary = {}) -> void:
 	context.merge(panel_context, true)
@@ -45,12 +59,19 @@ func refresh(panel_context: Dictionary = {}) -> void:
 	DaylightUI.place(backing_input, 570, 80, 1320, 940)
 	SchoolObjectUI.text(self, "Title", "同学交流", Rect2(655, 100, 460, 116), 64)
 	SchoolObjectUI.text(self, "Subtitle", "放学后，慢慢聊。", Rect2(1155, 120, 450, 90), 34)
-	var close := SchoolObjectUI.hit(self, "CloseButton", Rect2(1750, 80, 86, 86), "×", 54)
+	var close := SchoolObjectUI.hit(self, "CloseButton", Rect2(1748, 86, 88, 60), "×", 40)
+	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+		var pill := StyleBoxFlat.new()
+		pill.bg_color = Color("#FFFDF7") if state == "hover" else (Color("#E5DCC7") if state in ["pressed", "hover_pressed"] else Color("#FAF3E3"))
+		pill.set_border_width_all(0)
+		pill.set_corner_radius_all(12)
+		close.add_theme_stylebox_override(state, pill)
+	close.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	close.pressed.connect(func(): close_requested.emit())
 	carousel = SchoolCardCarousel.new()
 	carousel.name = "ClassmateCarousel"
 	add_child(carousel)
-	DaylightUI.place(carousel, 608, 245, 1216, 690)
+	DaylightUI.place(carousel, 606, 250, 1218, 660)
 	carousel.card_step = CARD_STEP
 	var track := Control.new()
 	track.name = "CardTrack"
@@ -58,15 +79,17 @@ func refresh(panel_context: Dictionary = {}) -> void:
 	carousel.add_child(track)
 	carousel.track = track
 	var classmates: Array = snapshot["classmates"]
-	carousel.content_width = maxf(0.0, classmates.size() * CARD_STEP - (CARD_STEP - CARD_SIZE.x))
-	DaylightUI.place(track, 0, 0, carousel.content_width, CARD_SIZE.y)
+	carousel.content_width = maxf(0.0, classmates.size() * CARD_STEP - (CARD_STEP - CARD_DISPLAY_WIDTH))
+	DaylightUI.place(track, 0, 0, carousel.content_width, 660.0)
 	var chats: Dictionary = {}
 	var cards: Dictionary = {}
+	var top_offset := (660.0 - CARD_DISPLAY_HEIGHT) * 0.5
 	for index in classmates.size():
 		var mate: Dictionary = classmates[index]
 		var card := _classmate_card(mate, index)
 		track.add_child(card)
-		DaylightUI.place(card, index * CARD_STEP, 0, CARD_SIZE.x, CARD_SIZE.y)
+		DaylightUI.place(card, index * CARD_STEP, top_offset, CARD_SIZE.x, CARD_SIZE.y)
+		card.scale = Vector2.ONE * CARD_SCALE
 		cards[str(mate["id"])] = card
 		chats[str(mate["id"])] = card.get_node("Information/Chat_" + str(mate["id"]))
 	refs["chat_buttons"] = chats
@@ -76,8 +99,9 @@ func refresh(panel_context: Dictionary = {}) -> void:
 	var next := _arrow("NextClassmates", Rect2(1830, 522, 70, 70), "›", 1)
 	refs["previous_button"] = previous
 	refs["next_button"] = next
-	refs["range_label"] = SchoolObjectUI.text(self, "VisibleClassmates", "", Rect2(668, 963, 300, 50), 26, SchoolObjectUI.PURPLE)
-	SchoolObjectUI.text(self, "BrowseHint", "左右拖动，看看其他同学。", Rect2(1010, 959, 685, 56), 30)
+	refs["range_label"] = SchoolObjectUI.text(self, "VisibleClassmates", "", Rect2(700, 954, 300, 48), 26, Color("#524B6E"))
+	refs["browse_hint"] = SchoolObjectUI.text(self, "BrowseHint", "", Rect2(1005, 954, 790, 48), 25, Color("#595E73"))
+	_sync_browse_hint()
 	carousel.offset_changed.connect(_update_navigation)
 	carousel.set_scroll_offset(_scroll_position)
 
@@ -131,19 +155,20 @@ func _classmate_card(mate: Dictionary, index: int) -> Control:
 	progress.value = clampi(favor, 0, 100)
 	var track_style := StyleBoxFlat.new()
 	track_style.bg_color = Color("#DDD9E6")
-	track_style.set_corner_radius_all(8)
+	track_style.set_corner_radius_all(10)
 	var fill_style := StyleBoxFlat.new()
 	fill_style.bg_color = tint
-	fill_style.set_corner_radius_all(8)
+	fill_style.set_corner_radius_all(10)
 	progress.add_theme_stylebox_override("background", track_style)
 	progress.add_theme_stylebox_override("fill", fill_style)
 	info.add_child(progress)
-	DaylightUI.place(progress, 202, 500, 192, 13)
+	DaylightUI.place(progress, 202, 496, 192, 20)
 	progress.visible = unlocked
 	SchoolObjectUI.slab(info, "ChatColor", Rect2(38, 546, 364, 74), tint if unlocked else Color("#D8D5DD"))
 	var chat := SchoolObjectUI.hit(info, "Chat_" + str(mate["id"]), Rect2(38, 546, 364, 74), str(TOPICS.get(mate["id"], "聊聊近况")) if unlocked else "尚未交流", 32)
+	chat.add_theme_color_override("font_disabled_color", Color("#646C7C"))
 	chat.disabled = not unlocked
-	chat.focus_entered.connect(func(): carousel.reveal_card(index, CARD_SIZE.x))
+	chat.focus_entered.connect(func(): carousel.reveal_card(index, CARD_DISPLAY_WIDTH))
 	chat.pressed.connect(func():
 		if carousel.suppress_clicks() or SceneManager.is_transitioning: return
 		action_requested.emit("chat", {"companion_id": str(mate["id"]), "dialogue_id": str(mate["dialogue_id"])})
@@ -157,6 +182,8 @@ func _update_navigation(value: float) -> void:
 	if not is_instance_valid(previous) or not is_instance_valid(next): return
 	previous.disabled = value <= 0.5
 	next.disabled = value >= carousel.maximum_offset() - 0.5
+	previous.mouse_default_cursor_shape = Control.CURSOR_ARROW if previous.disabled else Control.CURSOR_POINTING_HAND
+	next.mouse_default_cursor_shape = Control.CURSOR_ARROW if next.disabled else Control.CURSOR_POINTING_HAND
 	var count: int = snapshot["classmates"].size()
 	var first := mini(count, int(floor(value / CARD_STEP)) + 1)
 	var last := mini(count, int(ceil((value + carousel.size.x) / CARD_STEP)))

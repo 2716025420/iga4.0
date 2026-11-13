@@ -1,5 +1,21 @@
 > **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
 
+## 2026-11-13 阶段 3：工作台、放映机记录与同学交流栏多端适配及可读性统一
+
+- **全屏舞台与 20:9 零黑边出血（`scripts/home/player_workspace.gd`、`scripts/home/home_screen.gd`、`scripts/campus/campus_screen.gd`）**：
+  - `PlayerWorkspace`（卡牌整理 `workshop` 与放映机记录 `records`）改为 `PRESET_FULL_RECT` 全屏根节点配合内部 `WorkspaceStage (1920x1080)`，由 `Platform.fit_stage()` 按自身房间底图（`prep_scene_room.png` / `records_room.png`）自适应铺满宽屏边缘，取消被 16:9 宿主框裁剪的问题。
+  - `HomeScreen` 与 `CampusScreen` 直接在根节点挂载 `PlayerWorkspace`，并在 `close_requested` / `_close_workspace` / `_hide_all_modals` 与 `focus` 恢复时安全校验 `is_inside_tree()`，消除同帧开闭时的 `grab_focus()` 错误；`CampusScreen` 的 Esc 也接入 `cancel_pending()`。
+- **卡牌整理与放映机记录可读性修复（`scripts/home/player_workspace.gd`）**：
+  - 整理顶部标题与练习点补充半透明深石板衬底，并修正 `NotoSerifSC` 大号标题高度，避免 `"卡牌整理"` 被 `clip_text` 裁空；`CloseButton` 改为高对比暖米色圆角按钮，在 `borderless()` 之后单独覆写禁用/关闭样式，解决禁用 coral 按钮（`保存`、`应用中`、`练习`）及 `EquipButton` 灰字发糊问题。
+  - 重排左侧卡牌详情纵向间距，留足 `Owned_*`、`TrainingReason` 与 `TrainButton` 之间空隙；右侧卡片网格新增左上类型徽章（进攻/防护/恢复/支援）、右上 `已编` 徽章、2 行简述 `CardBrief` 与不截断的 `Lv.x · 冷却 y`。
+  - 放映机记录左上方补充暖纸质 `HeaderBacking`，优化 `"✦ 星座图鉴"` 底色与物品收纳搜索/排序边框。
+- **同学交流软木板排版与多端提示（`scripts/home/school_object_panels.gd`）**：
+  - 将同学卡片按 `392/440` 等比缩放（`CARD_STEP = 410.0`），3 张卡片（含右侧姜梓）完整落在 `ClassmateCarousel (1218px)` 内不再被右翻页箭头裁切；增厚熟悉度进度条至 `20px`；调整底部页码与操作提示位置并绑定 `Platform.input_mode_changed` 动态切换 PC/触控文案；更新 `CloseButton` 为高对比暖米色按钮。
+- **验证与未决项**：
+  - `check_indent.js` 0 错；Godot 无界面启动与 4 套集成测试（`p5_regions` 542 项、`home_objects` 174 项、`scene_reset` 376 项、`zodiac_and_shop` 357 项，共 1,449 项）全数通过且 0 `ERROR`。
+  - 实机截图目检通过 `1600×900`（桌面）与 `1600×720`（20:9 + 触控模式）的工坊、放映机（行程/收纳）、同学交流板与地区体育馆工坊。
+  - 待后续推进：**阶段 4+（角色/探索地图/战斗 HUD 与流程评估、及等待主创 GPT 新概念素材包落地复现）**。
+
 ## 2026-11-11 终端崩溃与 5 项实机视觉问题修复 + 第三方 AI 方案设计包更新
 
 - **修复 `StudentTerminal` 返回按钮 `void` 三元表达式崩溃**：`scripts/home/student_terminal.gd` 原第 54 行 `back.pressed.connect(func(): close_requested.emit() if current_tab == "overview" else show_page("overview"))` 因 `show_page()` 返回 `void`，在非 `overview` 子页面点击 `← 返回` 时触发 GDScript VM 运行时错误 `Trying to get a return value of a method that returns "void"`。已改为 `if / else` 分支调用并记录 `refs["back"] = back`。

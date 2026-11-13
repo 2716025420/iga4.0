@@ -410,7 +410,11 @@ func _open_panel(kind: String) -> void:
 	_active_kind = kind
 	_active_modal = candidate as Control
 	_active_modal.name = kind.capitalize() + "Modal"
-	modals_layer.add_child(_active_modal)
+	if _active_modal is PlayerWorkspace:
+		add_child(_active_modal)
+		move_child(_active_modal, presentation.get_index() + 1)
+	else:
+		modals_layer.add_child(_active_modal)
 	_active_modal.connect("close_requested", _hide_all_modals)
 	_active_modal.connect("action_requested", _on_panel_action)
 	match kind:
@@ -431,6 +435,9 @@ func _open_panel(kind: String) -> void:
 func _layout_modal() -> void:
 	if not is_instance_valid(_active_modal):
 		return
+	if _active_modal is PlayerWorkspace and _active_modal.get_parent() == self:
+		_active_modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		return
 	if _active_modal.get_meta("full_scene_overlay", false):
 		_place(_active_modal, Vector2.ZERO, DESIGN_SIZE)
 		return
@@ -450,12 +457,12 @@ func _focus_modal() -> void:
 	if not is_instance_valid(_active_modal):
 		return
 	var close := _active_modal.find_child("CloseButton", true, false) as Button
-	if close:
+	if close and close.is_inside_tree():
 		close.grab_focus()
 	else:
 		var focusable := _active_modal.find_children("*", "Button", true, false)
 		for candidate in focusable:
-			if not candidate.disabled:
+			if not candidate.disabled and candidate.is_inside_tree():
 				candidate.grab_focus()
 				break
 
@@ -463,7 +470,9 @@ func _hide_all_modals() -> void:
 	if _modal_tween and _modal_tween.is_valid():
 		_modal_tween.kill()
 	if is_instance_valid(_active_modal):
-		modals_layer.remove_child(_active_modal)
+		var modal_parent := _active_modal.get_parent()
+		if modal_parent != null:
+			modal_parent.remove_child(_active_modal)
 		_active_modal.queue_free()
 	_active_modal = null
 	_active_kind = ""
@@ -475,7 +484,7 @@ func _hide_all_modals() -> void:
 	if is_instance_valid(modals_layer):
 		modals_layer.visible = false
 	_set_hotspots_enabled(true)
-	if is_instance_valid(_return_focus):
+	if is_instance_valid(_return_focus) and _return_focus.is_inside_tree():
 		_return_focus.grab_focus()
 	_return_focus = null
 

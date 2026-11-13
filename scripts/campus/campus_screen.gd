@@ -146,23 +146,32 @@ func _open_workspace(kind: String, context: Dictionary = {}) -> void:
   _workspace = CampusShopPanel.create()
  else: _workspace = PlayerWorkspace.create("workshop",context)
  _workspace.name = "LocationWorkspace"
- presentation.add_child(_workspace)
+ if _workspace is PlayerWorkspace:
+  add_child(_workspace)
+  _workspace.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ else:
+  presentation.add_child(_workspace)
  set_meta("region_modal_open",true)
  _workspace.close_requested.connect(_close_workspace)
  _workspace.action_requested.connect(_workspace_action)
  var close := _workspace.find_child("CloseButton",true,false) as Button
- if close != null: close.grab_focus.call_deferred()
+ if close != null:
+  var focus_close := func():
+   if is_instance_valid(close) and close.is_inside_tree(): close.grab_focus()
+  focus_close.call_deferred()
 
 func _close_workspace() -> void:
  if not is_instance_valid(_workspace): return
  var panel := _workspace
  _workspace = null
  panel.hide()
+ var panel_parent := panel.get_parent()
+ if panel_parent != null: panel_parent.remove_child(panel)
  panel.queue_free()
  set_meta("region_modal_open",false)
  if is_instance_valid(object_home): object_home.select_object()
  if is_instance_valid(scene_objects): scene_objects.select_object()
- if is_instance_valid(_workspace_focus): _workspace_focus.grab_focus()
+ if is_instance_valid(_workspace_focus) and _workspace_focus.is_inside_tree(): _workspace_focus.grab_focus()
 
 func _workspace_action(action: String, payload: Dictionary) -> void:
  if SceneManager.is_transitioning or not is_instance_valid(_workspace): return
@@ -326,7 +335,8 @@ func _input(event: InputEvent) -> void:
   get_viewport().set_input_as_handled()
   return
  if is_instance_valid(_workspace):
-  _close_workspace()
+  if not _workspace.has_method("cancel_pending") or not _workspace.call("cancel_pending"):
+   _close_workspace()
   get_viewport().set_input_as_handled()
   return
  if _busy: get_viewport().set_input_as_handled(); return
