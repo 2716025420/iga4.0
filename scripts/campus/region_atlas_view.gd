@@ -24,8 +24,13 @@ func _ready() -> void:
   var point := tag.position*SceneDesignCatalog.DESIGN/SceneDesignCatalog.NATIVE
   var browse := SceneSurfaceUI.button(self,"Browse_"+id,"地区地图",Rect2(point+Vector2(125,79),Vector2(155,51)),22)
   browse.pressed.connect(func(): region_requested.emit(str(id)))
-  var status := SchoolObjectUI.text(self,"RegionStatus_"+id,"",Rect2(point+Vector2(7,83),Vector2(150,42)),20,Color("#FFF9E9"))
-  status.add_theme_color_override("font_shadow_color",Color(0,0,0,0.9))
+  var status_rect := Rect2(point+Vector2(2,83),Vector2(118,42))
+  var status_pill := SchoolObjectUI.slab(self,"RegionStatusBacking_"+id,status_rect,Color(0.14,0.18,0.27,0.86))
+  status_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  var status := SchoolObjectUI.text(self,"RegionStatus_"+id,"",status_rect,20,Color("#FFF9E9"))
+  status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+  status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+  status.add_theme_color_override("font_shadow_color",Color(0,0,0,0.6))
   status.add_theme_constant_override("shadow_offset_y",1)
   refs["regions"][id] = {"enter":pair["label"],"browse":browse,"landmark":pair["image"]}
  var footer := SchoolObjectUI.slab(self,"CompatibilityBacking",Rect2(45,975,1830,87),Color(0.96,0.93,0.85,0.9))

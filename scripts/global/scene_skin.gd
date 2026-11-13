@@ -8,6 +8,7 @@ const ACCENT := Color("#72846E")
 const PAPER := Color("#F8F2E5")
 const ROOT := "res://assets/ui/scene_reset/"
 const DEDICATED := "res://assets/ui/phase_three/"
+const MODAL_PAPER := "res://assets/ui_core/theme/paper_modal_9slice.png"
 const PANEL_SHEETS := ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","result_panel","dialogue_sheet"]
 const RETAINED := ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","card_paper","node_battle","node_rest","node_cache","node_elite","result_panel","dialogue_sheet"]
 const ILLUSTRATION_REGIONS := {
@@ -23,8 +24,9 @@ static func asset_path(key: String) -> String:
   if ResourceLoader.exists(ROOT+"campus_surfaces.png"): return ROOT+"campus_surfaces.png"
   return ROOT+("primary_button.svg" if key in ["button_primary","button_lavender"] else "paper_button.svg")
  if key == "card_frame": key = "card_paper"
- if key in PANEL_SHEETS and ResourceLoader.exists(DEDICATED+"paper_panel.png"):
-  return DEDICATED+"paper_panel.png"
+ if key in PANEL_SHEETS:
+  if ResourceLoader.exists(MODAL_PAPER): return MODAL_PAPER
+  if ResourceLoader.exists(DEDICATED+"paper_panel.png"): return DEDICATED+"paper_panel.png"
  if key in RETAINED and ResourceLoader.exists(DEDICATED+key+".png"):
   return DEDICATED+key+".png"
  return ROOT+"paper_panel.svg"
@@ -73,13 +75,19 @@ static func texture_style(key: String, inset: Vector4 = Vector4(20,18,20,18), ti
  var box := StyleBoxTexture.new()
  box.texture = texture
  box.modulate_color = tint*Color("#E2E9D4") if key in ["button_primary","button_lavender"] else tint
- var corner := 20.0 if texture.resource_path.ends_with(".svg") else 32.0
- if key in ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","result_panel"]: corner = 112.0
- if key.begins_with("node_"): corner = 0.0
- box.texture_margin_left = minf(corner,texture.get_width()/3.0)
- box.texture_margin_right = box.texture_margin_left
- box.texture_margin_top = minf(corner,texture.get_height()/3.0)
- box.texture_margin_bottom = box.texture_margin_top
+ if texture.resource_path == MODAL_PAPER:
+  box.texture_margin_left = 72.0
+  box.texture_margin_top = 72.0
+  box.texture_margin_right = 48.0
+  box.texture_margin_bottom = 48.0
+ else:
+  var corner := 20.0 if texture.resource_path.ends_with(".svg") else 32.0
+  if key in ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","result_panel"]: corner = 112.0
+  if key.begins_with("node_"): corner = 0.0
+  box.texture_margin_left = minf(corner,texture.get_width()/3.0)
+  box.texture_margin_right = box.texture_margin_left
+  box.texture_margin_top = minf(corner,texture.get_height()/3.0)
+  box.texture_margin_bottom = box.texture_margin_top
  _insets(box,inset)
  return box
 

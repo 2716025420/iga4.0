@@ -101,6 +101,7 @@ func _setup_combat_ui_extensions() -> void:
 	_history_backdrop.color = Color(0.20, 0.19, 0.26, 0.40)
 	_history_backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
 	_history_backdrop.visible = false
+	_history_backdrop.z_index = 18
 	_history_backdrop.gui_input.connect(func(event: InputEvent):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT: _close_combat_history()
 	)
@@ -108,6 +109,7 @@ func _setup_combat_ui_extensions() -> void:
 	log_panel = PanelContainer.new()
 	log_panel.name = "CombatHistory"
 	log_panel.visible = false
+	log_panel.z_index = 19
 	log_panel.add_theme_stylebox_override("panel", CombatSkin.paper(Vector4(38, 28, 38, 28)))
 	add_child(log_panel)
 	var body := VBoxContainer.new()
@@ -146,6 +148,7 @@ func _setup_combat_ui_extensions() -> void:
 
 func _toggle_log_panel() -> void:
 	if result_modal.visible or _combat_outcome != "" or is_animating or not is_player_turn or SceneManager.is_transitioning: return
+	_disarm_all_cards()
 	if is_log_expanded:
 		_close_combat_history()
 		return
@@ -161,6 +164,18 @@ func _close_combat_history() -> void:
 	log_panel.visible = false
 	_history_backdrop.visible = false
 	if _combat_outcome == "": log_toggle_btn.grab_focus()
+
+func _disarm_all_cards(except: CombatCardUI = null) -> void:
+	for card_ui in card_ui_nodes:
+		if is_instance_valid(card_ui) and card_ui != except:
+			card_ui.disarm_touch()
+
+func _on_card_armed(armed_card: CombatCardUI) -> void:
+	_disarm_all_cards(armed_card)
+
+func _gui_input(event: InputEvent) -> void:
+	if (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed) or (event is InputEventScreenTouch and event.pressed):
+		_disarm_all_cards()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and is_log_expanded:
@@ -217,6 +232,7 @@ func _setup_combat_from_state() -> void:
 			cards_container.add_child(card_ui)
 			card_ui.setup_card(cdata, 0)
 			card_ui.card_clicked.connect(_on_card_clicked)
+			card_ui.card_armed.connect(_on_card_armed)
 			card_ui_nodes.append(card_ui)
 	
 	_start_player_turn()
@@ -271,16 +287,24 @@ func _update_player_ui() -> void:
 	player_hp_bar.value = GameState.player_current_hp
 	player_hp_label.text = "%d / %d" % [GameState.player_current_hp, GameState.player_max_hp]
 	
+	player_shield_label.visible = true
 	if player_shield > 0:
-		player_shield_label.text = "护盾: %d" % player_shield
-		player_shield_label.visible = true
+		player_shield_label.text = "护盾: %d · 本轮有效" % player_shield
+		player_shield_label.add_theme_color_override("font_color", Color("#386485"))
 	else:
-		player_shield_label.visible = false
+		player_shield_label.text = "护盾: 0 · 未防备"
+		player_shield_label.add_theme_color_override("font_color", Color("#6B6D78"))
 	
-	var status_text = ""
+	var parts: Array[String] = []
 	if player_reflect_turns > 0:
-		status_text += "掩护反击(%d点, 余%d次) " % [player_reflect_damage, player_reflect_hits]
-	player_status_label.text = status_text
+		parts.append("掩护反击 %d点(余%d次)" % [player_reflect_damage, player_reflect_hits])
+	var incoming := 0
+	for enemy in enemy_nodes:
+		if not enemy.is_dead: incoming += enemy.predicted_damage()
+	var net_incoming := maxi(0, incoming - player_shield)
+	parts.append(("预计净受击 %d" % net_incoming) if incoming > 0 else "敌方暂未蓄攻")
+	player_status_label.text = "\n".join(parts)
+	player_status_label.add_theme_color_override("font_color", Color("#B65B63") if net_incoming > 0 else NotebookUI.INK)
 	_refresh_tactical_note()
 
 func _select_enemy(enemy: EnemyUnitUI) -> void:
@@ -294,20 +318,23 @@ func _select_enemy(enemy: EnemyUnitUI) -> void:
 func _refresh_tactical_note() -> void:
 	var copy := hand_area.get_node_or_null("TargetCopy") as Label
 	if copy == null: return
-	var target_name := selected_enemy.enemy_data.name if is_instance_valid(selected_enemy) and not selected_enemy.is_dead else "等待选择目标"
-	copy.text = "◇ " + target_name
+	var target_alive := is_instance_valid(selected_enemy) and not selected_enemy.is_dead
+	copy.text = selected_enemy.enemy_data.name if target_alive else "等待选择目标"
 	var description := hand_area.get_node_or_null("TargetDescription") as Label
 	var portrait := hand_area.get_node_or_null("TargetPortrait") as TextureRect
 	if description:
 		var incoming := 0
 		for enemy in enemy_nodes:
 			if not enemy.is_dead: incoming += enemy.predicted_damage()
-		description.text = "本轮预计受伤 %d\n护盾 %d · 结束时清除" % [maxi(0, incoming - player_shield), player_shield]
+		var target_intent := ""
+		if target_alive and not selected_enemy.intent_label.text.is_empty():
+			target_intent = "下轮意图: %s\n" % selected_enemy.intent_label.text
+		description.text = "%s本轮预计受伤 %d\n护盾 %d · 结束时清除" % [target_intent, maxi(0, incoming - player_shield), player_shield]
 	if portrait and is_instance_valid(selected_enemy) and selected_enemy.sprite.texture is AtlasTexture:
 		var actor := selected_enemy.sprite.texture as AtlasTexture
 		var crop := AtlasTexture.new()
 		crop.atlas = actor.atlas
-		crop.region = Rect2(actor.region.position, Vector2(actor.region.size.x, actor.region.size.y * 0.43))
+		crop.region = Rect2(actor.region.position, Vector2(actor.region.size.x, actor.region.size.y * 0.45))
 		crop.filter_clip = true
 		portrait.texture = crop
 		portrait.flip_h = true
@@ -315,11 +342,12 @@ func _refresh_tactical_note() -> void:
 func _on_enemy_clicked(enemy: EnemyUnitUI) -> void:
 	if not is_player_turn or is_animating or result_modal.visible or is_log_expanded:
 		return
+	_disarm_all_cards()
 	_select_enemy(enemy)
 
 func _on_enemy_died(enemy: EnemyUnitUI) -> void:
 	_spawn_floating("击溃!", floating_text_scene.TextType.BUFF, enemy.global_position + Vector2(60, 40))
-	_log_combat("[color=#ff4757][%s][/color] 已被彻底击溃！" % enemy.enemy_data.name)
+	_log_combat("[color=#B65B63][%s][/color] 已被彻底击溃！" % enemy.enemy_data.name)
 	if selected_enemy == enemy:
 		selected_enemy = null
 		for other in enemy_nodes:
@@ -344,7 +372,8 @@ func _start_player_turn() -> void:
 		end_turn_btn.disabled = false
 	hand_area.mouse_filter = Control.MOUSE_FILTER_STOP
 	
-	_log_combat("[b][color=#feca57]━━━ 第 %d 回合 · 叶舟回合 ━━━[/color][/b]" % current_round)
+	_disarm_all_cards()
+	_log_combat("[b][color=#9E7051]━━━ 第 %d 回合 · 叶舟回合 ━━━[/color][/b]" % current_round)
 	
 	# 回合开始，所有卡牌CD减 1
 	for card_ui in card_ui_nodes:
@@ -463,7 +492,8 @@ func _start_enemy_turn() -> void:
 	
 	turn_banner.text = "对方行动"
 	turn_banner.modulate = Color.WHITE
-	_log_combat("[b][color=#ff4757]━━━ 第 %d 回合 · 敌方行动 ━━━[/color][/b]" % current_round)
+	_disarm_all_cards()
+	_log_combat("[b][color=#B65B63]━━━ 第 %d 回合 · 敌方行动 ━━━[/color][/b]" % current_round)
 	
 	await get_tree().create_timer(0.4).timeout
 	
@@ -570,7 +600,10 @@ func _check_combat_end() -> bool:
 	return false
 
 func _lock_combat_underlying_ui() -> void:
+	_disarm_all_cards()
 	_close_combat_history()
+	modal_backdrop.z_index = 20
+	result_modal.z_index = 21
 	move_child(modal_backdrop, -1)
 	move_child(result_modal, -1)
 	for button in find_children("*", "Button", true, false):

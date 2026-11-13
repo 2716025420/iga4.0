@@ -145,8 +145,9 @@ func study() -> Array:
  if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
  data["studied_on_day"] = GameState.game_day
  _commit(data)
+ GameState.add_scrap(20)
  DayCycle.spend_action("study")
- return [["我","把注意力放回纸页上，认真完成了一次自习。今天的思路清楚了一些。"]]
+ return [["我","把注意力放回纸页上，认真完成了一次自习，今天的思路清楚了一些。（练习点 +20）"]]
 
 func sleep_to_morning() -> Array:
  if current_location != "dorm": return []

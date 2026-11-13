@@ -22,7 +22,9 @@ func _ready() -> void:
 	presentation.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(presentation)
 	presentation.size = DESIGN
-	_art("RoomArt", "res://assets/backgrounds/phase_three/title/background.png")
+	var bg_path := "res://assets/backgrounds/phase_three/title/background_wide.png"
+	if not ResourceLoader.exists(bg_path): bg_path = "res://assets/backgrounds/phase_three/title/background.png"
+	_art("RoomArt", bg_path)
 	_art("ForegroundArt", "res://assets/backgrounds/phase_three/title/foreground.png")
 	_label("GameTitle", "IGA", 110, Vector2(252, 142), Vector2(900, 150), true)
 	_rule(presentation, Vector2(256, 296), 488)
@@ -55,7 +57,27 @@ func _ready() -> void:
 
 func _layout() -> void:
 	var room := presentation.get_node_or_null("RoomArt") as TextureRect
+	var fg := presentation.get_node_or_null("ForegroundArt") as TextureRect
 	Platform.fit_stage(self, presentation, Color("#EBE3D3"), room.texture if room != null else null)
+	var wide := size.y > 0.0 and (size.x / size.y) > 1.82
+	if room != null and room.texture != null and room.texture.get_width() > int(DESIGN.x):
+		var factor := minf(size.x / DESIGN.x, size.y / DESIGN.y)
+		var wide_scale := maxf(1.0, (size.x / maxf(factor, 0.001)) / 2340.0)
+		var w := 2340.0 * wide_scale
+		var h := 1080.0 * wide_scale
+		room.stretch_mode = TextureRect.STRETCH_SCALE
+		DaylightUI.place(room, (DESIGN.x - w) * 0.5, (DESIGN.y - h) * 0.5, w, h)
+	if fg != null:
+		if wide:
+			var mat := fg.material as ShaderMaterial
+			if mat == null:
+				mat = ShaderMaterial.new()
+				var sh := Shader.new()
+				sh.code = "shader_type canvas_item; void fragment(){ vec4 c = texture(TEXTURE, UV); float fade = smoothstep(0.0, 0.045, UV.x) * smoothstep(1.0, 0.955, UV.x); COLOR = vec4(c.rgb, c.a * fade); }"
+				mat.shader = sh
+				fg.material = mat
+		else:
+			fg.material = null
 
 func _art(node_name: String, path: String) -> void:
 	var art := TextureRect.new()
@@ -110,10 +132,10 @@ func _menu_row(node_name: String, text: String, top: float) -> Button:
 	button.add_theme_color_override("font_hover_color", Color("#222B54"))
 	button.add_theme_color_override("font_pressed_color", Color("#222B54"))
 	button.add_theme_color_override("font_focus_color", Color("#222B54"))
-	button.add_theme_color_override("font_disabled_color", Color("#67657C"))
+	button.add_theme_color_override("font_disabled_color", Color("#7C7686"))
 	button.add_theme_stylebox_override("normal", _row_style(Color.TRANSPARENT))
-	button.add_theme_stylebox_override("hover", _row_style(Color(0.79,0.73,0.87,0.48)))
-	button.add_theme_stylebox_override("pressed", _row_style(Color(0.72,0.65,0.82,0.55)))
+	button.add_theme_stylebox_override("hover", _row_style(Color(0.85, 0.79, 0.70, 0.44)))
+	button.add_theme_stylebox_override("pressed", _row_style(Color(0.79, 0.72, 0.62, 0.52)))
 	button.add_theme_stylebox_override("disabled", _row_style(Color.TRANSPARENT))
 	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND

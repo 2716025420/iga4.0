@@ -134,6 +134,16 @@ func _build_home_scene() -> void:
 	foreground_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	presentation.add_child(foreground_art)
 	_place(foreground_art, Vector2.ZERO, DESIGN_SIZE)
+	var title_wash := Panel.new()
+	title_wash.name = "TitleHeaderWash"
+	title_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_wash.z_index = 1
+	var wash_style := CombatSkin.flat(Color(0.98, 0.95, 0.89, 0.82), Vector4.ZERO)
+	wash_style.border_color = Color(0.84, 0.77, 0.68, 0.65)
+	wash_style.set_corner_radius_all(22)
+	title_wash.add_theme_stylebox_override("panel", wash_style)
+	presentation.add_child(title_wash)
+	_place(title_wash, Vector2(68, 16), Vector2(560, 206))
 	title_label = _label("MainTitle", "社团教室", 80, _title_font, TITLE_INK)
 	title_label.z_index = 2
 	presentation.add_child(title_label)
@@ -322,6 +332,12 @@ func _refresh_artwork() -> void:
 	var night: bool = DayCycle.period() == "night"
 	title_label.add_theme_color_override("font_color",Color("#FFF2D6") if night else TITLE_INK)
 	subtitle_label.add_theme_color_override("font_color",Color("#DBE2EA") if night else SUBTITLE_INK)
+	var title_wash := presentation.get_node_or_null("TitleHeaderWash") as Panel
+	if title_wash != null:
+		var wash_style := CombatSkin.flat(Color(0.13, 0.16, 0.26, 0.76) if night else Color(0.98, 0.95, 0.89, 0.82), Vector4.ZERO)
+		wash_style.border_color = Color(0.32, 0.37, 0.50, 0.65) if night else Color(0.84, 0.77, 0.68, 0.65)
+		wash_style.set_corner_radius_all(22)
+		title_wash.add_theme_stylebox_override("panel", wash_style)
 	var rooftop := hotspots_layer.get_node("RooftopExit") as Button
 	for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
 		rooftop.add_theme_color_override(state,Color("#DBE2EA") if night else TITLE_INK)
@@ -489,6 +505,8 @@ func _hide_all_modals() -> void:
 	_return_focus = null
 
 func _set_hotspots_enabled(enabled: bool) -> void:
+	var title_wash := presentation.get_node_or_null("TitleHeaderWash") as CanvasItem
+	if title_wash != null: title_wash.visible = enabled
 	if is_instance_valid(title_label): title_label.visible = enabled
 	if is_instance_valid(subtitle_label): subtitle_label.visible = enabled
 	if is_instance_valid(menu_button): menu_button.visible = enabled

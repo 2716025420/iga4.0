@@ -1,5 +1,22 @@
 > **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
 
+## 2026-11-13 v1 美术包落地与阶段 1/2/4/6 风格及双端交互重构
+
+- **v1 素材与战斗矢量图标接入**：
+  - 导入 `assets/backgrounds/phase_three/title/background_wide.png`、`assets/ui/player_experience/settings_broadcast_room_wide.png`、`assets/ui_core/theme/paper_modal_9slice.png` 及 `assets/combat/{notebook_tray_9slice,notebook_sticky_target,card_frame_paper,status_plaque}.png`；新增 `assets/ui_core/icons/combat/{atk_single,atk_aoe,shield,heal,debuff,target_clip,cooldown}.svg`。
+- **公共皮肤、标题页与设置台（`scripts/global/{combat_skin,scene_skin,daylight_ui}.gd`、`scripts/title/title_screen.gd`、`scripts/ui/settings_page.gd`）**：
+  - `CombatSkin.paper()` 与 `SceneSkin` 弹窗面板统一切换为 `paper_modal_9slice.png`（`72/72/48/48` 九宫格切分），主按钮与状态徽章收拢为陶土红/暖米纸色系；`DaylightUI.readable_bbcode()` 补全 `#ffa502 -> #A86C34`，并为 `FirstBattleHint` 增加奶油色衬底 `FirstBattleHintWash`。
+  - `TitleScreen` 接入宽屏底图与 `ForegroundArt` 横向羽化遮罩、`SettingsPage` 启用 `clip_contents` 与宽屏电台底图，消除 `1600×720`（20:9）左右接缝与黑边。
+- **阶段 4 打磨（`scripts/home/home_screen.gd`、`scripts/campus/campus_life.gd`、`scripts/campus/region_atlas_view.gd`）**：
+  - `HomeScreen` 为左上角标题区增加随昼夜/弹窗显隐的 `TitleHeaderWash`；`CampusLife.study()` 自习固定增加 `20` 练习点；`RegionAtlasView` 为地区状态签补充 `RegionStatusBacking_*` 深靛底托提升可读性。
+- **阶段 6 战斗界面与双端交互重构（`scripts/combat/{combat_presentation,combat_card_ui,enemy_unit_ui,combat_screen,floating_text}.gd`）**：
+  - `CombatPresentation` 改用全屏背景、通栏 `TopHeaderRibbon`、纸签 `TurnTabPaper`、`PlayerIdentity` 铭牌及 `PlayerTacticalPill`（常驻护盾与预计净受击）、九宫格全宽手账底托 `NotebookTray` 与右侧 `TargetStickyNote` / `TargetPortraitFrame`。
+  - `CombatCardUI` 接入 `card_frame_paper.png`、保留牌面细节的冷却半透遮罩与 `CDPill`，并在触控模式下采用“轻触预选抬起 + `TouchPlayHint` 提示再点或上滑打出”，桌面端保留点击即出；`EnemyUnitUI` 接入 `status_plaque.png`、`TargetClipIcon`（`target_clip.svg`）、Boss 血条二阶段刻度 `PhaseThresholdTick`、SVG 意图图标与状态底丸；`FloatingText` 与战斗日志收敛至水彩低饱和色板。
+- **验证与未决项**：
+  - `check_indent.js` 预检通过；Godot 无界面 4 套回归（`p5_regions` 542 项、`home_objects` 174 项、`scene_reset` 376 项、`zodiac_and_shop` 357 项，合计 1,449 项）全数通过，0 失败、0 错误。
+  - `1600×900`（16:9）与 `1600×720`（20:9）实机截图目检通过标题页、设置台、Home、旅行图及 4 态战斗界面（Boss、历史记录、双敌触控预选、胜利弹窗）。
+  - 待后续推进：**等待主创提交 `v2` 素材包（新三校 Home、地区地图、商店柜台及导航图标）后再替换 `RegionHomeView`/`CampusShopPanel`/`CampusGuidePanel` 既有占位表现**。
+
 ## 2026-11-13 阶段 3：工作台、放映机记录与同学交流栏多端适配及可读性统一
 
 - **全屏舞台与 20:9 零黑边出血（`scripts/home/player_workspace.gd`、`scripts/home/home_screen.gd`、`scripts/campus/campus_screen.gd`）**：

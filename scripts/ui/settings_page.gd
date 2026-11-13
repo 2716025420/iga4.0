@@ -31,6 +31,7 @@ var _locked_controls: Array[Dictionary] = []
 func _ready() -> void:
 	name = "SettingsPage"
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	clip_contents = true
 	theme = DaylightUI.get_theme().duplicate() as Theme
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	original = SaveManager.settings.duplicate(true)
@@ -42,7 +43,9 @@ func _ready() -> void:
 	stage.size = DESIGN
 	add_child(stage)
 
-	room_art = SchoolObjectUI.art(stage, "BroadcastRoom", ART_ROOT + "settings_broadcast_room.png")
+	var room_path := ART_ROOT + "settings_broadcast_room_wide.png"
+	if not ResourceLoader.exists(room_path): room_path = ART_ROOT + "settings_broadcast_room.png"
+	room_art = SchoolObjectUI.art(stage, "BroadcastRoom", room_path)
 	var console := SchoolObjectUI.art(stage, "BroadcastConsole", ART_ROOT + "settings_console.png")
 	console.stretch_mode = TextureRect.STRETCH_SCALE
 	_place(console, Rect2(135, 87, 1438, 885))
@@ -156,6 +159,13 @@ func _layout() -> void:
 	if not is_instance_valid(stage):
 		return
 	Platform.fit_stage(self, stage, Color("#243A47"), room_art.texture if room_art != null else null)
+	if is_instance_valid(room_art) and room_art.texture != null and room_art.texture.get_width() > int(DESIGN.x):
+		var factor := minf(size.x / DESIGN.x, size.y / DESIGN.y)
+		var wide_scale := maxf(1.0, (size.x / maxf(factor, 0.001)) / 2340.0)
+		var w := 2340.0 * wide_scale
+		var h := 1080.0 * wide_scale
+		room_art.stretch_mode = TextureRect.STRETCH_SCALE
+		_place(room_art, Rect2((DESIGN.x - w) * 0.5, (DESIGN.y - h) * 0.5, w, h))
 
 func _on_input_mode_changed(_touch: bool) -> void:
 	if is_inside_tree():

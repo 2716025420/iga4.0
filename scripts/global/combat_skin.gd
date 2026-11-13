@@ -1,8 +1,10 @@
 class_name CombatSkin
 extends RefCounted
 
-const PAPER_PATH := "res://assets/ui/phase_three/battle_paper.png"
+const PAPER_PATH := "res://assets/ui_core/theme/paper_modal_9slice.png"
+const FALLBACK_PAPER_PATH := "res://assets/ui/phase_three/battle_paper.png"
 static var _paper: Texture2D
+static var _paper_is_modal_slice: bool = false
 static var _actors: Dictionary = {}
 
 static func actor_texture(path: String) -> Texture2D:
@@ -20,14 +22,28 @@ static func actor_texture(path: String) -> Texture2D:
 	return atlas
 
 static func paper(inset: Vector4 = Vector4(18, 16, 18, 16), tint: Color = Color.WHITE) -> StyleBox:
-	if _paper == null and ResourceLoader.exists(PAPER_PATH): _paper = load(PAPER_PATH) as Texture2D
+	if _paper == null:
+		if ResourceLoader.exists(PAPER_PATH):
+			_paper = load(PAPER_PATH) as Texture2D
+			_paper_is_modal_slice = _paper != null
+		elif ResourceLoader.exists(FALLBACK_PAPER_PATH):
+			_paper = load(FALLBACK_PAPER_PATH) as Texture2D
+			_paper_is_modal_slice = false
 	if _paper:
 		var box := StyleBoxTexture.new()
 		box.texture = _paper
 		box.modulate_color = tint
-		for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-			box.set_texture_margin(side, 48)
-			box.set_expand_margin(side, 8)
+		if _paper_is_modal_slice:
+			box.set_texture_margin(SIDE_LEFT, 72)
+			box.set_texture_margin(SIDE_TOP, 72)
+			box.set_texture_margin(SIDE_RIGHT, 48)
+			box.set_texture_margin(SIDE_BOTTOM, 48)
+			for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+				box.set_expand_margin(side, 6)
+		else:
+			for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+				box.set_texture_margin(side, 48)
+				box.set_expand_margin(side, 8)
 		box.content_margin_left = inset.x
 		box.content_margin_top = inset.y
 		box.content_margin_right = inset.z
@@ -38,9 +54,9 @@ static func paper(inset: Vector4 = Vector4(18, 16, 18, 16), tint: Color = Color.
 static func flat(fill: Color, inset: Vector4 = Vector4(16, 10, 16, 10)) -> StyleBoxFlat:
 	var box := StyleBoxFlat.new()
 	box.bg_color = fill
-	box.border_color = Color("#CEC8DA")
+	box.border_color = Color("#C8BCA9")
 	box.set_border_width_all(1)
-	box.set_corner_radius_all(16)
+	box.set_corner_radius_all(10)
 	box.content_margin_left = inset.x
 	box.content_margin_top = inset.y
 	box.content_margin_right = inset.z
@@ -48,10 +64,23 @@ static func flat(fill: Color, inset: Vector4 = Vector4(16, 10, 16, 10)) -> Style
 	return box
 
 static func button(button_node: Button, primary: bool = false) -> void:
-	var fill := Color("#DFD6EE") if primary else Color("#FFF9F0")
-	button_node.add_theme_stylebox_override("normal", flat(fill))
-	button_node.add_theme_stylebox_override("hover", flat(fill.lightened(0.07)))
-	button_node.add_theme_stylebox_override("pressed", flat(fill.darkened(0.05)))
-	button_node.add_theme_stylebox_override("disabled", flat(Color("#E8E5E2")))
-	button_node.add_theme_color_override("font_disabled_color", DaylightUI.MUTED)
+	var base := Color("#D66B5A") if primary else Color("#EFE6D5")
+	var border := Color("#B95343") if primary else Color("#C8BCA9")
+	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+		var style := flat(base, Vector4(16, 10, 16, 10))
+		style.border_color = border
+		if state == "hover":
+			style.bg_color = base.lightened(0.06) if primary else base.darkened(0.05)
+		elif state in ["pressed", "hover_pressed"]:
+			style.bg_color = base.darkened(0.10)
+		elif state == "disabled":
+			style.bg_color = Color("#DCD5C7")
+			style.border_color = Color("#C4BCAD")
+		button_node.add_theme_stylebox_override(state, style)
+	button_node.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	var ink := Color("#FFFDF8") if primary else Color("#303A67")
+	for color_key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button_node.add_theme_color_override(color_key, ink)
+	button_node.add_theme_color_override("font_disabled_color", Color("#6C7280"))
+	SchoolObjectUI.borderless(button_node)
 	DaylightUI.bind_button_feedback(button_node)

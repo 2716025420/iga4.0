@@ -66,7 +66,7 @@ static func readable_bbcode(text: String) -> String:
 		"#EDE6D6": "#403C52", "#C4B8D8": "#777387", "#B79AE0": "#796B9E",
 		"#E2B35C": "#9E7051", "#E8833A": "#9E7051", "#6FD3C4": "#547C69",
 		"#feca57": "#9E7051", "#ff6b6b": "#B65B63", "#2ed573": "#547C69",
-		"#ff4757": "#B65B63", "#ff5555": "#B65B63", "#1e90ff": "#557C9A",
+		"#ff4757": "#B65B63", "#ff5555": "#B65B63", "#ffa502": "#A86C34", "#1e90ff": "#557C9A",
 		"#747d8c": "#777387", "#ffffff": "#403C52", "#ff9ff3": "#796B9E"
 	}
 	for old in substitutions:
@@ -280,16 +280,30 @@ static func layout_combat(root: Control, extent: Vector2) -> void:
 	CombatPresentation.layout(root, extent)
 	if is_instance_valid(root.get("log_panel")):
 		place(root.get("log_panel"), (extent.x - 1100) / 2.0, (extent.y - 650) / 2.0, 1100, 650)
-		root.get("log_panel").add_theme_stylebox_override("panel", CombatSkin.paper(Vector4(38, 28, 38, 28)))
+		root.get("log_panel").add_theme_stylebox_override("panel", CombatSkin.paper(Vector4(44, 38, 44, 38)))
 		root.get("log_text").add_theme_font_size_override("normal_font_size", 26)
 		root.get("log_text").add_theme_font_size_override("bold_font_size", 26)
 		root.get("log_text").add_theme_constant_override("line_separation", 6)
 	var hint := root.get_node_or_null("FirstBattleHint") as HBoxContainer
 	if hint:
-		var hint_width := minf(1120, maxf(640, extent.x - 720))
-		hint.custom_minimum_size = Vector2(hint_width, 40)
-		place(hint, 360, 94, hint_width, 40)
+		var hint_width := minf(840, maxf(540, extent.x - 760))
+		hint.custom_minimum_size = Vector2(hint_width, 42)
+		place(hint, (extent.x - hint_width) / 2.0, 94, hint_width, 42)
+		hint.alignment = BoxContainer.ALIGNMENT_CENTER
 		hint.add_theme_constant_override("separation", 16)
+		var wash := root.get_node_or_null("FirstBattleHintWash") as Panel
+		if wash == null:
+			wash = Panel.new()
+			wash.name = "FirstBattleHintWash"
+			wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			var wash_box := CombatSkin.flat(Color(0.99, 0.96, 0.91, 0.88), Vector4.ZERO)
+			wash_box.set_corner_radius_all(14)
+			wash.add_theme_stylebox_override("panel", wash_box)
+			root.add_child(wash)
+			root.move_child(wash, hint.get_index())
+			hint.visibility_changed.connect(func(): wash.visible = hint.visible)
+		wash.visible = hint.visible
+		place(wash, (extent.x - hint_width - 24.0) / 2.0, 90, hint_width + 24.0, 50)
 		for child in hint.get_children():
 			if child is Label:
 				child.text = "先看对方行动，再出牌。护盾只保留到本轮结束。"
