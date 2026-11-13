@@ -139,8 +139,15 @@ func _build_test_map(focus_name: String) -> void:
 
 func _build_illustrated_map(focus_name: String) -> void:
  var spec: Dictionary = SceneDesignCatalog.MAPS[region_id]
- var background := SchoolObjectUI.art(self,"ConceptMother",SceneDesignCatalog.map_path(region_id))
+ var map_file := SceneDesignCatalog.map_path(region_id)
+ var wide_map := map_file.replace(".png","_wide.png")
+ if ResourceLoader.exists(wide_map):
+  var wide_bg := SchoolObjectUI.art(self,"WideMapBackground",wide_map,Rect2(-210,0,2340,1080))
+  wide_bg.stretch_mode = TextureRect.STRETCH_SCALE
+  wide_bg.z_index = -3
+ var background := SchoolObjectUI.art(self,"ConceptMother",map_file)
  background.stretch_mode = TextureRect.STRETCH_SCALE
+ if ResourceLoader.exists(wide_map): background.self_modulate = Color(1,1,1,0)
  background.set_meta("layer_role","current_registered_district_concept")
  SceneSurfaceUI.heading(self,str(RegionCatalog.REGIONS[region_id]["title"])+"地图")
  get_node("LocationTitle").name = "MapTitle"

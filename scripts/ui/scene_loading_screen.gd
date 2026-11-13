@@ -26,7 +26,9 @@ func _ready() -> void:
  presentation.mouse_filter = Control.MOUSE_FILTER_IGNORE
  presentation.size = DESIGN
  add_child(presentation)
- SchoolObjectUI.art(presentation,"DuskCorridor","res://assets/ui/player_experience/loading_after_school.png")
+ var wide_corridor := "res://assets/ui/player_experience/loading_after_school_wide.png"
+ var dusk := SchoolObjectUI.art(presentation,"DuskCorridor",wide_corridor if ResourceLoader.exists(wide_corridor) else "res://assets/ui/player_experience/loading_after_school.png",Rect2(-210,0,2340,1080) if ResourceLoader.exists(wide_corridor) else Rect2(0,0,1920,1080))
+ dusk.stretch_mode = TextureRect.STRETCH_SCALE
  _text("Chapter","下一段日常",Rect2(120,430,720,60),27,Color("#9CC6C5"))
  heading = _text("Destination","去往校园",Rect2(120,510,820,110),66,Color("#FFF0CE"))
  description = _text("WaitingCopy","稍等片刻，下一段日常正在抵达。",Rect2(124,659,730,110),27,Color("#B9D3CE"))

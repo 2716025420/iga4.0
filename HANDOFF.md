@@ -1,5 +1,18 @@
 > **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
 
+## 2026-11-13 v3 美术包第一批生产接入（卡牌画框与水彩图标、五张宽屏背景及待审概念）
+
+- **Wave B 战斗卡牌与经济图标接入**：
+  - `assets/combat/card_frame_duel.png` 与 6 张 `assets/combat/card_art/card_art_*.png`（`wrench_smash`、`scrap_shield`、`icy_soda`、`overclock_torch`、`fake_cheque`、`steel_barricade`）已导入，通过 `SceneSkin.card_illustration_path()`（`scripts/global/scene_skin.gd`）绕开旧裁切映射接入战斗卡面与商店商品预览；`CombatCardUI`（`scripts/combat/combat_card_ui.gd`）对 `card_frame_duel.png` 的 `512×720` 卡框完成标题槽、类型标签、插画区、描述与脚注坐标对位，并将 `CardData.get_combat_summary()`（`scripts/data_models/card_data.gd`）的 `DEBUFF` 摘要收敛为 `全敌降攻%d%%` / `降攻%d%%` 单行文本。
+  - `assets/ui_core/icons/economy/icon_*.png`（9 张）已导入：`allowance`、`practice_points`、`drink_soda`、`mat_common`、`mat_fine`、`mat_rare`、`quest_sealed_note` 与 `practice_token`（暂用 `icon_tournament_pass.png` 占位）已分别接入 `ItemCatalog`（`scripts/data_models/item_catalog.gd`）、`HomeScreen`（`scripts/home/home_screen.gd`）与 `RewardCardPopup`（`scripts/ui/reward_card_popup.gd`）；`icon_card_pack.png`、`icon_tournament_pass.png` 已入库预置，待对应功能确认后正式接线。
+- **Wave C 宽屏背景延伸接入（2340×1080）**：
+  - `assets/ui/player_experience/loading_after_school_wide.png` 与 `assets/ui/scene_reset/maps/{world,map_nomos,map_agora,map_techne}_wide.png`（5 张中心对齐宽幅图）已导入并分别接入 `SceneLoadingScreen`（`scripts/ui/scene_loading_screen.gd`）、`RegionAtlasView`（`scripts/campus/region_atlas_view.gd`）与 `RegionMapView`（`scripts/campus/region_map_view.gd`），通过 `Rect2(-210, 0, 2340, 1080)` 与透明保留原尺寸参考纹理使 20:9 无接缝且不破坏地标热点/裁切配准。
+- **已暂缓（待主创审图/确认后推进）**：
+  - `01_wave_a_concepts/tournament_route_concept.png` 及配套去 UI 宽图 `03_wave_c_wide_bgs/route_station_wide.png`（未覆盖仍在依赖烘焙 UI 的 `assets/ui/school_objects/route_station.png`）。
+  - `01_wave_a_concepts/zodiac_binder_concept.png`（需确认页脚“全国大赛限定珍稀页”等展示文案后再切片接入）。
+- **验证记录**：
+  - 已在 OpenGL `1600×900`（16:9）与 `1600×720`（20:9）双分辨率实机截图验证主页、世界地图、诺莫斯/阿戈拉地区图、首领战与多敌触控战斗手牌（含 `card_frame_duel.png` 文本与插画框选）、结算弹窗、商店（行动卡/练习素材页签）及黄昏走廊加载页。
+
 ## 2026-11-13 UI 统一清理、轻量程序化动效与 v3 需求包
 
 - **v3 GPT 素材需求包与历史素材清理**：

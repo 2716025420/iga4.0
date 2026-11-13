@@ -9,8 +9,14 @@ var refs: Dictionary = {}
 func _ready() -> void:
  size = Vector2(1920,1080)
  mouse_filter = Control.MOUSE_FILTER_STOP
+ var wide_world := SceneDesignCatalog.ROOT+"maps/world_wide.png"
+ if ResourceLoader.exists(wide_world):
+  var wide_bg := SchoolObjectUI.art(self,"WideWorldBackground",wide_world,Rect2(-210,0,2340,1080))
+  wide_bg.stretch_mode = TextureRect.STRETCH_SCALE
+  wide_bg.z_index = -3
  var background := SchoolObjectUI.art(self,"TravelConcept",SceneDesignCatalog.ROOT+"maps/world.png")
  background.stretch_mode = TextureRect.STRETCH_SCALE
+ if ResourceLoader.exists(wide_world): background.self_modulate = Color(1,1,1,0)
  SceneSurfaceUI.heading(self,"地区旅行图 · TEST")
  var back := SceneSurfaceUI.button(self,"BackToLocal","返回地区地图",Rect2(1570,35,280,76),27)
  back.pressed.connect(func(): close_requested.emit())

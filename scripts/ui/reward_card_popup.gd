@@ -133,8 +133,8 @@ func _present_pending() -> void:
  confirm.grab_focus()
 
 func _definition(id: String) -> Dictionary:
- if id == "practice_points": return {"name":"练习点","description":"用来练习行动卡。","icon":"res://assets/ui/scene_reset/icons/status_practice.svg"}
- if id == "allowance": return {"name":"零用钱","description":"留给接下来的校园生活。","icon":"res://assets/ui/scene_reset/icons/status_allowance.svg"}
+ if id == "practice_points": return {"name":"练习点","description":"用来练习行动卡。","icon":"res://assets/ui_core/icons/economy/icon_practice_points.png"}
+ if id == "allowance": return {"name":"零用钱","description":"留给接下来的校园生活。","icon":"res://assets/ui_core/icons/economy/icon_allowance.png"}
  if id.begins_with("card:"):
   var card := GameState.get_card(id.trim_prefix("card:"))
   if card != null: return {"name":card.name,"description":"新行动卡 · 已解锁","icon":SceneSkin.card_illustration_path(card.id)}

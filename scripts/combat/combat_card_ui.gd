@@ -4,6 +4,7 @@ extends PanelContainer
 signal card_clicked(card_data: CardData)
 signal card_armed(card_ui: CombatCardUI)
 
+const CARD_DUEL_FRAME_PATH := "res://assets/combat/card_frame_duel.png"
 const CARD_PAPER_PATH := "res://assets/combat/card_frame_paper.png"
 const FALLBACK_CARD_PAPER := "res://assets/ui/combat_notebook/action_card.png"
 const COOLDOWN_ICON_PATH := "res://assets/ui_core/icons/combat/cooldown.svg"
@@ -60,6 +61,9 @@ func _setup_styles() -> void:
 	_disabled_style = StyleBoxEmpty.new()
 	add_theme_stylebox_override("panel", _base_style)
 
+func _using_duel_frame() -> bool:
+	return ResourceLoader.exists(CARD_DUEL_FRAME_PATH)
+
 func _prepare_notebook_composition() -> void:
 	var body := get_node("VBox") as Control
 	if body is VBoxContainer:
@@ -74,7 +78,7 @@ func _prepare_notebook_composition() -> void:
 		previous.queue_free()
 	_paper_art = TextureRect.new()
 	_paper_art.name = "CardPaperArtwork"
-	var paper_path := CARD_PAPER_PATH if ResourceLoader.exists(CARD_PAPER_PATH) else FALLBACK_CARD_PAPER
+	var paper_path := CARD_DUEL_FRAME_PATH if _using_duel_frame() else (CARD_PAPER_PATH if ResourceLoader.exists(CARD_PAPER_PATH) else FALLBACK_CARD_PAPER)
 	_paper_art.texture = CombatSkin.actor_texture(paper_path)
 	_paper_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_paper_art.stretch_mode = TextureRect.STRETCH_SCALE
@@ -151,27 +155,49 @@ func layout_notebook_card(extent: Vector2 = CombatPresentation.CARD_SIZE) -> voi
 	size = extent
 	pivot_offset = extent * 0.5
 	var body := get_node("VBox") as Control
+	var duel := _using_duel_frame()
 	DaylightUI.place(_paper_art, 0, 0, extent.x, extent.y)
 	var header := body.get_node("Header") as HBoxContainer
-	DaylightUI.place(header, 20, 16, extent.x - 40, 34)
-	header.add_theme_constant_override("separation", 5)
-	name_label.add_theme_font_size_override("font_size", 26)
-	name_label.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
-	var art_h := clampf(extent.y - 178.0, 108.0, 130.0)
-	var desc_y := 54.0 + art_h + 6.0
-	var footer_y := extent.y - 44.0
 	var art_frame := body.get_node_or_null("CardArtFrame") as Panel
-	if is_instance_valid(art_frame):
-		DaylightUI.place(art_frame, 18, 52, extent.x - 36, art_h + 4.0)
-	DaylightUI.place(body.get_node("CardIllustration"), 22, 56, extent.x - 44, art_h - 4.0)
-	DaylightUI.place(desc_label, 16, desc_y, extent.x - 32, footer_y - desc_y - 6.0)
-	desc_label.add_theme_font_size_override("normal_font_size", 21)
-	desc_label.add_theme_font_size_override("bold_font_size", 21)
-	desc_label.add_theme_constant_override("line_separation", 1)
+	var art := body.get_node("CardIllustration") as Control
+	var desc_y := 0.0
+	var footer_y := extent.y - 44.0
+	if duel:
+		var sx := extent.x / 512.0
+		var sy := extent.y / 720.0
+		DaylightUI.place(header, 14, 21, 156, 15)
+		header.add_theme_constant_override("separation", 3)
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		name_label.add_theme_font_size_override("font_size", 15)
+		name_label.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+		DaylightUI.place(art, 32.0 * sx, 102.0 * sy, 448.0 * sx, 464.0 * sy)
+		if is_instance_valid(art_frame):
+			art_frame.visible = false
+		desc_y = 242.0
+		footer_y = 262.0
+		DaylightUI.place(desc_label, 20, desc_y, extent.x - 40, 19)
+		desc_label.add_theme_font_size_override("normal_font_size", 16)
+		desc_label.add_theme_font_size_override("bold_font_size", 16)
+		desc_label.add_theme_constant_override("line_separation", 0)
+	else:
+		DaylightUI.place(header, 20, 16, extent.x - 40, 34)
+		header.add_theme_constant_override("separation", 5)
+		name_label.add_theme_font_size_override("font_size", 26)
+		name_label.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+		var art_h := clampf(extent.y - 178.0, 108.0, 130.0)
+		desc_y = 54.0 + art_h + 6.0
+		if is_instance_valid(art_frame):
+			DaylightUI.place(art_frame, 18, 52, extent.x - 36, art_h + 4.0)
+		DaylightUI.place(art, 22, 56, extent.x - 44, art_h - 4.0)
+		DaylightUI.place(desc_label, 16, desc_y, extent.x - 32, footer_y - desc_y - 6.0)
+		desc_label.add_theme_font_size_override("normal_font_size", 21)
+		desc_label.add_theme_font_size_override("bold_font_size", 21)
+		desc_label.add_theme_constant_override("line_separation", 1)
 	var footer := body.get_node("Footer") as HBoxContainer
-	DaylightUI.place(footer, 20, footer_y, extent.x - 40, 26)
-	level_label.add_theme_font_size_override("font_size", 20)
-	cd_hint_label.add_theme_font_size_override("font_size", 20)
+	var side_pad := 20.0
+	DaylightUI.place(footer, side_pad, footer_y, extent.x - side_pad * 2.0, 16 if duel else 26)
+	level_label.add_theme_font_size_override("font_size", 14 if duel else 20)
+	cd_hint_label.add_theme_font_size_override("font_size", 14 if duel else 20)
 	var divider := body.get_node_or_null("FooterRule") as ColorRect
 	if divider == null:
 		divider = ColorRect.new()
@@ -179,9 +205,10 @@ func layout_notebook_card(extent: Vector2 = CombatPresentation.CARD_SIZE) -> voi
 		divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		divider.color = Color(0.58, 0.49, 0.39, 0.25)
 		body.add_child(divider)
-	DaylightUI.place(divider, 20, footer_y - 4.0, extent.x - 40, 1)
+	DaylightUI.place(divider, side_pad, footer_y - 2.0 if duel else footer_y - 4.0, extent.x - side_pad * 2.0, 1)
 	if is_instance_valid(_cd_veil):
-		DaylightUI.place(_cd_veil, 12, 12, extent.x - 24, extent.y - 24)
+		var pad := 6.0 if duel else 12.0
+		DaylightUI.place(_cd_veil, pad, pad, extent.x - pad * 2.0, extent.y - pad * 2.0)
 		var header_node := body.get_node_or_null("Header")
 		if header_node != null and _cd_veil.get_index() > header_node.get_index():
 			body.move_child(_cd_veil, header_node.get_index())
@@ -271,27 +298,40 @@ func _refresh_card_illustration() -> void:
 		art_frame.add_theme_stylebox_override("panel", frame_box)
 		box.add_child(art_frame)
 		box.move_child(art_frame, 1)
+	var duel := _using_duel_frame()
 	var art := box.get_node_or_null("CardIllustration") as TextureRect
 	if art == null:
 		art = TextureRect.new()
 		art.name = "CardIllustration"
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		box.add_child(art)
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED if duel else TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.clip_contents = duel
+	box.move_child(art_frame, 0)
+	if duel:
+		box.move_child(art, 1)
+		if is_instance_valid(_paper_art):
+			box.move_child(_paper_art, 2)
+	else:
+		if is_instance_valid(_paper_art):
+			box.move_child(_paper_art, 0)
+		box.move_child(art_frame, 1)
 		box.move_child(art, 2)
 	var asset := SceneSkin.card_illustration_path(card_data.id)
 	art.texture = SceneSkin.illustration_texture(asset)
 	art.visible = art.texture != null
-	art_frame.visible = art.visible
+	art_frame.visible = art.visible and not duel
 	desc_label.scroll_active = false
 	layout_notebook_card()
 
 func _refresh_category_tab() -> void:
-	type_label.add_theme_font_size_override("font_size", 18)
+	var duel := _using_duel_frame()
+	type_label.add_theme_font_size_override("font_size", 13 if duel else 18)
 	var category_colors := [Color("#A36A83"), Color("#69849C"), Color("#6F9C96"), Color("#B09363"), Color("#8974A4")]
-	var tab_style := CombatSkin.flat(category_colors[int(card_data.card_type)], Vector4(7, 3, 7, 3))
+	var pad := Vector4(4, 0, 4, 0) if duel else Vector4(7, 3, 7, 3)
+	var tab_style := CombatSkin.flat(category_colors[int(card_data.card_type)], pad)
 	tab_style.set_corner_radius_all(3)
 	tab_style.set_border_width_all(0)
 	type_label.add_theme_stylebox_override("normal", tab_style)

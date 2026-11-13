@@ -103,7 +103,7 @@ func get_combat_summary() -> String:
 		CardType.RECOVERY:
 			return "恢复 %d · 限2次" % get_scaled_heal()
 		CardType.DEBUFF:
-			var target_text := "敌全体伤害 -%d%%" if target_type == TargetType.ALL_ENEMIES else "伤害 -%d%%"
+			var target_text := "全敌降攻%d%%" if target_type == TargetType.ALL_ENEMIES else "降攻%d%%"
 			return (target_text % roundi(get_scaled_attack_down() * 100)) + " · %d回" % debuff_duration
 		CardType.SPECIAL:
 			return "护盾 %d · 反击 %d×2" % [get_scaled_shield(), get_scaled_reflect_damage()]

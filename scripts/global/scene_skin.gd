@@ -46,6 +46,8 @@ static func texture_for(key: String) -> Texture2D:
  return _textures[file] as Texture2D
 
 static func card_illustration_path(card_id: String) -> String:
+ var duel_art := "res://assets/combat/card_art/card_art_%s.png" % card_id
+ if ResourceLoader.exists(duel_art): return duel_art
  var keys := {"wrench_smash":"opening","scrap_shield":"bag","icy_soda":"water","overclock_torch":"pressure","fake_cheque":"route_step","steel_barricade":"support"}
  return DEDICATED+"cards/"+str(keys.get(card_id,"opening"))+".png"
 

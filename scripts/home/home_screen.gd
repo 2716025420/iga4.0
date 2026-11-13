@@ -187,14 +187,16 @@ func _build_top_bar() -> void:
 	var rail_style := rail.get_theme_stylebox("panel") as StyleBoxFlat
 	rail_style.set_corner_radius_all(30)
 	rail_style.set_border_width_all(0)
-	var specs := [["体力",0,210,""],["练习点",214,216,"status_practice.svg"],["零用钱",434,216,"status_allowance.svg"]]
+	var specs := [["体力",0,210,""],["练习点",214,216,"res://assets/ui_core/icons/economy/icon_practice_points.png"],["零用钱",434,216,"res://assets/ui_core/icons/economy/icon_allowance.png"]]
 	var values: Array[Label] = []
 	for spec in specs:
 		var x := float(spec[1])
 		if spec[3] == "":
 			SchoolObjectUI.text(top_bar,"HealthIcon","♥",Rect2(x+14,9,36,42),34,Color("#EA7883"),true)
 		else:
-			_icon(top_bar,"Icon"+str(spec[1]),ICON_ROOT+str(spec[3]),Vector2(x+12,15),Vector2(30,30))
+			var icon_ref := str(spec[3])
+			var icon_path := icon_ref if icon_ref.begins_with("res://") else ICON_ROOT + icon_ref
+			_icon(top_bar,"Icon"+str(spec[1]),icon_path,Vector2(x+9,12),Vector2(36,36))
 		SchoolObjectUI.text(top_bar,"Caption"+str(spec[1]),str(spec[0]),Rect2(x+50,12,76,36),22,TITLE_INK)
 		var value := SchoolObjectUI.text(top_bar,"Value"+str(spec[1]),"",Rect2(x+122,12,88,36),24,TITLE_INK,true)
 		if spec[0] == "体力":
