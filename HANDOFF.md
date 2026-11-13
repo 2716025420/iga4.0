@@ -1,5 +1,20 @@
 > **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
 
+## 2026-11-13 v4 赛璐璐星座图鉴、视差过场动画试点与工作台卡面实装
+
+- **v4 素材验收与无损导入**：
+  - 导入 12 张赛璐璐风拟人星座插画 `assets/ui/zodiac_cards/zodiac_01_aries_hero.png`..`zodiac_12_pisces_lover.png`（`640×960`）、`zodiac_card_frame.png`、`zodiac_card_back.png`、`anim_cel_reveal_sparkle_4x2.png`、`anim_zodiac_seal_circle.svg`，以及双层黄昏走廊视差过场素材 `assets/backgrounds/cutscenes/cutscene_pilot_bg.png`（`2340×1080`）与 `cutscene_pilot_fg_char.png`（`1920×1080`）共 18 个资源与对应 `.import`（`compress/mode=0` 无损），`godot --headless --import --quit` 退出码 `0`。
+- **星座图鉴实装（`ZodiacAlbumPanel`）与 20:9 全幅视口适配（`HomeScreen`）**：
+  - 按 `ui/zodiac_album_layout.json` 与 `animation/zodiac_reveal_timing.json` 重建 [zodiac_album_panel.gd](scripts/home/zodiac_album_panel.gd)：象牙白全幅展馆纸面（`FullBleedPaper`，`full_scene_overlay = true`）、4×3 细线卡槽网格与多边形裁剪卡面（`ZodiacCardFace`，网格小卡隐藏过窄名牌框避免压字、右侧 `348×522` 放大展示卡居中显示衬线名牌）、右侧详栏无滚动条完整排布，以及 `anim_zodiac_seal_circle.svg` 旋转光环与 8 格 `anim_cel_reveal_sparkle_4x2.png`（12fps，支持 `reduced_motion` 0.16s 淡入切换）揭示演出；保留 `BadgeIcon` 兼容接口。
+  - 更新 [home_screen.gd](scripts/home/home_screen.gd)（`_open_panel`、`_layout_modal`）：标记 `full_scene_overlay` 的弹窗直接挂载到 `HomeScreen` 并同步 `presentation` 缩放，绕过 `presentation.clip_contents` 对 `20:9`（`1600×720`）左右延伸区的裁切。
+- **双层视差过场动画试点（`ParallaxCutsceneStage`）**：
+  - 新增 [parallax_cutscene_stage.gd](scripts/ui/parallax_cutscene_stage.gd)（`class_name ParallaxCutsceneStage`），按 `cutscene_camera.json` 实现 2.4s `TRANS_SINE`/`EASE_IN_OUT` 缓动推镜（背景与前景人物双层视差、`reduced_motion` 定格起点、`20:9` 边缘羽化），并接入 [school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd) 的 `"after_school"` 非日历/非探索对话场次（`dusk_corridor`）。
+- **历史遗留未更新素材核查与卡面切换**：
+  - 核查 `assets/` 与 `v1`..`v3` 交付物，更新 [player_workspace.gd](scripts/home/player_workspace.gd) 的 `_action_art()` 优先使用 `SceneSkin.card_illustration_path(card_id)`（接入 v3 游戏王风格 `assets/combat/card_art/card_art_*.png`，缺失时回退旧 `prep_action_atlas.png`）。
+  - `assets/ui_core/icons/economy/icon_card_pack.png` 已提前导入；按 `AGENTS.md` 边界在未确认正式卡包商店经济规则前暂不擅自绑定实机入口。
+- **验证状态**：
+  - 无界面回归测试（`p5_regions` 542、`home_objects` 174、`scene_reset` 376、`zodiac_and_shop` 357，共 1449 项检查）全部通过（`errs=0`、`failures=[]`）；缩进预检 `PREFLIGHT INDENTATION: OK`。`ParallaxCutsceneStage` 逐帧镜头插值由 OpenGL 双分辨率实机截图（`1600×900` 与 `1600×720`）抽帧目检覆盖。
+
 ## 2026-11-13 校内路线界面重构 & v4 赛璐璐星座卡册与动画试点需求包
 
 - **审定推进 · `SchoolRouteScreen` 实机重构**：

@@ -3,6 +3,8 @@ extends Control
 
 var screen: Control
 var scene_caption: Label
+var cutscene_stage: ParallaxCutsceneStage
+var _active_cutscene_id: String = ""
 
 func build(owner_screen: Control) -> void:
 	screen = owner_screen
@@ -15,6 +17,10 @@ func build(owner_screen: Control) -> void:
 	DaylightUI.place(background, 0, 0, 1920, 1080)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	cutscene_stage = ParallaxCutsceneStage.create("dusk_corridor", false)
+	cutscene_stage.visible = false
+	add_child(cutscene_stage)
+	DaylightUI.place(cutscene_stage, 0, 0, 1920, 1080)
 	for band in [Rect2(-240, 0, 2400, 65), Rect2(-240, 987, 2400, 93)]:
 		var wash := ColorRect.new()
 		wash.name = "CaptionContrast" if band.position.y == 0 else "ControlsContrast"
@@ -106,7 +112,20 @@ func update_scene() -> void:
 	scene_caption.text = ("回忆片段" if bool(screen.get("_archive_mode")) else ("探索片段" if bool(screen.get("_exploration_mode")) else "校园片段")) + "   /   " + location
 	var calendar_geometry := get_node_or_null("CalendarLocationGeometry")
 	if calendar_geometry != null: calendar_geometry.hide()
-	screen.get("bg_texture").visible = true
+	var bg_rect := screen.get("bg_texture") as TextureRect
+	var use_cutscene := not bool(screen.get("_calendar_mode")) and not bool(screen.get("_exploration_mode")) and id == "after_school"
+	if is_instance_valid(cutscene_stage):
+		cutscene_stage.visible = use_cutscene
+		if use_cutscene:
+			if _active_cutscene_id != id:
+				_active_cutscene_id = id
+				cutscene_stage.play(true)
+			else:
+				cutscene_stage._apply_transforms()
+		else:
+			_active_cutscene_id = ""
+	if is_instance_valid(bg_rect):
+		bg_rect.visible = not use_cutscene
 	if bool(screen.get("_calendar_mode")):
 		var place_id := str(DayCycle.pending_event().get("location","club"))
 		var place: Dictionary = CampusPlaces.PLACES[place_id]
@@ -127,12 +146,13 @@ func update_scene() -> void:
 			screen.get("bg_texture").hide()
 		elif ResourceLoader.exists(place_path): screen.get("bg_texture").texture = load(place_path)
 		scene_caption.text = GameState.get_detailed_time_string()+" / "+str(place["title"])
-	var bg_rect := screen.get("bg_texture") as TextureRect
 	if is_instance_valid(bg_rect):
 		bg_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		if bg_rect.texture != null and bg_rect.texture.get_width() > 2100:
 			DaylightUI.place(bg_rect, -210, 0, 2340, 1080)
 		else:
 			DaylightUI.place(bg_rect, 0, 0, 1920, 1080)
-	var bg_tex: Texture2D = bg_rect.texture if is_instance_valid(bg_rect) and bg_rect.visible else null
+	var bg_tex: Texture2D = cutscene_stage.background_texture() if use_cutscene and is_instance_valid(cutscene_stage) else (bg_rect.texture if is_instance_valid(bg_rect) and bg_rect.visible else null)
 	Platform.fit_stage(screen, self, Color("#242834"), bg_tex)
+	if use_cutscene and is_instance_valid(cutscene_stage):
+		cutscene_stage._apply_transforms()

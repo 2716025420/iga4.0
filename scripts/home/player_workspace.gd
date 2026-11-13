@@ -236,15 +236,15 @@ func _plate_button(parent: Control, node_name: String, copy: String, rect: Rect2
 func _action_art(parent: Control, node_name: String, card_id: String, rect: Rect2) -> TextureRect:
  var regions := {"wrench_smash":Rect2(615,210,330,260),"scrap_shield":Rect2(950,220,255,255),"icy_soda":Rect2(1225,210,315,260),"overclock_torch":Rect2(625,477,322,280),"fake_cheque":Rect2(941,480,290,272),"steel_barricade":Rect2(1232,480,310,280)}
  var art := SchoolObjectUI.art(parent,node_name,"",rect)
- if regions.has(card_id) and ResourceLoader.exists("res://assets/ui/player_experience/prep_action_atlas.png"):
+ var texture_path := SceneSkin.card_illustration_path(card_id)
+ if ResourceLoader.exists(texture_path):
+  art.texture = SceneSkin.illustration_texture(texture_path)
+ elif regions.has(card_id) and ResourceLoader.exists("res://assets/ui/player_experience/prep_action_atlas.png"):
   var atlas := AtlasTexture.new()
   atlas.atlas = load("res://assets/ui/player_experience/prep_action_atlas.png")
   atlas.region = regions[card_id]
   atlas.filter_clip = true
   art.texture = atlas
- else:
-  var texture_path := SceneSkin.card_illustration_path(card_id)
-  if ResourceLoader.exists(texture_path): art.texture = SceneSkin.illustration_texture(texture_path)
  return art
 
 func _card_type_badge(card_type: int) -> Dictionary:

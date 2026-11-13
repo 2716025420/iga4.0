@@ -428,7 +428,7 @@ func _open_panel(kind: String) -> void:
 	_active_kind = kind
 	_active_modal = candidate as Control
 	_active_modal.name = kind.capitalize() + "Modal"
-	if _active_modal is PlayerWorkspace:
+	if _active_modal is PlayerWorkspace or _active_modal.get_meta("full_scene_overlay", false):
 		add_child(_active_modal)
 		move_child(_active_modal, presentation.get_index() + 1)
 	else:
@@ -457,7 +457,12 @@ func _layout_modal() -> void:
 		_active_modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		return
 	if _active_modal.get_meta("full_scene_overlay", false):
-		_place(_active_modal, Vector2.ZERO, DESIGN_SIZE)
+		if _active_modal.get_parent() == self:
+			_active_modal.position = presentation.position
+			_active_modal.scale = presentation.scale
+			_active_modal.size = DESIGN_SIZE
+		else:
+			_place(_active_modal, Vector2.ZERO, DESIGN_SIZE)
 		return
 	var preferred: Vector2 = _active_modal.get_meta("design_size", _active_modal.custom_minimum_size)
 	if preferred.x < 100 or preferred.y < 100:
