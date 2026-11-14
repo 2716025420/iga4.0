@@ -10,8 +10,8 @@ const GIRL_PATH := "res://assets/ui/player_experience/home_midground_seated_v3.p
 const OBJECTS_PATH := "res://assets/ui/player_experience/home_objects_v3.png"
 const PANEL_FACTORY_PATH := "res://scripts/home/home_panels.gd"
 const ICON_ROOT := "res://assets/ui/scene_reset/icons/"
-const TITLE_INK := Color("#303A67")
-const SUBTITLE_INK := Color("#646C86")
+const TITLE_INK := Color("#263059")
+const SUBTITLE_INK := Color("#3B466B")
 const ENTRY_ORDER := ["lounge", "workshop", "records", "quest", "explore", "zodiac"]
 const ENTRY_TITLES := {
 	"lounge": "同学交流", "workshop": "卡牌整理",
@@ -63,7 +63,7 @@ var _panel_refresh_pending := false
 func _ready() -> void:
 	SceneManager.current_scene_type = SceneManager.TargetScene.HOME
 	CampusLife.arrive_at_club()
-	_body_font = load("res://assets/fonts/NotoSansSC-Regular.ttf") as Font
+	_body_font = DaylightUI.body_font()
 	_title_font = load("res://assets/fonts/NotoSerifSC-SemiBold.ttf") as Font
 	theme = DaylightUI.get_theme().duplicate() as Theme
 
@@ -138,7 +138,7 @@ func _build_home_scene() -> void:
 	title_wash.name = "TitleHeaderWash"
 	title_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_wash.z_index = 1
-	var wash_style := CombatSkin.flat(Color(0.98, 0.95, 0.89, 0.82), Vector4.ZERO)
+	var wash_style := CombatSkin.flat(Color(0.99, 0.96, 0.90, 0.90), Vector4.ZERO)
 	wash_style.border_color = Color(0.84, 0.77, 0.68, 0.65)
 	wash_style.set_corner_radius_all(22)
 	title_wash.add_theme_stylebox_override("panel", wash_style)
@@ -148,7 +148,7 @@ func _build_home_scene() -> void:
 	title_label.z_index = 2
 	presentation.add_child(title_label)
 	_place(title_label, Vector2(92, 25), Vector2(680, 110))
-	subtitle_label = _label("Subtitle", "", 26, _title_font, SUBTITLE_INK)
+	subtitle_label = _label("Subtitle", "", 26, _body_font, SUBTITLE_INK)
 	subtitle_label.z_index = 2
 	subtitle_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	subtitle_label.add_theme_constant_override("line_spacing", 8)
@@ -218,16 +218,22 @@ func _build_navigation() -> void:
 	objects.set_meta("role","desk_objects_without_itinerary")
 	room_art.set_meta("role","room_with_pinned_itinerary")
 	activity_title = SchoolObjectUI.text(hotspots_layer,"ActivityTitle","",Rect2(1115,145,530,62),38,TITLE_INK)
-	activity_body = SchoolObjectUI.text(hotspots_layer,"ActivityBody","",Rect2(1030,397,420,110),25,SUBTITLE_INK)
+	activity_body = SchoolObjectUI.text(hotspots_layer,"ActivityBody","",Rect2(1030,397,420,114),26,SUBTITLE_INK)
 	activity_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	btn_explore = SchoolObjectUI.hit(hotspots_layer,"PrimaryActivity",Rect2(1482,305,236,68),"",30)
+	btn_explore = SchoolObjectUI.hit(hotspots_layer,"PrimaryActivity",Rect2(1480,304,240,67),"",28)
 	for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: btn_explore.add_theme_color_override(key,Color.WHITE)
+	for state in ["hover","pressed","hover_pressed"]:
+		var primary_wash := StyleBoxFlat.new()
+		primary_wash.bg_color = Color(1.0,1.0,1.0,0.14) if state == "hover" else Color(0.18,0.08,0.12,0.18)
+		primary_wash.set_corner_radius_all(16)
+		btn_explore.add_theme_stylebox_override(state,primary_wash)
+	SchoolObjectUI.borderless(btn_explore)
 	btn_explore.pressed.connect(_activate_primary)
 	_entries["explore"] = btn_explore
-	story_button = SchoolObjectUI.hit(hotspots_layer,"StoryShortcut",Rect2(1482,383,236,52),"",23)
+	story_button = SchoolObjectUI.hit(hotspots_layer,"StoryShortcut",Rect2(1480,381,240,54),"",24)
 	_style_journey_shortcut(story_button)
 	story_button.pressed.connect(_activate_story)
-	var zodiac := SchoolObjectUI.hit(hotspots_layer,"ZodiacShortcut",Rect2(1482,449,236,52),"星座图鉴",23)
+	var zodiac := SchoolObjectUI.hit(hotspots_layer,"ZodiacShortcut",Rect2(1480,441,240,54),"星座图鉴",24)
 	_style_journey_shortcut(zodiac)
 	zodiac.pressed.connect(_open_panel.bind("zodiac"))
 	_entries["zodiac"] = zodiac
@@ -253,6 +259,8 @@ func _build_navigation() -> void:
 
 func _style_journey_shortcut(button: Button) -> void:
 	# A dark wash stays visible over the pale illustrated paper, unlike white.
+	for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+		button.add_theme_color_override(key, TITLE_INK)
 	for state in ["hover","pressed","hover_pressed"]:
 		var wash := StyleBoxFlat.new()
 		wash.bg_color = Color(0.23,0.37,0.53,0.16 if state == "hover" else 0.28)

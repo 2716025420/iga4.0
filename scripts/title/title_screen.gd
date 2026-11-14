@@ -5,6 +5,7 @@ const DESIGN := Vector2(1920, 1080)
 var presentation: Control
 var continue_button: Button
 var new_button: Button
+var test_button: Button
 var settings_button: Button
 var quit_button: Button
 var modal: Panel
@@ -36,15 +37,17 @@ func _ready() -> void:
 	_rule(presentation, Vector2(256, 296), 488)
 	_label("Tagline", "Inorganic General Alien", 36, Vector2(256, 315), Vector2(680, 64), true)
 	_label("BuildNotice", "开发测试版 · 剧情与设定待完善", 24, Vector2(258, 392), Vector2(720, 42))
-	continue_button = _menu_row("ContinueButton", "继续游戏", 338)
-	new_button = _menu_row("NewGameButton", "开始新游戏", 458)
-	settings_button = _menu_row("SettingsButton", "设置", 578)
-	quit_button = _menu_row("QuitButton", "退出游戏", 698)
+	continue_button = _menu_row("ContinueButton", "继续游戏", 304)
+	new_button = _menu_row("NewGameButton", "开始新游戏", 402)
+	test_button = _menu_row("TestSaveButton", "测试存档（全解锁）", 500)
+	settings_button = _menu_row("SettingsButton", "设置", 598)
+	quit_button = _menu_row("QuitButton", "退出游戏", 696)
 	continue_button.pressed.connect(_continue)
 	new_button.pressed.connect(_new_game)
+	test_button.pressed.connect(_load_test_save)
 	settings_button.pressed.connect(_settings)
 	quit_button.pressed.connect(_quit)
-	status_label = _label("SaveStatus", "", 24, Vector2(1330, 820), Vector2(420, 96))
+	status_label = _label("SaveStatus", "", 24, Vector2(1330, 800), Vector2(420, 96))
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	backdrop = ColorRect.new()
@@ -204,11 +207,11 @@ func _menu_row(node_name: String, text: String, top: float) -> Button:
 	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	button.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
 	button.add_theme_font_size_override("font_size", 34)
-	button.add_theme_color_override("font_color", Color("#303A67"))
-	button.add_theme_color_override("font_hover_color", Color("#222B54"))
-	button.add_theme_color_override("font_pressed_color", Color("#222B54"))
-	button.add_theme_color_override("font_focus_color", Color("#222B54"))
-	button.add_theme_color_override("font_disabled_color", Color("#7C7686"))
+	button.add_theme_color_override("font_color", Color("#252E54"))
+	button.add_theme_color_override("font_hover_color", Color("#1C2344"))
+	button.add_theme_color_override("font_pressed_color", Color("#1C2344"))
+	button.add_theme_color_override("font_focus_color", Color("#1C2344"))
+	button.add_theme_color_override("font_disabled_color", Color("#635E6E"))
 	button.add_theme_stylebox_override("normal", _row_style(Color.TRANSPARENT))
 	button.add_theme_stylebox_override("hover", _row_style(Color(0.85, 0.79, 0.70, 0.44)))
 	button.add_theme_stylebox_override("pressed", _row_style(Color(0.79, 0.72, 0.62, 0.52)))
@@ -216,8 +219,8 @@ func _menu_row(node_name: String, text: String, top: float) -> Button:
 	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	presentation.add_child(button)
-	DaylightUI.place(button, 1320, top, 444, 100)
-	if node_name != "QuitButton": _rule(presentation, Vector2(1330, top + 112), 424)
+	DaylightUI.place(button, 1320, top, 444, 84)
+	if node_name != "QuitButton": _rule(presentation, Vector2(1330, top + 92), 424)
 	return button
 
 func _button(parent: Control, node_name: String, text: String, position: Vector2, extent: Vector2, primary: bool = false) -> Button:
@@ -255,6 +258,11 @@ func _refresh_save() -> void:
 func _continue() -> void:
 	if backdrop.visible or SceneManager.is_transitioning: return
 	if SaveManager.continue_game(): CampusLife.restore_saved_location()
+	else: status_label.text = SaveManager.last_error
+
+func _load_test_save() -> void:
+	if backdrop.visible or SceneManager.is_transitioning: return
+	if SaveManager.load_test_save(): CampusLife.restore_saved_location()
 	else: status_label.text = SaveManager.last_error
 
 func _new_game() -> void:
@@ -299,10 +307,10 @@ func _open_modal(kind: String, heading: String, copy: String = "") -> void:
 		description.add_theme_color_override("font_color", Color("#4E5372"))
 		modal.add_child(description)
 		DaylightUI.place(description, 60, 145, 820, 130)
-	for button in [continue_button, new_button, settings_button, quit_button]: button.disabled = true
+	for button in [continue_button, new_button, test_button, settings_button, quit_button]: button.disabled = true
 
 func _wire_menu_focus() -> void:
-	var rows := [continue_button, new_button, settings_button, quit_button]
+	var rows := [continue_button, new_button, test_button, settings_button, quit_button]
 	for idx in rows.size():
 		var btn: Button = rows[idx]
 		var prev: Button = rows[posmod(idx - 1, rows.size())]
@@ -324,20 +332,20 @@ func _close_modal() -> void:
 	_modal_kind = ""
 	if is_instance_valid(backdrop): backdrop.visible = false
 	if is_instance_valid(continue_button):
-		for button in [new_button, settings_button, quit_button]: button.disabled = false
+		for button in [new_button, test_button, settings_button, quit_button]: button.disabled = false
 		_refresh_save()
 		(new_button if continue_button.disabled else continue_button).grab_focus()
 
 func _settings() -> void:
 	if backdrop.visible or is_instance_valid(settings_page): return
-	for button in [continue_button, new_button, settings_button, quit_button]: button.disabled = true
+	for button in [continue_button, new_button, test_button, settings_button, quit_button]: button.disabled = true
 	settings_page = GameSettingsPage.new()
 	add_child(settings_page)
 	settings_page.close_requested.connect(func():
 		remove_child(settings_page)
 		settings_page.queue_free()
 		settings_page = null
-		for button in [new_button, settings_button, quit_button]: button.disabled = false
+		for button in [new_button, test_button, settings_button, quit_button]: button.disabled = false
 		_refresh_save()
 		settings_button.grab_focus()
 	)

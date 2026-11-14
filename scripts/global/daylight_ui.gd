@@ -2,8 +2,26 @@ class_name DaylightUI
 extends RefCounted
 
 ## Shared presentation only; gameplay state and dialogue scripts remain separate.
-const INK := Color("#302C3D")
-const MUTED := Color("#625F73")
+const INK := Color("#232030")
+const MUTED := Color("#4B485E")
+static var _body_font_cache: Font
+static var _bold_font_cache: Font
+
+static func body_font() -> Font:
+	if _body_font_cache == null:
+		var body := FontVariation.new()
+		body.base_font = load("res://assets/fonts/NotoSansSC-Regular.ttf")
+		body.variation_embolden = 0.22
+		_body_font_cache = body
+	return _body_font_cache
+
+static func bold_font() -> Font:
+	if _bold_font_cache == null:
+		var bold := FontVariation.new()
+		bold.base_font = load("res://assets/fonts/NotoSansSC-Regular.ttf")
+		bold.variation_embolden = 0.42
+		_bold_font_cache = bold
+	return _bold_font_cache
 const PAPER := Color("#FFF9F0")
 const LAVENDER := Color("#DDD7ED")
 const ACCENT := Color("#796B9E")
@@ -19,11 +37,10 @@ static func get_theme() -> Theme:
 	if _theme:
 		return _theme
 	_theme = Theme.new()
-	var body := FontVariation.new()
-	body.base_font = load("res://assets/fonts/NotoSansSC-Regular.ttf")
-	body.variation_embolden = 0.0
+	var body := body_font() as FontVariation
 	_theme.default_font = body
-	_theme.default_font_size = 20
+	_theme.default_font_size = 21
+	_theme.set_font("bold_font", "RichTextLabel", bold_font())
 	var serif: Font = load("res://assets/fonts/NotoSerifSC-SemiBold.ttf")
 	for type in ["Panel", "PanelContainer"]:
 		_theme.set_stylebox("panel", type, panel_style())
@@ -84,7 +101,8 @@ static func polish(node: Node) -> void:
 			node.add_theme_color_override("default_color", INK)
 			var is_card_summary: bool = str(node.name) == "DescLabel" and node.get_parent() != null and node.get_parent().get_parent() != null and node.get_parent().get_parent().has_method("_refresh_card_illustration")
 			var is_result_summary: bool = str(node.name) == "DescLabel" and node.get_parent() != null and node.get_parent().get_parent() != null and str(node.get_parent().get_parent().name) == "ResultModal"
-			node.add_theme_font_size_override("normal_font_size", 28 if is_result_summary else (24 if is_card_summary else 20))
+			if not is_card_summary:
+				node.add_theme_font_size_override("normal_font_size", 28 if is_result_summary else 21)
 			node.add_theme_font_size_override("bold_font_size", 28 if is_result_summary else (24 if is_card_summary else 22))
 			if is_result_summary:
 				node.scroll_active = false
@@ -92,7 +110,7 @@ static func polish(node: Node) -> void:
 				node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			node.add_theme_constant_override("line_separation", 0 if is_card_summary else 8)
 			if is_card_summary:
-				node.custom_minimum_size.y = maxf(100, node.custom_minimum_size.y)
+				node.custom_minimum_size.y = 0.0
 				node.scroll_active = false
 			node.text = readable_bbcode(node.text)
 		elif node is Button:

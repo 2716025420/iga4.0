@@ -132,10 +132,10 @@ func layout_stage(frame: Vector2) -> void:
 	DaylightUI.place(stage, 0, 0, frame.x, frame.y)
 	intent_badge.visible = not is_dead and not intent_queue.is_empty()
 	var wide := frame.x > 520.0
-	intent_label.add_theme_font_size_override("font_size", 21 if wide else 19)
-	name_label.add_theme_font_size_override("font_size", 24 if wide else 21)
-	hp_label.add_theme_font_size_override("font_size", 21 if wide else 19)
-	status_label.add_theme_font_size_override("font_size", 19)
+	intent_label.add_theme_font_size_override("font_size", 22 if wide else 20)
+	name_label.add_theme_font_size_override("font_size", 25 if wide else 22)
+	hp_label.add_theme_font_size_override("font_size", 22 if wide else 20)
+	status_label.add_theme_font_size_override("font_size", 20)
 
 	var badge_w := 352.0 if wide else clampf(frame.x - 8.0, 252.0, 336.0)
 	var badge_h := roundf(badge_w / 2.60)

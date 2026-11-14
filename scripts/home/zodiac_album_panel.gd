@@ -11,8 +11,8 @@ const DETAIL_FILL := Color("#F1E9D9")
 const PILL_FILL := Color("#EFE7D8")
 const PILL_HOVER := Color("#E5DBC7")
 const PILL_PRESSED := Color("#DBD0B9")
-const INK := Color("#242F3D")
-const SECONDARY := Color("#586370")
+const INK := Color("#1E2836")
+const SECONDARY := Color("#424D5C")
 const RULE := Color("#B9975B")
 const SAGE := Color("#54745D")
 const WARM_GOLD := Color("#8C6A36")
@@ -158,7 +158,7 @@ func refresh(panel_context: Dictionary = {}) -> void:
 			icon.visible = true
 
 		var caption_color := INK if owned else SECONDARY
-		var caption := _text(self, "Caption_" + id, "%02d · %s" % [int(data["number"]), str(data["name"])], Rect2(tile_rect.position.x - 16.0, tile_rect.position.y + tile_rect.size.y + 9.0, tile_rect.size.x + 32.0, 24.0), 16, caption_color, true)
+		var caption := _text(self, "Caption_" + id, "%02d · %s" % [int(data["number"]), str(data["name"])], Rect2(tile_rect.position.x - 16.0, tile_rect.position.y + tile_rect.size.y + 8.0, tile_rect.size.x + 32.0, 26.0), 18, caption_color, true)
 		if _serif_font != null and owned:
 			caption.add_theme_font_override("font", _serif_font)
 
@@ -275,7 +275,7 @@ func _build_detail_pane(x: float, y: float, w: float, h: float) -> void:
 	body.scroll_active = true
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.text = prose_text
-	body.add_theme_font_size_override("normal_font_size", 17)
+	body.add_theme_font_size_override("normal_font_size", 19)
 	body.add_theme_constant_override("line_separation", 4)
 	body.add_theme_color_override("default_color", INK)
 	pane.add_child(body)
@@ -287,7 +287,7 @@ func _build_detail_pane(x: float, y: float, w: float, h: float) -> void:
 
 	var progress := SpecialCardCollection.key_progress()
 	var ready_text := " · 集齐完备" if progress["ready"] else ""
-	_text(pane, "KeyProgress", "其余星座 %d / 11 · 钥匙：%s%s" % [progress["other_collected"], "已收录" if progress["has_key"] else "未收录", ready_text], Rect2(col_x, 636.0, col_w, 30.0), 17, SAGE if progress["ready"] else INK)
+	_text(pane, "KeyProgress", "其余星座 %d / 11 · 钥匙：%s%s" % [progress["other_collected"], "已收录" if progress["has_key"] else "未收录", ready_text], Rect2(col_x, 634.0, col_w, 32.0), 19, SAGE if progress["ready"] else INK)
 
 	var track := ColorRect.new()
 	track.name = "KeyProgressTrack"

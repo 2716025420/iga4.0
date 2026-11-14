@@ -4,8 +4,8 @@ extends Control
 signal close_requested
 
 const DESIGN := Vector2(1920.0, 1080.0)
-const INK := Color("#2D3A46")
-const MUTED := Color("#6A7078")
+const INK := Color("#24303B")
+const MUTED := Color("#49505A")
 
 var page: String = "main"
 var stage: Control
@@ -185,20 +185,35 @@ func _activate(action: String) -> void:
 			_confirm("保存并退出？", "下次可以从标题页继续，也可以读取手动存档。", _quit_game)
 
 func _render_slots(mode: String) -> void:
-	_clear(mode, "保存进度" if mode == "save" else "读取存档", "手动存档独立保留。\n自动进度不会覆盖它们。")
+	_clear(mode, "保存进度" if mode == "save" else "读取存档", "手动存档独立保留。\n自动进度不会覆盖它们。" if mode == "save" else "手动存档独立保留。\n含内置全解锁测试存档。")
 	var slot_actions: Array[Button] = []
+	if mode == "load":
+		var test_paper := SchoolObjectUI.slab(content, "Slot_Test", Rect2(951, 398, 707, 104), Color("#F6EED9"))
+		var test_style := test_paper.get_theme_stylebox("panel") as StyleBoxFlat
+		if test_style != null:
+			test_style.border_color = Color("#C8B38E")
+			test_style.set_border_width_all(1)
+			test_style.set_corner_radius_all(10)
+		NotebookUI.icon(test_paper, "load", Vector2(24, 16))
+		NotebookUI.label(test_paper, "Title", "常驻测试存档（全解锁）", Vector2(80, 10), Vector2(420, 38), 27)
+		NotebookUI.label(test_paper, "Metadata", "第3日 · 六地区 / 全卡组 / 测试星座 / 视差回看", Vector2(28, 50), Vector2(490, 44), 21, NotebookUI.MUTED)
+		var test_action := SchoolObjectUI.hit(test_paper, "SlotAction", Rect2(536, 18, 144, 68), "读取", 27)
+		_style_pill(test_action, Color("#5C7861"), Color("#FFFDF8"), Color("#4B6450"))
+		test_action.pressed.connect(func(): _confirm("读取常驻测试存档？", "当前进度会先自动保存（预览测试存档本身不会覆盖个人进度），然后载入全解锁测试状态。", _load_test_slot))
+		slot_actions.append(test_action)
 	for slot in range(1, 4):
 		var metadata: Dictionary = SaveManager.get_save_metadata(SaveManager.manual_slot_path(slot))
-		var paper := SchoolObjectUI.slab(content, "Slot_%d" % slot, Rect2(951, 446 + (slot - 1) * 144, 707, 130), Color("#FBF6EC"))
+		var card_rect := Rect2(951, 398 + slot * 116, 707, 104) if mode == "load" else Rect2(951, 446 + (slot - 1) * 144, 707, 130)
+		var paper := SchoolObjectUI.slab(content, "Slot_%d" % slot, card_rect, Color("#FBF6EC"))
 		var card_style := paper.get_theme_stylebox("panel") as StyleBoxFlat
 		if card_style != null:
 			card_style.border_color = Color("#D6C8B4")
 			card_style.set_border_width_all(1)
 			card_style.set_corner_radius_all(10)
-		NotebookUI.icon(paper, "save" if mode == "save" else "load", Vector2(24, 24))
-		NotebookUI.label(paper, "Title", "手动存档 %02d" % slot, Vector2(80, 12), Vector2(390, 44), 30)
-		NotebookUI.label(paper, "Metadata", NotebookUI.saved_copy(metadata), Vector2(28, 58), Vector2(480, 64), 23, NotebookUI.MUTED)
-		var action := SchoolObjectUI.hit(paper, "SlotAction", Rect2(536, 31, 144, 68), ("覆盖" if metadata["available"] else "保存") if mode == "save" else "读取", 28)
+		NotebookUI.icon(paper, "save" if mode == "save" else "load", Vector2(24, 16 if mode == "load" else 24))
+		NotebookUI.label(paper, "Title", "手动存档 %02d" % slot, Vector2(80, 10 if mode == "load" else 12), Vector2(390, 38 if mode == "load" else 44), 27 if mode == "load" else 30)
+		NotebookUI.label(paper, "Metadata", NotebookUI.saved_copy(metadata), Vector2(28, 50 if mode == "load" else 58), Vector2(480, 44 if mode == "load" else 64), 21 if mode == "load" else 23, NotebookUI.MUTED)
+		var action := SchoolObjectUI.hit(paper, "SlotAction", Rect2(536, 18 if mode == "load" else 31, 144, 68), ("覆盖" if metadata["available"] else "保存") if mode == "save" else "读取", 27 if mode == "load" else 28)
 		action.disabled = mode == "load" and not metadata["available"]
 		_style_pill(action, Color("#5C7861"), Color("#FFFDF8"), Color("#4B6450"))
 		action.pressed.connect(func():
@@ -261,6 +276,17 @@ func _quit_game() -> void:
 	else:
 		feedback = SaveManager.last_error
 		_render_main()
+
+func _load_test_slot() -> void:
+	if not SaveManager.save_game():
+		feedback = SaveManager.last_error
+		_render_slots("load")
+		return
+	if SaveManager.load_test_save():
+		CampusLife.restore_saved_location()
+	else:
+		feedback = SaveManager.last_error
+		_render_slots("load")
 
 func _open_settings() -> void:
 	shade.visible = false

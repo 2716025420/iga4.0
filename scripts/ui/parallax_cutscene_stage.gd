@@ -7,17 +7,17 @@ const PRESETS := {
 	"dusk_corridor": {
 		"bg_path": "res://assets/backgrounds/cutscenes/cutscene_pilot_bg.png",
 		"fg_path": "res://assets/backgrounds/cutscenes/cutscene_pilot_fg_char.png",
-		"duration": 2.4,
+		"duration": 3.6,
 		"bg_size": Vector2(2340.0, 1080.0),
-		"bg_start": Vector2(-210.0, 0.0),
-		"bg_end": Vector2(-286.0, 0.0),
+		"bg_start": Vector2(-180.0, 0.0),
+		"bg_end": Vector2(-252.0, 0.0),
 		"bg_pivot_screen": Vector2(960.0, 540.0),
 		"bg_scale": Vector2(1.0, 1.04),
 		"fg_size": Vector2(1920.0, 1080.0),
 		"fg_start": Vector2(0.0, 0.0),
-		"fg_end": Vector2(-56.0, 0.0),
-		"fg_pivot_screen": Vector2(1180.0, 0.0),
-		"fg_scale": Vector2(1.0, 1.09)
+		"fg_end": Vector2(0.0, 0.0),
+		"fg_pivot_screen": Vector2(1920.0, 0.0),
+		"fg_scale": Vector2(1.0, 1.24)
 	}
 }
 

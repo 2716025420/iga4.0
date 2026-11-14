@@ -6,6 +6,7 @@ const SAVE_VERSION := 1
 var save_path: String = "user://saves/slot_1.json"
 var settings_path: String = "user://settings.json"
 var active_session: bool = false
+var test_session: bool = false
 const DEFAULT_SETTINGS := {"master_volume": 0.8, "music_volume": 0.8, "sfx_volume": 0.8, "fullscreen": false, "text_speed": 1, "reduced_motion": false}
 var settings: Dictionary = DEFAULT_SETTINGS.duplicate()
 var last_error: String = ""
@@ -82,6 +83,7 @@ func _write_json(path: String, data: Dictionary, backup: bool = false) -> bool:
 
 func save_game() -> bool:
 	if not active_session or _saving: return false
+	if test_session: return true
 	var scene := get_tree().current_scene
 	if scene is CombatScreen:
 		if scene.result_modal.visible:
@@ -107,6 +109,7 @@ func start_new_game() -> bool:
 		last_error = "无法开始新游戏。"
 		return false
 	active_session = true
+	test_session = false
 	return save_game()
 
 func continue_game() -> bool:
@@ -119,6 +122,7 @@ func continue_game() -> bool:
 		last_error = "存档暂时无法读取，可以开始新游戏。"
 		return false
 	active_session = true
+	test_session = false
 	last_error = "已从备份恢复进度。" if recovered else ""
 	return true
 
@@ -154,6 +158,7 @@ func load_manual_slot(slot: int) -> bool:
 	active_session = false
 	var success := GameState.import_progress(data["progress"])
 	active_session = true if success else was_active
+	if success: test_session = false
 	last_error = ("已从备份恢复进度。" if recovered else "") if success else "这个存档暂时无法读取。"
 	return success
 
@@ -187,6 +192,112 @@ func _apply_settings() -> void:
 	AudioServer.set_bus_mute(0, float(settings["master_volume"]) <= 0.0)
 	AudioManager.set_channel_volumes(float(settings["music_volume"]), float(settings["sfx_volume"]))
 	get_window().mode = Window.MODE_FULLSCREEN if settings["fullscreen"] else Window.MODE_WINDOWED
+
+static func build_test_progress() -> Dictionary:
+	# Built-in immutable TEST preset: keeps new_game() clean and slot_1 untouched while exposing unlocked test features.
+	var test_zodiacs: Array = ["hero", "everyperson", "jester", "caregiver", "ruler", "creator"]
+	var test_events := {}
+	for id in test_zodiacs:
+		test_events["test_seed_" + str(id)] = str(id)
+	return {
+		"player_max_hp": 150,
+		"player_current_hp": 150,
+		"scrap_metal": 480,
+		"energy_crystals": 1680,
+		"energy_drinks": 5,
+		"game_day": 3,
+		"game_hour": 9,
+		"game_minute": 0,
+		"game_weekday": DayCycleService.weekday_for_day(3),
+		"unlocked_card_ids": ["wrench_smash", "scrap_shield", "icy_soda", "overclock_torch", "fake_cheque", "steel_barricade"],
+		"equipped_card_ids": ["wrench_smash", "scrap_shield", "icy_soda", "overclock_torch", "steel_barricade"],
+		"card_levels": {"wrench_smash": 2, "scrap_shield": 2, "icy_soda": 1, "overclock_torch": 1, "fake_cheque": 1, "steel_barricade": 1},
+		"companions": {
+			"yang_zi_ying": {"name": PhaseTwoContent.ACTORS["yang_zi_ying"]["name"], "title": PhaseTwoContent.ACTORS["yang_zi_ying"]["title"], "bio": PhaseTwoContent.ACTORS["yang_zi_ying"]["bio"], "unlocked": true, "favor": 60, "avatar_key": "yang_zi_ying"},
+			"liu_yu_long": {"name": PhaseTwoContent.ACTORS["liu_yu_long"]["name"], "title": PhaseTwoContent.ACTORS["liu_yu_long"]["title"], "bio": PhaseTwoContent.ACTORS["liu_yu_long"]["bio"], "unlocked": true, "favor": 40, "avatar_key": "liu_yu_long"},
+			"jiang_zi": {"name": PhaseTwoContent.ACTORS["jiang_zi"]["name"], "title": PhaseTwoContent.ACTORS["jiang_zi"]["title"], "bio": PhaseTwoContent.ACTORS["jiang_zi"]["bio"], "unlocked": true, "favor": 45, "avatar_key": "jiang_zi"}
+		},
+		"story_flags": {
+			"prologue_completed": true,
+			"chapter_1_unlocked": true,
+			"chapter_1_completed": true,
+			"school_gate_done": true,
+			"school_affairs_done": true,
+			"yang_rescued_player": true,
+			"principal_stopped": true,
+			"principal_briefing_done": true,
+			"first_battle_hint_dismissed": true,
+			"region_nomos_unlocked": true,
+			"region_agora_unlocked": true,
+			"region_techne_unlocked": true,
+			"region_failed_alliance_unlocked": true,
+			"region_iga_church_unlocked": true
+		},
+		"current_chapter_id": "chapter_1",
+		"current_node_id": "n_find_yang",
+		"visited_node_ids": ["n0", "n_gate", "n_affairs", "n_dusk", "n_guard", "n_rescue", "n_robot", "n5_boss", "n_find_yang"],
+		"pending_combat_data": {},
+		"pending_dialogue_id": "",
+		"phase_two_checkpoint": {},
+		"phase_two_combat_checkpoint": {},
+		"phase_two_stream_active": false,
+		"exploration_active": false,
+		"exploration_state": {},
+		"exploration_checkpoint": {},
+		"exploration_materials": {"common": 18, "fine": 8, "rare": 4},
+		"exploration_run_counter": 1,
+		"exploration_return_hp": -1,
+		"inventory_items": {"quest_sample": 1, "sealed_note": 1, "practice_token": 2},
+		"inventory_reward_ledger": {},
+		"inventory_acquired": {"material_common": {"order": 1, "day": 1, "hour": 9, "minute": 0}},
+		"player_profile": {
+			"loadouts": [
+				{"name": "方案1", "card_ids": ["wrench_smash", "scrap_shield", "icy_soda", "overclock_torch", "steel_barricade"]},
+				{"name": "方案2", "card_ids": ["wrench_smash", "fake_cheque", "overclock_torch"]}
+			],
+			"active_loadout_index": 0,
+			"milestone_claims": {},
+			"exploration_log": [],
+			"last_activity": "story",
+			"campus_life": {
+				"last_location": "club",
+				"region_id": "university_arete",
+				"visited": ["club", "library", "gym", "shop", "rooftop"],
+				"notes": {},
+				"npc_talks": {},
+				"studied_on_day": 0,
+				"last_sleep_day": 0,
+				"region_visits": {
+					"university_arete": "completed",
+					"university_nomos": "completed",
+					"university_agora": "completed",
+					"university_techne": "completed",
+					"region_failed_alliance": "completed",
+					"region_iga_church": "completed"
+				}
+			},
+			"calendar": {"day": 3, "phase": "morning", "remaining": DayCycleService.ACTIONS_PER_PERIOD, "completed": {}, "pending": {}},
+			"zodiac_collection": {"collected": test_zodiacs, "events": test_events}
+		}
+	}
+
+static func get_test_save_metadata() -> Dictionary:
+	return {"available": true, "backup": false, "test": true, "saved_at": 0, "day": 3, "hour": 9, "minute": 0, "chapter": "chapter_1", "hp": 150}
+
+func load_test_save() -> bool:
+	var progress := build_test_progress()
+	if not GameState.validate_progress(progress):
+		last_error = "测试存档校验失败。"
+		return false
+	var was_active := active_session
+	var was_test := test_session
+	active_session = false
+	var success := GameState.import_progress(progress)
+	active_session = true if success else was_active
+	test_session = true if success else was_test
+	last_error = "" if success else "测试存档加载失败。"
+	save_state_changed.emit()
+	return success
 
 func typing_interval() -> float:
 	return [0.045, 0.025, 0.012, 0.0][int(settings["text_speed"])]

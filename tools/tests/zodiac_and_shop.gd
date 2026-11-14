@@ -188,3 +188,23 @@ func _records_and_zodiac() -> void:
 	check(test_hit.get_theme_stylebox("focus") is StyleBoxEmpty, "SchoolObjectUI.hit uses StyleBoxEmpty focus by default")
 	test_hit.queue_free()
 
+	# Verify blackboard pill geometry and permanent unlocked TEST save isolation
+	check(shortcut.position == Vector2(1480, 441) and shortcut.size == Vector2(240, 54), "zodiac shortcut aligns to painted blackboard pill")
+	var test_progress := SaveService.build_test_progress()
+	check(state.validate_progress(test_progress), "permanent test save progress validates")
+	check(saves.load_test_save() and saves.test_session, "load_test_save enters test session")
+	var loaded: Dictionary = state.export_progress(false)
+	var visits: Dictionary = loaded.get("player_profile", {}).get("campus_life", {}).get("region_visits", {})
+	for region_id in WorldRegionContent.REGIONS.keys():
+		check(RegionCatalog.REGIONS.has(region_id) and RegionCatalog.is_unlocked(region_id) and life.has_visited_region(region_id) and str(visits.get(region_id, "")) == "completed", "test save unlocks region " + str(region_id))
+	check(SpecialCardCollection.snapshot()["collected"].size() == 6, "test save seeds 6 preview zodiac cards")
+	check(loaded.get("visited_node_ids", []).has("n_dusk"), "test save unlocks dusk corridor cutscene replay")
+	var before_save_path := saves.save_path
+	var probe_path := "user://zodiac_shop_tests/test_session_probe.json"
+	if FileAccess.file_exists(probe_path): DirAccess.remove_absolute(ProjectSettings.globalize_path(probe_path))
+	saves.save_path = probe_path
+	check(saves.save_game() and not FileAccess.file_exists(probe_path), "test session save_game preserves disk slots")
+	saves.save_path = before_save_path
+	check(saves.start_new_game() and not saves.test_session, "start_new_game exits test session cleanly")
+	check(SpecialCardCollection.snapshot()["collected"].is_empty(), "new game after test save starts with 0 zodiacs")
+

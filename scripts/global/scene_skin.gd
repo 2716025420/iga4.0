@@ -2,8 +2,8 @@ class_name SceneSkin
 extends RefCounted
 
 ## Current scene surfaces. No phase_two UI asset fallback is permitted.
-const INK := Color("#303B45")
-const MUTED := Color("#69716D")
+const INK := Color("#232C36")
+const MUTED := Color("#4C5452")
 const ACCENT := Color("#72846E")
 const PAPER := Color("#F8F2E5")
 const ROOT := "res://assets/ui/scene_reset/"

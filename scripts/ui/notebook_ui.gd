@@ -1,8 +1,8 @@
 class_name NotebookUI
 extends RefCounted
 
-const INK := Color("#303A59")
-const MUTED := Color("#72738A")
+const INK := Color("#232C47")
+const MUTED := Color("#4E5066")
 const PLUM := Color("#74638E")
 
 static func label(parent: Control, node_name: String, copy: String, point: Vector2, extent: Vector2, font_size: int = 28, color: Color = INK) -> Label:
@@ -14,6 +14,7 @@ static func label(parent: Control, node_name: String, copy: String, point: Vecto
 	result.add_theme_font_size_override("font_size", font_size)
 	result.add_theme_color_override("font_color", color)
 	if font_size >= 38: result.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+	else: result.add_theme_font_override("font", DaylightUI.body_font())
 	parent.add_child(result)
 	DaylightUI.place(result, point.x, point.y, extent.x, extent.y)
 	return result

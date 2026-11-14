@@ -471,7 +471,7 @@ func _material_label(parent: Control, node_name: String, copy: String, font_size
 	label.name = node_name
 	label.text = copy
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_override("font", load("res://assets/fonts/NotoSansSC-Regular.ttf") as Font)
+	label.add_theme_font_override("font", DaylightUI.body_font())
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", DaylightUI.INK)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

@@ -1,5 +1,24 @@
 > **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
 
+## 2026-11-14 UI 对齐、全局字体清晰度、双层视差常驻测试存档与旧资源清理
+
+- **界面按钮与卡牌边框像素对齐**：
+  - [home_screen.gd](scripts/home/home_screen.gd)：将黑板右侧 `PrimaryActivity`（`Rect2(1480,304,240,67)`）、`StoryShortcut`（`Rect2(1480,381,240,54)`）、`ZodiacShortcut`（`Rect2(1480,441,240,54)`）热区与圆角悬停/按下反馈精确对齐底图药丸，同步加深标题（`TITLE_INK #263059`）、副标题（`SUBTITLE_INK #3B466B`）与 `24px` 按钮字色。
+  - [combat_card_ui.gd](scripts/combat/combat_card_ui.gd) & [combat_presentation.gd](scripts/combat/combat_presentation.gd)：统一手牌尺寸至 `Vector2(242, 340)` 匹配 `card_frame_duel.png`（`512×720`）比例；将 `Header` 定位到 `40*sx, 45*sy, 436*sx, 36*sy`，使 `11px` 衬线 `NameLabel` 居中于米白名栏、`10px` 无底框 `TypeBadge`（宽 `53*sx` 并去除首尾空格）居中落入右上金椭圆，并将 `DescLabel`（`597*sy..630*sy`）、`FooterRule` 与 `Footer`（`633*sy..661*sy`）完整收纳进底框内。
+- **全局字体加粗微调与对比度提升**：
+  - [daylight_ui.gd](scripts/global/daylight_ui.gd)：加深 `INK`（`#232030`）与 `MUTED`（`#4B485E`）；新增缓存 `FontVariation` `body_font()`（`variation_embolden = 0.22`）与 `bold_font()`（`variation_embolden = 0.42`）设为主题默认字体（`default_font_size = 21`）及 `RichTextLabel/bold_font`，并移除 `polish()` 对 `CombatCardUI/DescLabel` 的旧字号/最小高度覆盖。
+  - [scene_skin.gd](scripts/global/scene_skin.gd)、[notebook_ui.gd](scripts/ui/notebook_ui.gd)、[school_object_ui.gd](scripts/ui/school_object_ui.gd)、[player_workspace.gd](scripts/home/player_workspace.gd)、[game_menu.gd](scripts/ui/game_menu.gd)、[zodiac_album_panel.gd](scripts/home/zodiac_album_panel.gd)、[node_map.gd](scripts/exploration/node_map.gd)、[enemy_unit_ui.gd](scripts/combat/enemy_unit_ui.gd)：统一正文接入 `DaylightUI.body_font()`，加深次级墨色并调大过小字号（图鉴卡片副标/描述/进度 `16→18`、`17→19`，敌人状态徽章 `19→20`/`21→22`/`24→25`，手册提示 `21px`）。
+- **常驻全解锁测试存档与黄昏走廊双层视差增强**：
+  - [save_manager.gd](scripts/global/save_manager.gd)：新增 `test_session` 与只读预设 `build_test_progress()`、`get_test_save_metadata()`、`load_test_save()`（第 3 日晨间、150 HP、480 练习点、1680 零用钱、6 卡/3 同伴/6 地区全解锁、`n_dusk` 已访问、6 张 `test_seed_*` 预览星座）；`test_session` 下 `save_game()` 直接返回 `true` 不写入磁盘槽位，进入 `start_new_game()` / `continue_game()` / `load_manual_slot()` 时重置 `test_session = false`，保持 `new_game()` 零星座纯净起点。
+  - [title_screen.gd](scripts/title/title_screen.gd) & [game_menu.gd](scripts/ui/game_menu.gd)：在标题页（`TestSaveButton`“测试存档（全解锁）”）与系统读档页首卡（`Slot_Test`“常驻测试存档（全解锁）”）挂载测试存档入口，并将读档说明缩短为双行短句避免遮挡行李箱盖板右上拍立得插图。
+  - [parallax_cutscene_stage.gd](scripts/ui/parallax_cutscene_stage.gd)：调整 `dusk_corridor` 为 `3.6s` 推镜，远景 `bg` `-180→-252`、缩放 `1.0→1.04`，前景以右上 `(1920, 0)` 为支点放大至 `1.24`，强化前景枫枝与远景拱廊视差层次。
+- **废弃旧模块与资源清理**：
+  - 经全仓库索引核查零引用后删除 `scripts/global/phase_two_skin.gd`（含 `.uid`）、`scripts/campus/territory_button.gd`（含 `.uid`）、`assets/ui/school_objects/route_standee.png`（含 `.import`）、`assets/ui/combat_notebook/composition.png`（含 `.import`）、`assets/sprites/characters/phase_two/combat/ye_zhou.png`（含 `.import` 与空目录）及 `assets/ui/scene_reset/icons/{status_allowance,status_practice}.svg`（含 `.import`）。
+- **验证状态**：
+  - [tools/tests/zodiac_and_shop.gd](tools/tests/zodiac_and_shop.gd) 新增黑板热区尺寸与常驻测试存档全解锁/磁盘隔离断言。
+  - `PREFLIGHT INDENTATION: OK`；Godot `--headless` 4 套回归（`p5_regions` 542、`home_objects` 174、`scene_reset` 376、`zodiac_and_shop` 371，合计 1,463 项）全数通过（`errs=0`、`failures=[]`）。
+  - OpenGL `1600×900` 与 `1600×720` 双分辨率实机截图复核通过标题页、Home 悬停“星座图鉴”、图鉴揭示星光、读档页卡片布局、“放学以后”黄昏走廊三段视差推进（`bg -184→-252`、`fg_scale 1.01→1.24`）及五卡面 `card_frame_duel.png` 抬头/底框精确对位；未改动正式剧情、角色立绘定稿与商店经济规则（测试存档仅作 `TEST` 体验入口）。
+
 ## 2026-11-13 v4 赛璐璐星座图鉴、视差过场动画试点与工作台卡面实装
 
 - **v4 素材验收与无损导入**：

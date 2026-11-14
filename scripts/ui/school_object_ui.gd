@@ -3,8 +3,8 @@ extends RefCounted
 
 ## Native 16:9 illustrations supply the composition; all text and input remain live.
 const DESIGN := Vector2(1920, 1080)
-const INK := Color("#38445E")
-const MUTED := Color("#75798E")
+const INK := Color("#27324A")
+const MUTED := Color("#4D5266")
 const PURPLE := Color("#82749F")
 
 static func art(parent: Control, node_name: String, path: String, rect: Rect2 = Rect2(0, 0, 1920, 1080)) -> TextureRect:
@@ -30,6 +30,7 @@ static func hit(parent: Control, node_name: String, rect: Rect2, copy: String = 
 	button.text = copy
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.add_theme_font_size_override("font_size", font_size)
+	button.add_theme_font_override("font", DaylightUI.body_font())
 	for state in ["normal", "disabled"]:
 		button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	for state in ["hover", "pressed", "hover_pressed"]:

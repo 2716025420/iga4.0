@@ -3,8 +3,8 @@ extends Control
 
 signal close_requested
 signal action_requested(action: String, payload: Dictionary)
-const INK := Color("#303D51")
-const MUTED := Color("#687487")
+const INK := Color("#242F42")
+const MUTED := Color("#495467")
 const BLUE := Color("#526D87")
 const CORAL := Color("#BA6A58")
 const IVORY := Color("#F7F3E8")

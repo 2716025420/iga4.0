@@ -4,8 +4,8 @@ extends RefCounted
 ## Responsive 1920x1080 central combat layout over a full-bleed backdrop
 ## with edge-to-edge top indigo ribbon and modular watercolor notebook tray.
 const DESIGN := Vector2(1920, 1080)
-const CARD_SIZE := Vector2(216, 294)
-const CARD_GAP := 14.0
+const CARD_SIZE := Vector2(242, 340)
+const CARD_GAP := 10.0
 const TRAY_PATH := "res://assets/combat/notebook_tray_9slice.png"
 const STICKY_PATH := "res://assets/combat/notebook_sticky_target.png"
 const PLAQUE_PATH := "res://assets/combat/status_plaque.png"
@@ -227,10 +227,10 @@ static func layout(root: Control, extent: Vector2) -> void:
 	heading.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
 	var platform := root.get_node_or_null("/root/Platform") as PlatformService
 	var touch := platform != null and platform.is_touch()
-	_text(hand, "HandbookHint", "轻触选牌 · 再点或上滑打出" if touch else "点击出牌 · 先观察对方意图", Rect2(368, 38, 480, 26), 19, NotebookUI.MUTED)
+	_text(hand, "HandbookHint", "轻触选牌 · 再点或上滑打出" if touch else "点击出牌 · 先观察对方意图", Rect2(368, 37, 500, 28), 21, NotebookUI.MUTED)
 
 	var cards := hand.get_node("CardsContainer") as HBoxContainer
-	DaylightUI.place(cards, 188, 100, 1204, 294)
+	DaylightUI.place(cards, 174, 74, 1256, 340)
 	cards.custom_minimum_size = Vector2.ZERO
 	cards.alignment = BoxContainer.ALIGNMENT_CENTER
 	cards.add_theme_constant_override("separation", int(CARD_GAP))
@@ -267,6 +267,6 @@ static func layout(root: Control, extent: Vector2) -> void:
 		CombatSkin.button(end_button, true)
 		DaylightUI.place(end_button, 1490, 272, 354, 72)
 		end_button.add_theme_font_size_override("font_size", 33)
-	var cd_copy := _text(hand, "CooldownCopy", "下回合推进冷却", Rect2(1490, 348, 354, 28), 20, NotebookUI.MUTED)
+	var cd_copy := _text(hand, "CooldownCopy", "下回合推进冷却", Rect2(1490, 348, 354, 30), 21, NotebookUI.MUTED)
 	cd_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	root.call("_refresh_tactical_note")
