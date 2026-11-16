@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<path id="outer_ring" fill="none" stroke="#D85C6D" stroke-width="5" stroke-linecap="round" d="M256 58a198 198 0 0 1 160 81m16 25a198 198 0 0 1 0 184m-16 25a198 198 0 0 1-160 81m0 0a198 198 0 0 1-160-81m-16-25a198 198 0 0 1 0-184m16-25a198 198 0 0 1 160-81M256 40v35m0 362v35M40 256h35m362 0h35M107 107l17 17m264 264 17 17m0-298-17 17M124 388l-17 17"/>
+<path id="inner_reticle" fill="none" stroke="#EA8090" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M220 124a136 136 0 0 1 72 0m96 96a136 136 0 0 1 0 72m-96 96a136 136 0 0 1-72 0m-96-96a136 136 0 0 1 0-72M256 149v32m0 150v32m-107-107h32m150 0h32m-107-56 56 56-56 56-56-56 56-56zM256 224a32 32 0 1 1 0 64 32 32 0 0 1 0-64zM256 245v22m-11-11h22"/>
+</svg>

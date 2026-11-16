@@ -1,4 +1,108 @@
-> **2026-10-28 序章最新更新**：黄秋枫（原暂称梧桐）与主角的霸凌解围、道歉相处、表白、旧公园约会、突然亲吻、买水离场、目睹反叛组织女性袭击者、营救失败与被敲晕带走的当前逻辑，以[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)为准。反叛组织有早期 IGA 核心研究人员，认定混入人类的伪人是必须清除的系统 Bug；黄秋枫的善意与亲吻是无主观感情的模拟行为。仅为剧情设定，不代表游戏内已实装。
+> **2026-11-14 全案重构最新基线**：[世界观与全案重构设计书](docs/story/2026-11-14-世界观与全案重构设计书.md) 已确认作后续剧本、系统、UI 与素材需求的最高优先级总纲；以下旧 10-28 提示保留溯源。
+> **2026-10-28 序章历史说明**：黄秋枫（原暂称梧桐）序章原始脉络见[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)。
+
+## 2026-11-16 序章与第一章聚焦重构（方案 B）、历史清理、UI/UX、音频与 v7 需求包
+
+- **方案文档与 v7 素材需求包落库**：
+  - 保存完整开发、清理、UI/UX 与音乐规划方案：[2026-11-16-序章与第一章聚焦重构与清理方案.md](docs/story/2026-11-16-序章与第一章聚焦重构与清理方案.md)。
+  - 生成并校验 [IGA_GPT_Asset_Pack_Brief_v7.zip](archive/IGA_GPT_Asset_Pack_Brief_v7.zip)（14,851,023 字节，14 项：`00_v7_Brief_and_Prompts.md`、`01_v7_asset_manifest.json`、10 张现有参考图及 P0/P1 清单），聚焦 `enemy_ch1_hunter_mech`、红月封锁夜战背景、统一风格 256×256 全员小头像及第一章补完素材。
+- **打通「新游戏 → 序章／第一章」主线闭环与教学战升级**：
+  - [game_state.gd](scripts/global/game_state.gd)、[player_journey.gd](scripts/global/player_journey.gd)、[title_screen.gd](scripts/title/title_screen.gd) 与 [home_screen.gd](scripts/home/home_screen.gd)：新游戏初始预装 3 张战术刻印卡（`wrench_smash` / `scrap_shield` / `icy_soda`），点击「开始新游戏」直接切入 `campus_morning`「樱林解围」；未通关第一章前，`PlayerJourney.home_snapshot()` 正确返回 `action = "story"` 且 `HomeScreen._start_chapter()` 接通 `_legacy_start_chapter()`（`DayCycle` 无待触发日程时不再把新档阻断在空桌面）；`GameState._open_phase_two_node()` 按节点 `briefing_flag` 泛化「先对话 → 再开战」流程。
+  - [phase_two_content.gd](scripts/global/phase_two_content.gd)、[node_map.gd](scripts/exploration/node_map.gd)、[combat_screen.gd](scripts/combat/combat_screen.gd)、[combat_presentation.gd](scripts/combat/combat_presentation.gd)、[combat_skin.gd](scripts/global/combat_skin.gd)：为 `n_gate` 实装对话后直入 `liu_yu_long_duel` 非致命护盾切磋教学战（开局暖纸教学提示，固定由杨子英助阵避免柳宇龙自打）；移除 `principal`（`校长现身`）与 `保安拦路` 文案，第一章 Boss 替换为 `ch1_hunter_mech`（灰区超限猎杀终端，纳入 `is_overclock_combat`，旧存档 `principal`/`boss_frank` 兼容映射到同终端）；修正 `#09 射手座` 已废除的 `"35岁死亡程序"` 文案（[zodiac_catalog.gd](scripts/data_models/zodiac_catalog.gd)）。
+- **对话、战斗操作、训练路线与商店 UX 优化**：
+  - [dialogue_screen.gd](scripts/story/dialogue_screen.gd) & [school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd)：`_refresh_speaker_avatar()` 全面接入全员头像（含 `huang_qiufeng` 胸像与 `rebel_operative_masked` 截取，优先匹配后续 v7 `avatars/`）；文本框右下新增随 `story_chrome` 箭头错位呼吸的 `点击继续` 提示（`ContinueCursor`）；`Auto` 模式根据台词长度在 `1.0s–3.2s` 动态停留。
+  - [combat_screen.gd](scripts/combat/combat_screen.gd) & [daylight_ui.gd](scripts/global/daylight_ui.gd)：新增战斗桌面快捷键（`1`–`5` 出牌、`Tab` 切换目标、`Space`/`Enter` 结束回合、`H` 开关战报）；`FirstBattleHintWash` 支持 `n_gate` 护盾教学与 `n_guard` 红月超限警示两段指引。
+  - [home_screen.gd](scripts/home/home_screen.gd)、[school_exploration_routes.gd](scripts/global/school_exploration_routes.gd)、[campus_shop_panel.gd](scripts/campus/campus_shop_panel.gd) 与 [shop_counter_theme.gd](scripts/campus/shop_counter_theme.gd)：桌面 `TalkJiangZi` 新增悬停气泡「和姜梓聊聊」；训练探索「拾到的留言」在保留第 0 层路牌指引的同时扩充第 1 层起 7 组轮换校园微故事；商店「行动卡」购买页增加 `FilterUnowned`（「仅未拥有」）筛选切换。
+- **程序化音频生成与全界面 SFX / BGM 路由接入**：
+  - 新增生成器 [generate_sfx.py](tools/audio/generate_sfx.py) 并合成 16 个 `.wav` 音效至 `assets/audio/sfx/`（随 Godot 重导 `.import`），另设外部 BGM 槽位说明 [README.txt](assets/audio/bgm/README.txt)。
+  - [audio_manager.gd](scripts/global/audio_manager.gd)、[scene_manager.gd](scripts/global/scene_manager.gd)、[combat_card_ui.gd](scripts/combat/combat_card_ui.gd)、[zodiac_album_panel.gd](scripts/home/zodiac_album_panel.gd) & [reward_card_popup.gd](scripts/ui/reward_card_popup.gd)：实现 8 路 SFX 播放池、`bgm_player`/`bgm_secondary` 交叉淡入淡出、全 UI 悬停/点击/弹窗/翻页/交易/卡牌/受击/协战/星座/胜利音效，并实现 `_exit_tree()` 彻底清理播放句柄防止退出泄露。
+- **历史遗留文件与兼容引用清理**：
+  - 删除零引用或已被取代的 `scripts/campus/techne_home_view.gd`（+`.uid`）、`scripts/world_map/world_map.gd`（+`.uid`）、`scenes/world_map/world_map.tscn`、`assets/ui/phase_three/cards/{bag,opening,pressure,route_step,support,water}.png`（+`.import`）、`assets/ui/phase_three/card_paper.png`（+`.import`）、`assets/sprites/enemies/phase_two/principal.png` 与 `portraits/principal.png`（+`.import`），同步移除 [main_theme.tres](main_theme.tres)、[scene_manager.gd](scripts/global/scene_manager.gd)、[scene_skin.gd](scripts/global/scene_skin.gd)、[phase_two_content.gd](scripts/global/phase_two_content.gd)、[daylight_ui.gd](scripts/global/daylight_ui.gd) 中过时引用与 `WorldMap` 死分支，并在 [save_manager.gd](scripts/global/save_manager.gd) 补齐 `school_gate_duel_briefed` 测试档标志位。
+- **交付素材包 [IGA_Asset_Delivery_v7.zip](archive/IGA_Asset_Delivery_v7.zip) 全部 30 项 PNG 校验与实机全量接入**：
+  - 依据清单完成全部 30 张 PNG 像素尺寸/RGBA/RGB 校验并合入 `assets/`（`--headless --import --quit` 零报错导入）：
+    - **灰区超限猎杀终端与红月夜战舞台**：`enemy_ch1_hunter_mech.png`（`900×1200`）正式作为 `n5_boss` 敌人立绘；[daylight_ui.gd](scripts/global/daylight_ui.gd) 在 `CombatPresentation.is_overclock_combat()` 触发时自动切换 `battle_red_moon_lockdown_wide.png` / `battle_red_moon_lockdown.png`（`2340×1080` + `1920×1080`）。
+    - **全员 256×256 统一对话头像（18 张）**：合入 `assets/sprites/characters/phase_two/avatars/`，`DialogueScreen._refresh_speaker_avatar()` 已优先匹配 `ye_zhou`、`huang_qiufeng`、`yang_zi_ying`、`liu_yu_long`、`jiang_zi` 与 `rebel_operative_masked`。
+    - **敌方锁定目标光环 & 教学便签九宫格框**：[combat_vfx.gd](scripts/combat/combat_vfx.gd) 注册 `"target_reticle"`（`vfx_target_reticle_4x2.png`，`10 fps` 循环），[enemy_unit_ui.gd](scripts/combat/enemy_unit_ui.gd) 在当前选中敌人脚底绑定 `LoopVFX_target_reticle`（支持 `Tab` 切目标切换）；[daylight_ui.gd](scripts/global/daylight_ui.gd) 将 `FirstBattleHintWash` 升级为 `ui_tutorial_callout_9slice.png`（48px 四边九宫格）。
+    - **章节幕牌、海滩场景与校内配角立绘**：[school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd) 与 [dialogue_screen.gd](scripts/story/dialogue_screen.gd) 在第一章开篇首句叠加渐变淡入淡出的 `ui_chapter_banner.png`（`ChapterBannerToast`）；[scene_design_catalog.gd](scripts/campus/scene_design_catalog.gd) 将 `arete_beach_test` 切换为 `beach[_wide].png` 并重配海面与木长椅热区；[phase_two_content.gd](scripts/global/phase_two_content.gd) 与 [campus_screen.gd](scripts/campus/campus_screen.gd) 接入 `lin_zhi_xia`／`tang_xiao_man`（`neutral`／`happy` `900×1200` 半身立绘）作图书馆／商店对话头像。
+- **战斗四段式分层布局重构、朝向修正、多余中场符号清理与 [IGA_GPT_Asset_Pack_Brief_v8.zip](archive/IGA_GPT_Asset_Pack_Brief_v8.zip)**：
+  - [combat_presentation.gd](scripts/combat/combat_presentation.gd)、[enemy_unit_ui.gd](scripts/combat/enemy_unit_ui.gd)、[combat_skin.gd](scripts/global/combat_skin.gd)、[combat_screen.gd](scripts/combat/combat_screen.gd) 与 [daylight_ui.gd](scripts/global/daylight_ui.gd)：
+    - 移除原 `_layout_arena_emblems()` 造成中场漂浮视觉杂音的 `DuelCrestVS`、`TurnArrowSweep` 与 `RedMoonReticle`；
+    - 梳理为「顶栏 (`0..84`) → 上方独立 HUD 信息带 (`84..230`, 含 `ArenaHUDBand`、玩家/同伴/敌人铭牌意图及居中 `FirstBattleHintWash`) → 统一足底地平线站台 (`566..658`, `CombatStagePlatform`, 预留 `combat_stage_platform_{day,redmoon}.png` 扩展位) → 底部手牌区 (`654..1080`)」，所有角色与敌人的脚底统一对齐 `y = 626 px` 并搭配脚下阴影及锁定光环；
+    - 通过 `CombatSkin.enemy_needs_flip_h()` 修正敌我朝向（`enemy_ch1_hunter_mech`、`enemy_duel_student_ace`、`enemy_national_finalist`、`enemy_church_guardian` 原生朝左保持不翻转，`security_guard`/`campus_robot`/`enemy_alliance_operative`/`liu_yu_long_duel` 镜像朝左），同步让右下角目标小头像与漂浮伤害文字锚点贴合真实角色体表；
+    - [audio_manager.gd](scripts/global/audio_manager.gd) 为 `--audio-driver Dummy` 自动化测试环境跳过硬件混音入队，彻底消除退出时的音频句柄竞态告警。
+  - 生成并校验 [IGA_GPT_Asset_Pack_Brief_v8.zip](archive/IGA_GPT_Asset_Pack_Brief_v8.zip)（16,264,663 字节，13 项：含 `00_Progress_Audit_and_v8_Brief.md`、`01_v8_asset_manifest.json` 与 11 张参考图），覆盖昼/夜战斗站台地坪带、朝左重绘 `enemy_security_guard`/`enemy_campus_robot`、最后 3 枚第一章缺口头像与 `enemy_alliance_operative` 原生朝左版的需求、参考与验收标准。
+- **交付素材包 [IGA_Asset_Delivery_v8.zip](archive/IGA_Asset_Delivery_v8.zip) 全部 8 项 PNG 校验与实机全量接入**：
+  - 依据清单完成全部 8 张 RGBA PNG 尺寸/透明通道/哈希校验并合入 `assets/`（`--headless --import --quit` 零报错导入）：
+    - **昼/夜统一战台地坪条带**：`combat_stage_platform_day.png` 与 `combat_stage_platform_redmoon.png`（`2340×120` RGBA）落位于 `assets/ui_core/theme/`，由 `CombatSkin.platform_texture(overclock)` 与 `CombatStagePlatformArt` 自动挂载至 `566..658` 站台区域。
+    - **原生朝左第一章敌兵重绘**：`enemy_security_guard.png`、`enemy_campus_robot.png` 与 `enemy_alliance_operative.png`（`900×1200` RGBA）均原生朝左面向叶舟；[combat_skin.gd](scripts/global/combat_skin.gd) `enemy_needs_flip_h()` 已移除此三项（仅保留 `drone`、`preacher`、`liu_yu_long_duel` 镜像翻转），同步更新 [scene_reset.gd](tools/tests/scene_reset.gd) 朝向与地坪节点断言。
+    - **第一章最后 3 枚缺口对话头像**：`huang_qiufeng_surprised.png`、`huang_qiufeng_crystal_stasis.png` 与 `rebel_operative_unmasked_neutral.png`（`256×256` RGBA）落位于 `assets/sprites/characters/phase_two/avatars/`，已由 `DialogueScreen._refresh_speaker_avatar()` 路径直接命中。
+- **战斗定尺槽位、双层头顶 HUD（信息显示栏 → 图标+数字状态行）与三敌同屏上限重构**：
+  - [combat_screen.gd](scripts/combat/combat_screen.gd)、[combat_presentation.gd](scripts/combat/combat_presentation.gd)、[enemy_unit_ui.gd](scripts/combat/enemy_unit_ui.gd) 与 [daylight_ui.gd](scripts/global/daylight_ui.gd)：
+    - **同屏人数上限与定尺比例**：`_setup_combat_from_state()` 将同屏敌人上限锁定为 3 名（`raw_enemy_ids.slice(0, 3)`）；每个敌人在 1/2/3 敌同屏时恒定分配 `ENEMY_SLOT_SIZE = 332×572` 槽位与 `290×400` 站姿包围盒（脚底固定对齐 `local y = 554`），不再随人数变化缩小或放大；叶舟固定位于左侧主战位（`center_x = 456`，`292×404`），同伴固定位于左后方站位（`comp_center_x = 152`，`224×376`、`foot_y = 544` 略靠后微错位，头上**无任何信息栏或状态栏**）。
+    - **双层头顶层级（上：信息显示栏 ／ 下贴头顶：状态行）**：统一将 `ArenaHUDBand` 规划在 `y = 78..206`，使所有可战单位先紧贴头顶排列 `PlayerStatusIcons` / `EnemyStatusIcons`（`y = 170..202`），其上方才是 `PlayerIdentity` / `IdentityPaper` 信息牌（`y = 82..166`）。移除叶舟右侧冗余白底战术框与共振副框，将体力 `HPLabel`、白羊共鸣徽章及同伴助阵摘要整合进单一横版铭牌内并校正左右安全边距。
+    - **全套战斗状态 SVG 与字体颜色层级**：在 `assets/ui_core/icons/combat/` 新增与现有线性手绘风一致的 `64×64` 状态图标：[burn_suppress.svg](assets/ui_core/icons/combat/burn_suppress.svg)、[reflect_counter.svg](assets/ui_core/icons/combat/reflect_counter.svg)、[companion_assist.svg](assets/ui_core/icons/combat/companion_assist.svg) 与 [zodiac_crest.svg](assets/ui_core/icons/combat/zodiac_crest.svg)（已通过 Godot `--import` 写入 `.import`）；抽出共用 `CombatPresentation.sync_status_chip()` 徽章辅助器与配色表（护盾冰蓝、净受击/压制绯红、零伤挡住翠绿、反击琥珀、虚弱梅紫、协战 2/3 金框高亮），统一零描边高对比 `NotoSerifSC-SemiBold.ttf` 数字与分级字号，并修复 `FirstBattleHintWash` 在 `n_guard` / `n_gate` 下的容器缓存宽度导致的文本右偏。
+  - [zodiac_and_shop.gd](tools/tests/zodiac_and_shop.gd)：新增 4 敌截断为 3 敌、3 敌等宽槽位、头顶信息栏与状态行上下秩序、同伴零头顶 UI、无压制仅虚弱时的 `StatusIcon` 可见性、v8 昼/夜地坪与左向立绘／新头像校验，及 `1600×900` / `1600×720` 双分辨率 `v8_combat_day_platform.png`、`v8_combat_three_enemies.png` 视觉截屏。
+- **全量验证结果（最终定稿后三环境全量通过）**：
+  - `--headless`（`--suite all`）：`regions` 544、`home` 174、`scenes` 540、`zodiac` 544 —— 合计 **1,802 项检查，0 失败，0 报错与资源泄露**。
+  - OpenGL `1600×900`（`--suite all`）：`regions` 564、`home` 198、`scenes` 594、`zodiac` 561 —— 合计 **1,917 项检查，0 失败**；已逐图目检 `v8_combat_day_platform.png`、`v8_combat_three_enemies.png` 与 `v7_n_guard_hint.png`。
+  - OpenGL `1600×720`（全 4 套件分轮验证全部 0 失败）：`regions` 564、`home` 198、`scenes` 594（初次并发桌窗失焦重跑全过）、`zodiac` 561 —— 合计 **1,917 项检查，0 失败**；已逐图目检宽屏 `v8_combat_day_platform.png`、`v8_combat_three_enemies.png` 与 `v7_n_guard_hint.png`。
+
+## 2026-11-16 v6 交付素材全量接入、动效联调与视觉回归验证
+
+- **交付素材包校验与导入（42/42 PNG）**：
+  - 解包并 SHA-256 校验 [IGA_Asset_Delivery_v6.zip](archive/IGA_Asset_Delivery_v6.zip) 全部 42 个运行期 PNG（`P0`: 14、`P1`: 21、`P2`: 7；含 18 项现有资产升级与 24 项新增资产，其中 7 张 `2340×1080` `*_wide.png` 无缝扩展图与 `enemy_alliance_operative.png` 规范化尺寸 `900×1200` 已合入 `assets/`），经 Godot 4.7.2 `--headless --import --quit` 重导通过（无损 `compress/mode=0`、透明描边修正开启）。
+- **6 套 `4×2` 序列帧 VFX 与 UI 动态叠加实装**：
+  - [combat_vfx.gd](scripts/combat/combat_vfx.gd)：在 `SHEETS` 与 `EFFECT_SPECS` 接入 `debuff`、`companion_assist`、`overclock_redmoon`、`counter_reflect`、`pack_tear`、`crystal_shimmer`（全部 `512×512` 单元格、`start_idx = 0` 按清单帧率播放），并为 `play_burst()` 新增 `z_layer` 参数及新增循环接口 `play_loop()`。
+  - [combat_screen.gd](scripts/combat/combat_screen.gd)、[combat_presentation.gd](scripts/combat/combat_presentation.gd)、[combat_card_ui.gd](scripts/combat/combat_card_ui.gd) 与 [combat_skin.gd](scripts/global/combat_skin.gd)：实装同伴斜斩 Cut-in（`CompanionCutinOverlay`、`CombatSkin.character_cutin_path()`、文字描边与常/减动效安全淡出）、超限遭遇红月脉冲角框（`RedMoonHudPulse`）、主角白羊/星座激活金环徽章（`ZodiacHaloEmblem`）、手牌 9 宫格微光边框（`HoverGlowFrame`，`48px` 边距、`draw_center = false`），并在对应攻击/反击/减益/超限/协战节点触发新序列帧。
+  - [zodiac_album_panel.gd](scripts/home/zodiac_album_panel.gd) & [reward_card_popup.gd](scripts/ui/reward_card_popup.gd)：十二星座详情卡背面接入慢速旋转共鸣光环（`DetailResonanceHalo`），新卡解锁弹窗叠加拆封撕裂星芒（`VFX_pack_tear`，`z_index = 44`）与绽放特效（`VFX_pack`，`z_index = 45`）。
+- **立绘、剧情表情、过场与训练对话卡死修复**：
+  - [phase_two_content.gd](scripts/global/phase_two_content.gd)、[parallax_cutscene_stage.gd](scripts/ui/parallax_cutscene_stage.gd)、[school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd) 与 [dialogue_screen.gd](scripts/story/dialogue_screen.gd)：接入反叛组织袭击者（蒙面/摘面具）、诺莫斯/阿戈拉/忒克捏地区代表半身像、黄秋枫 `damaged_fiber` 与 `crystal_stasis` 状态表情（叠加 `crystal_shimmer` 循环闪烁），注册 `"qiufeng_crystal"`（含前景 `LoopVFX_crystal_shimmer`）与 `"red_moon_finale"` 双层过场（`status: "integration_candidate"`）；并修复 `DialogueScreen` `old_shimmer` 类型推断 Parse Error 导致的训练「拾到的留言」对话卡死与 `_layout_story_scene()` 重排清空 `_current_cutscene_id` 的问题。
+- **测试、MCP 检查与全量视觉回归状态**：
+  - [zodiac_and_shop.gd](tools/tests/zodiac_and_shop.gd) 与 [scene_reset.gd](tools/tests/scene_reset.gd) 增补全套 v6 资产、Cut-in 横幅、UI 动态节点、双层过场、`pack_tear`、全项目 `.gd`/`.tscn` 编译加载、训练「拾到的留言」推进/退出及 `find_yang` + `Esc` 回归校验。
+  - **MCP 服务器检查**：执行 `node tools/visual_review/mcp_client.mjs list` 返回退出码 1（`Error: No installed Godot MCP server. Set GODOT_MCP_SERVER_ENTRY to its dist/index.js.`）；视觉校验通过 Godot 4.7.2 离屏 OpenGL 渲染完成并逐图复核：
+    - OpenGL `1600×900`：`regions` 562、`home` 198、`scenes` 596、`zodiac` 455（合计 1,811 项，0 失败）
+    - OpenGL `1600×720`：`regions` 562、`home` 198、`scenes` 596、`zodiac` 455（合计 1,811 项，0 失败）
+    - `--headless`：`regions` 542、`home` 174、`scenes` 542、`zodiac` 444（合计 1,702 项，0 失败）
+
+## 2026-11-14 v6 全案世界观重构、第一章黄秋枫主线衔接、16 卡商店、同伴协战与星座共鸣实装
+
+- **总纲设计书与最高优先级基准同步**：
+  - 新增 [2026-11-14-世界观与全案重构设计书.md](docs/story/2026-11-14-世界观与全案重构设计书.md)，并同步更新 [AGENTS.md](AGENTS.md) 与 [CURRENT_DESIGN.md](docs/CURRENT_DESIGN.md)：以「红月学园都市＋学生终端战术刻印卡」统一日常合法护盾切磋与黄昏/红月超限（Overclock）实弹冲突，梳理五章主线（第一章阿瑞忒旧公园与白羊星火 → 第五章失败者同盟与红月圣堂）与十二大 UI 界面体系。
+- **黄秋枫运行期资产与第一章主线实装**：
+  - 从 `concept_huang_qiufeng_draft.png` 裁切导入 9 个透明通道 PNG 至运行期目录（`assets/sprites/characters/phase_two/{halfbody,portraits}/huang_qiufeng.png`、`assets/sprites/characters/phase_two/emotions/huang_qiufeng/{neutral,happy,shy,surprised,angry,worried}.png` 及 `assets/sprites/characters/phase_three/combat/combat_huang_qiufeng_idle.png`）。
+  - [phase_two_content.gd](scripts/global/phase_two_content.gd)、[home_panels.gd](scripts/home/home_panels.gd)、[parallax_cutscene_stage.gd](scripts/ui/parallax_cutscene_stage.gd) 与 [game_state.gd](scripts/global/game_state.gd)：注册 `"huang_qiufeng"` 角色数据、补充角色与敌兵立绘回退路径，重构第一章主线流程（开学日街角解围 → 校园日常演练 → 旧公园黄昏与亲吻 → 红月门禁拦截战 → 反叛组织袭击与同伴驰援超限头目战），并在 `chapter_1_completed` 时触发 `SpecialCardCollection.acquire_from_story("hero", "chapter_1_aries_awakening")` 觉醒白羊座母卡。
+- **16 张战术刻印卡商店与工坊/图鉴/战斗联动**：
+  - [campus_shop_catalog.gd](scripts/data_models/campus_shop_catalog.gd)、[campus_shop_panel.gd](scripts/campus/campus_shop_panel.gd) 与 [shop_counter_theme.gd](scripts/campus/shop_counter_theme.gd)：将商店 `"cards"` 类扩充至全部 16 张战术刻印卡（去除卡牌名多余的 `· TEST` 尾缀并统一设定文案），为 `ProductsBoard` 接入 `ProductsScroll`（`Rect2(190, 320, 998, 578)`）与 `ProductsGrid` 坐标映射，使 3×2 木框货架格子对齐并支持向下滚动翻看全 16 张卡。
+  - [player_journey.gd](scripts/global/player_journey.gd)、[game_state.gd](scripts/global/game_state.gd)、[player_workspace.gd](scripts/home/player_workspace.gd)、[zodiac_album_panel.gd](scripts/home/zodiac_album_panel.gd)、[combat_screen.gd](scripts/combat/combat_screen.gd) 与 [combat_presentation.gd](scripts/combat/combat_presentation.gd)：
+    - 新增 `COMPANION_ORDER`、`COMPANION_ASSISTS`（杨子英/柳宇龙/姜梓 每打出 3 张卡自动触发助阵协战 + `_play_unit_lunge()` 微突进）与工坊右上角 `CompanionButton` 切换入口。
+    - 新增 `ZODIAC_RESONANCES`（12 星座母卡战斗全局被动）、图鉴详情页 `ResonateButton` 激活/取消切换，及战斗左栏 `CompanionResonancePill`（`CompanionAssistBadge` 与 `ZodiacResonanceBadge`）；实装开局护盾/回血/降攻/压制、每回合回血、攻击/护盾加成与断点存档持久化（`cards_played_total`）。
+- **UI 动态与美术需求压缩包**：
+  - 生成完整需求包 [IGA_GPT_Asset_Pack_Brief_v6.zip](archive/IGA_GPT_Asset_Pack_Brief_v6.zip)（33,327,149 字节，28 项内容：含 `00_Master_Redesign_and_Asset_Brief_v6.md`、`01_Character_Prompts_and_Specs.md`、`02_UI_Dynamic_and_VFX_Animation_Specs.md`、`03_asset_manifest_v6.json` 及 24 个风格参考与待重延 `2340×1080` 宽屏源图）。
+- **MCP 与全量回归验证状态**：
+  - **Godot MCP 服务器排查**：执行 `node tools/visual_review/mcp_client.mjs list`（沙箱内外均返回退出码 1，`Error: No installed Godot MCP server. Set GODOT_MCP_SERVER_ENTRY to its dist/index.js.`），本机尚未安装 `@npgamedev/godot-mcp-server`，实际视觉检查改由 Godot 4.7.2 OpenGL 离屏截图＋逐张图像目检完成。
+  - **自动化与视觉检查结果**：[tools/tests/zodiac_and_shop.gd](tools/tests/zodiac_and_shop.gd) 新增 `_v6_systems()`（`huang_qiufeng` 资产、16 卡商店、`CompanionButton`、`ResonateButton` 与防重叠几何检查、白羊共鸣开局护盾、柳宇龙 3 卡协战及日志）及三张专属截图验证。经最后一次改动后全部通过：
+    - OpenGL `1600×900`：`regions` 562、`home` 198、`scenes` 476、`zodiac` 430（合计 1,666 项，0 失败）
+    - OpenGL `1600×720`：`regions` 562、`home` 198、`scenes` 476、`zodiac` 430（合计 1,666 项，0 失败）
+    - `--headless`：`regions` 542、`home` 174、`scenes` 425、`zodiac` 420（合计 1,561 项，0 失败，0 引擎报错）
+    - 目检修复并复验了商店滚动网格对齐、`ZodiacDescription`/`ResonateButton` 分区防重叠及战斗左栏 `CompanionResonancePill` 文字防裁切与站位避让。
+
+## 2026-11-14 v5 素材交付全量合入、20:9 叠层修复与战斗 VFX / 过场接入
+
+- **Wave 5A 概念与草图归档（不作正式实装）**：
+  - 将 14 张整页概念图（`A1..A14`）、`concept_huang_qiufeng_draft.png` 及说明归档至 [assets/references/wave5_concepts/](assets/references/wave5_concepts/README.md)（受 `assets/references/.gdignore` 隔离）；遵循 `AGENTS.md` 不改动 `CalendarContent.STORY_DATES`（保持为空）、`PhaseTwoContent` 与未定正式剧本。
+- **Wave 5B 加载主题、双层视差过场、2340×1080 宽屏延伸与 VFX / SVG 实装**：
+  - [scene_loading_screen.gd](scripts/ui/scene_loading_screen.gd) & [scene_manager.gd](scripts/global/scene_manager.gd)：新增 6 组宽屏加载主题（`after_school`、`red_moon`、`nomos`、`agora`、`techne`、`tournament`）及 `apply_theme()` / `theme_for_context()`（避免覆盖 `Control.set_theme`），根据目标场景与当前地区动态切换加载底图。
+  - [parallax_cutscene_stage.gd](scripts/ui/parallax_cutscene_stage.gd) & [school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd)：按相机配置 JSON 接入 4 组双层视差过场——`red_moon_street`、`arena_spotlight`（状态 `"integration_candidate"`）与 `old_park_dusk`、`rebel_warning`（仅标 `"story_concept_review"` 不自动绑定对话），`after_school` 继续保留 `"dusk_corridor"`。
+  - [player_workspace.gd](scripts/home/player_workspace.gd)、[campus_screen.gd](scripts/campus/campus_screen.gd)、[scene_object_view.gd](scripts/campus/scene_object_view.gd)、[region_map_view.gd](scripts/campus/region_map_view.gd)、[scene_surface_ui.gd](scripts/ui/scene_surface_ui.gd)、[map_screen.gd](scripts/campus/map_screen.gd) 与 [platform_service.gd](scripts/global/platform_service.gd)：接入 `prep_scene_*_wide`、`records_*_wide`、`dorm_bg_wide`、`{rooftop,library,gym,shop,coast}_wide` 及 `{map_failed,map_church}_wide`（保留原始 `1920×1080` 底图纹理供地标像素裁切/测试定位）；修复 `_PlatformEdgeBleed`（原默认 `z_index = 0`）在 20:9（`1600×720`）覆盖 `SceneObjectView` / `RegionMapView` 中 `z_index = -3/-2/-1` 宽图与热点的叠层重影问题，将其固定至 `bleed.z_index = -100` 并在 `finish_layering()` 保护 `WideMapBackground`。
+  - [combat_vfx.gd](scripts/combat/combat_vfx.gd) & [reward_card_popup.gd](scripts/ui/reward_card_popup.gd)：新增 `CombatVFX`（4 套 `4×2` 赛璐璐序列帧 `slash`/`shield`/`heal`/`pack`，跳过空白第 0 帧以 `14 FPS` 从第 1 帧即时起效并支持 `reduced_motion` 淡出，及 4 个 SVG 常量），接入玩家/敌方攻击、护盾、治疗、反击与 `RewardCardPopup` 解锁新卡爆星演出（修正 `presentation` 缩放坐标中心并扩大 `pack` 至 `760×760`）。
+- **Wave 5C 决斗卡背、10 张测试卡牌插画、同伴助阵与 4 名测试对手**：
+  - [combat_skin.gd](scripts/global/combat_skin.gd)、[scene_skin.gd](scripts/global/scene_skin.gd)、[card_data.gd](scripts/data_models/card_data.gd)、[game_state.gd](scripts/global/game_state.gd) & [save_manager.gd](scripts/global/save_manager.gd)：新增 `card_back_duel.png`、`combat_{liu_yu_long,jiang_zi,yang_zi_ying}_idle.png`、`enemy_{duel_student_ace,national_finalist,alliance_operative,church_guardian}.png` 与 10 张 `card_art_*.png`；在 `SceneSkin.illustration_texture()` 中对 `card_art_final_trump.png` 裁剪底部 `28px` 遮除生图白字水印；注册 10 张 `· TEST` 卡牌至 `GameState.all_cards` 并将 `SaveService.build_test_progress()` 扩充至全部 16 张卡及 `"决斗包·TEST"`（保持 `new_game()` 初始 4 张起步不变）。
+  - [combat_presentation.gd](scripts/combat/combat_presentation.gd)、[combat_screen.gd](scripts/combat/combat_screen.gd) & [enemy_unit_ui.gd](scripts/combat/enemy_unit_ui.gd)：新增左侧 `DuelDeckBack`、中场 `DuelCrestVS` / `TurnArrowSweep` / `RedMoonReticle` 矢量徽标、`CompanionSprite` 助阵站位（互不遮挡）、4 名 `·TEST` 对手配置（优化长名称字号避免 `…` 截断），并将待命中的 `debuff.svg` / `heal.svg` 接入敌人意图与状态标签（`压制` 显示下箭头图标）。
+- **已知原始素材瑕疵记录（已做运行时规避，留待下次调优）**：
+  - `assets/combat/card_art/card_art_final_trump.png` 底边存在极小生成白字水印（游戏内已由 `h - 28` 裁切遮除）。
+  - `2340×1080` 宽屏延展中 `map_failed_wide.png`、`prep_scene_room_wide.png`、`records_room_wide.png` 拼接自然；`gym_wide.png`、`rooftop_wide.png`、`library_wide.png`、`shop_wide.png`、`coast_wide.png` 与 `map_church_wide.png` 左右外缘各约 `210px` 存在横向像素拉伸拖尾（中间 `1920×1080` 主体完好），`dorm_bg_wide.png` 极外侧边缘亦有轻微拉伸。
+- **验证基线**：
+  - [tools/tests/zodiac_and_shop.gd](tools/tests/zodiac_and_shop.gd)、[tools/tests/scene_reset.gd](tools/tests/scene_reset.gd)、[tools/tests/home_objects.gd](tools/tests/home_objects.gd) 与 [tools/tests/p5_regions.gd](tools/tests/p5_regions.gd) 覆盖 GDScript 缩进预检、Godot `--headless` 与 OpenGL `1600×900` / `1600×720` 全量回归（含 16 卡全解锁、卡背/立绘/对手资源、28px 裁切、`ParallaxCutsceneStage` 5 组预设与概念边界、`SceneLoadingScreen` 6 主题、`CombatVFX` 8 帧/SVG、`CompanionSprite` + `"决斗包·TEST"` + `debuff.svg` + `VFX_slash`/`VFX_pack` 实机渲染，及 `20:9` 下基于真实视口矩形的标题不越界检查）。
 
 ## 2026-11-14 UI 对齐、全局字体清晰度、双层视差常驻测试存档与旧资源清理
 

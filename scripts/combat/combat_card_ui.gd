@@ -8,6 +8,7 @@ const CARD_DUEL_FRAME_PATH := "res://assets/combat/card_frame_duel.png"
 const CARD_PAPER_PATH := "res://assets/combat/card_frame_paper.png"
 const FALLBACK_CARD_PAPER := "res://assets/ui/combat_notebook/action_card.png"
 const COOLDOWN_ICON_PATH := "res://assets/ui_core/icons/combat/cooldown.svg"
+const HOVER_GLOW_PATH := "res://assets/ui_core/animations/ui_card_hover_glow.png"
 
 var card_data: CardData
 var current_cooldown: int = 0
@@ -35,6 +36,7 @@ var _touch_moved: bool = false
 var _base_y: float = 0.0
 var _is_base_y_set: bool = false
 var _hover_tween: Tween = null
+var _hover_glow: NinePatchRect
 var _paper_art: TextureRect
 var _cd_veil: Panel
 var _cd_pill: PanelContainer
@@ -89,6 +91,19 @@ func _prepare_notebook_composition() -> void:
 	_create_overlays(body)
 
 func _create_overlays(body: Control) -> void:
+	if ResourceLoader.exists(HOVER_GLOW_PATH):
+		_hover_glow = NinePatchRect.new()
+		_hover_glow.name = "HoverGlowFrame"
+		_hover_glow.texture = load(HOVER_GLOW_PATH) as Texture2D
+		_hover_glow.draw_center = false
+		_hover_glow.patch_margin_left = 48
+		_hover_glow.patch_margin_top = 48
+		_hover_glow.patch_margin_right = 48
+		_hover_glow.patch_margin_bottom = 48
+		_hover_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hover_glow.visible = false
+		body.add_child(_hover_glow)
+		body.move_child(_hover_glow, 0)
 	_cd_veil = Panel.new()
 	_cd_veil.name = "CDVeil"
 	_cd_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -225,6 +240,8 @@ func layout_notebook_card(extent: Vector2 = CombatPresentation.CARD_SIZE) -> voi
 		divider.color = Color(0.58, 0.49, 0.39, 0.25)
 		body.add_child(divider)
 	DaylightUI.place(divider, side_pad, footer_y - 1.5 if duel else footer_y - 4.0, extent.x - side_pad * 2.0, 1)
+	if is_instance_valid(_hover_glow):
+		DaylightUI.place(_hover_glow, -14.0, -14.0, extent.x + 28.0, extent.y + 28.0)
 	if is_instance_valid(_cd_veil):
 		var pad := 6.0 if duel else 12.0
 		DaylightUI.place(_cd_veil, pad, pad, extent.x - pad * 2.0, extent.y - pad * 2.0)
@@ -242,6 +259,7 @@ func layout_notebook_card(extent: Vector2 = CombatPresentation.CARD_SIZE) -> voi
 			hint_lbl.add_theme_color_override("font_color", Color("#FFFDF8"))
 			hint_lbl.add_theme_constant_override("outline_size", 0)
 	_refresh_category_tab()
+	_refresh_hover_glow()
 	if not _is_hovered and not _touch_armed:
 		_base_y = position.y
 		_is_base_y_set = true
@@ -301,6 +319,7 @@ func _update_display() -> void:
 		_cd_pill.visible = not is_available
 		if is_instance_valid(_cd_pill_label):
 			_cd_pill_label.text = "本场已用完" if uses_remaining == 0 else ("下回合可用" if current_cooldown == 1 else "还需 %d 回合" % current_cooldown)
+	_refresh_hover_glow()
 
 func _refresh_card_illustration() -> void:
 	var box := $VBox as Control
@@ -338,6 +357,8 @@ func _refresh_card_illustration() -> void:
 			box.move_child(_paper_art, 0)
 		box.move_child(art_frame, 1)
 		box.move_child(art, 2)
+	if is_instance_valid(_hover_glow):
+		box.move_child(_hover_glow, 0)
 	var asset := SceneSkin.card_illustration_path(card_data.id)
 	art.texture = SceneSkin.illustration_texture(asset)
 	art.visible = art.texture != null
@@ -384,6 +405,7 @@ func disarm_touch() -> void:
 	_touch_moved = false
 	if is_instance_valid(_touch_hint_pill):
 		_touch_hint_pill.visible = false
+	_refresh_hover_glow()
 	if was_armed:
 		scale = Vector2.ONE
 		z_index = 0
@@ -394,9 +416,11 @@ func _arm_touch() -> void:
 	z_index = 8
 	if is_instance_valid(_touch_hint_pill):
 		_touch_hint_pill.visible = true
+	_refresh_hover_glow()
 	_animate_hover(-8.0)
 	if not bool(SaveManager.settings["reduced_motion"]):
 		scale = Vector2(1.05, 1.05)
+	AudioManager.play_sfx_hover()
 	card_armed.emit(self)
 
 func _trigger_card_play() -> void:
@@ -408,12 +432,17 @@ func _trigger_card_play() -> void:
 	z_index = 0
 	if is_instance_valid(_touch_hint_pill):
 		_touch_hint_pill.visible = false
+	_refresh_hover_glow()
 	_reset_position_to_base()
 	card_clicked.emit(card_data)
 	if not bool(SaveManager.settings["reduced_motion"]):
 		var tween := create_tween()
 		tween.tween_property(self, "scale", Vector2(0.95, 0.95), 0.06)
 		tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.06)
+
+func _refresh_hover_glow() -> void:
+	if is_instance_valid(_hover_glow):
+		_hover_glow.visible = is_available and (_is_hovered or _touch_armed)
 
 func _reset_position_to_base() -> void:
 	_animate_hover(0.0)
@@ -476,12 +505,15 @@ func _notification(what: int) -> void:
 		if is_available and (platform == null or not platform.is_touch()):
 			_is_hovered = true
 			add_theme_stylebox_override("panel", _highlight_style)
+			_refresh_hover_glow()
 			_animate_hover(-12.0)
+			AudioManager.play_sfx_hover()
 	elif what == NOTIFICATION_MOUSE_EXIT:
 		_is_hovered = false
 		if is_available:
 			add_theme_stylebox_override("panel", _base_style)
 		else:
 			add_theme_stylebox_override("panel", _disabled_style)
+		_refresh_hover_glow()
 		if not _touch_armed:
 			_animate_hover(0.0)

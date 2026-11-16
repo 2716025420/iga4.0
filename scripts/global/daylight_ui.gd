@@ -127,7 +127,27 @@ static func bind_button_feedback(button: Button) -> void:
 		button.set_meta("DaylightFeedbackBound", true)
 		for signal_name in ["focus_entered", "focus_exited", "mouse_entered", "mouse_exited"]:
 			button.connect(signal_name, _update_button_feedback.bind(button))
+	bind_button_audio(button)
 	_update_button_feedback(button)
+
+static func bind_button_audio(button: Button) -> void:
+	if not is_instance_valid(button) or button.has_meta("DaylightAudioBound"):
+		return
+	button.set_meta("DaylightAudioBound", true)
+	button.mouse_entered.connect(func() -> void:
+		if button.disabled or not button.is_inside_tree():
+			return
+		var audio := button.get_tree().root.get_node_or_null("AudioManager")
+		if audio != null and audio.has_method("play_sfx_hover"):
+			audio.call("play_sfx_hover")
+	)
+	button.pressed.connect(func() -> void:
+		if not button.is_inside_tree():
+			return
+		var audio := button.get_tree().root.get_node_or_null("AudioManager")
+		if audio != null and audio.has_method("play_sfx_click"):
+			audio.call("play_sfx_click")
+	)
 
 static func _update_button_feedback(button: Button) -> void:
 	if not is_instance_valid(button):
@@ -205,11 +225,16 @@ static func layout(root: Control) -> void:
 		root.call("_layout_story_scene")
 		return
 	var extent := root.size
-	var backgrounds := {"WorldMap": "school_gate", "NodeMap": "school_gate", "CombatScreen": "battle_campus", "DialogueScreen": "morning_road"}
+	var backgrounds := {"NodeMap": "school_gate", "CombatScreen": "battle_campus", "DialogueScreen": "morning_road"}
 	if backgrounds.has(str(root.name)):
 		var key: String = backgrounds[str(root.name)]
+		var combat_overclock := false
 		if str(root.name) == "DialogueScreen":
 			key = PhaseTwoContent.background_key(str(root.get("current_dialogue_id")))
+		elif str(root.name) == "CombatScreen":
+			combat_overclock = CombatPresentation.is_overclock_combat(root)
+			if combat_overclock:
+				key = "battle_red_moon_lockdown"
 		var background := root.get_node("Background") as TextureRect
 		var path := "res://assets/backgrounds/phase_two/%s_wide.png" % key
 		if not ResourceLoader.exists(path):
@@ -219,7 +244,7 @@ static func layout(root: Control) -> void:
 			exploration_background = "res://assets/backgrounds/phase_three/exploration_campus_wide.png"
 			if not ResourceLoader.exists(exploration_background):
 				exploration_background = "res://assets/backgrounds/phase_three/exploration_campus.png"
-		elif str(root.name) == "CombatScreen" and bool(root.get("_exploration_mode")):
+		elif str(root.name) == "CombatScreen" and bool(root.get("_exploration_mode")) and not combat_overclock:
 			exploration_background = "res://assets/backgrounds/phase_three/exploration_battle_wide.png"
 			if not ResourceLoader.exists(exploration_background):
 				exploration_background = "res://assets/backgrounds/phase_three/exploration_battle.png"
@@ -236,8 +261,6 @@ static func layout(root: Control) -> void:
 	match str(root.name):
 		"HomeScreen":
 			layout_home(root, extent)
-		"WorldMap":
-			layout_world(root, extent)
 		"NodeMap":
 			layout_route(root, extent)
 		"CombatScreen":
@@ -248,26 +271,6 @@ static func layout(root: Control) -> void:
 static func layout_home(root: Control, _extent: Vector2) -> void:
 	if root.has_method("_layout_home_scene"):
 		root.call("_layout_home_scene")
-
-static func layout_world(root: Control, extent: Vector2) -> void:
-	place(root.get_node("TopBar"), 0, 0, extent.x, 88)
-	place(root.get_node("TopBar/Title"), 32, 22, extent.x - 300, 44)
-	place(root.get_node("TopBar/BackButton"), extent.x - 232, 20, 200, 48)
-	var info_width := clampf(extent.x * 0.27, 360, 520)
-	place(root.get_node("InfoPanel"), extent.x - info_width - 32, 120, info_width, extent.y - 152)
-	root.get_node("InfoPanel").add_theme_stylebox_override("panel", panel_style(Color(1.0, 0.975, 0.94, 0.97), BORDER, 28))
-	var map_width := extent.x - info_width - 96
-	place(root.get_node("MapCanvas"), 32, 120, map_width, extent.y - 152)
-	var positions := [Vector2(0.12, 0.20), Vector2(0.54, 0.36), Vector2(0.34, 0.64)]
-	for index in range(3):
-		var button := root.get_node("MapCanvas/RegionCh%d" % (index + 1)) as Button
-		button.custom_minimum_size = Vector2(300, 112)
-		place(button, positions[index].x * map_width, positions[index].y * (extent.y - 152), 300, 112)
-		button.theme_type_variation = &"PrimaryButton" if index == 0 else &"SecondaryButton"
-	var title := root.get_node("InfoPanel/VBox/TitleLabel") as Label
-	title.add_theme_font_size_override("font_size", 26)
-	root.get_node("InfoPanel/VBox").add_theme_constant_override("separation", 24)
-	root.get_node("InfoPanel/VBox/EnterButton").custom_minimum_size.y = 64
 
 static func layout_route(root: Control, extent: Vector2) -> void:
 	if root.has_method("layout_exploration_map") and bool(root.get("material_exploration_mode")):
@@ -313,35 +316,58 @@ static func layout_combat(root: Control, extent: Vector2) -> void:
 		root.get("log_text").add_theme_constant_override("line_separation", 6)
 	var hint := root.get_node_or_null("FirstBattleHint") as HBoxContainer
 	if hint:
-		var hint_width := minf(840, maxf(540, extent.x - 760))
-		hint.custom_minimum_size = Vector2(hint_width, 42)
-		place(hint, (extent.x - hint_width) / 2.0, 94, hint_width, 42)
-		hint.alignment = BoxContainer.ALIGNMENT_CENTER
-		hint.add_theme_constant_override("separation", 16)
-		var wash := root.get_node_or_null("FirstBattleHintWash") as Panel
-		if wash == null:
-			wash = Panel.new()
-			wash.name = "FirstBattleHintWash"
-			wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			var wash_box := CombatSkin.flat(Color(0.99, 0.96, 0.91, 0.88), Vector4.ZERO)
-			wash_box.set_corner_radius_all(14)
-			wash.add_theme_stylebox_override("panel", wash_box)
-			root.add_child(wash)
-			root.move_child(wash, hint.get_index())
-			hint.visibility_changed.connect(func(): wash.visible = hint.visible)
-		wash.visible = hint.visible
-		place(wash, (extent.x - hint_width - 24.0) / 2.0, 90, hint_width + 24.0, 50)
+		var factor := minf(extent.x / 1920.0, extent.y / 1080.0)
+		var origin := (extent - Vector2(1920.0, 1080.0) * factor) / 2.0
+		var hint_design := Vector2(424.0, 72.0)
+		var hint_origin := Vector2(738.0, 90.0)
 		for child in hint.get_children():
 			if child is Label:
-				child.text = "先看对方行动，再出牌。护盾只保留到本轮结束。"
-				child.add_theme_font_size_override("font_size", 22)
-				child.add_theme_color_override("font_color", INK)
+				if child.text.strip_edges().is_empty():
+					child.text = "先看对方行动，再出牌。护盾只保留到本轮结束。"
+				child.custom_minimum_size = Vector2(hint_design.x, hint_design.y - 4.0)
+				child.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				child.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+				child.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				child.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				child.add_theme_font_size_override("font_size", 17)
+				child.add_theme_color_override("font_color", INK)
+				child.add_theme_constant_override("outline_size", 0)
 			elif child is Button:
 				child.custom_minimum_size = Vector2(76, 40)
 				child.add_theme_font_size_override("font_size", 20)
 				for state in ["normal", "hover", "pressed", "disabled"]:
 					child.add_theme_stylebox_override(state, SceneSkin.style("button_secondary", Vector4(12, 3, 12, 3)))
+		hint.custom_minimum_size = hint_design
+		place(hint, hint_origin.x, hint_origin.y, hint_design.x, hint_design.y)
+		hint.scale = Vector2.ONE * factor
+		hint.position = origin + hint_origin * factor
+		hint.alignment = BoxContainer.ALIGNMENT_CENTER
+		hint.add_theme_constant_override("separation", 12)
+		var wash := root.get_node_or_null("FirstBattleHintWash") as Panel
+		if wash == null:
+			wash = Panel.new()
+			wash.name = "FirstBattleHintWash"
+			wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			var callout_path := "res://assets/ui_core/theme/ui_tutorial_callout_9slice.png"
+			if ResourceLoader.exists(callout_path):
+				var callout_box := StyleBoxTexture.new()
+				callout_box.texture = load(callout_path) as Texture2D
+				for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+					callout_box.set_texture_margin(side, 48.0)
+				wash.add_theme_stylebox_override("panel", callout_box)
+			else:
+				var wash_box := CombatSkin.flat(Color(0.99, 0.96, 0.91, 0.92), Vector4.ZERO)
+				wash_box.set_corner_radius_all(14)
+				wash.add_theme_stylebox_override("panel", wash_box)
+			root.add_child(wash)
+			root.move_child(wash, hint.get_index())
+			hint.visibility_changed.connect(func(): wash.visible = hint.visible)
+		wash.visible = hint.visible
+		var wash_origin := Vector2(hint_origin.x - 46.0, hint_origin.y - 10.0)
+		var wash_design := Vector2(hint_design.x + 92.0, hint_design.y + 20.0)
+		place(wash, wash_origin.x, wash_origin.y, wash_design.x, wash_design.y)
+		wash.scale = Vector2.ONE * factor
+		wash.position = origin + wash_origin * factor
 	root.get_node("ResultModal").add_theme_stylebox_override("panel", CombatSkin.paper(Vector4.ZERO))
 	centered(root.get_node("ResultModal"), extent, Vector2(820, 460))
 	var result_box := root.get_node("ResultModal/VBox") as VBoxContainer

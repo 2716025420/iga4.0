@@ -3,12 +3,34 @@ extends Control
 
 ## A persistent scene between large views, with live resource progress.
 const DESIGN := Vector2(1920,1080)
+const THEMES := {
+ "after_school": {"wide":"res://assets/ui/player_experience/loading_after_school_wide.png","fallback":"res://assets/ui/player_experience/loading_after_school.png","edge":"#10374C"},
+ "red_moon": {"wide":"res://assets/ui/player_experience/loading_red_moon_wide.png","fallback":"res://assets/ui/player_experience/loading_after_school.png","edge":"#241421"},
+ "nomos": {"wide":"res://assets/ui/player_experience/loading_nomos_wide.png","fallback":"res://assets/ui/player_experience/loading_after_school.png","edge":"#182921"},
+ "agora": {"wide":"res://assets/ui/player_experience/loading_agora_wide.png","fallback":"res://assets/ui/player_experience/loading_after_school.png","edge":"#261A1E"},
+ "techne": {"wide":"res://assets/ui/player_experience/loading_techne_wide.png","fallback":"res://assets/ui/player_experience/loading_after_school.png","edge":"#19232E"},
+ "tournament": {"wide":"res://assets/ui/player_experience/loading_tournament_wide.png","fallback":"res://assets/ui/player_experience/loading_after_school.png","edge":"#14263C"}
+}
 var presentation: Control
+var _base: ColorRect
+var _backdrop: TextureRect
+var _current_theme := "after_school"
+var _edge_color := Color("#10374C")
 var heading: Label
 var description: Label
 var stage: Label
 var percent: Label
 var progress: ProgressBar
+
+static func theme_for_context(target: int, region_id: String = "", location_id: String = "") -> String:
+ if region_id in ["region_failed_alliance","region_iga_church"]: return "red_moon"
+ if target in [ProjectSceneFlow.TargetScene.EXPLORATION,ProjectSceneFlow.TargetScene.COMBAT] or location_id in ["gym","training"]:
+  return "tournament"
+ match region_id:
+  "university_nomos": return "nomos"
+  "university_agora": return "agora"
+  "university_techne": return "techne"
+ return "after_school"
 
 func _ready() -> void:
  name = "LoadingScene"
@@ -16,19 +38,19 @@ func _ready() -> void:
  mouse_filter = Control.MOUSE_FILTER_STOP
  focus_mode = Control.FOCUS_ALL
  set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
- var base := ColorRect.new()
- base.color = Color("#10374C")
- base.mouse_filter = Control.MOUSE_FILTER_IGNORE
- add_child(base)
- base.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ _base = ColorRect.new()
+ _base.color = _edge_color
+ _base.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ add_child(_base)
+ _base.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  presentation = Control.new()
  presentation.name = "LoadingPresentation"
  presentation.mouse_filter = Control.MOUSE_FILTER_IGNORE
  presentation.size = DESIGN
  add_child(presentation)
- var wide_corridor := "res://assets/ui/player_experience/loading_after_school_wide.png"
- var dusk := SchoolObjectUI.art(presentation,"DuskCorridor",wide_corridor if ResourceLoader.exists(wide_corridor) else "res://assets/ui/player_experience/loading_after_school.png",Rect2(-210,0,2340,1080) if ResourceLoader.exists(wide_corridor) else Rect2(0,0,1920,1080))
- dusk.stretch_mode = TextureRect.STRETCH_SCALE
+ _backdrop = SchoolObjectUI.art(presentation,"DuskCorridor","")
+ _backdrop.stretch_mode = TextureRect.STRETCH_SCALE
+ apply_theme("after_school")
  _text("Chapter","下一段日常",Rect2(120,430,720,60),27,Color("#9CC6C5"))
  heading = _text("Destination","去往校园",Rect2(120,510,820,110),66,Color("#FFF0CE"))
  description = _text("WaitingCopy","稍等片刻，下一段日常正在抵达。",Rect2(124,659,730,110),27,Color("#B9D3CE"))
@@ -67,10 +89,25 @@ func _text(node_name: String, copy: String, rect: Rect2, font_size: int, color: 
  label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
  return label
 
+func apply_theme(key: String = "after_school") -> void:
+ _current_theme = key if THEMES.has(key) else "after_school"
+ var spec: Dictionary = THEMES[_current_theme]
+ _edge_color = Color(str(spec["edge"]))
+ if is_instance_valid(_base): _base.color = _edge_color
+ if is_instance_valid(_backdrop):
+  var wide := str(spec["wide"])
+  var fallback := str(spec["fallback"])
+  var use_wide := ResourceLoader.exists(wide)
+  var tex_path := wide if use_wide else fallback
+  _backdrop.texture = load(tex_path) as Texture2D if ResourceLoader.exists(tex_path) else null
+  var rect := Rect2(-210,0,2340,1080) if use_wide else Rect2(0,0,1920,1080)
+  DaylightUI.place(_backdrop,rect.position.x,rect.position.y,rect.size.x,rect.size.y)
+ _layout()
+
 func _layout() -> void:
  if not is_instance_valid(presentation): return
  var dusk := presentation.get_node_or_null("DuskCorridor") as TextureRect
- Platform.fit_stage(self,presentation,Color("#10374C"),dusk.texture if dusk != null else null)
+ Platform.fit_stage(self,presentation,_edge_color,dusk.texture if dusk != null else null)
 
 class GeometricAmbience extends Control:
  var _elapsed: float = 0.0
@@ -138,7 +175,8 @@ class GeometricAmbience extends Control:
    draw_colored_polygon(pts,col)
 
 
-func present(destination: String) -> void:
+func present(destination: String, theme_key: String = "after_school") -> void:
+ apply_theme(theme_key)
  heading.text = destination
  description.text = "稍等片刻，下一段日常正在抵达。"
  set_progress(0.0,"正在读取场景")

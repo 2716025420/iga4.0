@@ -209,9 +209,17 @@ static func build_test_progress() -> Dictionary:
 		"game_hour": 9,
 		"game_minute": 0,
 		"game_weekday": DayCycleService.weekday_for_day(3),
-		"unlocked_card_ids": ["wrench_smash", "scrap_shield", "icy_soda", "overclock_torch", "fake_cheque", "steel_barricade"],
+		"unlocked_card_ids": [
+			"wrench_smash", "scrap_shield", "icy_soda", "overclock_torch", "fake_cheque", "steel_barricade",
+			"coin_gambit", "counter_seal", "crimson_pulse", "desk_vault", "duel_draw",
+			"emergency_tape", "final_trump", "focus_lens", "silent_library", "tag_assist"
+		],
 		"equipped_card_ids": ["wrench_smash", "scrap_shield", "icy_soda", "overclock_torch", "steel_barricade"],
-		"card_levels": {"wrench_smash": 2, "scrap_shield": 2, "icy_soda": 1, "overclock_torch": 1, "fake_cheque": 1, "steel_barricade": 1},
+		"card_levels": {
+			"wrench_smash": 2, "scrap_shield": 2, "icy_soda": 1, "overclock_torch": 1, "fake_cheque": 1, "steel_barricade": 1,
+			"coin_gambit": 1, "counter_seal": 1, "crimson_pulse": 1, "desk_vault": 1, "duel_draw": 1,
+			"emergency_tape": 1, "final_trump": 1, "focus_lens": 1, "silent_library": 1, "tag_assist": 1
+		},
 		"companions": {
 			"yang_zi_ying": {"name": PhaseTwoContent.ACTORS["yang_zi_ying"]["name"], "title": PhaseTwoContent.ACTORS["yang_zi_ying"]["title"], "bio": PhaseTwoContent.ACTORS["yang_zi_ying"]["bio"], "unlocked": true, "favor": 60, "avatar_key": "yang_zi_ying"},
 			"liu_yu_long": {"name": PhaseTwoContent.ACTORS["liu_yu_long"]["name"], "title": PhaseTwoContent.ACTORS["liu_yu_long"]["title"], "bio": PhaseTwoContent.ACTORS["liu_yu_long"]["bio"], "unlocked": true, "favor": 40, "avatar_key": "liu_yu_long"},
@@ -222,6 +230,7 @@ static func build_test_progress() -> Dictionary:
 			"chapter_1_unlocked": true,
 			"chapter_1_completed": true,
 			"school_gate_done": true,
+			"school_gate_duel_briefed": true,
 			"school_affairs_done": true,
 			"yang_rescued_player": true,
 			"principal_stopped": true,
@@ -253,7 +262,8 @@ static func build_test_progress() -> Dictionary:
 		"player_profile": {
 			"loadouts": [
 				{"name": "方案1", "card_ids": ["wrench_smash", "scrap_shield", "icy_soda", "overclock_torch", "steel_barricade"]},
-				{"name": "方案2", "card_ids": ["wrench_smash", "fake_cheque", "overclock_torch"]}
+				{"name": "方案2", "card_ids": ["wrench_smash", "fake_cheque", "overclock_torch"]},
+				{"name": "决斗包·TEST", "card_ids": ["final_trump", "crimson_pulse", "desk_vault", "emergency_tape", "tag_assist"]}
 			],
 			"active_loadout_index": 0,
 			"milestone_claims": {},

@@ -9,6 +9,31 @@ const CARD_GAP := 10.0
 const TRAY_PATH := "res://assets/combat/notebook_tray_9slice.png"
 const STICKY_PATH := "res://assets/combat/notebook_sticky_target.png"
 const PLAQUE_PATH := "res://assets/combat/status_plaque.png"
+const ZODIAC_HALO_PATH := "res://assets/ui_core/animations/ui_zodiac_resonance_halo.png"
+const REDMOON_HUD_PATH := "res://assets/ui_core/animations/ui_redmoon_hud_pulse.png"
+const CUTIN_BANNER_PATH := "res://assets/ui_core/animations/ui_companion_cutin_banner.png"
+const ICON_SHIELD := "res://assets/ui_core/icons/combat/shield.svg"
+const ICON_ATK := "res://assets/ui_core/icons/combat/atk_single.svg"
+const ICON_REFLECT := "res://assets/ui_core/icons/combat/reflect_counter.svg"
+const ICON_ASSIST := "res://assets/ui_core/icons/combat/companion_assist.svg"
+const ENEMY_SLOT_SIZE := Vector2(332.0, 572.0)
+const ENEMY_GAP := 22.0
+const CHIP_PALETTES := {
+	"shield": {"bg": Color("#EAF2F8"), "border": Color("#7BA1BF"), "ink": Color("#234B6B")},
+	"muted": {"bg": Color("#F3EFE6"), "border": Color("#C9BFB0"), "ink": Color("#6F7078")},
+	"danger": {"bg": Color("#FCECEA"), "border": Color("#D47E78"), "ink": Color("#9E2F2A")},
+	"safe": {"bg": Color("#EAF4EE"), "border": Color("#72A386"), "ink": Color("#2B6244")},
+	"burn": {"bg": Color("#FCECE8"), "border": Color("#D67963"), "ink": Color("#A33722")},
+	"weak": {"bg": Color("#F4EBF6"), "border": Color("#B085B8"), "ink": Color("#64376E")},
+	"reflect": {"bg": Color("#FDF3DF"), "border": Color("#C49E5A"), "ink": Color("#7A5318")},
+	"assist": {"bg": Color("#EEF2F7"), "border": Color("#7D96B2"), "ink": Color("#2E4A6B")},
+	"assist_ready": {"bg": Color("#FCF0CA"), "border": Color("#C79332"), "ink": Color("#6E480F")},
+	"intent_atk": {"bg": Color("#FDF1EE"), "border": Color("#D28B80"), "ink": Color("#8E2E29")},
+	"intent_def": {"bg": Color("#EEF4FA"), "border": Color("#86A7C4"), "ink": Color("#2B5373")},
+	"intent_heal": {"bg": Color("#ECF5EF"), "border": Color("#7CA98D"), "ink": Color("#2E6145")},
+	"intent_debuff": {"bg": Color("#F5EDF7"), "border": Color("#B188BA"), "ink": Color("#62376B")},
+	"intent_mix": {"bg": Color("#FFF8EC"), "border": Color("#C4B49A"), "ink": Color("#232C36")},
+}
 
 static func _root_place(node: Control, point: Vector2, extent: Vector2, scale_factor: float, origin: Vector2) -> void:
 	DaylightUI.place(node, point.x, point.y, extent.x, extent.y)
@@ -84,6 +109,79 @@ static func _ensure_panel(parent: Control, node_name: String, fill: Color, borde
 	panel.add_theme_stylebox_override("panel", box)
 	return panel
 
+## Build a soft tinted pill StyleBoxFlat keyed from CHIP_PALETTES.
+static func status_chip_style(palette_key: String, pad_x: float = 9.0, pad_y: float = 2.0) -> StyleBoxFlat:
+	var pal: Dictionary = CHIP_PALETTES.get(palette_key, CHIP_PALETTES["muted"])
+	var box := StyleBoxFlat.new()
+	box.bg_color = pal.get("bg", Color("#F3EFE6"))
+	box.border_color = pal.get("border", Color("#C9BFB0"))
+	box.set_border_width_all(1)
+	box.set_corner_radius_all(8)
+	box.content_margin_left = pad_x
+	box.content_margin_right = pad_x
+	box.content_margin_top = pad_y
+	box.content_margin_bottom = pad_y
+	return box
+
+## Create or update a compact [SVG Icon + Number] pill chip inside a horizontal status bar.
+static func sync_status_chip(row: HBoxContainer, chip_name: String, icon_path: String, copy: String, palette_key: String, icon_name: String = "ChipIcon") -> PanelContainer:
+	var chip := row.get_node_or_null(chip_name) as PanelContainer
+	var hbox: HBoxContainer
+	var icon_rect: TextureRect
+	var lbl: Label
+	if chip == null:
+		chip = PanelContainer.new()
+		chip.name = chip_name
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.custom_minimum_size = Vector2(0, 28)
+		hbox = HBoxContainer.new()
+		hbox.name = "ChipRow"
+		hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+		hbox.add_theme_constant_override("separation", 4)
+		chip.add_child(hbox)
+		icon_rect = TextureRect.new()
+		icon_rect.name = icon_name
+		icon_rect.custom_minimum_size = Vector2(18, 18)
+		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hbox.add_child(icon_rect)
+		lbl = Label.new()
+		lbl.name = "ChipLabel"
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lbl.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+		lbl.clip_text = false
+		lbl.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+		lbl.add_theme_font_size_override("font_size", 17)
+		lbl.add_theme_constant_override("outline_size", 0)
+		hbox.add_child(lbl)
+		row.add_child(chip)
+	else:
+		hbox = chip.get_node("ChipRow") as HBoxContainer
+		for child in hbox.get_children():
+			if child is TextureRect:
+				icon_rect = child as TextureRect
+				if icon_rect.name != icon_name:
+					icon_rect.name = icon_name
+			elif child is Label:
+				lbl = child as Label
+	var pal: Dictionary = CHIP_PALETTES.get(palette_key, CHIP_PALETTES["muted"])
+	chip.add_theme_stylebox_override("panel", status_chip_style(palette_key))
+	if is_instance_valid(icon_rect):
+		if icon_path != "" and ResourceLoader.exists(icon_path):
+			icon_rect.texture = load(icon_path) as Texture2D
+			icon_rect.visible = true
+		else:
+			icon_rect.visible = false
+	if is_instance_valid(lbl):
+		lbl.text = copy
+		lbl.add_theme_color_override("font_color", pal.get("ink", NotebookUI.INK))
+	chip.visible = true
+	return chip
+
 static func layout(root: Control, extent: Vector2) -> void:
 	var safe_extent := extent if extent.x > 0.0 and extent.y > 0.0 else DESIGN
 	var factor := minf(safe_extent.x / DESIGN.x, safe_extent.y / DESIGN.y)
@@ -98,12 +196,14 @@ static func layout(root: Control, extent: Vector2) -> void:
 		bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_layout_redmoon_hud(root)
 
 	var full_left := -origin.x / maxf(factor, 0.001)
 	var full_width := safe_extent.x / maxf(factor, 0.001)
+	_layout_stage_zones(root, factor, origin, full_left, full_width, is_overclock_combat(root))
 
 	var header := root.get_node("TopInfo") as Control
-	_root_place(header, Vector2.ZERO, Vector2(1920, 88), factor, origin)
+	_root_place(header, Vector2.ZERO, Vector2(1920, 78), factor, origin)
 	var ribbon := _ensure_panel(header, "TopHeaderRibbon", Color(0.15, 0.19, 0.30, 0.94), Color(0.90, 0.85, 0.76, 0.72), 0, 2)
 	var ribbon_path := "res://assets/ui_core/theme/ribbon_header_9slice.png"
 	if ResourceLoader.exists(ribbon_path):
@@ -118,83 +218,167 @@ static func layout(root: Control, extent: Vector2) -> void:
 		ribbon_style.texture_margin_top = 18
 		ribbon_style.texture_margin_bottom = 18
 		ribbon.add_theme_stylebox_override("panel", ribbon_style)
-	DaylightUI.place(ribbon, full_left - 8.0, 0.0, full_width + 16.0, 84.0)
+	DaylightUI.place(ribbon, full_left - 8.0, 0.0, full_width + 16.0, 76.0)
 	var turn_tab := _ensure_panel(header, "TurnTabPaper", Color("#FBF4E6"), Color("#D4C4AD"), 10)
-	DaylightUI.place(turn_tab, 780, 8, 360, 68)
+	DaylightUI.place(turn_tab, 780, 6, 360, 62)
 	header.move_child(ribbon, 0)
 	header.move_child(turn_tab, 1)
 
 	var turn := header.get_node("TurnBanner") as Label
-	DaylightUI.place(turn, 780, 8, 360, 68)
+	DaylightUI.place(turn, 780, 6, 360, 62)
 	turn.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
-	turn.add_theme_font_size_override("font_size", 40)
+	turn.add_theme_font_size_override("font_size", 38)
 	turn.add_theme_color_override("font_color", NotebookUI.INK)
 	turn.add_theme_constant_override("outline_size", 0)
 	turn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	turn.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var round_label := header.get_node("RoundLabel") as Label
-	DaylightUI.place(round_label, 1410, 14, 200, 56)
-	round_label.add_theme_font_size_override("font_size", 28)
+	DaylightUI.place(round_label, 1410, 10, 200, 54)
+	round_label.add_theme_font_size_override("font_size", 27)
 	round_label.add_theme_color_override("font_color", Color("#FFF8EC"))
 	round_label.add_theme_constant_override("outline_size", 0)
 	round_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	var loc := _text(header, "EncounterLocation", "校园练习" if bool(root.get("_exploration_mode")) else "校园侧门", Rect2(236, 14, 240, 56), 28, Color("#FFF8EC"))
+	var loc := _text(header, "EncounterLocation", "校园练习" if bool(root.get("_exploration_mode")) else "校园侧门", Rect2(236, 10, 240, 54), 27, Color("#FFF8EC"))
 	loc.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var pause := header.get_node_or_null("EscapeButton") as Button
 	if pause:
 		_header_button(pause, "逃跑 · 判负")
-		DaylightUI.place(pause, 28, 13, 180, 56)
+		DaylightUI.place(pause, 28, 10, 180, 54)
 	var history := header.get_node_or_null("CombatHistoryButton") as Button
 	if history:
 		_header_button(history, "回合记录")
-		DaylightUI.place(history, 1640, 13, 244, 56)
+		DaylightUI.place(history, 1640, 10, 244, 54)
 
 	var enemy_area := root.get_node("EnemyArea") as Control
-	_root_place(enemy_area, Vector2(1010, 108), Vector2(850, 544), factor, origin)
+	_root_place(enemy_area, Vector2(850, 80), Vector2(1044, 576), factor, origin)
 	var enemies := enemy_area.get_node("EnemiesContainer") as HBoxContainer
-	var count := maxi(1, enemies.get_child_count())
-	var unit_width := (850.0 - 22.0 * (count - 1)) / count
-	enemies.add_theme_constant_override("separation", 22)
+	DaylightUI.place(enemies, 0.0, 0.0, 1044.0, 572.0)
+	enemies.alignment = BoxContainer.ALIGNMENT_CENTER
+	enemies.add_theme_constant_override("separation", int(ENEMY_GAP))
 	for unit in enemies.get_children():
-		if unit is Control and unit.has_method("layout_stage"): unit.call("layout_stage", Vector2(unit_width, 544))
+		if unit is Control and unit.has_method("layout_stage"):
+			unit.call("layout_stage", ENEMY_SLOT_SIZE)
+
+	var old_emblems := root.get_node_or_null("ArenaEmblems")
+	if is_instance_valid(old_emblems):
+		old_emblems.queue_free()
+	var old_reticle := enemy_area.get_node_or_null("RedMoonReticle")
+	if is_instance_valid(old_reticle):
+		old_reticle.queue_free()
 
 	var player_area := root.get_node("PlayerArea") as Control
-	_root_place(player_area, Vector2(68, 108), Vector2(740, 544), factor, origin)
+	_root_place(player_area, Vector2(24, 80), Vector2(780, 576), factor, origin)
 	var player := player_area.get_node("ProtagonistSprite") as TextureRect
 	player.texture = CombatSkin.actor_texture("res://assets/sprites/characters/phase_three/combat/ye_zhou_idle.png")
 	player.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	player.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	player.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	player.flip_h = false
-	DaylightUI.place(player, 390, 0 if count == 1 else 86, 310, 524 if count == 1 else 430)
+	var player_center_x := 456.0
+	var player_foot_y := 554.0
+	_place_actor_on_floor(player, player_center_x, 292.0, 404.0, player_foot_y)
+	player.set_meta("lunge_base_pos", player.position)
+	var p_shadow := player_area.get_node_or_null("PlayerGroundShadow") as TextureRect
+	if p_shadow == null:
+		p_shadow = DaylightUI.soft_ground_shadow(player_area, "PlayerGroundShadow", Vector2.ZERO, Vector2(210, 28))
+		player_area.move_child(p_shadow, player.get_index())
+	DaylightUI.place(p_shadow, player_center_x - 105.0, player_foot_y - 15.0, 210.0, 28.0)
 
-	_plaque(player_area, "PlayerIdentity", Vector2(8, 12), Vector2(364, 140))
-	var p_name := _text(player_area, "PlayerName", "叶舟", Rect2(72, 36, 260, 34), 28)
+	var companion_id := str(root.get("_companion_id")) if root.get("_companion_id") != null else ""
+	var companion := player_area.get_node_or_null("CompanionSprite") as TextureRect
+	if companion == null:
+		companion = TextureRect.new()
+		companion.name = "CompanionSprite"
+		companion.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		companion.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		companion.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		companion.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		player_area.add_child(companion)
+		player_area.move_child(companion, player.get_index())
+	var c_shadow := player_area.get_node_or_null("CompanionGroundShadow") as TextureRect
+	var comp_path := CombatSkin.character_combat_path(companion_id) if companion_id != "" and companion_id != "ye_zhou" else ""
+	if comp_path != "":
+		companion.texture = CombatSkin.actor_texture(comp_path)
+		companion.visible = companion.texture != null
+		var comp_center_x := 152.0
+		var comp_foot_y := 544.0
+		_place_actor_on_floor(companion, comp_center_x, 224.0, 376.0, comp_foot_y)
+		companion.set_meta("lunge_base_pos", companion.position)
+		if c_shadow == null:
+			c_shadow = DaylightUI.soft_ground_shadow(player_area, "CompanionGroundShadow", Vector2.ZERO, Vector2(168, 26))
+			player_area.move_child(c_shadow, companion.get_index())
+		c_shadow.visible = companion.visible
+		DaylightUI.place(c_shadow, comp_center_x - 84.0, comp_foot_y - 14.0, 168.0, 26.0)
+	else:
+		companion.visible = false
+		if is_instance_valid(c_shadow):
+			c_shadow.visible = false
+
+	_plaque(player_area, "PlayerIdentity", Vector2(254, 2), Vector2(404, 84))
+	var p_name := _text(player_area, "PlayerName", "叶舟", Rect2(314, 10, 84, 25), 23, Color("#232C36"))
 	p_name.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+	p_name.add_theme_constant_override("outline_size", 0)
+	p_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var hp := player_area.get_node("PlayerHPBar") as ProgressBar
-	DaylightUI.place(hp, 72, 78, 256, 18)
+	hp.clip_contents = false
+	DaylightUI.place(hp, 314, 39, 184, 13)
 	hp.add_theme_stylebox_override("background", CombatSkin.flat(Color("#E2DACB"), Vector4.ZERO))
 	hp.add_theme_stylebox_override("fill", CombatSkin.flat(Color("#6D9C7E"), Vector4.ZERO))
 	var hp_label := hp.get_node("HPLabel") as Label
-	DaylightUI.place(hp_label, 0, 21, 256, 26)
-	hp_label.add_theme_font_size_override("font_size", 22)
-	hp_label.add_theme_color_override("font_color", NotebookUI.INK)
+	DaylightUI.place(hp_label, 192, -4, 96, 22)
+	hp_label.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+	hp_label.add_theme_font_size_override("font_size", 18)
+	hp_label.add_theme_color_override("font_color", Color("#232C36"))
+	hp_label.add_theme_constant_override("outline_size", 0)
+	hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
-	var tactical_pill := _ensure_panel(player_area, "PlayerTacticalPill", Color(0.98, 0.96, 0.91, 0.93), Color("#C8BCA9"), 12)
-	DaylightUI.place(tactical_pill, 18, 158, 344, 96)
+	var tactical_pill := _ensure_panel(player_area, "PlayerTacticalPill", Color(0.98, 0.96, 0.91, 0.93), Color("#C8BCA9"), 10)
+	tactical_pill.visible = false
 	var shield := player_area.get_node("PlayerShieldLabel") as Label
-	DaylightUI.place(shield, 34, 166, 312, 30)
-	shield.add_theme_font_size_override("font_size", 22)
-	shield.add_theme_constant_override("outline_size", 0)
+	shield.visible = false
 	var status := player_area.get_node("PlayerStatusLabel") as Label
-	DaylightUI.place(status, 34, 198, 312, 50)
-	status.add_theme_font_size_override("font_size", 20)
-	status.add_theme_color_override("font_color", NotebookUI.INK)
-	status.add_theme_constant_override("outline_size", 0)
-	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status.visible = false
+
+	var comp_pill := _ensure_panel(player_area, "CompanionResonancePill", Color(0.96, 0.94, 0.89, 0.94), Color("#B9975B"), 10)
+	comp_pill.visible = false
+	var halo := player_area.get_node_or_null("ZodiacHaloEmblem") as TextureRect
+	if halo == null and ResourceLoader.exists(ZODIAC_HALO_PATH):
+		halo = TextureRect.new()
+		halo.name = "ZodiacHaloEmblem"
+		halo.texture = load(ZODIAC_HALO_PATH) as Texture2D
+		halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		halo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		halo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		halo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		player_area.add_child(halo)
+	if is_instance_valid(halo):
+		DaylightUI.place(halo, 574, 9, 28, 28)
+		halo.pivot_offset = Vector2(14, 14)
+	var comp_badge := _text(player_area, "CompanionAssistBadge", "", Rect2(314, 54, 288, 22), 15, Color("#386485"))
+	comp_badge.add_theme_constant_override("outline_size", 0)
+	comp_badge.autowrap_mode = TextServer.AUTOWRAP_OFF
+	comp_badge.clip_text = true
+	var res_badge := _text(player_area, "ZodiacResonanceBadge", "", Rect2(398, 11, 172, 24), 15, Color("#6E4E86"))
+	res_badge.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+	res_badge.add_theme_constant_override("outline_size", 0)
+	res_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	res_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	res_badge.autowrap_mode = TextServer.AUTOWRAP_OFF
+	res_badge.clip_text = true
+	var p_status_icons := player_area.get_node_or_null("PlayerStatusIcons") as HBoxContainer
+	if p_status_icons == null:
+		p_status_icons = HBoxContainer.new()
+		p_status_icons.name = "PlayerStatusIcons"
+		p_status_icons.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		p_status_icons.alignment = BoxContainer.ALIGNMENT_CENTER
+		p_status_icons.add_theme_constant_override("separation", 8)
+		player_area.add_child(p_status_icons)
+	DaylightUI.place(p_status_icons, 246, 90, 420, 32)
+	update_badges(root)
 
 	var hand := root.get_node("HandArea") as Control
-	_root_place(hand, Vector2(0, 650), Vector2(1920, 430), factor, origin)
+	_root_place(hand, Vector2(0, 654), Vector2(1920, 426), factor, origin)
 	var tray := hand.get_node_or_null("NotebookTray") as NinePatchRect
 	if tray == null and ResourceLoader.exists(TRAY_PATH):
 		tray = NinePatchRect.new()
@@ -222,6 +406,23 @@ static func layout(root: Control, extent: Vector2) -> void:
 		hand.move_child(sticky, 1 if tray else 0)
 	if sticky:
 		DaylightUI.place(sticky, 1456, 18, 434, 396)
+
+	var deck_back := hand.get_node_or_null("DuelDeckBack") as TextureRect
+	if deck_back == null and CombatSkin.card_back_texture() != null:
+		deck_back = TextureRect.new()
+		deck_back.name = "DuelDeckBack"
+		deck_back.texture = CombatSkin.card_back_texture()
+		deck_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		deck_back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		deck_back.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		deck_back.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		deck_back.rotation_degrees = -3.0
+		deck_back.modulate = Color(1.0, 1.0, 1.0, 0.92)
+		hand.add_child(deck_back)
+		hand.move_child(deck_back, tray.get_index() + 1 if tray else 0)
+	if is_instance_valid(deck_back):
+		DaylightUI.place(deck_back, 24, 102, 124, 174)
+		deck_back.pivot_offset = deck_back.size * 0.5
 
 	var heading := _text(hand, "HandbookHeading", "行动手册", Rect2(198, 35, 168, 30), 25)
 	heading.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
@@ -270,3 +471,263 @@ static func layout(root: Control, extent: Vector2) -> void:
 	var cd_copy := _text(hand, "CooldownCopy", "下回合推进冷却", Rect2(1490, 348, 354, 30), 21, NotebookUI.MUTED)
 	cd_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	root.call("_refresh_tactical_note")
+
+static func _place_actor_on_floor(rect_node: TextureRect, center_x: float, max_w: float, max_h: float, foot_y: float) -> void:
+	var draw_size := Vector2(max_w, max_h)
+	if rect_node.texture != null:
+		var tsize := rect_node.texture.get_size()
+		if tsize.x > 0.0 and tsize.y > 0.0:
+			var sc := minf(max_w / tsize.x, max_h / tsize.y)
+			draw_size = tsize * sc
+	DaylightUI.place(rect_node, center_x - draw_size.x * 0.5, foot_y - draw_size.y, draw_size.x, draw_size.y)
+
+static func _layout_stage_zones(root: Control, factor: float, origin: Vector2, full_left: float, full_width: float, overclock: bool) -> void:
+	var player_area := root.get_node("PlayerArea") as Control
+	var zones := root.get_node_or_null("ArenaStageZones") as Control
+	if zones == null:
+		zones = Control.new()
+		zones.name = "ArenaStageZones"
+		zones.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(zones)
+		root.move_child(zones, player_area.get_index())
+	_root_place(zones, Vector2.ZERO, DESIGN, factor, origin)
+
+	var hud_band := zones.get_node_or_null("ArenaHUDBand") as Panel
+	if hud_band == null:
+		hud_band = Panel.new()
+		hud_band.name = "ArenaHUDBand"
+		hud_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		zones.add_child(hud_band)
+	var hud_box := StyleBoxFlat.new()
+	hud_box.bg_color = Color(0.08, 0.09, 0.16, 0.30) if overclock else Color(0.97, 0.94, 0.88, 0.24)
+	hud_box.border_color = Color(0.84, 0.44, 0.46, 0.42) if overclock else Color(0.75, 0.67, 0.54, 0.42)
+	hud_box.set_border_width_all(0)
+	hud_box.border_width_bottom = 1
+	hud_band.add_theme_stylebox_override("panel", hud_box)
+	DaylightUI.place(hud_band, full_left - 8.0, 78.0, full_width + 16.0, 128.0)
+
+	var platform_rect := Rect2(full_left - 8.0, 566.0, full_width + 16.0, 92.0)
+	var custom_tex := CombatSkin.platform_texture(overclock)
+	var platform_art := zones.get_node_or_null("CombatStagePlatformArt") as TextureRect
+	var platform := zones.get_node_or_null("CombatStagePlatform") as Panel
+	if custom_tex != null:
+		if platform_art == null:
+			platform_art = TextureRect.new()
+			platform_art.name = "CombatStagePlatformArt"
+			platform_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			platform_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			platform_art.stretch_mode = TextureRect.STRETCH_SCALE
+			zones.add_child(platform_art)
+		platform_art.texture = custom_tex
+		platform_art.visible = true
+		DaylightUI.place(platform_art, platform_rect.position.x, platform_rect.position.y, platform_rect.size.x, platform_rect.size.y)
+		if platform != null:
+			platform.visible = false
+	else:
+		if platform_art != null:
+			platform_art.visible = false
+		if platform == null:
+			platform = Panel.new()
+			platform.name = "CombatStagePlatform"
+			platform.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			zones.add_child(platform)
+		platform.visible = true
+		var plat_box := StyleBoxFlat.new()
+		plat_box.bg_color = Color(0.11, 0.07, 0.14, 0.56) if overclock else Color(0.95, 0.91, 0.84, 0.36)
+		plat_box.border_color = Color(0.88, 0.36, 0.38, 0.78) if overclock else Color(0.76, 0.64, 0.45, 0.72)
+		plat_box.set_border_width_all(0)
+		plat_box.border_width_top = 2
+		platform.add_theme_stylebox_override("panel", plat_box)
+		DaylightUI.place(platform, platform_rect.position.x, platform_rect.position.y, platform_rect.size.x, platform_rect.size.y)
+
+static func update_badges(root: Control) -> void:
+	if not is_instance_valid(root):
+		return
+	var player_area := root.get_node_or_null("PlayerArea") as Control
+	if player_area == null:
+		return
+	var pill := player_area.get_node_or_null("CompanionResonancePill") as CanvasItem
+	var comp_badge := player_area.get_node_or_null("CompanionAssistBadge") as Label
+	var res_badge := player_area.get_node_or_null("ZodiacResonanceBadge") as Label
+	if pill == null or comp_badge == null or res_badge == null:
+		return
+	var comp_id := str(root.get("_companion_id")) if root.get("_companion_id") != null else ""
+	var comp_spec := PlayerJourney.companion_assist_spec(comp_id) if comp_id != "" else {}
+	var played_total := int(root.get("_cards_played_total")) if root.get("_cards_played_total") != null else 0
+	var zodiac_spec: Dictionary = root.get("_active_zodiac_spec") if root.get("_active_zodiac_spec") is Dictionary else {}
+	var has_comp := not comp_spec.is_empty()
+	var has_zodiac := not zodiac_spec.is_empty()
+	pill.visible = false
+	comp_badge.visible = has_comp
+	res_badge.visible = has_zodiac
+	if has_comp:
+		comp_badge.text = "%s·%s (%d/3)" % [str(comp_spec.get("name", "")), str(comp_spec.get("skill", "")), played_total % 3]
+	if has_zodiac:
+		res_badge.text = "✦ %s" % str(zodiac_spec.get("title", ""))
+	var halo := player_area.get_node_or_null("ZodiacHaloEmblem") as TextureRect
+	if is_instance_valid(halo):
+		halo.visible = has_zodiac
+		if has_zodiac and not bool(SaveManager.settings.get("reduced_motion", false)):
+			if not halo.has_meta("halo_spinning"):
+				halo.set_meta("halo_spinning", true)
+				var tw := halo.create_tween()
+				tw.set_loops()
+				tw.tween_property(halo, "rotation", TAU, 18.0).from(0.0)
+	update_player_status_chips(root)
+
+static func update_player_status_chips(root: Control) -> void:
+	var player_area := root.get_node_or_null("PlayerArea") as Control
+	if player_area == null:
+		return
+	var row := player_area.get_node_or_null("PlayerStatusIcons") as HBoxContainer
+	if row == null:
+		return
+	var p_shield := int(root.get("player_shield")) if root.get("player_shield") != null else 0
+	var reflect_turns := int(root.get("player_reflect_turns")) if root.get("player_reflect_turns") != null else 0
+	var reflect_dmg := int(root.get("player_reflect_damage")) if root.get("player_reflect_damage") != null else 0
+	var reflect_hits := int(root.get("player_reflect_hits")) if root.get("player_reflect_hits") != null else 0
+	var incoming := 0
+	var enemies: Variant = root.get("enemy_nodes")
+	if enemies is Array:
+		for enemy in enemies:
+			if is_instance_valid(enemy) and not bool(enemy.get("is_dead")) and enemy.has_method("predicted_damage"):
+				incoming += int(enemy.call("predicted_damage"))
+	var net_incoming := maxi(0, incoming - p_shield)
+	var comp_id := str(root.get("_companion_id")) if root.get("_companion_id") != null else ""
+	var comp_spec := PlayerJourney.companion_assist_spec(comp_id) if comp_id != "" else {}
+	var played_total := int(root.get("_cards_played_total")) if root.get("_cards_played_total") != null else 0
+
+	sync_status_chip(row, "ShieldChip", ICON_SHIELD, str(p_shield), "shield" if p_shield > 0 else "muted")
+	var inc_chip := sync_status_chip(
+		row,
+		"IncomingChip",
+		ICON_ATK if net_incoming > 0 else ICON_SHIELD,
+		("-%d" % net_incoming) if net_incoming > 0 else "挡0",
+		"danger" if net_incoming > 0 else "safe"
+	)
+	inc_chip.visible = incoming > 0
+	var ref_chip := sync_status_chip(row, "ReflectChip", ICON_REFLECT, "%d×%d" % [reflect_dmg, reflect_hits], "reflect")
+	ref_chip.visible = reflect_turns > 0
+	var assist_chip := sync_status_chip(
+		row,
+		"AssistChip",
+		ICON_ASSIST,
+		"%d/3" % (played_total % 3),
+		"assist_ready" if (played_total % 3) == 2 else "assist"
+	)
+	assist_chip.visible = not comp_spec.is_empty()
+
+static func is_overclock_combat(root: Control) -> bool:
+	if bool(GameState.pending_combat_data.get("overclock", false)):
+		return true
+	if GameState.current_node_id in ["n_guard", "n_robot", "n5_boss"] or DayCycle.period() == "night":
+		return true
+	var enemies: Variant = root.get("enemy_nodes")
+	if enemies is Array:
+		for unit in enemies:
+			var edata = unit.get("enemy_data") if is_instance_valid(unit) else null
+			if edata != null and str(edata.id) in ["security_guard", "campus_robot", "ch1_hunter_mech", "principal", "alliance_operative", "church_guardian"]:
+				return true
+	return false
+
+static func _layout_redmoon_hud(root: Control) -> void:
+	if not is_instance_valid(root):
+		return
+	var hud := root.get_node_or_null("RedMoonHudPulse") as TextureRect
+	if hud == null and ResourceLoader.exists(REDMOON_HUD_PATH):
+		hud = TextureRect.new()
+		hud.name = "RedMoonHudPulse"
+		hud.texture = load(REDMOON_HUD_PATH) as Texture2D
+		hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hud.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		hud.stretch_mode = TextureRect.STRETCH_SCALE
+		hud.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		hud.z_index = 12
+		root.add_child(hud)
+	if not is_instance_valid(hud):
+		return
+	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var active := is_overclock_combat(root)
+	hud.visible = active
+	var old_tw: Tween = hud.get_meta("pulse_tween") as Tween if hud.has_meta("pulse_tween") else null
+	if old_tw != null and is_instance_valid(old_tw):
+		old_tw.kill()
+		hud.remove_meta("pulse_tween")
+	if not active:
+		return
+	if bool(SaveManager.settings.get("reduced_motion", false)):
+		hud.modulate = Color(1.0, 1.0, 1.0, 0.62)
+		return
+	hud.modulate = Color(1.0, 1.0, 1.0, 0.45)
+	var tw := hud.create_tween()
+	tw.set_loops()
+	tw.tween_property(hud, "modulate:a", 0.88, 1.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(hud, "modulate:a", 0.42, 1.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	hud.set_meta("pulse_tween", tw)
+
+static func play_companion_cutin(root: Control, companion_id: String, spec: Dictionary) -> void:
+	if not is_instance_valid(root) or companion_id == "" or spec.is_empty():
+		return
+	var prev := root.get_node_or_null("CompanionCutinOverlay")
+	if prev != null:
+		prev.queue_free()
+	var extent := root.get_viewport_rect().size
+	var safe_extent := extent if extent.x > 0.0 and extent.y > 0.0 else DESIGN
+	var factor := minf(safe_extent.x / DESIGN.x, safe_extent.y / DESIGN.y)
+	var origin := (safe_extent - DESIGN * factor) / 2.0
+
+	var overlay := Control.new()
+	overlay.name = "CompanionCutinOverlay"
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.z_index = 35
+	root.add_child(overlay)
+	_root_place(overlay, Vector2.ZERO, DESIGN, factor, origin)
+
+	if ResourceLoader.exists(CUTIN_BANNER_PATH):
+		var banner := TextureRect.new()
+		banner.name = "CutinBanner"
+		banner.texture = load(CUTIN_BANNER_PATH) as Texture2D
+		banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		banner.stretch_mode = TextureRect.STRETCH_SCALE
+		banner.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		overlay.add_child(banner)
+		DaylightUI.place(banner, 0.0, 290.0, 1920.0, 340.0)
+
+	var cutin_path := CombatSkin.character_cutin_path(companion_id)
+	if cutin_path != "" and ResourceLoader.exists(cutin_path):
+		var art := TextureRect.new()
+		art.name = "CutinPortrait"
+		art.texture = load(cutin_path) as Texture2D
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		overlay.add_child(art)
+		DaylightUI.place(art, 240.0, 175.0, 460.0, 460.0)
+
+	var title := _text(overlay, "CutinTitle", "%s · %s" % [str(spec.get("name", "")), str(spec.get("skill", ""))], Rect2(740.0, 374.0, 960.0, 56.0), 42, Color("#FFF8EC"))
+	title.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+	title.add_theme_constant_override("outline_size", 4)
+	title.add_theme_color_override("font_outline_color", Color(0.06, 0.04, 0.06, 0.88))
+	var summary_lbl := _text(overlay, "CutinSummary", str(spec.get("summary", "")), Rect2(740.0, 434.0, 960.0, 38.0), 24, Color("#FAF2DE"))
+	summary_lbl.add_theme_constant_override("outline_size", 3)
+	summary_lbl.add_theme_color_override("font_outline_color", Color(0.06, 0.04, 0.06, 0.88))
+
+	var reduced := bool(SaveManager.settings.get("reduced_motion", false))
+	var tw := overlay.create_tween()
+	if reduced:
+		overlay.modulate.a = 0.0
+		tw.tween_property(overlay, "modulate:a", 1.0, 0.08)
+		tw.tween_interval(0.32)
+		tw.tween_property(overlay, "modulate:a", 0.0, 0.16)
+		tw.tween_callback(overlay.queue_free)
+	else:
+		overlay.position.x -= 120.0 * factor
+		overlay.modulate.a = 0.0
+		tw.set_parallel(true)
+		tw.tween_property(overlay, "position:x", origin.x, 0.14).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tw.tween_property(overlay, "modulate:a", 1.0, 0.12)
+		tw.chain().tween_interval(0.36)
+		tw.chain().tween_property(overlay, "modulate:a", 0.0, 0.18)
+		tw.chain().tween_callback(overlay.queue_free)

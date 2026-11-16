@@ -14,15 +14,15 @@ const APPROVED_LAYOUTS: Dictionary = {
 }
 const CLASSMATE_IDS: Array[String] = ["yang_zi_ying", "liu_yu_long", "jiang_zi"]
 const ROUTE: Array[Dictionary] = [
-	{"id": "n0", "title": "上学路", "summary": "和杨子英约好放学见。"},
-	{"id": "n_gate", "title": "校门前", "summary": "柳宇龙发来一场认真的挑战。"},
-	{"id": "n_affairs", "title": "课间事务", "summary": "帮姜梓核对今天的校园安排。"},
-	{"id": "n_dusk", "title": "放学黄昏", "summary": "校门忽然关闭，广播内容异常。"},
-	{"id": "n_guard", "title": "保安拦路", "summary": "先保护同学，再寻找安全出口。"},
-	{"id": "n_rescue", "title": "路上的援手", "summary": "熟悉的路上，有人及时伸出手。"},
-	{"id": "n_robot", "title": "巡逻机器人", "summary": "停下异常的拦截指令。"},
-	{"id": "n5_boss", "title": "校长现身", "summary": "切断权限，阻止伤害继续发生。"},
-	{"id": "n_find_yang", "title": "去找杨子英", "summary": "安全回到路口，兑现汽水的约定。"}
+	{"id": "n0", "title": "樱林解围", "summary": "替转校生黄秋枫挡下高年级生的刁难。"},
+	{"id": "n_gate", "title": "赛前切磋", "summary": "与柳宇龙约好对决，记下秋枫放学后的约定。"},
+	{"id": "n_affairs", "title": "旧园名录", "summary": "协助姜梓核对巡回赛名单与异常日志。"},
+	{"id": "n_dusk", "title": "黄昏轻吻", "summary": "旧公园分别转瞬，天空骤然响起红月警报。"},
+	{"id": "n_guard", "title": "门岗封锁", "summary": "冲破被劫持的超限门禁，追向街角。"},
+	{"id": "n_rescue", "title": "灰区奇袭", "summary": "目睹灰区女特工重创秋枫与露出的光纤电路。"},
+	{"id": "n_robot", "title": "拦截机械", "summary": "与杨子英联手拦截超限重装机械。"},
+	{"id": "n5_boss", "title": "红月超限", "summary": "全员终端协战同步，击退灰区猎杀终端。"},
+	{"id": "n_find_yang", "title": "白羊觉醒", "summary": "守住结晶核心，立下六地区巡回赛的约定。"}
 ]
 
 var panel_kind: String = ""
@@ -77,7 +77,7 @@ static func content_snapshot(kind: String, selected_id: String = "") -> Dictiona
 	for cid in CLASSMATE_IDS:
 		var companion: Dictionary = GameState.companions.get(cid, {})
 		var actor: Dictionary = PhaseTwoContent.ACTORS.get(cid, {})
-		var short_bios := {"yang_zi_ying": "喜欢摄影和橘子汽水。\n遇到朋友有事，总是第一个赶到。", "liu_yu_long": "爱开玩笑，也不服输。\n想堂堂正正赢一场比赛。", "jiang_zi": "校园事务总能整理得清清楚楚。\n嘴上嫌麻烦，做事却很可靠。"}
+		var short_bios := {"yang_zi_ying": "喜欢摄影和橘子汽水。\n每打出3张卡可发动「快门闪光支援」。", "liu_yu_long": "竞技台热血选手，讲究正大光明的切磋。\n每打出3张卡可发动「热血追击重扣」。", "jiang_zi": "学生会干事，把终端安全日志理得一清二楚。\n每打出3张卡可发动「战术统筹屏障」。"}
 		classmates.append({"id": cid, "name": actor.get("name", "同学"), "subtitle": actor.get("title", "同班同学"), "bio": short_bios.get(cid, ""), "favor": companion.get("favor", 0), "unlocked": companion.get("unlocked", false), "portrait": DaylightUI.character_path(cid, true), "dialogue_id": {"yang_zi_ying": "chat_yang", "liu_yu_long": "chat_liu", "jiang_zi": "chat_jiang"}.get(cid, "chat_yang")})
 	var cast: Array[Dictionary] = []
 	for cid in ["ye_zhou", "yang_zi_ying", "liu_yu_long", "jiang_zi"]:
@@ -99,18 +99,18 @@ static func content_snapshot(kind: String, selected_id: String = "") -> Dictiona
 	var upgrade_cost: int = int(selected.get("level", 1)) * 50
 	return {
 		"exploration": exploration, "dungeons": exploration.get("dungeons", []),
-		"kind": kind, "title": {"lounge": "同学交流", "workshop": "卡牌整理", "records": "校园记录", "quest": "模拟训练", "explore": "放学后的那条路"}.get(kind, "校园生活"),
+		"kind": kind, "title": {"lounge": "同学交流", "workshop": "卡牌整理", "records": "校园记录", "quest": "模拟训练", "explore": "红月下的旧公园"}.get(kind, "校园生活"),
 		"cards": cards, "selected_card": selected, "equipped_ids": GameState.equipped_card_ids.duplicate(), "classmates": classmates, "cast": cast,
 		"practice_points": GameState.scrap_metal, "upgrade_cost": upgrade_cost,
 		"can_upgrade": not selected.is_empty() and int(selected.get("level", 1)) < int(selected.get("max_level", 3)) and GameState.scrap_metal >= upgrade_cost,
 		"steps": steps, "current_step": current_step, "current_title": PhaseTwoContent.current_objective(),
 		"completed_count": GameState.visited_node_ids.size(), "total_steps": ROUTE.size(), "completed": completed, "time": GameState.get_formatted_time(),
-		"chapter_description": "一条熟悉的上学路，四位性格不同的同学。\n平常的一天，在放学黄昏出现了意外。",
+		"chapter_description": "熟悉的阿瑞忒校园，突如其来的红月异常警报。\n追寻黄秋枫结晶真相，迈向六地区巡回锦标赛。",
 		"chapter_action": "重新开始" if completed else ("开始今天的行程" if GameState.visited_node_ids.is_empty() else "继续今天的行程"),
 		"chapter_restart": completed,
-		"record_headline": "今天，一起走过这段路。" if completed else "校园里的小事，也值得记下来。",
+		"record_headline": "今天，一起站在了红月之下。" if completed else "校园里的小事，也值得记下来。",
 		"record_summary": PhaseTwoContent.timeline_summary(),
-		"record_anomaly": "校长的异常原因仍未知。\n他有意识地改写权限、封路并制造伤害。\n姜梓已留存命令记录，后续调查还在继续。" if GameState.story_flags.get("principal_stopped", false) else ("出口通知出现了矛盾。\n先核对安全路线，保护好身边的同学。" if GameState.visited_node_ids.has("n_dusk") else "收好书包，准备出发。\n今天的经历会慢慢写进这里。")
+		"record_anomaly": "反叛组织女特工使用盗取的早期母卡残钥劫持了阿瑞忒门禁并击伤编号04「黄秋枫」。\n创口露出的光纤证明她是月球计算中心派出的高阶拟真伪人。\n唯有赢下六地区巡回锦标赛并集齐十二星座母卡与魔法师钥匙，方能申请唤醒她的深层数据。" if GameState.story_flags.get("principal_stopped", false) else ("校园安全终端侦测到未知外部高权限覆写。\n红月预警亮起，请立即前往旧公园与同伴汇合。" if GameState.visited_node_ids.has("n_dusk") else "收好学生智能终端，准备出发。\n今天的经历会慢慢写进这里。")
 	}
 
 func refresh(panel_context: Dictionary = {}) -> void:
@@ -362,15 +362,15 @@ func _compare_inventory_items(a: Dictionary, b: Dictionary) -> bool:
 
 func _known_records() -> Array[Dictionary]:
 	var source: Array[Dictionary] = [
-		{"node": "n0", "title": "上学路 · 早晨的约定", "copy": "和杨子英打了招呼，约好放学后再看看夕阳。", "scene": "morning_road"},
-		{"node": "n_gate", "title": "校门前 · 比赛的约定", "copy": "柳宇龙提出放学后的比赛，想赢一场认真的。", "scene": "school_gate"},
-		{"node": "n_affairs", "title": "课间 · 整理校园事务", "copy": "和姜梓一起核对登记表，把今天的事务理清。", "scene": "school_room"},
-		{"node": "n_dusk", "title": "放学 · 出口通知矛盾", "copy": "校门关闭，广播和公告的安排对不上。", "scene": "dusk_road"},
-		{"node": "n_guard", "title": "侧门 · 找到离校空隙", "copy": "保安终于停手，身后的同学得以离开。", "scene": "school_gate"},
-		{"node": "n_rescue", "title": "归途 · 及时伸出的手", "copy": "杨子英在隔离栏落下前拉住了叶舟。", "scene": "dusk_road"},
-		{"node": "n_robot", "title": "路口 · 停下异常拦截", "copy": "机器人停止了危险拦截，路口暂时安全。", "scene": "dusk_road"},
-		{"node": "n5_boss", "title": "黄昏 · 管理权限切断", "copy": "异常管理权限已切断，同学们可以安全离开。", "scene": "school_gate"},
-		{"node": "n_find_yang", "title": "归途 · 汽水的约定", "copy": "找到杨子英，大家一起走过熟悉的路。", "scene": "dusk_road"}
+		{"node": "n0", "title": "樱林 · 战术刻印解围", "copy": "替转校生黄秋枫挡下高年级生的刁难，两人交换名字。", "scene": "morning_road"},
+		{"node": "n_gate", "title": "校门 · 巡回赛与旧园之约", "copy": "与柳宇龙约下赛前切磋；秋枫怯生生约起放学后的旧公园。", "scene": "school_gate"},
+		{"node": "n_affairs", "title": "旧园 · 巡回赛名录与暗流", "copy": "协助姜梓核对六地区巡回赛名单，发现外部终端权限异常覆写。", "scene": "school_room"},
+		{"node": "n_dusk", "title": "黄昏 · 旧公园轻吻与警报", "copy": "秋枫突发轻吻后转身买汽水，红月警报骤然封锁通道。", "scene": "dusk_road"},
+		{"node": "n_guard", "title": "门岗 · 突破超限封锁", "copy": "击退被超限指令锁死的门岗卫兵，抢通前往街角的路。", "scene": "school_gate"},
+		{"node": "n_rescue", "title": "街角 · 光纤芯与灰区女特工", "copy": "目睹秋枫肩口露出的蓝色光纤；杨子英挺身护住叶舟。", "scene": "dusk_road"},
+		{"node": "n_robot", "title": "路口 · 停下重装拦截机", "copy": "配合战术刻印卡挡下灰区重装机械的火力拦截。", "scene": "dusk_road"},
+		{"node": "n5_boss", "title": "红月 · 全员协战共鸣", "copy": "姜梓同步终端防线、柳宇龙赶到支援，合力击败猎杀终端。", "scene": "school_gate"},
+		{"node": "n_find_yang", "title": "聚光 · 结晶核心与白羊座", "copy": "秋枫进入结晶休眠，#01 白羊座母卡觉醒，立下巡回赛之誓。", "scene": "dusk_road"}
 	]
 	var happened: Array[Dictionary] = []
 	for entry in source:
@@ -402,7 +402,7 @@ func _record_today(canvas: Control) -> void:
 	refs["record_count"] = entries.size()
 
 func _record_classmates(canvas: Control) -> void:
-	var motives := {"ye_zhou": "想顺路买到喜欢的面包。", "yang_zi_ying": "想拍下这条路的夕阳。", "liu_yu_long": "想赢一场认真的比赛。", "jiang_zi": "想把今天的事务理清。"}
+	var motives := {"ye_zhou": "守住与黄秋枫在旧公园的约定，挑战六地区巡回赛。", "yang_zi_ying": "拍下值得记住的风景，关键时刻支援同伴。", "liu_yu_long": "靠战术刻印卡堂堂正正赢下巡回赛。", "jiang_zi": "厘清终端权限异常与巡回赛名录。"}
 	var met := {"ye_zhou": true, "yang_zi_ying": GameState.story_flags.get("prologue_completed", false), "liu_yu_long": GameState.story_flags.get("school_gate_done", false), "jiang_zi": GameState.story_flags.get("school_affairs_done", false)}
 	var index := 0
 	for actor in snapshot["cast"]:
@@ -416,14 +416,14 @@ func _record_classmates(canvas: Control) -> void:
 		index += 1
 
 func _render_explore(canvas: Control) -> void:
-	_label(canvas, "Title", "第一章 · 放学后的那条路", 64, Vector2(144, 28), Vector2(772, 88), true)
-	_label(canvas, "Subtitle", "一条熟悉的上学路，平常的一天。", 28, Vector2(90, 124), Vector2(860, 44), true, DaylightUI.MUTED)
+	_label(canvas, "Title", "第一章 · 红月下的旧公园", 64, Vector2(144, 28), Vector2(772, 88), true)
+	_label(canvas, "Subtitle", "日常战术刻印切磋与红月异变的起点。", 28, Vector2(90, 124), Vector2(860, 44), true, DaylightUI.MUTED)
 	var close := _button(canvas, "CloseButton", "×", Vector2(926, 26), Vector2(64, 64), false)
 	close.add_theme_font_size_override("font_size", 44)
 	close.pressed.connect(func(): close_requested.emit())
 	refs["close_button"] = close
 	_scene_thumbnail(canvas, "ChapterWindow", "dusk_road", Vector2(50, 188), Vector2(940, 300))
-	_label(canvas, "Synopsis", "四位性格不同的同学，\n沿着熟悉的路，一起走过今天。", 32, Vector2(64, 506), Vector2(912, 84), true, DaylightUI.INK, true)
+	_label(canvas, "Synopsis", "黄秋枫的骤然告白与红月封锁交织，\n与三位同伴共同唤醒第一枚星座母卡。", 32, Vector2(64, 506), Vector2(912, 84), true, DaylightUI.INK, true)
 	for index in snapshot["cast"].size():
 		var actor: Dictionary = snapshot["cast"][index]
 		var capsule := _paper(canvas, "ActorCapsule_" + actor["id"], Vector2(64 + index * 232, 602), Vector2(216, 60))

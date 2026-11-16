@@ -112,6 +112,7 @@ func _sync_edge_bleed(root: Control, stage: Control, extent: Vector2, stage_size
 		bleed = Control.new()
 		bleed.name = "_PlatformEdgeBleed"
 		bleed.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bleed.z_index = -100
 		bleed.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		root.add_child(bleed)
 		var base := ColorRect.new()
@@ -126,6 +127,7 @@ func _sync_edge_bleed(root: Control, stage: Control, extent: Vector2, stage_size
 		cover.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		cover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		bleed.add_child(cover)
+	bleed.z_index = -100
 	var target_idx := stage.get_index() if stage != root and bleed.get_index() > stage.get_index() else maxi(0, (stage.get_index() - 1) if stage != root else 0)
 	root.move_child(bleed, target_idx)
 	bleed.visible = true

@@ -33,8 +33,8 @@ var unlocked_card_ids: Array[String] = [
 	"overclock_torch"
 ]
 
-# 默认只装备一张攻击卡；所有装备变更都必须保留至少一张攻击卡。
-var equipped_card_ids: Array[String] = ["wrench_smash"]
+# 默认装备 3 张初始战术刻印卡（攻击+护盾+恢复），覆盖教学切磋基础节奏。
+var equipped_card_ids: Array[String] = ["wrench_smash", "scrap_shield", "icy_soda"]
 
 # 卡牌等级映射 (card_id -> int)
 var card_levels: Dictionary = {
@@ -48,9 +48,9 @@ var card_levels: Dictionary = {
 
 # 伙伴好感度与招募状态
 var companions: Dictionary = {
-	"yang_zi_ying": {"name":"杨子英","title":"总有新计划的同学","bio":"热心、行动快，喜欢摄影和橘子汽水。想拍下上学路最漂亮的夕阳，也不愿把朋友留在危险里。","unlocked":true,"favor":20,"avatar_key":"yang_zi_ying"},
-	"liu_yu_long": {"name":"柳宇龙","title":"不服输的同班同学","bio":"爱开玩笑，也很在意别人是否认真看待自己。一次光明正大的胜利，比嘴上占便宜更重要。","unlocked":false,"favor":0,"avatar_key":"liu_yu_long"},
-	"jiang_zi": {"name":"姜梓","title":"认真负责的校园事务员","bio":"负责整理校园事务与值日表。嘴上嫌麻烦，遇到问题总会先把信息核对清楚，让大家少走弯路。","unlocked":false,"favor":0,"avatar_key":"jiang_zi"}
+	"yang_zi_ying": {"name":"杨子英","title":"摄影社热心社员","bio":"热心、行动快，喜欢用镜头记录校园夕阳与战术刻印卡切磋。每打出3张卡可发动「快门闪光支援」，兼顾续航与护盾。","unlocked":true,"favor":20,"avatar_key":"yang_zi_ying"},
+	"liu_yu_long": {"name":"柳宇龙","title":"竞技对抗狂热者","bio":"爱开玩笑也很不服输，把非致命护盾裁决当成堂堂正正的决斗舞台。每打出3张卡可发动「热血追击重扣」，追加高额单体伤害。","unlocked":false,"favor":0,"avatar_key":"liu_yu_long"},
+	"jiang_zi": {"name":"姜梓","title":"学生会事务干事","bio":"严谨干练，负责核对六地区巡回赛名录与终端安全日志。每打出3张卡可发动「战术统筹屏障」，提供高额护盾并干扰敌方。","unlocked":false,"favor":0,"avatar_key":"jiang_zi"}
 }
 
 # 剧情标志位
@@ -59,6 +59,7 @@ var story_flags: Dictionary = {
 	"chapter_1_unlocked": true,
 	"chapter_1_completed": false,
 	"school_gate_done": false,
+	"school_gate_duel_briefed": false,
 	"school_affairs_done": false,
 	"yang_rescued_player": false,
 	"principal_stopped": false,
@@ -87,7 +88,7 @@ var exploration_return_hp: int = -1
 
 # Persistent optional experience data; old saves receive empty defaults.
 const DECK_RULE_MESSAGE := "卡组至少保留一张攻击卡"
-var player_profile: Dictionary = {"loadouts": [{"name":"方案1","card_ids":["wrench_smash"]}], "active_loadout_index": 0, "milestone_claims": {}, "exploration_log": [], "last_activity": "story"}
+var player_profile: Dictionary = {"loadouts": [{"name":"方案1","card_ids":["wrench_smash", "scrap_shield", "icy_soda"]}], "active_loadout_index": 0, "milestone_claims": {}, "exploration_log": [], "last_activity": "story"}
 # Read-only memories are a viewing context, never saved as story progress.
 var archive_dialogue_id: String = ""
 var archive_return_tab: String = ""
@@ -294,7 +295,7 @@ func begin_phase_two_chapter() -> void:
 	reset_exploration_progress()
 	pending_combat_data.clear()
 	pending_dialogue_id = ""
-	for flag in ["prologue_completed", "chapter_1_completed", "school_gate_done", "school_affairs_done", "yang_rescued_player", "principal_stopped", "principal_briefing_done"]:
+	for flag in ["prologue_completed", "chapter_1_completed", "school_gate_done", "school_gate_duel_briefed", "school_affairs_done", "yang_rescued_player", "principal_stopped", "principal_briefing_done"]:
 		set_story_flag(flag, false)
 	companions["liu_yu_long"]["unlocked"] = false
 	companions["jiang_zi"]["unlocked"] = false
@@ -311,79 +312,114 @@ func _ready() -> void:
 	_initial_progress = export_progress(false)
 
 func _init_default_cards() -> void:
-	# 1. 找准空隙
+	# 1. 刻印·破隙一击（原：找准空隙）
 	var c1 = CardData.new()
 	c1.id = "wrench_smash"
-	c1.name = "找准空隙"
+	c1.name = "破隙突刺"
 	c1.card_type = CardData.CardType.ATTACK
 	c1.base_cooldown = 1
 	c1.damage = 18
-	c1.description = "对单个敌人造成 [color=#ff5555]18点[/color] 物理伤害。"
-	c1.flavor_text = "先观察，再抓住对方动作之间的空隙。"
+	c1.description = "展开终端高频突刺刻印，对单个目标造成 [color=#ff5555]18点[/color] 伤害。"
+	c1.flavor_text = "校内裁决与实战通用的基础起手式：先观察，再抢出空隙。"
 	all_cards[c1.id] = c1
 
-	# 2. 书包格挡
+	# 2. 刻印·书包偏转盾（原：书包格挡）
 	var c2 = CardData.new()
 	c2.id = "scrap_shield"
-	c2.name = "书包格挡"
+	c2.name = "便携偏转盾"
 	c2.card_type = CardData.CardType.DEFENSE
 	c2.target_type = CardData.TargetType.SELF
 	c2.base_cooldown = 1
 	c2.shield = 14
-	c2.description = "自身获得 [color=#55aaff]14点[/color] 护盾，持续 1 回合。"
-	c2.flavor_text = "书包里的课本，偶尔也有另一种用途。"
+	c2.description = "在身前展开学生终端护盾，自身获得 [color=#55aaff]14点[/color] 护盾，持续 1 回合。"
+	c2.flavor_text = "夹在课本间的简易偏转发生器，护盾裁决时最常用的标准防壁。"
 	all_cards[c2.id] = c2
 
-	# 3. 补充水分
+	# 3. 刻印·橘汽舒缓（原：补充水分）
 	var c3 = CardData.new()
 	c3.id = "icy_soda"
-	c3.name = "补充水分"
+	c3.name = "冰镇补给印"
 	c3.card_type = CardData.CardType.RECOVERY
 	c3.target_type = CardData.TargetType.SELF
 	c3.base_cooldown = 3
 	c3.heal = 24
-	c3.description = "调整呼吸，恢复叶舟 [color=#55ff55]24点[/color] 体力，每场战斗最多使用2次。"
-	c3.flavor_text = "喝口水，慢慢把呼吸调整回来。"
+	c3.description = "稳定呼吸与终端同期率，恢复叶舟 [color=#55ff55]24点[/color] 体力（每场最多2次）。"
+	c3.flavor_text = "一瓶汽水的间隙，足够把慌乱的心跳重新稳下来。"
 	all_cards[c3.id] = c3
 
-	# 4. 连续牵制
+	# 4. 刻印·连续电弧压制（原：连续牵制）
 	var c4 = CardData.new()
 	c4.id = "overclock_torch"
-	c4.name = "连续牵制"
+	c4.name = "连携压制弧"
 	c4.card_type = CardData.CardType.ATTACK
 	c4.base_cooldown = 3
 	c4.damage = 24
 	c4.burn_damage = 6
 	c4.burn_duration = 2
-	c4.description = "造成 [color=#ff5555]24点[/color] 伤害，并附加 2 回合“压制”(每回合6点)。"
-	c4.flavor_text = "持续保持距离，让对方来不及组织下一步。"
+	c4.description = "造成 [color=#ff5555]24点[/color] 伤害，并附加 2 回合“压制”（每回合6点）。"
+	c4.flavor_text = "以持续频闪波段锁定对手节点，红月超限模式下可烧灼装甲回路。"
 	all_cards[c4.id] = c4
 
-	# 5. 转移注意
+	# 5. 刻印·阿戈拉虚票干扰（原：转移注意）
 	var c5 = CardData.new()
 	c5.id = "fake_cheque"
-	c5.name = "转移注意"
+	c5.name = "扰频假票令"
 	c5.card_type = CardData.CardType.DEBUFF
 	c5.target_type = CardData.TargetType.ALL_ENEMIES
 	c5.base_cooldown = 3
 	c5.attack_down_percent = 0.25
 	c5.debuff_duration = 2
-	c5.description = "转移敌方全体注意，使其造成的伤害降低 [color=#ffff55]25%[/color]，持续 2 回合。"
-	c5.flavor_text = "把注意力引向别处，为同伴争取时间。"
+	c5.description = "投放伪造讯号干扰敌方全体，使其伤害降低 [color=#ffff55]25%[/color]，持续 2 回合。"
+	c5.flavor_text = "出自阿戈拉赌桌思路的电子诱导刻印，能短暂骗过对手的瞄准算力。"
 	all_cards[c5.id] = c5
 
-	# 6. 默契掩护
+	# 6. 刻印·默契联防壁垒（原：默契掩护）
 	var c6 = CardData.new()
 	c6.id = "steel_barricade"
-	c6.name = "默契掩护"
+	c6.name = "默契反制壁"
 	c6.card_type = CardData.CardType.SPECIAL
 	c6.target_type = CardData.TargetType.SELF
 	c6.base_cooldown = 2
 	c6.shield = 10
 	c6.reflect_damage = 10
-	c6.description = "获得 [color=#55aaff]10点[/color] 护盾，本次敌方行动中受击反弹 [color=#ff9955]10点[/color] 伤害，最多2次。"
-	c6.flavor_text = "大家相互照应，总比一个人硬撑有效。"
+	c6.description = "获得 [color=#55aaff]10点[/color] 护盾，敌方行动受击时反弹 [color=#ff9955]10点[/color] 伤害（最多2次）。"
+	c6.flavor_text = "与同伴共用同步阵线——迎上来的每一击都会变成反攻的缺口。"
 	all_cards[c6.id] = c6
+
+	_register_test_duel_cards()
+
+func _register_test_duel_cards() -> void:
+	# Wave 5 Tactical Imprint Cards across the 6 districts; all purchasable in district shops and usable in normal & overclock duels.
+	var defs: Array[Dictionary] = [
+		{"id": "coin_gambit", "name": "硬币博弈印", "type": CardData.CardType.SPECIAL, "target": CardData.TargetType.SELF, "cd": 2, "shield": 12, "reflect": 8, "desc": "获得 12点 护盾，敌方行动受击反弹 8点 伤害（最多2次）。", "flavor": "阿戈拉学园流行的高风险反制刻印，落子前先看清对手筹码。"},
+		{"id": "counter_seal", "name": "诺莫斯反制封", "type": CardData.CardType.DEFENSE, "target": CardData.TargetType.SELF, "cd": 2, "shield": 18, "desc": "展开高密度法则偏折膜，获得 18点 护盾，持续 1 回合。", "flavor": "来自诺莫斯法典学园的标准防御刻印，把节奏死死扣回手里。"},
+		{"id": "crimson_pulse", "name": "赤月超限脉冲", "type": CardData.CardType.ATTACK, "target": CardData.TargetType.SINGLE_ENEMY, "cd": 2, "dmg": 22, "burn": 5, "burn_dur": 2, "desc": "造成 22点 伤害，并附加 2 回合“压制”（每回合5点）。", "flavor": "模拟红月高负载频率的高输出刻印，持续灼烧目标护盾槽。"},
+		{"id": "desk_vault", "name": "教室掩体阵", "type": CardData.CardType.DEFENSE, "target": CardData.TargetType.SELF, "cd": 1, "shield": 16, "desc": "自身获得 16点 护盾，持续 1 回合。", "flavor": "阿瑞忒社团教室最常演练的快充护盾印，稳妥而可靠。"},
+		{"id": "duel_draw", "name": "巡回先手斩", "type": CardData.CardType.ATTACK, "target": CardData.TargetType.SINGLE_ENEMY, "cd": 1, "dmg": 16, "desc": "快速展开低冷却突击投影，对单个目标造成 16点 伤害。", "flavor": "柳宇龙最喜欢的起手节拍——先拿下主攻主动权。"},
+		{"id": "emergency_tape", "name": "光学修复带", "type": CardData.CardType.RECOVERY, "target": CardData.TargetType.SELF, "cd": 3, "heal": 22, "desc": "紧急安定回路并整理伤势，恢复叶舟 22点 体力（每场限2次）。", "flavor": "忒克捏工坊流出的携行修复片，也能稳定终端同步疲劳。"},
+		{"id": "final_trump", "name": "决赛终极底牌", "type": CardData.CardType.ATTACK, "target": CardData.TargetType.SINGLE_ENEMY, "cd": 3, "dmg": 30, "desc": "蓄能倾泻全部高频刻印，对单个目标造成 30点 伤害。", "flavor": "六地区巡回锦标赛决胜局专用的高能终结卡，不留退路。"},
+		{"id": "focus_lens", "name": "对焦干涉镜", "type": CardData.CardType.DEBUFF, "target": CardData.TargetType.ALL_ENEMIES, "cd": 2, "atk_down": 0.25, "debuff_dur": 2, "desc": "锁定对手算力视界，使敌方全体伤害降低 25%，持续 2 回合。", "flavor": "杨子英根据摄影社定焦镜头改良的光学眩光干扰印。"},
+		{"id": "silent_library", "name": "寂静档案室", "type": CardData.CardType.DEBUFF, "target": CardData.TargetType.ALL_ENEMIES, "cd": 3, "atk_down": 0.30, "debuff_dur": 2, "desc": "启动全域频段静默，使敌方全体伤害降低 30%，持续 2 回合。", "flavor": "姜梓偏好的秩序压场卡：喧嚣退去后，最先乱阵脚的是对手。"},
+		{"id": "tag_assist", "name": "双人协防印", "type": CardData.CardType.SPECIAL, "target": CardData.TargetType.SELF, "cd": 2, "shield": 12, "reflect": 12, "desc": "与同伴同步防御矩阵，获得 12点 护盾并在受击时反击 12点 伤害。", "flavor": "只要身后还有同伴并肩，就能毫不动摇地正面迎敌。"}
+	]
+	for spec in defs:
+		var card := CardData.new()
+		card.id = str(spec["id"])
+		card.name = str(spec["name"])
+		card.card_type = spec["type"]
+		card.target_type = spec["target"]
+		card.base_cooldown = int(spec["cd"])
+		card.damage = int(spec.get("dmg", 0))
+		card.shield = int(spec.get("shield", 0))
+		card.heal = int(spec.get("heal", 0))
+		card.burn_damage = int(spec.get("burn", 0))
+		card.burn_duration = int(spec.get("burn_dur", 0))
+		card.attack_down_percent = float(spec.get("atk_down", 0.0))
+		card.debuff_duration = int(spec.get("debuff_dur", 0))
+		card.reflect_damage = int(spec.get("reflect", 0))
+		card.description = str(spec["desc"])
+		card.flavor_text = str(spec["flavor"])
+		all_cards[card.id] = card
 
 func get_card(card_id: String) -> CardData:
 	if all_cards.has(card_id):
@@ -461,7 +497,44 @@ func add_companion_favor(companion_id: String, amount: int) -> void:
 
 func set_story_flag(flag_name: String, value: Variant) -> void:
 	story_flags[flag_name] = value
+	if flag_name == "chapter_1_completed" and bool(value) and not SpecialCardCollection.collected("hero"):
+		SpecialCardCollection.acquire_from_story("hero", "chapter_1_aries_awakening")
 	story_flag_updated.emit(flag_name, value)
+
+func get_active_companion_id() -> String:
+	var cid := str(player_profile.get("active_companion", ""))
+	if cid != "" and PlayerJourney.COMPANION_ASSISTS.has(cid):
+		return cid
+	return ""
+
+func set_active_companion_id(companion_id: String) -> bool:
+	if companion_id != "" and not PlayerJourney.COMPANION_ASSISTS.has(companion_id):
+		return false
+	if companion_id == "":
+		player_profile.erase("active_companion")
+	else:
+		if not SaveManager.test_session and not companions.get(companion_id, {}).get("unlocked", false):
+			return false
+		player_profile["active_companion"] = companion_id
+	profile_changed.emit()
+	return true
+
+func get_active_zodiac_id() -> String:
+	var zid := str(player_profile.get("active_zodiac", ""))
+	if zid != "" and ZodiacCatalog.known(zid) and SpecialCardCollection.collected(zid):
+		return zid
+	return ""
+
+func set_active_zodiac_id(zodiac_id: String) -> bool:
+	if zodiac_id == "":
+		player_profile.erase("active_zodiac")
+		profile_changed.emit()
+		return true
+	if not ZodiacCatalog.known(zodiac_id) or not SpecialCardCollection.collected(zodiac_id):
+		return false
+	player_profile["active_zodiac"] = zodiac_id
+	profile_changed.emit()
+	return true
 
 func add_crystals(amount: int) -> void:
 	energy_crystals = max(0, energy_crystals + amount)
@@ -533,7 +606,8 @@ func _open_phase_two_node(node_id: String) -> void:
 		return
 	current_chapter_id = "chapter_1"
 	current_node_id = node_id
-	var combat_stage: bool = step.has("enemy") and (not step.has("dialogue") or story_flags.get("principal_briefing_done", false))
+	var briefing_flag: String = str(step.get("briefing_flag", ""))
+	var combat_stage: bool = step.has("enemy") and (not step.has("dialogue") or (briefing_flag != "" and bool(story_flags.get(briefing_flag, false))))
 	if phase_two_checkpoint.get("node_id", "") != node_id:
 		phase_two_checkpoint.clear()
 		phase_two_combat_checkpoint.clear()

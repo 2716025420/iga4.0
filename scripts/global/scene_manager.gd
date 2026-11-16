@@ -5,10 +5,9 @@ signal scene_transition_started
 signal scene_transition_completed
 signal scene_transition_failed(message: String)
 
-enum TargetScene { HOME, WORLD_MAP, EXPLORATION, COMBAT, STORY, TITLE, CAMPUS_LIFE, LOCAL_MAP, REGION_ATLAS }
+enum TargetScene { HOME, EXPLORATION, COMBAT, STORY, TITLE, CAMPUS_LIFE, LOCAL_MAP, REGION_ATLAS }
 const SCENE_PATHS: Dictionary = {
  TargetScene.HOME:"res://scenes/home/home_screen.tscn",
- TargetScene.WORLD_MAP:"res://scenes/world_map/world_map.tscn",
  TargetScene.EXPLORATION:"res://scenes/exploration/node_map.tscn",
  TargetScene.COMBAT:"res://scenes/combat/combat_screen.tscn",
  TargetScene.STORY:"res://scenes/story/dialogue_screen.tscn",
@@ -17,7 +16,7 @@ const SCENE_PATHS: Dictionary = {
  TargetScene.LOCAL_MAP:"res://scenes/campus/local_map_screen.tscn",
  TargetScene.REGION_ATLAS:"res://scenes/campus/region_atlas_screen.tscn"
 }
-const DESTINATIONS := {TargetScene.HOME:"回到教室",TargetScene.WORLD_MAP:"去往校园",TargetScene.EXPLORATION:"进入训练路线",TargetScene.COMBAT:"准备练习",TargetScene.STORY:"翻开下一段故事",TargetScene.TITLE:"回到放学以后",TargetScene.CAMPUS_LIFE:"去往下一处地点",TargetScene.LOCAL_MAP:"展开地区地图",TargetScene.REGION_ATLAS:"展开地区总图"}
+const DESTINATIONS := {TargetScene.HOME:"回到教室",TargetScene.EXPLORATION:"进入训练路线",TargetScene.COMBAT:"准备练习",TargetScene.STORY:"翻开下一段故事",TargetScene.TITLE:"回到放学以后",TargetScene.CAMPUS_LIFE:"去往下一处地点",TargetScene.LOCAL_MAP:"展开地区地图",TargetScene.REGION_ATLAS:"展开地区总图"}
 const MIN_LOADING_SECONDS := 0.75
 const LOAD_TIMEOUT_SECONDS := 30.0
 var current_scene_type: TargetScene = TargetScene.HOME
@@ -73,9 +72,13 @@ func change_scene(target: TargetScene, _params: Dictionary = {}) -> void:
   _complete_transition()
   return
  if battle_entry:
+  if target == TargetScene.COMBAT:
+   AudioManager.play_sfx_cutin()
   _battle_entry.present(battle_exit)
  else:
-  _loading.present(DESTINATIONS.get(target,"去往下一站"))
+  if target in [TargetScene.STORY, TargetScene.EXPLORATION, TargetScene.LOCAL_MAP, TargetScene.REGION_ATLAS]:
+   AudioManager.play_sfx_page_flip()
+  _loading.present(DESTINATIONS.get(target,"去往下一站"),SceneLoadingScreen.theme_for_context(target,CampusLife.current_region,CampusLife.current_location))
   await _fade(_loading,1.0,SaveManager.motion_duration(0.18))
  # Render the transition before requesting or instantiating a heavy scene.
  await get_tree().process_frame
@@ -125,6 +128,8 @@ func change_scene(target: TargetScene, _params: Dictionary = {}) -> void:
   return
  await get_tree().scene_changed
  current_scene_type = target
+ if target != TargetScene.COMBAT:
+  AudioManager.play_bgm_for_scene(target,false,GameState.pending_dialogue_id)
  # The new scene has run _ready; give deferred layouts and its first frame time to settle.
  await get_tree().process_frame
  await get_tree().process_frame

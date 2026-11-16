@@ -3,7 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://c3nrpl8jox6il" path="res://assets/ui/scene_reset/campus_surfaces.png" id="1_466ly"]
 [ext_resource type="FontFile" uid="uid://crv2gmfawu3e4" path="res://assets/fonts/NotoSerifSC-SemiBold.ttf" id="1_a2l2q"]
 [ext_resource type="FontFile" uid="uid://b1dca6eqd8ggh" path="res://assets/fonts/NotoSansSC-Regular.ttf" id="2_0omi4"]
-[ext_resource type="Texture2D" uid="uid://bces86r3q0mi4" path="res://assets/ui/phase_three/card_paper.png" id="2_52mx2"]
 [ext_resource type="Texture2D" uid="uid://boasyny6kk4dx" path="res://assets/ui/scene_reset/paper_panel.svg" id="3_py0i1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_466ly"]
@@ -79,7 +78,7 @@ content_margin_left = 14.0
 content_margin_top = 12.0
 content_margin_right = 14.0
 content_margin_bottom = 12.0
-texture = ExtResource("2_52mx2")
+texture = ExtResource("3_py0i1")
 texture_margin_left = 14.0
 texture_margin_top = 14.0
 texture_margin_right = 14.0

@@ -4,6 +4,10 @@ extends Control
 var screen: Control
 var scene_caption: Label
 var cutscene_stage: ParallaxCutsceneStage
+var continue_cursor: Label
+var _cursor_tween: Tween
+var _chapter_banner: Control
+var _banner_tween: Tween
 var _active_cutscene_id: String = ""
 
 func build(owner_screen: Control) -> void:
@@ -63,6 +67,10 @@ func build(owner_screen: Control) -> void:
 	body.scroll_active = true
 	body.fit_content = false
 	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	continue_cursor = SchoolObjectUI.text(self, "ContinueCursor", "点击继续", Rect2(1624, 928, 112, 36), 19, Color("#6D6257"))
+	continue_cursor.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	continue_cursor.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	continue_cursor.visible = false
 	var choices: PanelContainer = screen.get("choices_panel")
 	choices.reparent(self)
 	DaylightUI.place(choices, 690, 440, 600, 190)
@@ -93,6 +101,7 @@ func build(owner_screen: Control) -> void:
 			wash.set_border_width_all(0)
 			button.add_theme_stylebox_override(state, wash)
 		SchoolObjectUI.borderless(button)
+		DaylightUI.bind_button_audio(button)
 		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]: button.add_theme_color_override(state, Color("#FFF6E8"))
 	SchoolObjectUI.text(self, "ReadingHint", "Enter / Space 继续", Rect2(1480, 1005, 340, 45), 25, Color("#FFF6E8"), true)
 	var records: Control = screen.get("history_panel")
@@ -101,7 +110,7 @@ func build(owner_screen: Control) -> void:
 	for old_name in ["CharArea", "DialogueBox"]: screen.get_node(old_name).hide()
 	update_scene()
 
-func update_scene() -> void:
+func update_scene(override_cutscene_id: String = "") -> void:
 	var id := str(screen.get("current_dialogue_id"))
 	var key := PhaseTwoContent.background_key(id)
 	if bool(screen.get("_exploration_mode")): key = "dusk_road"
@@ -113,11 +122,20 @@ func update_scene() -> void:
 	var calendar_geometry := get_node_or_null("CalendarLocationGeometry")
 	if calendar_geometry != null: calendar_geometry.hide()
 	var bg_rect := screen.get("bg_texture") as TextureRect
-	var use_cutscene := not bool(screen.get("_calendar_mode")) and not bool(screen.get("_exploration_mode")) and id == "after_school"
+	var cutscene_id := ""
+	if not bool(screen.get("_calendar_mode")) and not bool(screen.get("_exploration_mode")):
+		if override_cutscene_id != "" and ParallaxCutsceneStage.PRESETS.has(override_cutscene_id):
+			cutscene_id = override_cutscene_id
+		else:
+			cutscene_id = ParallaxCutsceneStage.preset_for_dialogue(id, CampusLife.current_region)
+	var use_cutscene := cutscene_id != ""
 	if is_instance_valid(cutscene_stage):
 		cutscene_stage.visible = use_cutscene
 		if use_cutscene:
-			if _active_cutscene_id != id:
+			if cutscene_stage.preset_id != cutscene_id:
+				_active_cutscene_id = id
+				cutscene_stage.configure(cutscene_id, true)
+			elif _active_cutscene_id != id:
 				_active_cutscene_id = id
 				cutscene_stage.play(true)
 			else:
@@ -156,3 +174,63 @@ func update_scene() -> void:
 	Platform.fit_stage(screen, self, Color("#242834"), bg_tex)
 	if use_cutscene and is_instance_valid(cutscene_stage):
 		cutscene_stage._apply_transforms()
+
+func set_continue_cursor_visible(should_show: bool) -> void:
+	if not is_instance_valid(continue_cursor):
+		return
+	continue_cursor.visible = should_show
+	if _cursor_tween != null and _cursor_tween.is_valid():
+		_cursor_tween.kill()
+		_cursor_tween = null
+	if not should_show or bool(SaveManager.settings.get("reduced_motion", false)):
+		continue_cursor.modulate.a = 0.85
+		continue_cursor.position.x = 1624.0
+		return
+	continue_cursor.modulate.a = 0.50
+	continue_cursor.position.x = 1620.0
+	_cursor_tween = create_tween().set_loops()
+	_cursor_tween.tween_property(continue_cursor, "modulate:a", 0.95, 0.6).set_trans(Tween.TRANS_SINE)
+	_cursor_tween.parallel().tween_property(continue_cursor, "position:x", 1626.0, 0.6).set_trans(Tween.TRANS_SINE)
+	_cursor_tween.tween_property(continue_cursor, "modulate:a", 0.50, 0.6).set_trans(Tween.TRANS_SINE)
+	_cursor_tween.parallel().tween_property(continue_cursor, "position:x", 1620.0, 0.6).set_trans(Tween.TRANS_SINE)
+
+func show_chapter_banner(title_text: String) -> void:
+	var banner_path := "res://assets/ui_core/animations/ui_chapter_banner.png"
+	if not ResourceLoader.exists(banner_path) or title_text.strip_edges().is_empty():
+		return
+	hide_chapter_banner()
+	_chapter_banner = Control.new()
+	_chapter_banner.name = "ChapterBannerToast"
+	_chapter_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chapter_banner.z_index = 25
+	add_child(_chapter_banner)
+	DaylightUI.place(_chapter_banner, 280, 72, 1360, 226)
+	var plate := TextureRect.new()
+	plate.name = "BannerPlate"
+	plate.texture = load(banner_path) as Texture2D
+	plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chapter_banner.add_child(plate)
+	DaylightUI.place(plate, 0, 0, 1360, 226)
+	var lbl := SchoolObjectUI.text(_chapter_banner, "BannerTitle", title_text, Rect2(170, 64, 1020, 98), 35, Color("#FFF3D4"), true)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+	if bool(SaveManager.settings.get("reduced_motion", false)):
+		_chapter_banner.modulate.a = 0.96
+		return
+	_chapter_banner.modulate.a = 0.0
+	_banner_tween = create_tween()
+	_banner_tween.tween_property(_chapter_banner, "modulate:a", 1.0, 0.35).set_trans(Tween.TRANS_CUBIC)
+	_banner_tween.tween_interval(2.0)
+	_banner_tween.tween_property(_chapter_banner, "modulate:a", 0.0, 0.45).set_trans(Tween.TRANS_SINE)
+	_banner_tween.tween_callback(hide_chapter_banner)
+
+func hide_chapter_banner() -> void:
+	if _banner_tween != null and _banner_tween.is_valid():
+		_banner_tween.kill()
+		_banner_tween = null
+	if is_instance_valid(_chapter_banner):
+		_chapter_banner.queue_free()
+		_chapter_banner = null

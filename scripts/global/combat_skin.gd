@@ -3,9 +3,46 @@ extends RefCounted
 
 const PAPER_PATH := "res://assets/ui_core/theme/paper_modal_9slice.png"
 const FALLBACK_PAPER_PATH := "res://assets/ui/phase_three/battle_paper.png"
+const CARD_BACK_DUEL_PATH := "res://assets/combat/card_back_duel.png"
 static var _paper: Texture2D
 static var _paper_is_modal_slice: bool = false
 static var _actors: Dictionary = {}
+
+static func character_combat_path(actor_id: String) -> String:
+	var actual := str({"protagonist": "ye_zhou", "uncle_wan": "liu_yu_long", "victoria": "jiang_zi"}.get(actor_id, actor_id))
+	if actual == "ye_zhou":
+		return "res://assets/sprites/characters/phase_three/combat/ye_zhou_idle.png"
+	var p := "res://assets/sprites/characters/phase_three/combat/combat_%s_idle.png" % actual
+	return p if ResourceLoader.exists(p) else ""
+
+static func character_cutin_path(actor_id: String) -> String:
+	var actual := str({"protagonist": "ye_zhou", "uncle_wan": "liu_yu_long", "victoria": "jiang_zi"}.get(actor_id, actor_id))
+	var p := "res://assets/sprites/characters/phase_three/cutin/%s_cutin.png" % actual
+	return p if ResourceLoader.exists(p) else character_combat_path(actual)
+
+static func enemy_combat_path(enemy_id: String) -> String:
+	if enemy_id == "liu_yu_long_duel":
+		return character_combat_path("liu_yu_long")
+	var target_id := "ch1_hunter_mech" if enemy_id in ["principal", "boss_frank", "ch1_hunter_mech"] else enemy_id
+	var p := "res://assets/sprites/enemies/phase_three/enemy_%s.png" % target_id
+	if ResourceLoader.exists(p):
+		return p
+	if target_id == "ch1_hunter_mech":
+		var fallback := "res://assets/sprites/enemies/phase_three/enemy_alliance_operative.png"
+		if ResourceLoader.exists(fallback):
+			return fallback
+	return PhaseTwoContent.character_path(target_id)
+
+static func enemy_needs_flip_h(enemy_id: String) -> bool:
+	return enemy_id in ["drone", "preacher", "liu_yu_long_duel"]
+
+static func platform_texture(overclock: bool) -> Texture2D:
+	var key := "redmoon" if overclock else "day"
+	var p := "res://assets/ui_core/theme/combat_stage_platform_%s.png" % key
+	return load(p) as Texture2D if ResourceLoader.exists(p) else null
+
+static func card_back_texture() -> Texture2D:
+	return load(CARD_BACK_DUEL_PATH) as Texture2D if ResourceLoader.exists(CARD_BACK_DUEL_PATH) else null
 
 static func actor_texture(path: String) -> Texture2D:
 	if _actors.has(path): return _actors[path]

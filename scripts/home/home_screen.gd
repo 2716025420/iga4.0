@@ -63,6 +63,7 @@ var _panel_refresh_pending := false
 func _ready() -> void:
 	SceneManager.current_scene_type = SceneManager.TargetScene.HOME
 	CampusLife.arrive_at_club()
+	AudioManager.play_bgm_for_scene(SceneManager.TargetScene.HOME)
 	_body_font = DaylightUI.body_font()
 	_title_font = load("res://assets/fonts/NotoSerifSC-SemiBold.ttf") as Font
 	theme = DaylightUI.get_theme().duplicate() as Theme
@@ -228,13 +229,16 @@ func _build_navigation() -> void:
 		primary_wash.set_corner_radius_all(16)
 		btn_explore.add_theme_stylebox_override(state,primary_wash)
 	SchoolObjectUI.borderless(btn_explore)
+	DaylightUI.bind_button_audio(btn_explore)
 	btn_explore.pressed.connect(_activate_primary)
 	_entries["explore"] = btn_explore
 	story_button = SchoolObjectUI.hit(hotspots_layer,"StoryShortcut",Rect2(1480,381,240,54),"",24)
 	_style_journey_shortcut(story_button)
+	DaylightUI.bind_button_audio(story_button)
 	story_button.pressed.connect(_activate_story)
 	var zodiac := SchoolObjectUI.hit(hotspots_layer,"ZodiacShortcut",Rect2(1480,441,240,54),"星座图鉴",24)
 	_style_journey_shortcut(zodiac)
+	DaylightUI.bind_button_audio(zodiac)
 	zodiac.pressed.connect(_open_panel.bind("zodiac"))
 	_entries["zodiac"] = zodiac
 	var positions := {"workshop":Rect2(562,741,591,280),"lounge":Rect2(861,534,400,225),"quest":Rect2(1178,587,742,284),"records":Rect2(1145,835,695,212)}
@@ -244,7 +248,7 @@ func _build_navigation() -> void:
 		var label_rect: Rect2 = labels[kind]
 		var label := SchoolObjectUI.text(button,"EntryTitle",ENTRY_TITLES[kind],Rect2(label_rect.position-positions[kind].position,label_rect.size),30,TITLE_INK,true)
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-
+		DaylightUI.bind_button_audio(button)
 		button.pressed.connect(_open_panel.bind(kind))
 		_entries[kind] = button
 	btn_lounge = _entries["lounge"]
@@ -252,9 +256,23 @@ func _build_navigation() -> void:
 	btn_records = _entries["records"]
 	btn_quest = _entries["quest"]
 	var rooftop := SchoolObjectUI.hit(hotspots_layer,"RooftopExit",Rect2(65,238,245,50),"去天台  →",25)
+	DaylightUI.bind_button_audio(rooftop)
 	rooftop.pressed.connect(func(): CampusLife.travel_to("rooftop"))
 	var talk := SchoolObjectUI.hit(hotspots_layer,"TalkJiangZi",Rect2(345,320,430,380))
 	for state in ["normal","hover","pressed","hover_pressed","focus"]: talk.add_theme_stylebox_override(state,StyleBoxEmpty.new())
+	var talk_hint := SchoolObjectUI.text(talk,"TalkHint","和姜梓聊聊",Rect2(130,310,170,38),22,Color("#FFFDF8"))
+	talk_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	talk_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var talk_pill := StyleBoxFlat.new()
+	talk_pill.bg_color = Color(0.22,0.25,0.34,0.82)
+	talk_pill.set_corner_radius_all(12)
+	talk_hint.add_theme_stylebox_override("normal",talk_pill)
+	talk_hint.visible = false
+	talk.mouse_entered.connect(func(): talk_hint.visible = true)
+	talk.focus_entered.connect(func(): talk_hint.visible = true)
+	talk.mouse_exited.connect(func(): talk_hint.visible = false)
+	talk.focus_exited.connect(func(): talk_hint.visible = false)
+	DaylightUI.bind_button_audio(talk)
 	talk.pressed.connect(_talk_to_jiang)
 
 func _style_journey_shortcut(button: Button) -> void:
@@ -432,6 +450,7 @@ func _open_panel(kind: String) -> void:
 		push_warning("入口弹窗仍在等待对应概念图审核：" + kind)
 		return
 	_hide_all_modals()
+	AudioManager.play_sfx_modal_open()
 	_return_focus = _entries[kind]
 	_active_kind = kind
 	_active_modal = candidate as Control
@@ -709,9 +728,13 @@ func _move_equipped_card(from_index: int, to_index: int) -> void:
 func _start_exploration(_dungeon_id: String) -> void:
 	_open_training()
 
-func _start_chapter(_restart: bool = false) -> void:
-	if not DayCycle.dispatch_due_event(): _set_feedback("关键故事会随日期自动到来，今天可以自由安排。")
-	return
+func _start_chapter(restart: bool = false) -> void:
+	if DayCycle.dispatch_due_event():
+		return
+	if GameState.story_flags.get("chapter_1_completed", false):
+		_set_feedback("关键故事会随日期自动到来，今天可以自由安排。")
+		return
+	_legacy_start_chapter(restart)
 
 func _legacy_start_chapter(restart: bool = false) -> void:
 	if GameState.phase_two_combat_checkpoint.is_empty() and not PlayerJourney.deck_summary()["ready"]:

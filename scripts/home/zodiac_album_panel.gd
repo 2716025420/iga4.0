@@ -21,6 +21,7 @@ const CARD_FRAME_PATH := "res://assets/ui/zodiac_cards/zodiac_card_frame.png"
 const CARD_BACK_PATH := "res://assets/ui/zodiac_cards/zodiac_card_back.png"
 const SEAL_CIRCLE_PATH := "res://assets/ui/zodiac_cards/anim_zodiac_seal_circle.svg"
 const SPARKLE_ATLAS_PATH := "res://assets/ui/zodiac_cards/anim_cel_reveal_sparkle_4x2.png"
+const RESONANCE_HALO_PATH := "res://assets/ui_core/animations/ui_zodiac_resonance_halo.png"
 const SERIF_FONT_PATH := "res://assets/fonts/NotoSerifSC-SemiBold.ttf"
 
 const CARD_CANVAS := Vector2(640.0, 960.0)
@@ -48,6 +49,7 @@ var _sparkle_tween: Tween
 var _detail_seal: TextureRect
 var _detail_sparkle: TextureRect
 var _detail_face: Control
+var _resonance_halo: TextureRect
 
 static func create(_kind: String = "zodiac", panel_context: Dictionary = {}) -> ZodiacAlbumPanel:
 	var panel := ZodiacAlbumPanel.new()
@@ -61,6 +63,10 @@ static func create(_kind: String = "zodiac", panel_context: Dictionary = {}) -> 
 
 func _ready() -> void:
 	Platform.input_mode_changed.connect(_on_input_mode_changed)
+
+func _process(delta: float) -> void:
+	if is_instance_valid(_resonance_halo) and _resonance_halo.visible and not SaveManager.settings.get("reduced_motion", false):
+		_resonance_halo.rotation += delta * 0.25
 
 func _on_input_mode_changed(_touch: bool) -> void:
 	var hint_node := find_child("CloseHint", true, false) as Label
@@ -87,6 +93,7 @@ func refresh(panel_context: Dictionary = {}) -> void:
 				break
 
 	_ensure_assets_loaded()
+	_resonance_halo = null
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
@@ -207,6 +214,20 @@ func _build_detail_pane(x: float, y: float, w: float, h: float) -> void:
 	var sel_owned := SpecialCardCollection.collected(selected_zodiac)
 
 	var card_rect := Rect2(32.0, 117.0, 348.0, 522.0)
+	var is_active_res := GameState.get_active_zodiac_id() == selected_zodiac
+	if is_active_res and ResourceLoader.exists(RESONANCE_HALO_PATH):
+		_resonance_halo = TextureRect.new()
+		_resonance_halo.name = "DetailResonanceHalo"
+		_resonance_halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_resonance_halo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_resonance_halo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_resonance_halo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		_resonance_halo.texture = load(RESONANCE_HALO_PATH) as Texture2D
+		_resonance_halo.modulate = Color(1.0, 1.0, 1.0, 0.88)
+		_resonance_halo.pivot_offset = Vector2(236.0, 236.0)
+		pane.add_child(_resonance_halo)
+		DaylightUI.place(_resonance_halo, card_rect.position.x + (card_rect.size.x - 472.0) * 0.5, card_rect.position.y + (card_rect.size.y - 472.0) * 0.5, 472.0, 472.0)
+
 	_detail_seal = TextureRect.new()
 	_detail_seal.name = "DetailRevealSeal"
 	_detail_seal.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -265,22 +286,52 @@ func _build_detail_pane(x: float, y: float, w: float, h: float) -> void:
 	top_rule.color = Color(RULE, 0.55)
 
 	var status_line := "收录状态：已于故事中取得（永久保留）" if sel_owned else "收录状态：尚未取得（需通过正式剧情获得）"
-	var prose_text := "%s\n\n能力说明：%s\n\n制约与代价：%s\n\n相互关系：%s" % [
-		status_line, str(sel["ability"]), str(sel["limits"]), str(sel["interactions"])
+	var resonance_spec := PlayerJourney.zodiac_resonance_spec(selected_zodiac)
+	var resonance_line := "\n\n战斗共鸣（%s）：%s" % [str(resonance_spec.get("title", "共鸣效果")), str(resonance_spec.get("summary", "暂无"))] if not resonance_spec.is_empty() else ""
+	var prose_text := "%s%s\n\n能力说明：%s\n\n制约与代价：%s\n\n相互关系：%s" % [
+		status_line, resonance_line, str(sel["ability"]), str(sel["limits"]), str(sel["interactions"])
 	]
 	var body := RichTextLabel.new()
 	body.name = "ZodiacDescription"
 	body.bbcode_enabled = false
 	body.fit_content = false
 	body.scroll_active = true
+	body.clip_contents = true
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.text = prose_text
-	body.add_theme_font_size_override("normal_font_size", 19)
-	body.add_theme_constant_override("line_separation", 4)
+	body.add_theme_font_size_override("normal_font_size", 18)
+	body.add_theme_constant_override("line_separation", 3)
 	body.add_theme_color_override("default_color", INK)
+	body.custom_minimum_size = Vector2(col_w, 256.0)
 	pane.add_child(body)
-	DaylightUI.place(body, col_x, 254.0, col_w, 348.0)
+	DaylightUI.place(body, col_x, 252.0, col_w, 256.0)
 	refs["detail"] = body
+
+	var res_title := str(resonance_spec.get("title", "星座共鸣"))
+	var res_copy := ("✦ 共鸣中：" + res_title) if is_active_res else ("激活共鸣：" + res_title if sel_owned else "尚未收录 · 无法共鸣")
+	var res_btn := _pill_button(pane, "ResonateButton", res_copy, Rect2(col_x, 540.0, col_w, 46.0))
+	res_btn.add_theme_font_size_override("font_size", 16)
+	res_btn.clip_text = true
+	res_btn.custom_minimum_size = Vector2(col_w, 46.0)
+	res_btn.tooltip_text = "点击可取消当前星座共鸣" if is_active_res else "点击装备此星座战斗共鸣被动"
+	res_btn.disabled = not sel_owned
+	if is_active_res:
+		var active_box := StyleBoxFlat.new()
+		active_box.bg_color = Color(0.33, 0.45, 0.36, 0.22)
+		active_box.set_border_width_all(0)
+		active_box.set_corner_radius_all(6)
+		res_btn.add_theme_stylebox_override("normal", active_box)
+		for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+			res_btn.add_theme_color_override(key, SAGE)
+	SchoolObjectUI.set_selected(res_btn, is_active_res)
+	var target_zodiac := selected_zodiac
+	res_btn.pressed.connect(func():
+		if not is_active_res:
+			AudioManager.play_sfx_zodiac()
+		GameState.set_active_zodiac_id("" if is_active_res else target_zodiac)
+		refresh()
+	)
+	refs["resonate_button"] = res_btn
 
 	var bottom_rule := SchoolObjectUI.rule(pane, "DetailRuleBottom", Rect2(col_x, 616.0, col_w, 1.0))
 	bottom_rule.color = Color(RULE, 0.55)

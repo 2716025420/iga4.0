@@ -26,6 +26,8 @@ const SHOP_RECTS := {
 	"Category_cards": [198, 224, 294, 46],
 	"Category_materials": [533, 224, 294, 46],
 	"Category_supplies": [868, 224, 294, 46],
+	"FilterUnowned": [198, 274, 178, 38],
+	"ProductsScroll": [190, 320, 998, 578],
 	"SelectedName": [1308, 338, 424, 46],
 	"ProductPreview": [1318, 386, 404, 124],
 	"Description": [1314, 514, 412, 92],
@@ -111,10 +113,12 @@ static func apply(host: Control) -> void:
 				fstyle.border_color = Color("#BA6A58") if panel_node.name == "FeedbackBacking" else Color("#C4B399")
 				fstyle.set_corner_radius_all(10)
 	for btn in host.find_children("*", "Button", true, false):
-		var keep_pill := btn.name.begins_with("Mode_") or btn.name.begins_with("Category_") or btn.name == "Talk"
+		var keep_pill := btn.name.begins_with("Mode_") or btn.name.begins_with("Category_") or btn.name == "Talk" or btn.name == "FilterUnowned"
 		if not keep_pill:
 			var tile_selected := btn.name.begins_with("Product_") and btn.name == "Product_" + str(host.selected_id)
 			_overlay(btn, tile_selected)
+		if btn.name == "FilterUnowned":
+			btn.add_theme_font_size_override("font_size", 18)
 		if btn.name == "ConfirmTrade":
 			for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 				btn.add_theme_color_override(key, Color("#FFFDF7"))
@@ -152,7 +156,7 @@ static func apply(host: Control) -> void:
 		sel_lbl.add_theme_font_size_override("font_size", 30)
 	var index := 0
 	for tile in host.refs.get("products", {}).values():
-		_register(tile, [198 + (index % 3) * 335, 326 + (index / 3) * 302, 294, 262])
+		_register(tile, [8 + (index % 3) * 335, 6 + (index / 3) * 302, 294, 262])
 		_register(tile.get_node("ProductArt"), [22, 16, 250, 146])
 		var pname := tile.get_node("ProductName") as Label
 		_register(pname, [18, 168, 258, 42])

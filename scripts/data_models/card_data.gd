@@ -89,7 +89,20 @@ func get_dynamic_description(target_lvl: int = -1, use_bbcode: bool = false) -> 
 	
 	if description != "":
 		return description
-	return "无特殊效果"
+	var parts: Array[String] = []
+	if cur_dmg > 0:
+		parts.append("造成 %d 点伤害" % cur_dmg)
+	if cur_burn > 0 and burn_duration > 0:
+		parts.append("附加 %d 回合“压制”(每回合%d点)" % [burn_duration, cur_burn])
+	if cur_shield > 0:
+		parts.append("获得 %d 点护盾" % cur_shield)
+	if cur_heal > 0:
+		parts.append("恢复 %d 点体力" % cur_heal)
+	if cur_atk_down > 0 and debuff_duration > 0:
+		parts.append("降低攻击 %d%% (%d回合)" % [cur_atk_down, debuff_duration])
+	if cur_reflect > 0:
+		parts.append("受击反弹 %d 点伤害" % cur_reflect)
+	return "；".join(parts) if not parts.is_empty() else "无特殊效果"
 
 func get_combat_summary() -> String:
 	match card_type:

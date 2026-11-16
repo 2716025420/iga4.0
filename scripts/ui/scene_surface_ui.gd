@@ -69,10 +69,13 @@ static func landmark(parent: Control, node_name: String, source: Texture2D, poin
  return {"image":image,"label":label}
 
 static func finish_layering(parent: Control, background: TextureRect) -> void:
+ var wide_bg := parent.get_node_or_null("WidePlaceBackground") as CanvasItem
+ if wide_bg == null: wide_bg = parent.get_node_or_null("WideMapBackground") as CanvasItem
+ if wide_bg != null: wide_bg.z_index = -3
  background.z_index = -2
  for child in parent.get_children():
   if child is HomeObjectButton: child.z_index = -1
  # Render and input order both keep captions, dates and navigation above objects.
  for child in parent.get_children():
-  if child != background and not child is HomeObjectButton:
+  if child != background and child != wide_bg and not child is HomeObjectButton:
    parent.move_child(child,parent.get_child_count()-1)

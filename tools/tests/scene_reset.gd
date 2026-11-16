@@ -20,9 +20,159 @@ func _run() -> void:
 	await _campus_interactions()
 	await _registered_homes()
 	await _map_and_compatibility_pages()
+	await _wave5_visual_checks()
+	await _dialogue_and_script_checks()
 	check(CalendarContent.STORY_DATES.is_empty(),"test concepts do not fill formal story dates")
 	print("SCENE_RESET_RESULT "+JSON.stringify({"checks":checks,"failures":failures,"renderer":DisplayServer.get_name()}))
 	get_tree().quit(0 if failures.is_empty() else 1)
+
+func _wave5_visual_checks() -> void:
+	var prev_reduced := bool(saves.settings.get("reduced_motion", false))
+	saves.settings["reduced_motion"] = false
+	var presets := ParallaxCutsceneStage.available_presets()
+	for pid in ["dusk_corridor", "red_moon_street", "arena_spotlight", "old_park_dusk", "rebel_warning", "qiufeng_crystal", "red_moon_finale"]:
+		check(presets.has(pid), "cutscene preset registered: " + pid)
+	check(ParallaxCutsceneStage.preset_status("old_park_dusk") == "story_concept_review", "old_park_dusk stays marked story_concept_review")
+	check(ParallaxCutsceneStage.preset_status("rebel_warning") == "story_concept_review", "rebel_warning stays marked story_concept_review")
+	check(ParallaxCutsceneStage.preset_for_dialogue("after_school", "campus") == "dusk_corridor", "after_school keeps dusk_corridor preset")
+
+	var cut_layer := CanvasLayer.new()
+	cut_layer.layer = 95
+	var cut_host := Control.new()
+	cut_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var cut_stage := Control.new()
+	cut_stage.size = Vector2(1920, 1080)
+	var cutscene := ParallaxCutsceneStage.create("red_moon_street", false)
+	cut_stage.add_child(cutscene)
+	DaylightUI.place(cutscene, 0, 0, 1920, 1080)
+	cut_host.add_child(cut_stage)
+	cut_layer.add_child(cut_host)
+	get_tree().root.add_child(cut_layer)
+	await settled()
+	check(is_instance_valid(cutscene.bg_layer) and cutscene.bg_layer.texture != null and is_instance_valid(cutscene.fg_layer) and cutscene.fg_layer.texture != null, "red_moon_street cutscene layers load textures")
+	Platform.fit_stage(cut_host, cut_stage, Color("#242834"), cutscene.background_texture())
+	cutscene.set_progress(0.45)
+	await settled()
+	await capture("wave5_cutscene_red_moon")
+	cutscene.configure("arena_spotlight", false)
+	check(is_instance_valid(cutscene.bg_layer) and cutscene.bg_layer.texture != null and is_instance_valid(cutscene.fg_layer) and cutscene.fg_layer.texture != null, "arena_spotlight cutscene layers load textures")
+	Platform.fit_stage(cut_host, cut_stage, Color("#242834"), cutscene.background_texture())
+	cutscene.set_progress(0.45)
+	await settled()
+	await capture("wave5_cutscene_arena")
+	cutscene.configure("qiufeng_crystal", false)
+	check(is_instance_valid(cutscene.bg_layer) and cutscene.bg_layer.texture != null and is_instance_valid(cutscene.fg_layer) and cutscene.fg_layer.texture != null, "qiufeng_crystal cutscene layers load textures")
+	check(cutscene.fg_layer.get_node_or_null("LoopVFX_crystal_shimmer") != null, "qiufeng_crystal mounts crystal_shimmer loop")
+	Platform.fit_stage(cut_host, cut_stage, Color("#242834"), cutscene.background_texture())
+	cutscene.set_progress(0.5)
+	await settled()
+	await capture("v6_cutscene_qiufeng_crystal")
+	cutscene.configure("red_moon_finale", false)
+	check(is_instance_valid(cutscene.bg_layer) and cutscene.bg_layer.texture != null and is_instance_valid(cutscene.fg_layer) and cutscene.fg_layer.texture != null, "red_moon_finale cutscene layers load textures")
+	Platform.fit_stage(cut_host, cut_stage, Color("#242834"), cutscene.background_texture())
+	cutscene.set_progress(0.5)
+	await settled()
+	await capture("v6_cutscene_red_moon_finale")
+	cut_layer.queue_free()
+	await settled()
+
+	var loader := SceneLoadingScreen.new()
+	get_tree().root.add_child(loader)
+	await get_tree().process_frame
+	for theme_key in ["after_school", "red_moon", "nomos", "agora", "techne", "tournament"]:
+		check(SceneLoadingScreen.THEMES.has(theme_key), "loading theme registered: " + theme_key)
+		loader.apply_theme(theme_key)
+		var backdrop := loader.find_child("DuskCorridor", true, false) as TextureRect
+		check(backdrop != null and backdrop.texture != null, "loading theme texture loads: " + theme_key)
+	loader.queue_free()
+
+	for vfx_key in ["slash", "shield", "heal", "pack"]:
+		check(CombatVFX.frames_for(vfx_key).size() == 8, "CombatVFX 4x2 sheet loads 8 frames: " + vfx_key)
+	for svg_path in [CombatVFX.SVG_CORNER_BRACKET, CombatVFX.SVG_ARROW_SWEEP, CombatVFX.SVG_DUEL_CREST_VS, CombatVFX.SVG_RED_MOON_RETICLE]:
+		check(ResourceLoader.exists(svg_path), "CombatVFX SVG asset exists: " + svg_path)
+
+	check(saves.load_test_save() and saves.test_session, "wave5 combat enters test save")
+	var duel_loadout: Dictionary = state.player_profile["loadouts"][2]
+	check(str(duel_loadout.get("name", "")) == "决斗包·TEST" and state.apply_equipped_deck(duel_loadout["card_ids"], 2), "wave5 equips 决斗包·TEST loadout")
+	state.pending_combat_data = {"enemies": ["duel_student_ace", "church_guardian"], "companion_id": "liu_yu_long"}
+	flow.change_scene(flow.TargetScene.COMBAT)
+	var transition_guard := 0
+	while flow.is_transitioning and transition_guard < 300:
+		transition_guard += 1
+		await get_tree().process_frame
+	await settled()
+
+	var combat := get_tree().current_scene
+	var anim_guard := 0
+	while combat != null and (bool(combat.get("is_animating")) or not bool(combat.get("is_player_turn"))) and anim_guard < 180:
+		anim_guard += 1
+		await get_tree().process_frame
+	var enemies := combat.get("enemy_nodes") as Array
+	var cards := combat.get("card_ui_nodes") as Array
+	var companion_sprite := combat.find_child("CompanionSprite", true, false) as TextureRect
+	var duel_deck_back := combat.find_child("DuelDeckBack", true, false) as TextureRect
+	var stage_zones := combat.find_child("ArenaStageZones", true, false)
+	var stage_platform_art := combat.find_child("CombatStagePlatformArt", true, false) as TextureRect
+	var stage_platform := stage_platform_art if (stage_platform_art != null and stage_platform_art.visible) else combat.find_child("CombatStagePlatform", true, false)
+	check(enemies != null and enemies.size() == 2, "wave5 combat spawns 2 TEST duel enemies")
+	check(cards != null and cards.size() == 5, "wave5 combat deals 5 cards from 决斗包·TEST")
+	check(companion_sprite != null and companion_sprite.visible and companion_sprite.texture != null, "wave5 combat displays companion sprite")
+	check(duel_deck_back != null and duel_deck_back.visible and duel_deck_back.texture != null, "wave5 combat displays DuelDeckBack")
+	check(stage_zones != null and stage_platform != null and combat.find_child("ArenaEmblems", true, false) == null, "combat separates upper HUD band & unified platform without floating center SVGs")
+	check(not enemies[0].sprite.flip_h and not enemies[1].sprite.flip_h and not CombatSkin.enemy_needs_flip_h("alliance_operative") and not CombatSkin.enemy_needs_flip_h("security_guard") and not CombatSkin.enemy_needs_flip_h("campus_robot") and not CombatSkin.enemy_needs_flip_h("ch1_hunter_mech") and CombatSkin.enemy_needs_flip_h("liu_yu_long_duel"), "combat enemies face left cleanly toward player")
+	await capture("wave5_combat_duel")
+
+	var target_card: Control = null
+	for card_node in cards:
+		var cdata := card_node.get("card_data") as CardData
+		if cdata != null and cdata.id == "crimson_pulse":
+			target_card = card_node as Control
+			break
+	check(target_card != null, "crimson_pulse present in Wave 5 combat hand")
+	if target_card != null:
+		await get_tree().process_frame
+		target_card.card_clicked.emit(target_card.get("card_data"))
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var anchor := combat.get("floating_anchor") as Control
+		var vfx_slash := anchor.get_node_or_null("VFX_slash") if anchor != null else null
+		check(vfx_slash != null, "crimson_pulse spawns active VFX_slash burst")
+		var status_icon := (enemies[0] as Node).find_child("StatusIcon", true, false) as CanvasItem
+		check(status_icon != null and status_icon.visible, "crimson_pulse burn status displays debuff.svg StatusIcon")
+		for _f in 7:
+			await get_tree().process_frame
+		await capture("wave5_combat_vfx")
+		var post_guard := 0
+		while combat != null and bool(combat.get("is_animating")) and post_guard < 180:
+			post_guard += 1
+			await get_tree().process_frame
+
+	var reward_popup := get_tree().root.find_child("RewardCards", true, false)
+	if reward_popup != null:
+		await get_tree().process_frame
+		reward_popup.call("enqueue", {"card:duel_draw": 1})
+		await get_tree().process_frame
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var pack_pres := reward_popup.get("presentation") as Control
+		var pack_vfx := pack_pres.get_node_or_null("VFX_pack") as TextureRect if pack_pres != null else null
+		var pack_tear := pack_pres.get_node_or_null("VFX_pack_tear") as TextureRect if pack_pres != null else null
+		check(pack_vfx != null, "RewardCardPopup spawns VFX_pack burst on card reward")
+		check(pack_tear != null, "RewardCardPopup spawns VFX_pack_tear burst on card reward")
+		if pack_vfx != null:
+			var center_delta := (pack_vfx.position + pack_vfx.size * 0.5 - Vector2(960, 540)).length()
+			check(center_delta < 2.0, "RewardCardPopup VFX_pack centers on presentation stage")
+		for _f in 8:
+			await get_tree().process_frame
+		await capture("wave5_reward_pack")
+		reward_popup.call("dismiss")
+		await get_tree().process_frame
+
+	saves.settings["reduced_motion"] = prev_reduced
+	state.pending_combat_data.clear()
+	check(saves.start_new_game() and not saves.test_session, "wave5 cleanup exits test session cleanly")
+	flow.change_scene(flow.TargetScene.HOME)
+	await settled()
 
 func _campus_interactions() -> void:
 	for id in ["rooftop","library","gym","shop"]:
@@ -36,7 +186,7 @@ func _campus_interactions() -> void:
 		check(background.texture != null and background.texture.resource_path == SceneDesignCatalog.place_path(id),"new environment actually loaded: "+id)
 		for button in screen.refs["actions"].values():
 			check(button.get_theme_stylebox("focus") is StyleBoxEmpty,"no focus frame: "+id)
-			check(Rect2(Vector2.ZERO,Vector2(1920,1080)).encloses(button.get_global_rect()),"object caption remains on canvas: "+id)
+			check(Rect2(Vector2.ZERO,get_viewport().get_visible_rect().size).encloses(button.get_global_rect()),"object caption remains on canvas: "+id)
 		await capture("place_"+id)
 		if id == "gym":
 			await click(screen.refs["actions"]["training"])
@@ -146,7 +296,7 @@ func _map_and_compatibility_pages() -> void:
 		check(map.refs["locations"].size() == SceneDesignCatalog.MAPS[id]["locations"].size(),"map exposes implemented destinations only: "+id)
 		check(life.current_location == previous and cycle.snapshot() == before,"map browsing preserves location/time: "+id)
 		for button in map.refs["locations"].values():
-			check(Rect2(Vector2.ZERO,Vector2(1920,1080)).encloses(button.get_global_rect()),"map caption stays in canvas: "+id)
+			check(Rect2(Vector2.ZERO,get_viewport().get_visible_rect().size).encloses(button.get_global_rect()),"map caption stays in canvas: "+id)
 		await capture("map_"+id)
 		await key(KEY_ESCAPE)
 		await settled()
@@ -183,3 +333,76 @@ func _map_and_compatibility_pages() -> void:
 		check(is_instance_valid(screen.scene_objects),"test/compat location has concept rendering: "+str(id))
 		check(screen.scene_objects.get_node("PlaceBackground").texture != null,"test/compat image loaded: "+str(id))
 		await capture("scene_"+str(id))
+
+func _collect_res_files(folder: String, suffix: String, out: Array[String]) -> void:
+	var dir := DirAccess.open(folder)
+	if dir == null: return
+	dir.list_dir_begin()
+	var item := dir.get_next()
+	while item != "":
+		if not item.begins_with("."):
+			var full := folder.path_join(item)
+			if dir.current_is_dir(): _collect_res_files(full, suffix, out)
+			elif item.ends_with(suffix): out.append(full)
+		item = dir.get_next()
+	dir.list_dir_end()
+
+func _dialogue_and_script_checks() -> void:
+	var gd_files: Array[String] = []
+	var tscn_files: Array[String] = []
+	_collect_res_files("res://scripts", ".gd", gd_files)
+	_collect_res_files("res://scenes", ".tscn", tscn_files)
+	check(gd_files.size() > 20 and tscn_files.size() >= 10, "enumerated project scripts and scenes for compile check")
+	for path in gd_files:
+		var scr := load(path) as GDScript
+		check(scr != null and scr.can_instantiate(), "project script loads cleanly: " + path)
+	for path in tscn_files:
+		var packed := load(path) as PackedScene
+		check(packed != null, "project scene loads cleanly: " + path)
+
+	check(state.new_game(), "story-node check resets cleanly to new game")
+	state.exploration_state.clear()
+	state.exploration_active = false
+	check(state.start_exploration("campus_basic", 12345), "starts campus_basic exploration route")
+	await settled()
+	var route_screen := get_tree().current_scene as SchoolRouteScreen
+	check(route_screen != null, "exploration enters SchoolRouteScreen")
+	var story_id := ""
+	for raw_id in state.get_exploration_available_nodes():
+		var node_id := str(raw_id)
+		var node: Dictionary = state.get_exploration_node(node_id)
+		if SchoolExplorationRoutes.kind_for(node) == "story":
+			story_id = node_id
+			break
+	check(story_id != "", "depth 0 offers 拾到的留言 story node")
+	if story_id != "":
+		var story_btn := route_screen.refs["card_buttons"].get(story_id) as BaseButton
+		check(story_btn != null, "拾到的留言 route card button exists")
+		await click(story_btn)
+		await settled()
+		var dlg := get_tree().current_scene as DialogueScreen
+		check(dlg != null and dlg.has_node("StoryPresentation"), "拾到的留言 opens functional DialogueScreen")
+		if dlg != null:
+			check(dlg.text_label.text != "故事马上开始。" and dlg.text_label.text.contains("路牌下面压着一张纸条"), "DialogueScreen loads 拾到的留言 line 1")
+			check(is_instance_valid(dlg.pause_button) and not dlg.pause_button.disabled, "DialogueScreen pause button ready")
+			await key(KEY_SPACE)
+			await settled()
+			await capture("story_exploration_note")
+			await click(dlg.skip_button)
+			await settled()
+		check(get_tree().current_scene is SchoolRouteScreen, "completing 拾到的留言 returns cleanly to SchoolRouteScreen")
+		check(int(state.exploration_state.get("depth", 0)) == 1, "拾到的留言 completion advances exploration depth")
+	if bool(state.exploration_active):
+		state.retreat_exploration()
+		await settled()
+
+	state.pending_dialogue_id = "find_yang"
+	flow.change_scene(flow.TargetScene.STORY)
+	await settled()
+	var find_dlg := get_tree().current_scene as DialogueScreen
+	check(find_dlg != null and is_instance_valid(find_dlg.story_presentation), "find_yang enters DialogueScreen with presentation")
+	if find_dlg != null:
+		check(find_dlg.story_presentation.cutscene_stage.preset_id == "qiufeng_crystal", "find_yang opens qiufeng_crystal cutscene")
+		await key(KEY_ESCAPE)
+		await settled()
+	check(flow.current_scene_type == flow.TargetScene.HOME, "Esc pauses DialogueScreen cleanly back to Home")

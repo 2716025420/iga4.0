@@ -37,6 +37,7 @@ var _history_keys: Dictionary = {}
 var _archive_mode := false
 var _exploration_mode := false
 var _calendar_mode := false
+var _current_cutscene_id := ""
 var story_presentation: SchoolDialoguePresentation
 
 func _ready() -> void:
@@ -57,10 +58,11 @@ func _ready() -> void:
 	load_dialogue(d_id if d_id != "" else "campus_morning")
 
 func _layout_story_scene() -> void:
-	if is_instance_valid(story_presentation): story_presentation.update_scene()
+	if is_instance_valid(story_presentation): story_presentation.update_scene(_current_cutscene_id)
 
 func load_dialogue(dialogue_id: String) -> void:
 	_line_generation += 1
+	_current_cutscene_id = ""
 	if tween_typing and tween_typing.is_valid(): tween_typing.kill()
 	_dialogue_finishing = false
 	_archive_mode = GameState.archive_dialogue_id != ""
@@ -89,7 +91,10 @@ func load_dialogue(dialogue_id: String) -> void:
 	SchoolObjectUI.set_selected(auto_button,is_auto)
 	choices_panel.visible = false
 	if is_instance_valid(history_panel): history_panel.visible = false
+	AudioManager.play_bgm_for_scene(SceneManager.TargetScene.STORY, false, current_dialogue_id)
 	_show_next_line()
+	if not _archive_mode and line_index == 0 and current_dialogue_id in ["campus_morning", "prologue_intro", "chapter_1_intro"] and is_instance_valid(story_presentation):
+		story_presentation.show_chapter_banner(PhaseTwoContent.CHAPTER_TITLE)
 	DaylightUI.layout(self)
 
 func _get_script_lines(d_id: String) -> Array[Dictionary]:
@@ -101,17 +106,27 @@ func _show_next_line() -> void:
 	if line_index >= current_lines.size():
 		_finish_dialogue()
 		return
+	if line_index > 0 and is_instance_valid(story_presentation):
+		story_presentation.hide_chapter_banner()
 	_checkpoint_line()
 	_line_generation += 1
 	var generation := _line_generation
 	var data := current_lines[line_index]
+	_current_cutscene_id = str(data.get("cutscene", ""))
+	if is_instance_valid(story_presentation):
+		story_presentation.update_scene(_current_cutscene_id)
 	nameplate.text = " " + data.get("speaker", "旁白") + " "
 	_refresh_speaker_avatar(data)
 	var speaker_char: String = str(data.get("char", "ye_zhou"))
 	var speaker_side: String = str(data.get("side", "left"))
-	var sprite_path := PhaseTwoContent.dialogue_character_path(speaker_char, _speaker_emotion(data))
+	var resolved_emotion := _speaker_emotion(data)
+	var sprite_path := PhaseTwoContent.dialogue_character_path(speaker_char, resolved_emotion)
 	var speaking_sprite: TextureRect = left_char_sprite if speaker_side == "left" else right_char_sprite
 	var other_sprite: TextureRect = right_char_sprite if speaking_sprite == left_char_sprite else left_char_sprite
+	for sprite_node: TextureRect in [left_char_sprite, right_char_sprite]:
+		var old_shimmer: Node = sprite_node.get_node_or_null("LoopVFX_crystal_shimmer")
+		if old_shimmer != null:
+			old_shimmer.queue_free()
 	var speaker_key: String = "%s:%s" % [speaker_side, speaker_char] if sprite_path != "" else ""
 	var speaker_changed: bool = speaker_key != "" and (speaker_key != _last_speaking_key or not speaking_sprite.visible)
 	_last_speaking_key = speaker_key
@@ -123,6 +138,8 @@ func _show_next_line() -> void:
 	speaking_sprite.visible = sprite_path != ""
 	if sprite_path != "":
 		speaking_sprite.texture = load(sprite_path)
+		if speaker_char == "huang_qiufeng" and resolved_emotion == "crystal_stasis":
+			CombatVFX.play_loop(speaking_sprite, "crystal_shimmer", Rect2(60.0, 120.0, 600.0, 600.0), 0.72, 2)
 		speaking_sprite.pivot_offset = Vector2(speaking_sprite.size.x * 0.5, speaking_sprite.size.y)
 		var motion_dur: float = SaveManager.motion_duration(0.18)
 		if speaker_changed and motion_dur > 0.0:
@@ -139,6 +156,8 @@ func _show_next_line() -> void:
 	text_label.text = full_current_text
 	text_label.visible_characters = 0
 	is_typing = true
+	if is_instance_valid(story_presentation):
+		story_presentation.set_continue_cursor_visible(false)
 	if tween_typing and tween_typing.is_valid():
 		tween_typing.kill()
 	tween_typing = create_tween()
@@ -164,20 +183,49 @@ func _refresh_speaker_avatar(data: Dictionary) -> void:
 	portrait.size = Vector2(136, 170)
 	nameplate.custom_minimum_size.y = 0
 	var speaker_name := str(data.get("speaker", "旁白")).strip_edges()
-	var character_id := str(data.get("char", ""))
-	if not character_id in ["ye_zhou", "jiang_zi", "yang_zi_ying", "liu_yu_long"]:
+	var raw_char := str(data.get("char", ""))
+	var aliases := {"protagonist": "ye_zhou", "uncle_wan": "liu_yu_long", "victoria": "jiang_zi", "rebel_operative": "rebel_operative_masked", "alliance_operative": "rebel_operative_masked"}
+	var character_id: String = str(aliases.get(raw_char, raw_char))
+	var emotion := _speaker_emotion(data)
+	if character_id == "rebel_operative_masked" and emotion == "unmasked":
+		character_id = "rebel_operative_unmasked"
+	var avatar_emotion: String = {"neutral": "neutral", "happy": "happy", "worried": "concerned"}.get(emotion, "neutral")
+	var path := ""
+	var v7_avatar := "res://assets/sprites/characters/phase_two/avatars/%s_%s.png" % [character_id, emotion]
+	var v7_neutral := "res://assets/sprites/characters/phase_two/avatars/%s_neutral.png" % character_id
+	if ResourceLoader.exists(v7_avatar):
+		path = v7_avatar
+	elif ResourceLoader.exists(v7_neutral):
+		path = v7_neutral
+	elif character_id in ["ye_zhou", "jiang_zi", "yang_zi_ying", "liu_yu_long"]:
+		var expr_path := "res://assets/sprites/characters/phase_two/expressions/%s_%s.png" % [character_id, avatar_emotion]
+		if ResourceLoader.exists(expr_path):
+			path = expr_path
+	if path == "" and character_id != "":
+		var portrait_path := "res://assets/sprites/characters/phase_two/portraits/%s.png" % character_id
+		if ResourceLoader.exists(portrait_path):
+			path = portrait_path
+	var crop_halfbody := false
+	if path == "" and character_id in ["rebel_operative_masked", "rebel_operative_unmasked", "huang_qiufeng"]:
+		var fallback_path := PhaseTwoContent.dialogue_character_path(character_id, emotion)
+		if fallback_path != "" and ResourceLoader.exists(fallback_path):
+			path = fallback_path
+			crop_halfbody = fallback_path.contains("/halfbody/") or fallback_path.contains("/emotions/")
+	if path == "" or not ResourceLoader.exists(path):
 		portrait.visible = false
 		portrait.texture = null
 		nameplate.text = speaker_name
 		return
-	var avatar_emotion: String = {"neutral": "neutral", "happy": "happy", "worried": "concerned"}.get(_speaker_emotion(data), "neutral")
-	var path := "res://assets/sprites/characters/phase_two/expressions/%s_%s.png" % [character_id, avatar_emotion]
-	if not ResourceLoader.exists(path):
-		portrait.visible = false
-		portrait.texture = null
-		nameplate.text = speaker_name
-		return
-	portrait.texture = load(path) as Texture2D
+	var tex := load(path) as Texture2D
+	if crop_halfbody and tex != null:
+		var atlas := AtlasTexture.new()
+		atlas.atlas = tex
+		var sz := tex.get_size()
+		atlas.region = Rect2(sz.x * 0.14, sz.y * 0.04, sz.x * 0.72, sz.y * 0.56)
+		atlas.filter_clip = true
+		portrait.texture = atlas
+	else:
+		portrait.texture = tex
 	portrait.visible = portrait.texture != null
 	nameplate.text = speaker_name
 
@@ -186,7 +234,7 @@ func _speaker_emotion(data: Dictionary) -> String:
 	if explicit_emotion != "":
 		if explicit_emotion == "concerned":
 			explicit_emotion = "worried"
-		return explicit_emotion if explicit_emotion in ["neutral", "happy", "shy", "surprised", "angry", "worried"] else "neutral"
+		return explicit_emotion if explicit_emotion in ["neutral", "happy", "shy", "surprised", "angry", "worried", "damaged_fiber", "crystal_stasis", "unmasked"] else "neutral"
 	var copy := str(data.get("text", "")).to_lower()
 	for keyword in ["danger", "命令", "受伤", "危险", "异常", "停下", "权限"]:
 		if copy.contains(keyword):
@@ -203,11 +251,15 @@ func _reveal_current_line() -> void:
 	_remember_line(line_index)
 	text_label.visible_characters = -1
 	var data := current_lines[line_index]
-	if data.has("choices") and not data["choices"].is_empty():
+	var has_choices: bool = data.has("choices") and not data["choices"].is_empty()
+	if is_instance_valid(story_presentation):
+		story_presentation.set_continue_cursor_visible(not has_choices)
+	if has_choices:
 		_show_choices(data["choices"])
 	elif is_auto:
 		var generation := _line_generation
-		await get_tree().create_timer(1.2).timeout
+		var auto_delay := clampf(0.9 + float(full_current_text.length()) * 0.045, 1.0, 3.2)
+		await get_tree().create_timer(auto_delay).timeout
 		if generation == _line_generation and is_auto and not is_typing and not choices_panel.visible and not _dialogue_finishing:
 			line_index += 1
 			_show_next_line()
@@ -259,6 +311,7 @@ func _show_choices(choices: Array) -> void:
 				btn.add_theme_stylebox_override(state, style)
 			for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]: btn.add_theme_color_override(state, Color("#FFF8ED"))
 		btn.pressed.connect(func(): _on_choice_selected(item))
+		DaylightUI.bind_button_audio(btn)
 		choices_container.add_child(btn)
 	if choices_container.get_child_count() > 0: choices_container.get_child(0).grab_focus.call_deferred()
 
@@ -314,6 +367,10 @@ func _finish_dialogue() -> void:
 			GameState.advance_story_time( 8, 0)
 	if current_dialogue_id.begins_with("chat_"):
 		SceneManager.change_scene(SceneManager.TargetScene.HOME)
+	elif current_dialogue_id == "school_gate":
+		GameState.set_story_flag("school_gate_duel_briefed", true)
+		GameState.phase_two_checkpoint = {"node_id":"n_gate","stage":"combat"}
+		GameState._open_phase_two_node("n_gate")
 	elif current_dialogue_id in ["principal_confrontation", "chapter_1_pre_boss"]:
 		GameState.set_story_flag("principal_briefing_done",true)
 		GameState.phase_two_checkpoint = {"node_id":"n5_boss","stage":"combat"}
@@ -360,6 +417,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 func _advance() -> void:
 	if _dialogue_finishing or SceneManager.is_transitioning or choices_panel.visible or (is_instance_valid(history_panel) and history_panel.visible): return
+	AudioManager.play_sfx_click()
 	if is_typing:
 		if tween_typing and tween_typing.is_valid(): tween_typing.kill()
 		_reveal_current_line()

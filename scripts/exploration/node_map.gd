@@ -64,15 +64,15 @@ func _update_ui() -> void:
 func _generate_chapter_1_nodes() -> void:
 	node_data_map.clear()
 	# 临时校园章节采用线性顺序，保证四位角色、援手与敌人顺序完整。
-	_add_node_def("n0", 0, MapNodeData.NodeType.STORY, "上学路", "在熟悉的路上遇见杨子英。", ["n_gate"], "campus_morning", Vector2(120, 150))
-	_add_node_def("n_gate", 1, MapNodeData.NodeType.STORY, "校门前", "柳宇龙提出一个小小的挑战。", ["n_affairs"], "school_gate", Vector2(250, 370))
-	_add_node_def("n_affairs", 2, MapNodeData.NodeType.STORY, "课间事务", "帮助姜梓核对校园事务。", ["n_dusk"], "school_affairs", Vector2(380, 150))
-	_add_node_def("n_dusk", 3, MapNodeData.NodeType.STORY, "放学黄昏", "出口忽然封闭，广播与通知互相矛盾。", ["n_guard"], "after_school", Vector2(510, 370))
-	_add_node_def("n_guard", 4, MapNodeData.NodeType.BATTLE, "保安拦路", "避开强制留校，找到安全出口。", ["n_rescue"], "security_guard", Vector2(640, 150))
-	_add_node_def("n_rescue", 5, MapNodeData.NodeType.STORY, "路上的援手", "同一条上学路上，杨子英及时拉住叶舟。", ["n_robot"], "yang_rescue", Vector2(770, 370))
-	_add_node_def("n_robot", 6, MapNodeData.NodeType.BATTLE, "巡逻机器人", "停下执行异常封路指令的机器人。", ["n5_boss"], "campus_robot", Vector2(900, 150))
-	_add_node_def("n5_boss", 7, MapNodeData.NodeType.BOSS, "校长现身", "校长有意识地利用管理权限制造伤害。", ["n_find_yang"], "principal_confrontation", Vector2(1030, 370))
-	_add_node_def("n_find_yang", 8, MapNodeData.NodeType.STORY, "去找杨子英", "事情暂时平息，兑现一瓶橘子汽水的约定。", [], "find_yang", Vector2(1160, 150))
+	_add_node_def("n0", 0, MapNodeData.NodeType.STORY, "樱林解围", "在樱树上学路遇见杨子英与转校生黄秋枫。", ["n_gate"], "campus_morning", Vector2(120, 150))
+	_add_node_def("n_gate", 1, MapNodeData.NodeType.BATTLE, "赛前切磋", "与柳宇龙进行非致命终端护盾热身赛。", ["n_affairs"], "school_gate", Vector2(250, 370))
+	_add_node_def("n_affairs", 2, MapNodeData.NodeType.STORY, "旧园名录", "协助姜梓核对巡回赛名录并察觉终端异常。", ["n_dusk"], "school_affairs", Vector2(380, 150))
+	_add_node_def("n_dusk", 3, MapNodeData.NodeType.STORY, "黄昏轻吻", "旧公园黄昏轻吻后，红月警报忽然封锁校门。", ["n_guard"], "after_school", Vector2(510, 370))
+	_add_node_def("n_guard", 4, MapNodeData.NodeType.BATTLE, "门岗封锁", "冲破被外部权限劫持的超限卫兵封锁。", ["n_rescue"], "security_guard", Vector2(640, 150))
+	_add_node_def("n_rescue", 5, MapNodeData.NodeType.STORY, "灰区奇袭", "灰区女特工重创秋枫，杨子英拉着叶舟突围。", ["n_robot"], "yang_rescue", Vector2(770, 370))
+	_add_node_def("n_robot", 6, MapNodeData.NodeType.BATTLE, "拦截机械", "阻停灰区重装巡逻拦截机。", ["n5_boss"], "campus_robot", Vector2(900, 150))
+	_add_node_def("n5_boss", 7, MapNodeData.NodeType.BOSS, "红月超限", "击退解除限幅的灰区猎杀终端。", ["n_find_yang"], "principal_confrontation", Vector2(1030, 370))
+	_add_node_def("n_find_yang", 8, MapNodeData.NodeType.STORY, "白羊觉醒", "确认秋枫的结晶休眠，唤醒 #01 白羊座母卡。", [], "find_yang", Vector2(1160, 150))
 	_refresh_node_states()
 
 func _refresh_node_states() -> void:

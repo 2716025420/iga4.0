@@ -118,6 +118,12 @@ func _present_pending() -> void:
  get_tree().paused = true
  backdrop.show()
  _layout()
+ for id in displayed:
+  if str(id).begins_with("card:"):
+   AudioManager.play_sfx_pack_tear()
+   CombatVFX.play_burst(presentation,"pack_tear",presentation.get_global_transform() * (DESIGN * 0.5),Vector2(560,560),44)
+   CombatVFX.play_burst(presentation,"pack",presentation.get_global_transform() * (DESIGN * 0.5),Vector2(760,760),45)
+   break
  var duration := SaveManager.motion_duration(0.16)
  if duration > 0.0:
   presentation.pivot_offset = DESIGN * 0.5

@@ -86,9 +86,17 @@ func refresh(panel_context: Dictionary = {}) -> void:
  stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
  stage.size = Vector2(1920,1080)
  add_child(stage)
- _surface(stage,"ScreenBase",Rect2(0,0,1920,1080),Color("#D7E0E4") if panel_kind == "workshop" else Color("#D9BC90"))
- _bg_art = SchoolObjectUI.art(stage,"WorkspaceArt","res://assets/ui/player_experience/" + ("prep_scene_room.png" if panel_kind == "workshop" else "records_room.png"))
- SchoolObjectUI.art(stage,"WorkspaceStructure","res://assets/ui/player_experience/" + ("prep_scene_structure_neutral_v2.png" if panel_kind == "workshop" else "records_structure.png"))
+ _surface(stage,"ScreenBase",Rect2(-210,0,2340,1080),Color("#D7E0E4") if panel_kind == "workshop" else Color("#D9BC90"))
+ var room_default := "res://assets/ui/player_experience/" + ("prep_scene_room.png" if panel_kind == "workshop" else "records_room.png")
+ var room_wide := "res://assets/ui/player_experience/" + ("prep_scene_room_wide.png" if panel_kind == "workshop" else "records_room_wide.png")
+ var use_room_wide := ResourceLoader.exists(room_wide)
+ _bg_art = SchoolObjectUI.art(stage,"WorkspaceArt",room_wide if use_room_wide else room_default,Rect2(-210,0,2340,1080) if use_room_wide else Rect2(0,0,1920,1080))
+ _bg_art.stretch_mode = TextureRect.STRETCH_SCALE
+ var struct_default := "res://assets/ui/player_experience/" + ("prep_scene_structure_neutral_v2.png" if panel_kind == "workshop" else "records_structure.png")
+ var struct_wide := "res://assets/ui/player_experience/" + ("prep_scene_structure_wide.png" if panel_kind == "workshop" else "records_structure_wide.png")
+ var use_struct_wide := ResourceLoader.exists(struct_wide)
+ var struct_art := SchoolObjectUI.art(stage,"WorkspaceStructure",struct_wide if use_struct_wide else struct_default,Rect2(-210,0,2340,1080) if use_struct_wide else Rect2(0,0,1920,1080))
+ struct_art.stretch_mode = TextureRect.STRETCH_SCALE
  if panel_kind == "workshop": _render_workshop()
  else: _render_records()
  var close := _plate_button(stage,"CloseButton","×",Rect2(1808,20,88,60),false)
@@ -276,6 +284,32 @@ func _render_workshop() -> void:
  var apply := _plate_button(stage,"ApplyLoadout","应用中" if applied else "应用",Rect2(1356,80,148,48),true)
  apply.disabled = not PlayerJourney.deck_summary(saved)["ready"] or applied or dirty
  apply.pressed.connect(func(): replacing_card_id = ""; action_requested.emit("apply_loadout",{"index":preset_index}))
+ var eligible_companions: Array[String] = []
+ for cid in PlayerJourney.COMPANION_ORDER:
+  if SaveManager.test_session or GameState.companions.get(cid,{}).get("unlocked",false): eligible_companions.append(cid)
+ var current_comp := GameState.get_active_companion_id()
+ if current_comp == "" or not eligible_companions.has(current_comp):
+  current_comp = eligible_companions[0] if not eligible_companions.is_empty() else ""
+ var comp_spec := PlayerJourney.companion_assist_spec(current_comp)
+ var comp_label := "协战：%s" % str(comp_spec.get("name","未解锁")) if not comp_spec.is_empty() else "协战：未解锁"
+ var comp_btn := _plate_button(stage,"CompanionButton",comp_label,Rect2(1524,80,260,48),true)
+ comp_btn.add_theme_font_size_override("font_size",22)
+ for state in ["normal","hover","pressed","hover_pressed"]:
+  var pill := StyleBoxFlat.new()
+  pill.bg_color = Color(0.20,0.29,0.40,0.88) if state == "hover" else (Color(0.11,0.16,0.23,0.92) if state in ["pressed","hover_pressed"] else Color(0.14,0.20,0.27,0.78))
+  pill.set_corner_radius_all(10)
+  comp_btn.add_theme_stylebox_override(state,pill)
+ comp_btn.disabled = eligible_companions.is_empty()
+ comp_btn.pressed.connect(func():
+  if eligible_companions.is_empty(): return
+  var idx := eligible_companions.find(current_comp)
+  var next_id: String = eligible_companions[(idx + 1) % eligible_companions.size()]
+  GameState.set_active_companion_id(next_id)
+  var next_spec := PlayerJourney.companion_assist_spec(next_id)
+  context["message"] = "协战同伴：%s · %s（%s）" % [str(next_spec.get("name","")),str(next_spec.get("skill","")),str(next_spec.get("summary",""))]
+  refresh()
+ )
+ refs["companion_button"] = comp_btn
  var keys := ["all","attack","guard","heal","support"]
  var names := ["全部","进攻","防护","恢复","支援"]
  var filter_rects := [Rect2(816,207,131,43),Rect2(974,207,119,43),Rect2(1117,207,119,43),Rect2(1261,207,119,43),Rect2(1404,207,119,43)]

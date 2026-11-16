@@ -2,6 +2,26 @@ class_name PlayerJourney
 extends RefCounted
 
 const QUALITIES := {"common": "普通", "fine": "精良", "rare": "稀有"}
+const COMPANION_ORDER := ["yang_zi_ying", "liu_yu_long", "jiang_zi"]
+const COMPANION_ASSISTS := {
+ "yang_zi_ying": {"id": "yang_zi_ying", "name": "杨子英", "skill": "快门闪光支援", "summary": "每打出3张卡：恢复10点体力并获得8点护盾", "heal": 10, "shield": 8, "damage": 0},
+ "liu_yu_long": {"id": "liu_yu_long", "name": "柳宇龙", "skill": "热血追击重扣", "summary": "每打出3张卡：对主目标追加14点协战伤害", "heal": 0, "shield": 0, "damage": 14},
+ "jiang_zi": {"id": "jiang_zi", "name": "姜梓", "skill": "战术统筹屏障", "summary": "每打出3张卡：获得12点护盾并追加6点干扰伤害", "heal": 0, "shield": 12, "damage": 6}
+}
+const ZODIAC_RESONANCES := {
+ "hero": {"id": "hero", "title": "白羊共鸣·肉体强化", "summary": "开局获得12点护盾，进攻卡伤害+2", "start_shield": 12, "attack_bonus": 2},
+ "everyperson": {"id": "everyperson", "title": "金牛共鸣·同频洞察", "summary": "开局恢复6点体力，护盾收益+2", "start_heal": 6, "shield_bonus": 2},
+ "jester": {"id": "jester", "title": "双子共鸣·灵巧换位", "summary": "开局获得8点护盾，攻击+1且护盾+1", "start_shield": 8, "attack_bonus": 1, "shield_bonus": 1},
+ "caregiver": {"id": "caregiver", "title": "巨蟹共鸣·温柔庇护", "summary": "每回合开始恢复4点体力", "turn_heal": 4},
+ "ruler": {"id": "ruler", "title": "狮子共鸣·秩序权威", "summary": "开局获得16点护盾", "start_shield": 16},
+ "creator": {"id": "creator", "title": "处女共鸣·精工重构", "summary": "护盾卡与反制卡护盾额外+3", "shield_bonus": 3},
+ "innocent": {"id": "innocent", "title": "天秤共鸣·均衡裁决", "summary": "敌方全体首回合伤害降低15%", "start_enemy_weak": 0.15},
+ "rebel": {"id": "rebel", "title": "天蝎共鸣·超限破局", "summary": "进攻卡伤害额外+3", "attack_bonus": 3},
+ "explorer": {"id": "explorer", "title": "射手共鸣·轻装疾行", "summary": "开局获得10点护盾并恢复4点体力", "start_shield": 10, "start_heal": 4},
+ "sage": {"id": "sage", "title": "摩羯共鸣·先机推演", "summary": "敌方全体首回合附加4点压制灼烧", "start_enemy_burn": 4},
+ "magician": {"id": "magician", "title": "水瓶共鸣·密钥增幅", "summary": "攻击+2 · 护盾+2 · 每回合恢复3点体力", "attack_bonus": 2, "shield_bonus": 2, "turn_heal": 3},
+ "lover": {"id": "lover", "title": "双鱼共鸣·心弦守望", "summary": "开局获得8点护盾，每回合恢复3点体力", "start_shield": 8, "turn_heal": 3}
+}
 const MILESTONES := [
  {"id":"prepare", "title":"出发前的准备", "condition":"装备至少四张卡，包含进攻手段", "reward":"20练习点 · 普通材料×3", "points":20, "items":{"material_common":3}},
  {"id":"train", "title":"练习一张行动卡", "condition":"任意已解锁行动卡达到2级", "reward":"25练习点 · 普通材料×2", "points":25, "items":{"material_common":2}},
@@ -28,6 +48,8 @@ static func validate_profile(profile: Dictionary) -> bool:
  if profile.has("calendar") and not DayCycleService.valid_calendar(profile["calendar"]): return false
  if profile.has("zodiac_collection") and not SpecialCardCollection.valid_state(profile["zodiac_collection"]): return false
  if profile.has("shop_receipts") and not CampusShopCatalog.valid_receipts(profile["shop_receipts"]): return false
+ if profile.has("active_companion") and (not profile["active_companion"] is String or (profile["active_companion"] != "" and not COMPANION_ASSISTS.has(profile["active_companion"]))): return false
+ if profile.has("active_zodiac") and (not profile["active_zodiac"] is String or (profile["active_zodiac"] != "" and not ZodiacCatalog.known(profile["active_zodiac"]))): return false
  if profile.get("last_activity") not in ["story","exploration"]: return false
  if not profile.get("exploration_log") is Array or profile["exploration_log"].size() > 20: return false
  var runs := {}
@@ -220,6 +242,7 @@ static func home_snapshot() -> Dictionary:
  var action := "quest"
  if not deck["ready"] and GameState.phase_two_combat_checkpoint.is_empty() and not pending: action = "workshop"
  elif pending and (GameState.player_profile["last_activity"] == "exploration" or complete): action = "resume_route"
+ elif not complete: action = "story"
  elif complete: action = "quest"
  var titles := {"story":"今天的行程","workshop":"出发前，准备一下","resume_route":"接着走完这条路","quest":"今天的安排" if DayCycle.has_story() else "日常自由时间"}
  var copy := PhaseTwoContent.current_objective()
@@ -238,3 +261,9 @@ static func home_snapshot() -> Dictionary:
     goal = item
     break
  return {"action":action,"title":titles[action],"body":copy,"button":{"story":"继续行程" if not GameState.visited_node_ids.is_empty() else "出发去学校","workshop":"整理行动卡","resume_route":"打开校园地图","quest":"打开校园地图"}[action],"story_label":DayCycle.rest_label(),"complete":complete,"claim_count":claims,"goal":goal,"deck":deck}
+
+static func companion_assist_spec(companion_id: String) -> Dictionary:
+ return COMPANION_ASSISTS.get(companion_id, {}).duplicate(true)
+
+static func zodiac_resonance_spec(zodiac_id: String) -> Dictionary:
+ return ZODIAC_RESONANCES.get(zodiac_id, {}).duplicate(true)

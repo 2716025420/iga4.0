@@ -63,6 +63,7 @@ func _ready() -> void:
 	resized.connect(_layout)
 	_layout()
 	_focus_default_row()
+	AudioManager.play_bgm_for_scene(SceneManager.TargetScene.TITLE)
 
 func _layout() -> void:
 	var room := presentation.get_node_or_null("RoomArt") as TextureRect
@@ -220,6 +221,7 @@ func _menu_row(node_name: String, text: String, top: float) -> Button:
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	presentation.add_child(button)
 	DaylightUI.place(button, 1320, top, 444, 84)
+	DaylightUI.bind_button_audio(button)
 	if node_name != "QuitButton": _rule(presentation, Vector2(1330, top + 92), 424)
 	return button
 
@@ -247,6 +249,7 @@ func _button(parent: Control, node_name: String, text: String, position: Vector2
 	parent.add_child(button)
 	DaylightUI.place(button, position.x, position.y, extent.x, extent.y)
 	SchoolObjectUI.borderless(button)
+	DaylightUI.bind_button_audio(button)
 	return button
 
 func _refresh_save() -> void:
@@ -280,7 +283,7 @@ func _begin_new_game() -> void:
 	if SceneManager.is_transitioning: return
 	if SaveManager.start_new_game():
 		_close_modal()
-		SceneManager.change_scene(SceneManager.TargetScene.HOME)
+		GameState.start_story_from_home()
 	else: status_label.text = SaveManager.last_error
 
 func _open_modal(kind: String, heading: String, copy: String = "") -> void:

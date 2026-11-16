@@ -1,0 +1,59 @@
+{
+  "viewport_px": [
+    1920,
+    1080
+  ],
+  "easing": "sine_in_out",
+  "background": {
+    "file": "cutscene_rebel_warning_bg.png",
+    "size_px": [
+      2340,
+      1080
+    ],
+    "screen_position_px": {
+      "start": [
+        -210,
+        0
+      ],
+      "end": [
+        -233,
+        0
+      ]
+    },
+    "pivot_screen_px": [
+      960,
+      540
+    ],
+    "scale": [
+      1,
+      1.037
+    ]
+  },
+  "foreground": {
+    "file": "cutscene_rebel_warning_fg.png",
+    "size_px": [
+      1920,
+      1080
+    ],
+    "screen_position_px": {
+      "start": [
+        0,
+        0
+      ],
+      "end": [
+        -67,
+        -13
+      ]
+    },
+    "pivot_screen_px": [
+      1018,
+      600
+    ],
+    "scale": [
+      1,
+      1.059
+    ]
+  },
+  "duration_seconds": 2.7,
+  "reduced_motion": "hold_start"
+}

@@ -10,12 +10,7 @@ const ROOT := "res://assets/ui/scene_reset/"
 const DEDICATED := "res://assets/ui/phase_three/"
 const MODAL_PAPER := "res://assets/ui_core/theme/paper_modal_9slice.png"
 const PANEL_SHEETS := ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","result_panel","dialogue_sheet"]
-const RETAINED := ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","card_paper","node_battle","node_rest","node_cache","node_elite","result_panel","dialogue_sheet"]
-const ILLUSTRATION_REGIONS := {
- "opening":Rect2(32,112,453,305),"bag":Rect2(56,131,419,274),
- "water":Rect2(94,86,342,353),"pressure":Rect2(21,131,468,271),
- "route_step":Rect2(64,124,386,243),"support":Rect2(45,108,451,337)
-}
+const RETAINED := ["route_board","exploration_panel","story_panel","workshop_panel","records_panel","lounge_panel","node_battle","node_rest","node_cache","node_elite","result_panel","dialogue_sheet"]
 static var _textures: Dictionary = {}
 static var _illustrations: Dictionary = {}
 
@@ -23,7 +18,8 @@ static func asset_path(key: String) -> String:
  if key in ["button_primary","button_lavender","button_secondary","button_plain"]:
   if ResourceLoader.exists(ROOT+"campus_surfaces.png"): return ROOT+"campus_surfaces.png"
   return ROOT+("primary_button.svg" if key in ["button_primary","button_lavender"] else "paper_button.svg")
- if key == "card_frame": key = "card_paper"
+ if key == "card_frame":
+  return MODAL_PAPER if ResourceLoader.exists(MODAL_PAPER) else ROOT+"paper_panel.svg"
  if key in PANEL_SHEETS:
   if ResourceLoader.exists(MODAL_PAPER): return MODAL_PAPER
   if ResourceLoader.exists(DEDICATED+"paper_panel.png"): return DEDICATED+"paper_panel.png"
@@ -48,21 +44,20 @@ static func texture_for(key: String) -> Texture2D:
 static func card_illustration_path(card_id: String) -> String:
  var duel_art := "res://assets/combat/card_art/card_art_%s.png" % card_id
  if ResourceLoader.exists(duel_art): return duel_art
- var keys := {"wrench_smash":"opening","scrap_shield":"bag","icy_soda":"water","overclock_torch":"pressure","fake_cheque":"route_step","steel_barricade":"support"}
- return DEDICATED+"cards/"+str(keys.get(card_id,"opening"))+".png"
+ return "res://assets/combat/card_art/card_art_wrench_smash.png"
 
 static func illustration_texture(file: String) -> Texture2D:
  if not ResourceLoader.exists(file): return null
  if _illustrations.has(file): return _illustrations[file]
  var source := load(file) as Texture2D
- var key := file.get_file().get_basename()
- if source != null and file.begins_with(DEDICATED+"cards/") and ILLUSTRATION_REGIONS.has(key):
-  var crop := AtlasTexture.new()
-  crop.atlas = source
-  crop.region = ILLUSTRATION_REGIONS[key]
-  crop.filter_clip = true
-  _illustrations[file] = crop
-  return crop
+ if source != null and file.ends_with("card_art_final_trump.png"):
+  # Exclude the 28px bottom border band where faint generation text appeared in delivery_v5.
+  var trump_crop := AtlasTexture.new()
+  trump_crop.atlas = source
+  trump_crop.region = Rect2(0,0,source.get_width(),maxi(64,source.get_height()-28))
+  trump_crop.filter_clip = true
+  _illustrations[file] = trump_crop
+  return trump_crop
  return source
 
 static func _insets(box: StyleBox, inset: Vector4) -> void:

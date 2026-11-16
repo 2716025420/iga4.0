@@ -40,7 +40,7 @@ func _check_home(slug: String) -> void:
  for id in view.objects:
   var object: HomeObjectButton = view.objects[id]
   var plate := object.label_plate
-  var canvas := Rect2(Vector2.ZERO,Vector2(1920,1080))
+  var canvas := get_viewport().get_visible_rect()
   check(canvas.encloses(plate.get_global_rect()),"caption stays on canvas: "+slug+"/"+id)
   check(not plate.get_global_rect().intersects(view.clock.get_global_rect()) and not plate.get_global_rect().intersects(view.remaining.get_global_rect()),"date/status do not overlap caption: "+slug+"/"+id)
   var function_text: Label = plate.get_node("Function")

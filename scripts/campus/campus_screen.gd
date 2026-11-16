@@ -38,6 +38,8 @@ func _layout() -> void:
  if wide_shop != null and wide_shop.visible and wide_shop.texture != null: background_tex = wide_shop.texture
  var wide_room := presentation.find_child("WideRoomBackground",true,false) as TextureRect
  if background_tex == null and wide_room != null and wide_room.texture != null: background_tex = wide_room.texture
+ var wide_place := presentation.find_child("WidePlaceBackground",true,false) as TextureRect
+ if background_tex == null and wide_place != null and wide_place.texture != null: background_tex = wide_place.texture
  var place_bg := presentation.find_child("PlaceBackground",true,false) as TextureRect
  if background_tex == null and place_bg != null: background_tex = place_bg.texture
  var room_bg := presentation.find_child("RoomBackground",true,false) as TextureRect
@@ -69,7 +71,14 @@ func _build_place() -> void:
   _build_test_place(data)
   return
  if data.get("geometry",false): _build_geometry_place(data)
- else: SchoolObjectUI.art(presentation,"PlaceBackground",CampusPlaces.ROOT+str(data.get("background","")))
+ else:
+  var place_path := CampusPlaces.ROOT+str(data.get("background",""))
+  var wide_path := place_path.replace(".png","_wide.png")
+  if ResourceLoader.exists(wide_path):
+   var wide_bg := SchoolObjectUI.art(presentation,"WidePlaceBackground",wide_path,Rect2(-210,0,2340,1080))
+   wide_bg.stretch_mode = TextureRect.STRETCH_SCALE
+  var place_bg := SchoolObjectUI.art(presentation,"PlaceBackground",place_path)
+  if ResourceLoader.exists(wide_path): place_bg.self_modulate = Color(1,1,1,0)
  var npc_id := str(data.get("npc",""))
  if npc_id != "": _build_actor(npc_id)
  var title := _button(presentation,"LocationTitle",str(data["title"]),Rect2(62,28,600,87))
@@ -265,17 +274,25 @@ func _show_dialogue(lines: Array) -> void:
   if is_instance_valid(scene_objects): scene_objects.select_object()
   if is_instance_valid(return_focus) and return_focus.is_inside_tree(): return_focus.grab_focus()
  )
- if refs.has("npc") and refs["npc"].texture != null and str(lines[0][0]) != "我":
-  # The existing story frame's portrait slot is optional; keep a quiet image
-  # rather than copying a whole scene background into the small portrait.
+ if str(lines[0][0]) != "我":
   var npc_id := str(CampusPlaces.PLACES[location_id].get("npc",""))
-  if npc_id == "liu_yu_long": dialogue.portrait.texture = load("res://assets/sprites/characters/phase_two/portraits/liu_yu_long.png")
+  if npc_id == "liu_yu_long" and refs.has("npc") and refs["npc"].texture != null:
+   dialogue.portrait.texture = load("res://assets/sprites/characters/phase_two/portraits/liu_yu_long.png")
   elif npc_id in ["lin_zhi_xia","tang_xiao_man"]:
-   var face := AtlasTexture.new()
-   face.atlas = refs["npc"].texture
-   face.region = Rect2(1205,0,260,300) if npc_id == "lin_zhi_xia" else Rect2(1122,40,250,280)
-   face.filter_clip = true
-   dialogue.portrait.texture = face
+   var half_path := "res://assets/sprites/characters/phase_two/halfbody/%s_happy.png" % npc_id
+   if not ResourceLoader.exists(half_path): half_path = "res://assets/sprites/characters/phase_two/halfbody/%s_neutral.png" % npc_id
+   if ResourceLoader.exists(half_path):
+    var face := AtlasTexture.new()
+    face.atlas = load(half_path) as Texture2D
+    face.region = Rect2(150,30,600,580)
+    face.filter_clip = true
+    dialogue.portrait.texture = face
+   elif refs.has("npc") and refs["npc"].texture != null:
+    var fallback_face := AtlasTexture.new()
+    fallback_face.atlas = refs["npc"].texture
+    fallback_face.region = Rect2(1205,0,260,300) if npc_id == "lin_zhi_xia" else Rect2(1122,40,250,280)
+    fallback_face.filter_clip = true
+    dialogue.portrait.texture = fallback_face
 
 func _confirm_sleep() -> void:
  if _sleep_confirm: return

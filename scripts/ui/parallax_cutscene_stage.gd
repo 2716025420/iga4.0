@@ -5,6 +5,7 @@ extends Control
 const DESIGN := Vector2(1920.0, 1080.0)
 const PRESETS := {
 	"dusk_corridor": {
+		"status": "integration_candidate",
 		"bg_path": "res://assets/backgrounds/cutscenes/cutscene_pilot_bg.png",
 		"fg_path": "res://assets/backgrounds/cutscenes/cutscene_pilot_fg_char.png",
 		"duration": 3.6,
@@ -18,8 +19,133 @@ const PRESETS := {
 		"fg_end": Vector2(0.0, 0.0),
 		"fg_pivot_screen": Vector2(1920.0, 0.0),
 		"fg_scale": Vector2(1.0, 1.24)
+	},
+	"red_moon_street": {
+		"status": "integration_candidate",
+		"bg_path": "res://assets/backgrounds/cutscenes/cutscene_red_moon_street_bg.png",
+		"fg_path": "res://assets/backgrounds/cutscenes/cutscene_red_moon_street_fg.png",
+		"duration": 3.4,
+		"bg_size": Vector2(2340.0, 1080.0),
+		"bg_start": Vector2(-210.0, 0.0),
+		"bg_end": Vector2(-234.0, 0.0),
+		"bg_pivot_screen": Vector2(960.0, 540.0),
+		"bg_scale": Vector2(1.0, 1.036),
+		"fg_size": Vector2(1920.0, 1080.0),
+		"fg_start": Vector2(0.0, 0.0),
+		"fg_end": Vector2(-42.0, 0.0),
+		"fg_pivot_screen": Vector2(1510.0, 530.0),
+		"fg_scale": Vector2(1.0, 1.12)
+	},
+	"arena_spotlight": {
+		"status": "integration_candidate",
+		"bg_path": "res://assets/backgrounds/cutscenes/cutscene_arena_spotlight_bg.png",
+		"fg_path": "res://assets/backgrounds/cutscenes/cutscene_arena_spotlight_fg.png",
+		"duration": 3.2,
+		"bg_size": Vector2(2340.0, 1080.0),
+		"bg_start": Vector2(-210.0, 0.0),
+		"bg_end": Vector2(-195.0, 0.0),
+		"bg_pivot_screen": Vector2(960.0, 540.0),
+		"bg_scale": Vector2(1.0, 1.049),
+		"fg_size": Vector2(1920.0, 1080.0),
+		"fg_start": Vector2(0.0, 0.0),
+		"fg_end": Vector2(42.0, -9.0),
+		"fg_pivot_screen": Vector2(1110.0, 714.0),
+		"fg_scale": Vector2(1.0, 1.08)
+	},
+	"old_park_dusk": {
+		"status": "story_concept_review",
+		"bg_path": "res://assets/backgrounds/cutscenes/cutscene_old_park_dusk_bg.png",
+		"fg_path": "res://assets/backgrounds/cutscenes/cutscene_old_park_dusk_fg.png",
+		"duration": 3.8,
+		"bg_size": Vector2(2340.0, 1080.0),
+		"bg_start": Vector2(-210.0, 0.0),
+		"bg_end": Vector2(-186.0, 0.0),
+		"bg_pivot_screen": Vector2(960.0, 540.0),
+		"bg_scale": Vector2(1.0, 1.045),
+		"fg_size": Vector2(1920.0, 1080.0),
+		"fg_start": Vector2(0.0, 0.0),
+		"fg_end": Vector2(58.0, -1.0),
+		"fg_pivot_screen": Vector2(960.0, 15.0),
+		"fg_scale": Vector2(1.0, 1.078)
+	},
+	"rebel_warning": {
+		"status": "story_concept_review",
+		"bg_path": "res://assets/backgrounds/cutscenes/cutscene_rebel_warning_bg.png",
+		"fg_path": "res://assets/backgrounds/cutscenes/cutscene_rebel_warning_fg.png",
+		"duration": 2.7,
+		"bg_size": Vector2(2340.0, 1080.0),
+		"bg_start": Vector2(-210.0, 0.0),
+		"bg_end": Vector2(-233.0, 0.0),
+		"bg_pivot_screen": Vector2(960.0, 540.0),
+		"bg_scale": Vector2(1.0, 1.037),
+		"fg_size": Vector2(1920.0, 1080.0),
+		"fg_start": Vector2(0.0, 0.0),
+		"fg_end": Vector2(-67.0, -13.0),
+		"fg_pivot_screen": Vector2(1018.0, 600.0),
+		"fg_scale": Vector2(1.0, 1.059)
+	},
+	"qiufeng_crystal": {
+		"status": "integration_candidate",
+		"bg_path": "res://assets/backgrounds/cutscenes/cutscene_qiufeng_crystal_bg.png",
+		"fg_path": "res://assets/backgrounds/cutscenes/cutscene_qiufeng_crystal_fg.png",
+		"duration": 3.6,
+		"bg_size": Vector2(2340.0, 1080.0),
+		"bg_start": Vector2(-210.0, 0.0),
+		"bg_end": Vector2(-228.0, 0.0),
+		"bg_pivot_screen": Vector2(1280.0, 540.0),
+		"bg_scale": Vector2(1.0, 1.04),
+		"fg_size": Vector2(1920.0, 1080.0),
+		"fg_start": Vector2(0.0, 0.0),
+		"fg_end": Vector2(-18.0, -6.0),
+		"fg_pivot_screen": Vector2(1280.0, 540.0),
+		"fg_scale": Vector2(1.0, 1.07)
+	},
+	"red_moon_finale": {
+		"status": "integration_candidate",
+		"bg_path": "res://assets/backgrounds/cutscenes/cutscene_red_moon_finale_bg.png",
+		"fg_path": "res://assets/backgrounds/cutscenes/cutscene_red_moon_finale_fg.png",
+		"duration": 3.6,
+		"bg_size": Vector2(2340.0, 1080.0),
+		"bg_start": Vector2(-210.0, 0.0),
+		"bg_end": Vector2(-192.0, 0.0),
+		"bg_pivot_screen": Vector2(960.0, 520.0),
+		"bg_scale": Vector2(1.0, 1.045),
+		"fg_size": Vector2(1920.0, 1080.0),
+		"fg_start": Vector2(0.0, 0.0),
+		"fg_end": Vector2(16.0, -4.0),
+		"fg_pivot_screen": Vector2(1100.0, 520.0),
+		"fg_scale": Vector2(1.0, 1.06)
 	}
 }
+
+static func available_presets() -> Array[String]:
+	var names: Array[String] = []
+	for key in PRESETS:
+		names.append(str(key))
+	return names
+
+static func preset_status(id: String) -> String:
+	if not PRESETS.has(id):
+		return ""
+	return str(PRESETS[id].get("status", ""))
+
+static func preset_for_dialogue(dialogue_id: String, region_id: String = "") -> String:
+	match dialogue_id:
+		"after_school":
+			return "dusk_corridor"
+		"school_affairs":
+			return "old_park_dusk"
+		"yang_rescue":
+			return "rebel_warning"
+		"principal_confrontation":
+			return "red_moon_street"
+		"find_yang":
+			return "arena_spotlight"
+	if PRESETS.has(dialogue_id) and preset_status(dialogue_id) == "integration_candidate":
+		return dialogue_id
+	if dialogue_id in ["region_failed_alliance_arrival_test", "region_iga_church_arrival_test"] and region_id in ["region_failed_alliance", "region_iga_church"]:
+		return "red_moon_street"
+	return ""
 
 var preset_id := "dusk_corridor"
 var bg_layer: TextureRect
@@ -102,6 +228,8 @@ func _build() -> void:
 	if ResourceLoader.exists(str(_spec["fg_path"])):
 		fg_layer.texture = load(str(_spec["fg_path"])) as Texture2D
 	add_child(fg_layer)
+	if preset_id == "qiufeng_crystal":
+		CombatVFX.play_loop(fg_layer, "crystal_shimmer", Rect2(860.0, 180.0, 760.0, 760.0), 0.72, 2)
 
 	_apply_transforms()
 

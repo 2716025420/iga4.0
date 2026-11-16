@@ -15,8 +15,15 @@ func _ready() -> void:
  size = Vector2(1920,1080)
  mouse_filter = Control.MOUSE_FILTER_IGNORE
  config = SceneDesignCatalog.place_config(location_id)
- var background := SchoolObjectUI.art(self,"PlaceBackground",SceneDesignCatalog.place_path(location_id))
+ var place_file := SceneDesignCatalog.place_path(location_id)
+ var wide_place := place_file.replace(".png","_wide.png")
+ if ResourceLoader.exists(wide_place):
+  var wide_bg := SchoolObjectUI.art(self,"WidePlaceBackground",wide_place,Rect2(-210,0,2340,1080))
+  wide_bg.stretch_mode = TextureRect.STRETCH_SCALE
+  wide_bg.z_index = -3
+ var background := SchoolObjectUI.art(self,"PlaceBackground",place_file)
  background.stretch_mode = TextureRect.STRETCH_SCALE
+ if ResourceLoader.exists(wide_place): background.self_modulate = Color(1,1,1,0)
  SceneSurfaceUI.heading(self,str(config["title"]))
  clock = get_node("DayTime") as Label
  DayCycle.changed.connect(func(): clock.text = GameState.get_detailed_time_string())

@@ -45,6 +45,76 @@ const PRODUCTS := {
 		"buy": 220,
 		"sell": 0
 	},
+	"card_coin_gambit": {
+		"kind": "card",
+		"ref": "coin_gambit",
+		"category": "cards",
+		"buy": 160,
+		"sell": 0
+	},
+	"card_counter_seal": {
+		"kind": "card",
+		"ref": "counter_seal",
+		"category": "cards",
+		"buy": 170,
+		"sell": 0
+	},
+	"card_crimson_pulse": {
+		"kind": "card",
+		"ref": "crimson_pulse",
+		"category": "cards",
+		"buy": 210,
+		"sell": 0
+	},
+	"card_desk_vault": {
+		"kind": "card",
+		"ref": "desk_vault",
+		"category": "cards",
+		"buy": 130,
+		"sell": 0
+	},
+	"card_duel_draw": {
+		"kind": "card",
+		"ref": "duel_draw",
+		"category": "cards",
+		"buy": 140,
+		"sell": 0
+	},
+	"card_emergency_tape": {
+		"kind": "card",
+		"ref": "emergency_tape",
+		"category": "cards",
+		"buy": 150,
+		"sell": 0
+	},
+	"card_final_trump": {
+		"kind": "card",
+		"ref": "final_trump",
+		"category": "cards",
+		"buy": 260,
+		"sell": 0
+	},
+	"card_focus_lens": {
+		"kind": "card",
+		"ref": "focus_lens",
+		"category": "cards",
+		"buy": 175,
+		"sell": 0
+	},
+	"card_silent_library": {
+		"kind": "card",
+		"ref": "silent_library",
+		"category": "cards",
+		"buy": 195,
+		"sell": 0
+	},
+	"card_tag_assist": {
+		"kind": "card",
+		"ref": "tag_assist",
+		"category": "cards",
+		"buy": 210,
+		"sell": 0
+	},
 	"material_common": {
 		"kind": "item",
 		"ref": "material_common",

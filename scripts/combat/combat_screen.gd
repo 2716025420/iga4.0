@@ -56,6 +56,9 @@ var _exploration_mode: bool = false
 var _exploration_node_id: String = ""
 var _exploration_run_id: int = -1
 var _exploration_data: Dictionary = {}
+var _companion_id: String = ""
+var _cards_played_total: int = 0
+var _active_zodiac_spec: Dictionary = {}
 var _history_backdrop: ColorRect
 var _history_close_button: Button
 
@@ -74,6 +77,7 @@ func _ready() -> void:
 	_setup_pause_and_hint()
 	PhaseTwoContent.apply_scene_labels(self)
 	DaylightUI.apply(self)
+	AudioManager.play_bgm_for_scene(SceneManager.TargetScene.COMBAT, CombatPresentation.is_overclock_combat(self))
 
 func _setup_combat_ui_extensions() -> void:
 	modal_backdrop = ColorRect.new()
@@ -178,9 +182,50 @@ func _gui_input(event: InputEvent) -> void:
 		_disarm_all_cards()
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and is_log_expanded:
+	if not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	if event.keycode == KEY_ESCAPE and is_log_expanded:
 		_close_combat_history()
 		get_viewport().set_input_as_handled()
+		return
+	if event.keycode == KEY_H and not result_modal.visible and not SceneManager.is_transitioning:
+		_toggle_log_panel()
+		get_viewport().set_input_as_handled()
+		return
+	if not is_player_turn or is_animating or result_modal.visible or is_log_expanded or SceneManager.is_transitioning:
+		return
+	var num_idx := -1
+	match event.keycode:
+		KEY_1, KEY_KP_1: num_idx = 0
+		KEY_2, KEY_KP_2: num_idx = 1
+		KEY_3, KEY_KP_3: num_idx = 2
+		KEY_4, KEY_KP_4: num_idx = 3
+		KEY_5, KEY_KP_5: num_idx = 4
+	if num_idx >= 0 and num_idx < card_ui_nodes.size():
+		var card_ui := card_ui_nodes[num_idx] as CombatCardUI
+		if is_instance_valid(card_ui) and card_ui.is_available:
+			_disarm_all_cards()
+			_on_card_clicked(card_ui.card_data)
+			get_viewport().set_input_as_handled()
+		return
+	if event.keycode == KEY_TAB:
+		var living: Array[EnemyUnitUI] = []
+		for e in enemy_nodes:
+			var enemy_unit := e as EnemyUnitUI
+			if is_instance_valid(enemy_unit) and not enemy_unit.is_dead:
+				living.append(enemy_unit)
+		if living.size() > 1:
+			var cur := living.find(selected_enemy)
+			_select_enemy(living[(cur + 1) % living.size()])
+			AudioManager.play_sfx_hover()
+		get_viewport().set_input_as_handled()
+		return
+	if event.keycode in [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER]:
+		var focus := get_viewport().gui_get_focus_owner()
+		if focus == null or focus == end_turn_btn:
+			AudioManager.play_sfx_click()
+			_on_end_turn_pressed()
+			get_viewport().set_input_as_handled()
 
 
 func _log_combat(line: String) -> void:
@@ -188,11 +233,14 @@ func _log_combat(line: String) -> void:
 		log_text.append_text(DaylightUI.readable_bbcode(line) + "\n")
 
 func _setup_combat_from_state() -> void:
-	_update_player_ui()
-	
 	# 初始化敌方
 	var battle_data: Dictionary = _exploration_data if _exploration_mode else GameState.pending_combat_data
-	var enemy_ids: Array = battle_data.get("enemies", ["security_guard"])
+	_companion_id = _resolve_companion_id(battle_data)
+	_cards_played_total = 0
+	_active_zodiac_spec = PlayerJourney.zodiac_resonance_spec(GameState.get_active_zodiac_id())
+	_update_player_ui()
+	var raw_enemy_ids: Array = battle_data.get("enemies", ["security_guard"])
+	var enemy_ids: Array = raw_enemy_ids.slice(0, 3)
 	for child in enemies_container.get_children():
 		child.queue_free()
 	enemy_nodes.clear()
@@ -235,6 +283,8 @@ func _setup_combat_from_state() -> void:
 			card_ui.card_armed.connect(_on_card_armed)
 			card_ui_nodes.append(card_ui)
 	
+	if not _has_matching_checkpoint():
+		_apply_battle_start_resonance()
 	_start_player_turn()
 
 func _create_exploration_enemy_data(spec: Dictionary) -> EnemyData:
@@ -252,42 +302,133 @@ func _create_enemy_data(eid: String) -> EnemyData:
 	e.id = eid
 	var visual_id := eid
 	match eid:
+		"liu_yu_long_duel":
+			visual_id = "liu_yu_long_duel"
+			e.name = "柳宇龙（护盾热身）"
+			e.max_hp = 60
+			e.base_atk = 10
+			e.actions_per_turn = 1
+			e.skills = [{"name": "直拳试探", "type": "attack", "damage": 10}, {"name": "终端护盾展开", "type": "defend", "shield": 8}, {"name": "热情连扣", "type": "attack", "damage": 14}]
 		"security_guard", "drone":
 			visual_id = "security_guard"
-			e.name = "校园保安"
+			e.name = "被劫持的门岗卫兵"
 			e.max_hp = 95
 			e.base_atk = 16
 			e.actions_per_turn = 1
-			e.skills = [{"name": "强行拦路", "type": "attack", "damage": 16}, {"name": "用力推挡", "type": "attack", "damage": 22}, {"name": "防守姿态", "type": "defend", "shield": 10}]
+			e.skills = [{"name": "超限封锁推击", "type": "attack", "damage": 16}, {"name": "强制截停猛冲", "type": "attack", "damage": 22}, {"name": "过载护盾协议", "type": "defend", "shield": 10}]
 		"campus_robot", "preacher":
 			visual_id = "campus_robot"
-			e.name = "巡逻机器人"
+			e.name = "灰区重装拦截机"
 			e.max_hp = 135
 			e.base_atk = 18
 			e.actions_per_turn = 1
-			e.skills = [{"name": "执行拦截", "type": "attack", "damage": 18}, {"name": "蓄力拦截", "type": "attack", "damage": 28}, {"name": "保护协议", "type": "defend", "shield": 14}]
-		"principal", "boss_frank":
-			visual_id = "principal"
-			e.name = "校长"
+			e.skills = [{"name": "超限射线截击", "type": "attack", "damage": 18}, {"name": "高能冲击蓄势", "type": "attack", "damage": 28}, {"name": "脉冲护御力场", "type": "defend", "shield": 14}]
+		"ch1_hunter_mech", "principal", "boss_frank":
+			visual_id = "ch1_hunter_mech"
+			e.name = "灰区超限猎杀终端"
 			e.rank = EnemyData.EnemyRank.BOSS
 			e.max_hp = 260
 			e.base_atk = 16
 			e.actions_per_turn = 2
-			e.skills = [{"name": "强制封锁", "type": "attack", "damage": 16}, {"name": "权限压迫", "type": "aoe", "damage": 14}, {"name": "安全限制改写", "type": "defend", "shield": 12}]
+			e.skills = [{"name": "强制限幅解除", "type": "attack", "damage": 16}, {"name": "红月干扰波", "type": "aoe", "damage": 14}, {"name": "核心防火墙重构", "type": "defend", "shield": 12}]
 			e.has_phase_two = true
 			e.phase_two_hp_threshold = 0.5
-			e.phase_two_skill = {"name": "最终封门指令", "type": "attack", "damage": 28}
-	var sprite_path := PhaseTwoContent.character_path(visual_id)
+			e.phase_two_skill = {"name": "编号抹除协议", "type": "attack", "damage": 28}
+		"duel_student_ace":
+			e.name = "学园预选代表"
+			e.rank = EnemyData.EnemyRank.NORMAL
+			e.max_hp = 120
+			e.base_atk = 17
+			e.actions_per_turn = 1
+			e.skills = [{"name": "先手强攻", "type": "attack", "damage": 17}, {"name": "卡组护御", "type": "defend", "shield": 12}]
+		"national_finalist":
+			e.name = "巡回赛种子候补"
+			e.rank = EnemyData.EnemyRank.ELITE
+			e.max_hp = 180
+			e.base_atk = 20
+			e.actions_per_turn = 1
+			e.skills = [{"name": "决胜推击", "type": "attack", "damage": 20}, {"name": "舞台威压", "type": "aoe", "damage": 16}, {"name": "反制壁垒", "type": "defend", "shield": 15}]
+		"alliance_operative":
+			e.name = "灰区反叛者特工"
+			e.rank = EnemyData.EnemyRank.ELITE
+			e.max_hp = 155
+			e.base_atk = 19
+			e.actions_per_turn = 1
+			e.skills = [{"name": "反终端狙击", "type": "attack", "damage": 19}, {"name": "光学回路调整", "type": "heal", "heal": 14}]
+		"church_guardian":
+			e.name = "红月圣堂守卫"
+			e.rank = EnemyData.EnemyRank.BOSS
+			e.max_hp = 210
+			e.base_atk = 18
+			e.actions_per_turn = 2
+			e.skills = [{"name": "仪轨压制", "type": "attack", "damage": 18}, {"name": "赤月共鸣", "type": "aoe", "damage": 15}, {"name": "庇护结界", "type": "defend", "shield": 14}]
+	var sprite_path := CombatSkin.enemy_combat_path(visual_id)
 	if sprite_path != "":
 		e.sprite_texture = load(sprite_path)
 	return e
+
+func _resolve_companion_id(battle_data: Dictionary) -> String:
+	var explicit := str(battle_data.get("companion_id", ""))
+	if explicit != "":
+		return explicit
+	if GameState.current_node_id == "n_gate":
+		return "yang_zi_ying" if GameState.companions.get("yang_zi_ying", {}).get("unlocked", false) else ""
+	var chosen := GameState.get_active_companion_id()
+	if chosen != "" and (SaveManager.test_session or GameState.companions.get(chosen, {}).get("unlocked", false)):
+		return chosen
+	var story_assist: bool = GameState.current_node_id in ["n_robot", "n5_boss"] or bool(GameState.story_flags.get("yang_rescued_player", false))
+	var has_assist := GameState.equipped_card_ids.has("tag_assist") or GameState.equipped_card_ids.has("focus_lens") or GameState.equipped_card_ids.has("silent_library") or GameState.equipped_card_ids.has("duel_draw")
+	if not _exploration_mode and not SaveManager.test_session and not has_assist and not story_assist:
+		return ""
+	if GameState.equipped_card_ids.has("silent_library") and GameState.companions.get("jiang_zi", {}).get("unlocked", false):
+		return "jiang_zi"
+	if GameState.equipped_card_ids.has("duel_draw") and GameState.companions.get("liu_yu_long", {}).get("unlocked", false):
+		return "liu_yu_long"
+	if GameState.companions.get("yang_zi_ying", {}).get("unlocked", false):
+		return "yang_zi_ying"
+	if GameState.companions.get("liu_yu_long", {}).get("unlocked", false):
+		return "liu_yu_long"
+	if GameState.companions.get("jiang_zi", {}).get("unlocked", false):
+		return "jiang_zi"
+	return ""
+
+func _has_matching_checkpoint() -> bool:
+	var snapshot: Dictionary = GameState.get_exploration_combat_checkpoint() if _exploration_mode else GameState.phase_two_combat_checkpoint
+	var node_id: String = _exploration_node_id if _exploration_mode else GameState.current_node_id
+	return not snapshot.is_empty() and snapshot.get("node_id", "") == node_id
+
+func _apply_battle_start_resonance() -> void:
+	if _active_zodiac_spec.is_empty():
+		return
+	var start_shield := int(_active_zodiac_spec.get("start_shield", 0))
+	if start_shield > 0:
+		player_shield += start_shield
+	var start_heal := int(_active_zodiac_spec.get("start_heal", 0))
+	if start_heal > 0 and GameState.player_current_hp < GameState.player_max_hp:
+		GameState.heal_player(mini(start_heal, GameState.player_max_hp - GameState.player_current_hp))
+	var weak_pct := float(_active_zodiac_spec.get("start_enemy_weak", 0.0))
+	if weak_pct > 0.0:
+		for e in enemy_nodes:
+			if not e.is_dead:
+				e.apply_debuff(weak_pct, 1)
+				if is_instance_valid(floating_anchor):
+					CombatVFX.play_burst(floating_anchor, "debuff", _vfx_center(e.sprite), Vector2(220, 220))
+	var start_burn := int(_active_zodiac_spec.get("start_enemy_burn", 0))
+	if start_burn > 0:
+		for e in enemy_nodes:
+			if not e.is_dead:
+				e.apply_burn(start_burn, 2)
+				if is_instance_valid(floating_anchor):
+					CombatVFX.play_burst(floating_anchor, "overclock_redmoon", _vfx_center(e.sprite), Vector2(220, 220))
+	_log_combat("[color=#8C6A36]✦ 星座共鸣【%s】生效：%s[/color]" % [str(_active_zodiac_spec.get("title", "")), str(_active_zodiac_spec.get("summary", ""))])
+	_update_player_ui()
 
 func _update_player_ui() -> void:
 	player_hp_bar.max_value = GameState.player_max_hp
 	player_hp_bar.value = GameState.player_current_hp
 	player_hp_label.text = "%d / %d" % [GameState.player_current_hp, GameState.player_max_hp]
 	
-	player_shield_label.visible = true
+	player_shield_label.visible = false
 	if player_shield > 0:
 		player_shield_label.text = "护盾: %d · 本轮有效" % player_shield
 		player_shield_label.add_theme_color_override("font_color", Color("#386485"))
@@ -304,8 +445,10 @@ func _update_player_ui() -> void:
 	var net_incoming := maxi(0, incoming - player_shield)
 	parts.append(("预计净受击 %d" % net_incoming) if incoming > 0 else "敌方暂未蓄攻")
 	player_status_label.text = "\n".join(parts)
+	player_status_label.visible = false
 	player_status_label.add_theme_color_override("font_color", Color("#B65B63") if net_incoming > 0 else NotebookUI.INK)
 	_refresh_tactical_note()
+	CombatPresentation.update_badges(self)
 
 func _select_enemy(enemy: EnemyUnitUI) -> void:
 	if selected_enemy and is_instance_valid(selected_enemy):
@@ -327,8 +470,9 @@ func _refresh_tactical_note() -> void:
 		for enemy in enemy_nodes:
 			if not enemy.is_dead: incoming += enemy.predicted_damage()
 		var target_intent := ""
-		if target_alive and not selected_enemy.intent_label.text.is_empty():
-			target_intent = "下轮意图: %s\n" % selected_enemy.intent_label.text
+		var summary := selected_enemy.intent_summary() if target_alive and selected_enemy.has_method("intent_summary") else (selected_enemy.intent_label.text if target_alive else "")
+		if target_alive and not summary.is_empty():
+			target_intent = "下轮意图: %s\n" % summary
 		description.text = "%s本轮预计受伤 %d\n护盾 %d · 结束时清除" % [target_intent, maxi(0, incoming - player_shield), player_shield]
 	if portrait and is_instance_valid(selected_enemy) and selected_enemy.sprite.texture is AtlasTexture:
 		var actor := selected_enemy.sprite.texture as AtlasTexture
@@ -337,7 +481,7 @@ func _refresh_tactical_note() -> void:
 		crop.region = Rect2(actor.region.position, Vector2(actor.region.size.x, actor.region.size.y * 0.45))
 		crop.filter_clip = true
 		portrait.texture = crop
-		portrait.flip_h = true
+		portrait.flip_h = selected_enemy.sprite.flip_h
 
 func _on_enemy_clicked(enemy: EnemyUnitUI) -> void:
 	if not is_player_turn or is_animating or result_modal.visible or is_log_expanded:
@@ -346,7 +490,7 @@ func _on_enemy_clicked(enemy: EnemyUnitUI) -> void:
 	_select_enemy(enemy)
 
 func _on_enemy_died(enemy: EnemyUnitUI) -> void:
-	_spawn_floating("击溃!", floating_text_scene.TextType.BUFF, enemy.global_position + Vector2(60, 40))
+	_spawn_floating("击溃!", floating_text_scene.TextType.BUFF, enemy.sprite.global_position + Vector2(30, 30))
 	_log_combat("[color=#B65B63][%s][/color] 已被彻底击溃！" % enemy.enemy_data.name)
 	if selected_enemy == enemy:
 		selected_enemy = null
@@ -374,6 +518,15 @@ func _start_player_turn() -> void:
 	
 	_disarm_all_cards()
 	_log_combat("[b][color=#9E7051]━━━ 第 %d 回合 · 叶舟回合 ━━━[/color][/b]" % current_round)
+	var turn_heal := int(_active_zodiac_spec.get("turn_heal", 0))
+	if turn_heal > 0 and GameState.player_current_hp < GameState.player_max_hp:
+		var healed := mini(turn_heal, GameState.player_max_hp - GameState.player_current_hp)
+		GameState.heal_player(healed)
+		if is_instance_valid(player_sprite):
+			CombatVFX.play_burst(floating_anchor, "heal", _vfx_center(player_sprite), Vector2(210, 210))
+			_spawn_floating("+%d 共鸣" % healed, floating_text_scene.TextType.HEAL, player_sprite.global_position + Vector2(60, 10))
+		_log_combat("✦ 星座共鸣【%s】恢复叶舟 [color=#2ed573]%d点[/color] 体力。" % [str(_active_zodiac_spec.get("title", "")), healed])
+		_update_player_ui()
 	
 	# 回合开始，所有卡牌CD减 1
 	for card_ui in card_ui_nodes:
@@ -409,6 +562,7 @@ func _on_card_clicked(card: CardData) -> void:
 func _execute_player_card(card: CardData) -> void:
 	is_animating = true
 	cards_played_this_turn += 1
+	_cards_played_total += 1
 	
 	# 找到对应的 card_ui 进入冷却
 	for card_ui in card_ui_nodes:
@@ -417,19 +571,29 @@ func _execute_player_card(card: CardData) -> void:
 			break
 	
 	turn_banner.text = "叶舟行动"
+	_play_unit_lunge(player_sprite, Vector2(22.0, -4.0))
+	AudioManager.play_sfx_card_play()
+	var atk_bonus := int(_active_zodiac_spec.get("attack_bonus", 0))
+	var shd_bonus := int(_active_zodiac_spec.get("shield_bonus", 0))
 	
 	# 执行效果并记录战报
 	match card.target_type:
 		CardData.TargetType.SINGLE_ENEMY:
 			if selected_enemy and not selected_enemy.is_dead:
-				var dmg = card.get_scaled_damage()
+				var dmg = card.get_scaled_damage() + atk_bonus
 				var actual_dmg = selected_enemy.take_damage(dmg)
-				_spawn_floating("-%d" % actual_dmg, floating_text_scene.TextType.DAMAGE, selected_enemy.global_position + Vector2(70, 80))
+				_play_unit_lunge(selected_enemy.sprite, Vector2(18.0, 0.0))
+				CombatVFX.play_burst(floating_anchor, "slash", _vfx_center(selected_enemy.sprite), Vector2(280, 280))
+				var is_overclock_hit := card.id in ["overclock_torch", "crimson_pulse", "final_trump"] or card.burn_damage > 0 or CombatPresentation.is_overclock_combat(self)
+				AudioManager.play_sfx_hit(is_overclock_hit)
+				if card.id in ["overclock_torch", "crimson_pulse", "final_trump"] or card.burn_damage > 0:
+					CombatVFX.play_burst(floating_anchor, "overclock_redmoon", _vfx_center(selected_enemy.sprite), Vector2(300, 300), 46)
+				_spawn_floating("-%d" % actual_dmg, floating_text_scene.TextType.DAMAGE, selected_enemy.sprite.global_position + Vector2(30, 50))
 				
 				var burn_str = ""
 				if card.burn_damage > 0:
 					selected_enemy.apply_burn(card.get_scaled_burn_damage(), card.burn_duration)
-					_spawn_floating("压制!", floating_text_scene.TextType.BUFF, selected_enemy.global_position + Vector2(70, 40))
+					_spawn_floating("压制!", floating_text_scene.TextType.BUFF, selected_enemy.sprite.global_position + Vector2(30, 15))
 					burn_str = "，附加 2回合“压制(%d/回合)”" % card.get_scaled_burn_damage()
 				
 				_log_combat("叶舟打出“%s”：对 [%s] 造成 [color=#ff4757]%d点[/color] 伤害%s" % [card.name, selected_enemy.enemy_data.name, actual_dmg, burn_str])
@@ -437,21 +601,28 @@ func _execute_player_card(card: CardData) -> void:
 		CardData.TargetType.ALL_ENEMIES:
 			if card.attack_down_percent > 0:
 				var debuff_val = card.get_scaled_attack_down()
+				AudioManager.play_sfx_debuff()
 				for e in enemy_nodes:
 					if not e.is_dead:
 						e.apply_debuff(debuff_val, card.debuff_duration)
-						_spawn_floating("虚弱!", floating_text_scene.TextType.BUFF, e.global_position + Vector2(70, 60))
+						_play_unit_lunge(e.sprite, Vector2(12.0, 0.0))
+						CombatVFX.play_burst(floating_anchor, "debuff", _vfx_center(e.sprite), Vector2(240, 240))
+						_spawn_floating("虚弱!", floating_text_scene.TextType.BUFF, e.sprite.global_position + Vector2(30, 30))
 				_log_combat("叶舟打出“%s”：削弱敌方全体 [color=#ffa502]%d%%[/color] 攻击伤害 (持续2回合)" % [card.name, roundi(debuff_val * 100)])
 		
 		CardData.TargetType.SELF:
 			if card.shield > 0:
-				var s = card.get_scaled_shield()
+				var s = card.get_scaled_shield() + shd_bonus
 				player_shield += s
+				AudioManager.play_sfx_shield()
+				CombatVFX.play_burst(floating_anchor, "shield", _vfx_center(player_sprite), Vector2(260, 260))
 				_spawn_floating("+%d 护盾" % s, floating_text_scene.TextType.SHIELD, player_sprite.global_position + Vector2(60, 40))
 				_log_combat("叶舟打出“%s”：自身获得 [color=#55aaff]%d点[/color] 护盾" % [card.name, s])
 			if card.heal > 0:
 				var h = mini(card.get_scaled_heal(), GameState.player_max_hp - GameState.player_current_hp)
 				GameState.heal_player(h)
+				AudioManager.play_sfx_heal()
+				CombatVFX.play_burst(floating_anchor, "heal", _vfx_center(player_sprite), Vector2(260, 260))
 				_spawn_floating("+%d 生命" % h, floating_text_scene.TextType.HEAL, player_sprite.global_position + Vector2(60, 20))
 				_log_combat("叶舟打出“%s”：恢复叶舟 [color=#2ed573]%d点[/color] 生命值" % [card.name, h])
 			if card.reflect_damage > 0:
@@ -459,9 +630,13 @@ func _execute_player_card(card: CardData) -> void:
 				player_reflect_damage = ref
 				player_reflect_turns = 1
 				player_reflect_hits = 2
+				AudioManager.play_sfx_shield()
+				CombatVFX.play_burst(floating_anchor, "counter_reflect", _vfx_center(player_sprite), Vector2(260, 260))
 				_spawn_floating("默契掩护!", floating_text_scene.TextType.BUFF, player_sprite.global_position + Vector2(60, 60))
 				_log_combat("叶舟打出“%s”：与同伴默契掩护 (受击反弹 [color=#ff9955]%d点[/color] 伤害)" % [card.name, ref])
 	
+	if _companion_id != "" and _cards_played_total % 3 == 0:
+		_trigger_companion_assist()
 	_update_player_ui()
 	
 	await get_tree().create_timer(0.4).timeout
@@ -471,6 +646,65 @@ func _execute_player_card(card: CardData) -> void:
 	# 叶舟回合保持可操作状态，允许打出其他未在CD的卡牌
 	is_animating = false
 	GameState._request_progress_save()
+
+func _trigger_companion_assist() -> void:
+	var spec := PlayerJourney.companion_assist_spec(_companion_id)
+	if spec.is_empty():
+		return
+	var comp_sprite := get_node_or_null("PlayerArea/CompanionSprite") as Control
+	if is_instance_valid(comp_sprite) and comp_sprite.visible:
+		_play_unit_lunge(comp_sprite, Vector2(26.0, -6.0))
+	var heal_amt := int(spec.get("heal", 0))
+	var shield_amt := int(spec.get("shield", 0))
+	var dmg_amt := int(spec.get("damage", 0))
+	var parts: Array[String] = []
+	if heal_amt > 0:
+		var actual_heal := mini(heal_amt, GameState.player_max_hp - GameState.player_current_hp)
+		if actual_heal > 0:
+			GameState.heal_player(actual_heal)
+		CombatVFX.play_burst(floating_anchor, "heal", _vfx_center(player_sprite), Vector2(240, 240))
+		parts.append("恢复 %d 点体力" % heal_amt)
+	if shield_amt > 0:
+		player_shield += shield_amt
+		CombatVFX.play_burst(floating_anchor, "shield", _vfx_center(player_sprite), Vector2(240, 240))
+		parts.append("获得 %d 点护盾" % shield_amt)
+	if dmg_amt > 0:
+		var target := selected_enemy
+		if target == null or not is_instance_valid(target) or target.is_dead:
+			target = null
+			for e in enemy_nodes:
+				if not e.is_dead:
+					target = e
+					break
+		if is_instance_valid(target) and not target.is_dead:
+			var actual_dmg := target.take_damage(dmg_amt)
+			_play_unit_lunge(target.sprite, Vector2(20.0, 0.0))
+			CombatVFX.play_burst(floating_anchor, "slash", _vfx_center(target.sprite), Vector2(260, 260))
+			_spawn_floating("协战 -%d" % actual_dmg, floating_text_scene.TextType.DAMAGE, target.sprite.global_position + Vector2(30, 25))
+			parts.append("对 [%s] 造成 %d 点协战伤害" % [target.enemy_data.name, actual_dmg])
+	var anchor_ctrl: Control = comp_sprite if (is_instance_valid(comp_sprite) and comp_sprite.visible) else player_sprite
+	AudioManager.play_sfx_cutin()
+	CombatVFX.play_burst(floating_anchor, "companion_assist", _vfx_center(anchor_ctrl), Vector2(290, 290), 46)
+	CombatPresentation.play_companion_cutin(self, _companion_id, spec)
+	_spawn_floating("★ %s" % str(spec.get("skill", "同伴协战")), floating_text_scene.TextType.BUFF, anchor_ctrl.global_position + Vector2(30, 10))
+	_log_combat("[color=#526D87]★ 同伴协战·%s【%s】：%s[/color]" % [str(spec.get("name", "")), str(spec.get("skill", "")), "，".join(parts)])
+
+func _play_unit_lunge(unit_ctrl: Control, offset: Vector2) -> void:
+	if not is_instance_valid(unit_ctrl):
+		return
+	var dur: float = SaveManager.motion_duration(0.11)
+	if dur <= 0.0:
+		return
+	var prev_tween: Tween = unit_ctrl.get_meta("lunge_tween") as Tween if unit_ctrl.has_meta("lunge_tween") else null
+	if prev_tween != null and is_instance_valid(prev_tween):
+		prev_tween.kill()
+	var base_pos: Vector2 = unit_ctrl.get_meta("lunge_base_pos") if unit_ctrl.has_meta("lunge_base_pos") else unit_ctrl.position
+	unit_ctrl.set_meta("lunge_base_pos", base_pos)
+	unit_ctrl.position = base_pos
+	var tw := create_tween()
+	unit_ctrl.set_meta("lunge_tween", tw)
+	tw.tween_property(unit_ctrl, "position", base_pos + offset, dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(unit_ctrl, "position", base_pos, dur * 1.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _on_end_turn_pressed() -> void:
 	if not is_player_turn or is_animating or result_modal.visible or is_log_expanded:
@@ -537,6 +771,12 @@ func _start_enemy_turn() -> void:
 						player_shield = 0
 				
 				GameState.damage_player(actual_dmg)
+				if actual_dmg > 0:
+					AudioManager.play_sfx_hit(type == "aoe" or enemy.is_phase_two or CombatPresentation.is_overclock_combat(self))
+				else:
+					AudioManager.play_sfx_shield()
+				var enemy_fx := ("overclock_redmoon" if type == "aoe" or enemy.is_phase_two else "slash") if actual_dmg > 0 else "shield"
+				CombatVFX.play_burst(floating_anchor, enemy_fx, _vfx_center(player_sprite), Vector2(260, 260))
 				_spawn_floating("-%d" % actual_dmg, floating_text_scene.TextType.DAMAGE, player_sprite.global_position + Vector2(70, 70))
 				
 				var absorb_str = (" (护盾吸收 [color=#55aaff]%d点[/color])" % shield_absorbed) if shield_absorbed > 0 else ""
@@ -546,15 +786,26 @@ func _start_enemy_turn() -> void:
 				if player_reflect_turns > 0 and player_reflect_hits > 0:
 					player_reflect_hits -= 1
 					var ref_dmg = enemy.take_damage(player_reflect_damage)
-					_spawn_floating("反弹 -%d" % ref_dmg, floating_text_scene.TextType.DAMAGE, enemy.global_position + Vector2(70, 70))
+					AudioManager.play_sfx_counter_reflect()
+					CombatVFX.play_burst(floating_anchor, "counter_reflect", _vfx_center(player_sprite), Vector2(240, 240))
+					CombatVFX.play_burst(floating_anchor, "counter_reflect", _vfx_center(enemy.sprite), Vector2(240, 240), 46)
+					_spawn_floating("反弹 -%d" % ref_dmg, floating_text_scene.TextType.DAMAGE, enemy.sprite.global_position + Vector2(30, 40))
 					_log_combat("掩护反击生效！反弹 [color=#ff9955]%d点[/color] 伤害给 [%s]！" % [ref_dmg, enemy.enemy_data.name])
 			
 			elif type == "defend":
 				var s = action.get("shield", 15)
 				enemy.shield += s
 				enemy._update_hp_display()
-				_spawn_floating("+%d 护盾" % s, floating_text_scene.TextType.SHIELD, enemy.global_position + Vector2(70, 40))
+				CombatVFX.play_burst(floating_anchor, "shield", _vfx_center(enemy.sprite), Vector2(240, 240))
+				_spawn_floating("+%d 护盾" % s, floating_text_scene.TextType.SHIELD, enemy.sprite.global_position + Vector2(30, 20))
 				_log_combat("[%s] 释放“%s”：自身获得 [color=#55aaff]%d点[/color] 护盾。" % [enemy.enemy_data.name, action.get("name", "防御"), s])
+			elif type == "heal":
+				var h := mini(int(action.get("heal", 12)), enemy.max_hp - enemy.current_hp)
+				enemy.current_hp += h
+				enemy._update_hp_display()
+				CombatVFX.play_burst(floating_anchor, "heal", _vfx_center(enemy.sprite), Vector2(240, 240))
+				_spawn_floating("+%d 恢复" % h, floating_text_scene.TextType.HEAL, enemy.sprite.global_position + Vector2(30, 20))
+				_log_combat("[%s] 释放“%s”：自身恢复 [color=#2ed573]%d点[/color] 体力。" % [enemy.enemy_data.name, action.get("name", "调整"), h])
 			
 			# The remaining locked actions are never rerolled during this phase.
 			_update_player_ui()
@@ -633,27 +884,32 @@ func _trigger_victory() -> void:
 	if result_modal.visible or _combat_outcome != "":
 		return
 	_combat_outcome = "victory"
+	AudioManager.play_sfx_victory()
 	combat_finished.emit(true)
 	_lock_combat_underlying_ui()
 	result_modal.visible = true
 	if _exploration_mode:
 		_show_exploration_result(true)
 		return
-	result_title.text = "暂时安全了"
+	var is_duel_tutorial: bool = GameState.current_node_id == "n_gate"
+	result_title.text = "热身切磋结束" if is_duel_tutorial else "暂时安全了"
 	var is_boss: bool = GameState.pending_combat_data.get("is_boss", false) or GameState.current_node_id == "n5_boss"
-	var points_earned: int = {"n_guard":40, "n_robot":50, "n5_boss":80}.get(GameState.current_node_id, 40)
-	var materials_earned: int = {"n_guard":3, "n_robot":4, "n5_boss":5}.get(GameState.current_node_id, 3)
+	var points_earned: int = {"n_gate":25, "n_guard":40, "n_robot":50, "n5_boss":80}.get(GameState.current_node_id, 40)
+	var materials_earned: int = {"n_gate":2, "n_guard":3, "n_robot":4, "n5_boss":5}.get(GameState.current_node_id, 3)
 	if not GameState.grant_inventory_reward("story_combat_materials_" + GameState.current_node_id, {"material_common":materials_earned},false): materials_earned = 0
 	GameState.add_scrap(points_earned,false)
 	_log_combat("局势平息，获得练习点 +%d。" % points_earned)
-	var desc := "找到了继续前进的空隙。\n练习点 +%d" % points_earned
+	var desc := ("护盾裁决热身完成！\n" if is_duel_tutorial else "找到了继续前进的空隙。\n") + "练习点 +%d" % points_earned
 	if materials_earned > 0: desc += " · 普通材料 +%d" % materials_earned
 	desc += "。\n"
 	if is_boss:
 		GameState.set_story_flag("principal_stopped", true)
 		GameState.unlock_card("fake_cheque",false)
-		desc += "同学们可以安全离开，解锁「转移注意」。\n接下来去找杨子英。"
-		result_button.text = "去找杨子英"
+		desc += "成功击退灰区超限猎杀终端，解锁「扰频假票令」。\n接下来确认黄秋枫与白羊座母卡的状态。"
+		result_button.text = "确认情况"
+	elif is_duel_tutorial:
+		desc += "柳宇龙已加入协战同伴，接下来按约定赴旧园与放学之约。"
+		result_button.text = "继续行程"
 	else:
 		desc += "先确认周围安全，再继续今天的行程。"
 		result_button.text = "继续行程"
@@ -744,15 +1000,17 @@ func _setup_pause_and_hint() -> void:
 	pause_button.position = Vector2(32,24)
 	pause_button.pressed.connect(_on_escape_pressed)
 	top_info.add_child(pause_button)
-	if _exploration_mode or GameState.current_node_id != "n_guard" or GameState.story_flags.get("first_battle_hint_dismissed",false):
+	if _exploration_mode or not (GameState.current_node_id in ["n_gate", "n_guard"]) or (GameState.current_node_id == "n_gate" and GameState.story_flags.get("first_battle_hint_dismissed", false)):
 		return
 	var hint := HBoxContainer.new()
 	hint.name = "FirstBattleHint"
 	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var copy := Label.new()
-	copy.text = "先看对方行动。护盾持续一回合；冷却1的卡下回合可用。"
+	copy.text = "红月超限警示：安全限幅已解除！请善用护盾与虚弱压制。" if GameState.current_node_id == "n_guard" else "热身教学：先看上方敌方意图；按 1-3 或点击出牌，Tab 切目标，Space 结束回合。"
 	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	copy.add_theme_font_size_override("font_size", 22)
+	copy.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	copy.custom_minimum_size = Vector2(424.0, 68.0)
+	copy.add_theme_font_size_override("font_size", 17)
 	hint.add_child(copy)
 	add_child(hint)
 
@@ -765,7 +1023,7 @@ func _save_combat_checkpoint() -> void:
 	for card in card_ui_nodes:
 		cooldowns[card.card_data.id] = card.current_cooldown
 		uses[card.card_data.id] = card.uses_remaining
-	var snapshot := {"node_id":GameState.current_node_id,"round":current_round,"player_shield":player_shield,"reflect_damage":player_reflect_damage,"reflect_turns":player_reflect_turns,"reflect_hits":player_reflect_hits,"uses":uses,"played":cards_played_this_turn,"enemies":enemies,"cooldowns":cooldowns,"selected":enemy_nodes.find(selected_enemy),"log":log_text.get_parsed_text()}
+	var snapshot := {"node_id":GameState.current_node_id,"round":current_round,"player_shield":player_shield,"reflect_damage":player_reflect_damage,"reflect_turns":player_reflect_turns,"reflect_hits":player_reflect_hits,"uses":uses,"played":cards_played_this_turn,"cards_played_total":_cards_played_total,"enemies":enemies,"cooldowns":cooldowns,"selected":enemy_nodes.find(selected_enemy),"log":log_text.get_parsed_text()}
 	if _exploration_mode:
 		GameState.save_exploration_combat_checkpoint(snapshot)
 	else:
@@ -783,6 +1041,7 @@ func _restore_combat_checkpoint() -> void:
 	player_reflect_turns = int(snapshot.get("reflect_turns",0))
 	player_reflect_hits = int(snapshot.get("reflect_hits", 2 if player_reflect_turns > 0 else 0))
 	cards_played_this_turn = int(snapshot.get("played",0))
+	_cards_played_total = int(snapshot.get("cards_played_total", 0))
 	var saved_enemies: Array = snapshot.get("enemies",[])
 	for index in mini(saved_enemies.size(),enemy_nodes.size()):
 		var enemy: EnemyUnitUI = enemy_nodes[index]
@@ -821,3 +1080,8 @@ func _spawn_floating(text_str: String, type: int, pos: Vector2) -> void:
 	label.set_script(floating_text_scene)
 	floating_anchor.add_child(label)
 	label.init_floating(text_str, type, pos)
+
+func _vfx_center(target: Control) -> Vector2:
+	if not is_instance_valid(target):
+		return size * 0.5
+	return target.get_global_rect().get_center()

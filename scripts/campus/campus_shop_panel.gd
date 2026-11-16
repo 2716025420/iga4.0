@@ -6,6 +6,7 @@ signal action_requested(action: String, payload: Dictionary)
 var refs: Dictionary = {}
 var mode := "buy"
 var category := "cards"
+var filter_unowned := false
 var selected_id := "card_fake_cheque"
 var quantity := 1
 var message := ""
@@ -54,19 +55,34 @@ func refresh(context: Dictionary = {}) -> void:
 	ShopCounterTheme.button(_canvas,"Mode_sell","物品回收",Rect2(307,225,200,60),mode == "sell").pressed.connect(func(): mode = "sell"; category = "materials"; quantity = 1; refresh())
 	if CampusPlaces.PLACES[CampusLife.current_location].get("npc","") != "":
 		ShopCounterTheme.button(_canvas,"Talk","与值班同学聊聊",Rect2(650,225,350,60)).pressed.connect(func(): action_requested.emit("shop_talk",{}))
+	if mode == "buy" and category == "cards":
+		var unowned_btn := ShopCounterTheme.button(_canvas,"FilterUnowned","仅未拥有",Rect2(198,274,178,38),filter_unowned)
+		unowned_btn.add_theme_font_size_override("font_size",18)
+		unowned_btn.pressed.connect(func(): filter_unowned = not filter_unowned; refresh())
 	var index := 0
 	for id in CampusShopCatalog.CATEGORIES:
 		var button := ShopCounterTheme.button(_canvas,"Category_"+id,CampusShopCatalog.CATEGORIES[id],Rect2(109+index*340,310,315,60),category == id)
 		button.disabled = mode == "sell" and id == "cards"
 		button.pressed.connect(func(): category = id; quantity = 1; refresh())
 		index += 1
-	var products: Array = CampusShopCatalog.PRODUCTS.keys().filter(func(id: String): return CampusShopCatalog.PRODUCTS[id]["category"] == category)
+	var products: Array = CampusShopCatalog.PRODUCTS.keys().filter(func(id: String): return CampusShopCatalog.PRODUCTS[id]["category"] == category and (not filter_unowned or mode != "buy" or category != "cards" or int(CampusShopCatalog.definition(id).get("owned", 0)) == 0))
 	if not products.has(selected_id): selected_id = str(products[0]) if not products.is_empty() else ""
 	refs["products"] = {}
+	var scroll := ScrollContainer.new()
+	scroll.name = "ProductsScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_canvas.add_child(scroll)
+	DaylightUI.place(scroll, 190, 320, 998, 578)
+	var grid := Control.new()
+	grid.name = "ProductsGrid"
+	grid.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	var rows := maxi(2, ceili(float(products.size()) / 3.0))
+	grid.custom_minimum_size = Vector2(972, rows * 302)
+	scroll.add_child(grid)
 	index = 0
 	for id in products:
 		var product := CampusShopCatalog.definition(id)
-		var tile := ShopCounterTheme.button(_canvas,"Product_"+id,"",Rect2(110+(index%3)*347,411+(index/3)*260,315,230),id == selected_id)
+		var tile := ShopCounterTheme.button(grid,"Product_"+id,"",Rect2(5+(index%3)*347,6+(index/3)*260,315,230),id == selected_id)
 		SchoolObjectUI.art(tile,"ProductArt",product["icon"],Rect2(32,12,250,133))
 		ShopCounterTheme.text(tile,"ProductName",product["name"],Rect2(22,151,276,40),28)
 		var copy := "%d 零用钱 · 持有%d" % [int(product[mode]),int(product["owned"])]
@@ -114,6 +130,8 @@ func _trade(ticket: String, id: String, amount: int, operation: String) -> void:
 	if ticket != _ticket: return
 	_ticket = ""
 	var result := GameState.execute_shop_trade(id,amount,operation,ticket)
+	if bool(result.get("ok", false)):
+		AudioManager.play_sfx_save()
 	message = str(result["message"])
 	refresh()
 
