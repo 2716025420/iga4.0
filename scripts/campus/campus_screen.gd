@@ -279,12 +279,17 @@ func _show_dialogue(lines: Array) -> void:
   if npc_id == "liu_yu_long" and refs.has("npc") and refs["npc"].texture != null:
    dialogue.portrait.texture = load("res://assets/sprites/characters/phase_two/portraits/liu_yu_long.png")
   elif npc_id in ["lin_zhi_xia","tang_xiao_man"]:
+   var avatar_path := "res://assets/sprites/characters/phase_two/avatars/%s_neutral.png" % npc_id
    var half_path := "res://assets/sprites/characters/phase_two/halfbody/%s_happy.png" % npc_id
    if not ResourceLoader.exists(half_path): half_path = "res://assets/sprites/characters/phase_two/halfbody/%s_neutral.png" % npc_id
-   if ResourceLoader.exists(half_path):
+   if ResourceLoader.exists(avatar_path):
+    dialogue.portrait.texture = load(avatar_path)
+   elif ResourceLoader.exists(half_path):
+    var half_tex := load(half_path) as Texture2D
     var face := AtlasTexture.new()
-    face.atlas = load(half_path) as Texture2D
-    face.region = Rect2(150,30,600,580)
+    face.atlas = half_tex
+    var sz := half_tex.get_size() if half_tex != null else Vector2(1054, 1581)
+    face.region = Rect2(sz.x * 0.22, sz.y * 0.04, sz.x * 0.56, sz.y * 0.37)
     face.filter_clip = true
     dialogue.portrait.texture = face
    elif refs.has("npc") and refs["npc"].texture != null:
