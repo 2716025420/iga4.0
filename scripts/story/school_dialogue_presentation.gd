@@ -116,9 +116,14 @@ func update_scene(override_cutscene_id: String = "") -> void:
 	if bool(screen.get("_exploration_mode")): key = "dusk_road"
 	var path := "res://assets/backgrounds/phase_two/%s_wide.png" % key
 	if not ResourceLoader.exists(path): path = "res://assets/backgrounds/phase_two/%s.png" % key
+	if id == "school_affairs" and ResourceLoader.exists("res://assets/ui/scene_reset/places/library_wide.png"):
+		path = "res://assets/ui/scene_reset/places/library_wide.png"
+	elif id == "club_welcome" and ResourceLoader.exists(str(HomeScreen.artwork_for_period("afternoon")["room"])):
+		path = str(HomeScreen.artwork_for_period("afternoon")["room"])
 	if ResourceLoader.exists(path): screen.get("bg_texture").texture = load(path)
-	var location: String = {"morning_road":"上学路", "school_gate":"校门前", "school_room":"课间", "dusk_road":"放学以后"}.get(key, "校园片段")
-	scene_caption.text = ("回忆片段" if bool(screen.get("_archive_mode")) else ("探索片段" if bool(screen.get("_exploration_mode")) else "校园片段")) + "   /   " + location
+	var location: String = {"morning_road":"上学路", "school_gate":"运动会场边", "school_room":"社团教室", "dusk_road":"旧公园夕照"}.get(key, "校园片段")
+	if id == "school_affairs": location = "阿瑞忒图书馆"
+	scene_caption.text = ("回忆片段" if bool(screen.get("_archive_mode")) else ("探索片段" if bool(screen.get("_exploration_mode")) else "剧情放映")) + "   /   " + location
 	var calendar_geometry := get_node_or_null("CalendarLocationGeometry")
 	if calendar_geometry != null: calendar_geometry.hide()
 	var bg_rect := screen.get("bg_texture") as TextureRect

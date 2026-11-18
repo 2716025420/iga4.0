@@ -4,10 +4,15 @@ extends RefCounted
 const QUALITIES := {"common": "普通", "fine": "精良", "rare": "稀有"}
 const COMPANION_ORDER := ["yang_zi_ying", "liu_yu_long", "jiang_zi"]
 const COMPANION_ASSISTS := {
- "yang_zi_ying": {"id": "yang_zi_ying", "name": "杨子英", "skill": "快门闪光支援", "summary": "每打出3张卡：恢复10点体力并获得8点护盾", "heal": 10, "shield": 8, "damage": 0},
- "liu_yu_long": {"id": "liu_yu_long", "name": "柳宇龙", "skill": "热血追击重扣", "summary": "每打出3张卡：对主目标追加14点协战伤害", "heal": 0, "shield": 0, "damage": 14},
- "jiang_zi": {"id": "jiang_zi", "name": "姜梓", "skill": "战术统筹屏障", "summary": "每打出3张卡：获得12点护盾并追加6点干扰伤害", "heal": 0, "shield": 12, "damage": 6}
+ "yang_zi_ying": {"id": "yang_zi_ying", "name": "杨子英", "skill": "快门闪光支援", "heal": 10, "shield": 8, "damage": 0},
+ "liu_yu_long": {"id": "liu_yu_long", "name": "柳宇龙", "skill": "热血追击重扣", "heal": 0, "shield": 0, "damage": 14},
+ "jiang_zi": {"id": "jiang_zi", "name": "姜梓", "skill": "战术统筹屏障", "heal": 0, "shield": 12, "damage": 6}
 }
+const QUALIFIER_ROUNDS: Array[Dictionary] = [
+ {"round": 1, "flag": "qualifier_r1_won", "title": "第1战 · 新锐资格战", "subtitle": "迎战学园预选代表，检验基础攻防与冷却轮转。", "enemies": ["duel_student_ace"], "money": 150, "points": 45, "items": {"material_fine": 2}},
+ {"round": 2, "flag": "qualifier_r2_won", "title": "第2战 · 双人战术演武", "subtitle": "双人编队夹击！善用同伴3卡协战与群体减攻破局。", "enemies": ["arena_tactician", "duel_student_ace"], "money": 200, "points": 60, "items": {"material_rare": 1}},
+ {"round": 3, "flag": "qualifier_r3_won", "title": "第3战 · 阿瑞忒首席代表战", "subtitle": "决战巡回赛种子代表！赢下阿瑞忒正式代表通行章。", "enemies": ["national_finalist"], "money": 300, "points": 90, "items": {"material_rare": 2, "practice_token": 1}}
+]
 const ZODIAC_RESONANCES := {
  "hero": {"id": "hero", "title": "白羊共鸣·肉体强化", "summary": "开局获得12点护盾，进攻卡伤害+2", "start_shield": 12, "attack_bonus": 2},
  "everyperson": {"id": "everyperson", "title": "金牛共鸣·同频洞察", "summary": "开局恢复6点体力，护盾收益+2", "start_heal": 6, "shield_bonus": 2},
@@ -23,12 +28,30 @@ const ZODIAC_RESONANCES := {
  "lover": {"id": "lover", "title": "双鱼共鸣·心弦守望", "summary": "开局获得8点护盾，每回合恢复3点体力", "start_shield": 8, "turn_heal": 3}
 }
 const MILESTONES := [
- {"id":"prepare", "title":"出发前的准备", "condition":"装备至少四张卡，包含进攻手段", "reward":"20练习点 · 普通材料×3", "points":20, "items":{"material_common":3}},
- {"id":"train", "title":"练习一张行动卡", "condition":"任意已解锁行动卡达到2级", "reward":"25练习点 · 普通材料×2", "points":25, "items":{"material_common":2}},
- {"id":"route", "title":"走完一条校园路线", "condition":"击败终点对手，从出口完成训练", "reward":"解锁「默契掩护」 · 精良材料×2", "card":"steel_barricade", "items":{"material_fine":2}},
- {"id":"friends", "title":"结识三位同学", "condition":"在主线认识杨子英、柳宇龙与姜梓", "reward":"30练习点 · 饮品补给×2", "points":30, "items":{"drink":2}},
- {"id":"chapter", "title":"一起走完归途", "condition":"完成第一章的主线行程", "reward":"100零用钱 · 稀有材料×1", "money":100, "items":{"material_rare":1}}
+ {"id":"prepare", "title":"正式入部整备", "condition":"在卡牌整理编入至少4张卡（含进攻卡）", "reward":"120零用钱 · 25练习点 · 普通材料×3", "money":120, "points":25, "items":{"material_common":3}},
+ {"id":"campus_step", "title":"阿瑞忒日常初探", "condition":"在校园完成任意1次场景活动、兼职或训练", "reward":"80零用钱 · 20练习点 · 饮品补给×1", "money":80, "points":20, "items":{"drink":1}},
+ {"id":"work_first", "title":"小店盘点帮手", "condition":"到校园商店帮助唐小满完成1次兼职盘点", "reward":"60零用钱 · 普通材料×3", "money":60, "items":{"material_common":3}},
+ {"id":"study_first", "title":"窗边牌理笔记", "condition":"在图书馆阅读区完成1次牌理研习", "reward":"35练习点 · 精良材料×1", "points":35, "items":{"material_fine":1}},
+ {"id":"full_deck", "title":"满编战术卡匣", "condition":"同时装备满5张战术刻印卡", "reward":"100零用钱 · 解锁「双人协防印」", "money":100, "card":"tag_assist"},
+ {"id":"train", "title":"刻印精进·初阶", "condition":"任意已解锁行动卡强化至2级", "reward":"40练习点 · 普通材料×3", "points":40, "items":{"material_common":3}},
+ {"id":"route", "title":"体育馆路线通关", "condition":"在体育馆完成任意1条模拟训练路线", "reward":"解锁「默契反制壁」 · 精良材料×2", "card":"steel_barricade", "items":{"material_fine":2}},
+ {"id":"friends", "title":"社团默契升温", "condition":"结识三位同伴且任一位熟悉度达到35（默契Lv.2）", "reward":"80零用钱 · 30练习点 · 饮品补给×2", "money":80, "points":30, "items":{"drink":2}},
+ {"id":"chapter", "title":"红月与白羊星火", "condition":"完成第一章旧公园高潮并唤醒白羊座母卡", "reward":"180零用钱 · 稀有材料×1", "money":180, "items":{"material_rare":1}},
+ {"id":"qualifier_debut", "title":"选拔赛初阵告捷", "condition":"赢下体育馆《阿瑞忒代表选拔赛》第1战", "reward":"120零用钱 · 精良材料×2", "money":120, "items":{"material_fine":2}},
+ {"id":"qualifier_champ", "title":"阿瑞忒首席代表", "condition":"全胜通关《阿瑞忒代表选拔赛》全部3战", "reward":"260零用钱 · 稀有材料×2", "money":260, "items":{"material_rare":2}}
 ]
+
+static func qualifier_round_spec(round_index: int) -> Dictionary:
+ for entry in QUALIFIER_ROUNDS:
+  if int(entry["round"]) == round_index:
+   return entry.duplicate(true)
+ return {}
+
+static func qualifier_next_round() -> int:
+ for entry in QUALIFIER_ROUNDS:
+  if not bool(GameState.story_flags.get(str(entry["flag"]), false)):
+   return int(entry["round"])
+ return 0
 
 static func validate_profile(profile: Dictionary) -> bool:
  if not profile.get("loadouts") is Array or profile["loadouts"].size() > 3: return false
@@ -43,7 +66,19 @@ static func validate_profile(profile: Dictionary) -> bool:
   if not GameState._whole_number(index) or int(index) < -1 or int(index) >= profile["loadouts"].size(): return false
  if not profile.get("milestone_claims") is Dictionary: return false
  for id in profile["milestone_claims"]:
-  if id not in ["prepare","train","route","friends","chapter"] or not profile["milestone_claims"][id] is bool or profile["milestone_claims"][id] != true: return false
+  if not id is String or str(id).length() > 64 or not profile["milestone_claims"][id] is bool or profile["milestone_claims"][id] != true: return false
+ if profile.has("activities"):
+  if not profile["activities"] is Dictionary or profile["activities"].size() > 32: return false
+  for key in profile["activities"]:
+   if not key is String or not GameState._whole_number(profile["activities"][key]) or int(profile["activities"][key]) < 0 or int(profile["activities"][key]) > 999999: return false
+ if profile.has("reading_notes"):
+  if not profile["reading_notes"] is Array or profile["reading_notes"].size() > 32: return false
+  for note_id in profile["reading_notes"]:
+   if not note_id is String or str(note_id).length() > 64: return false
+ if profile.has("chat_periods"):
+  if not profile["chat_periods"] is Dictionary or profile["chat_periods"].size() > 256: return false
+  for key in profile["chat_periods"]:
+   if not key is String or not profile["chat_periods"][key] is bool: return false
  if profile.has("campus_life") and not CampusPlaces.valid_state(profile["campus_life"]): return false
  if profile.has("calendar") and not DayCycleService.valid_calendar(profile["calendar"]): return false
  if profile.has("zodiac_collection") and not SpecialCardCollection.valid_state(profile["zodiac_collection"]): return false
@@ -84,6 +119,30 @@ static func deck_summary(ids: Array = GameState.equipped_card_ids) -> Dictionary
  var reason := "可以出发" if ready else GameState.DECK_RULE_MESSAGE
  return {"ready":ready,"count":ids.size(),"roles":roles,"reason":reason,"text":"进攻%d  防护%d  恢复%d  支援%d" % [roles["attack"],roles["guard"],roles["heal"],roles["support"]]}
 
+static func has_upgraded_card() -> bool:
+ for id in GameState.unlocked_card_ids:
+  if int(GameState.card_levels.get(id, 1)) >= 2:
+   return true
+ return false
+
+static func campus_activities_done() -> int:
+ var activities: Dictionary = GameState.player_profile.get("activities", {})
+ var total := 0
+ for key in ["study_count", "work_count", "rooftop_count", "coast_count", "beach_count", "park_count"]:
+  total += int(activities.get(key, 0))
+ total += GameState.exploration_run_counter
+ total += maxi(0, GameState.unlocked_card_ids.size() - 4)
+ if int(CampusLife.snapshot().get("studied_on_day", 0)) > 0 and int(activities.get("study_count", 0)) == 0:
+  total += 1
+ return total
+
+static func act1_story_ready() -> bool:
+ return bool(GameState.story_flags.get("prologue_completed", false)) and GameState.equipped_card_ids.size() >= 4 and campus_activities_done() >= 1
+
+static func act2_combat_ready() -> bool:
+ var act1_done: bool = GameState.visited_node_ids.has("n_affairs") or bool(GameState.story_flags.get("school_affairs_done", false))
+ return act1_done and (GameState.equipped_card_ids.size() >= 5 or has_upgraded_card())
+
 static func training_quote(card_id: String, quality: String = "common") -> Dictionary:
  var result := {"ok":false,"reason":"请选择已解锁的行动卡", "points":0,"amount":0,"quality":quality}
  var card: CardData = GameState.get_card(card_id)
@@ -93,12 +152,14 @@ static func training_quote(card_id: String, quality: String = "common") -> Dicti
  result["points"] = 40 if level == 1 else 90
  result["amount"] = level * 3 if quality == "common" else (level if quality == "fine" else 1)
  result["reason"] = "已达到最高等级" if level >= card.max_level else "练习点不足"
- if not DayCycle.can_act(): result["reason"] = DayCycle.block_reason(); return result
+ if SceneManager.is_transitioning or GameState.exploration_active:
+  result["reason"] = "训练或转场中暂不可强化"
+  return result
  if level >= card.max_level or GameState.scrap_metal < int(result["points"]): return result
  result["reason"] = "%s材料不足" % QUALITIES[quality]
  if int(GameState.exploration_materials.get(quality,0)) < int(result["amount"]): return result
  result["ok"] = true
- result["reason"] = "练习后提升到等级%d" % (level+1)
+ result["reason"] = "强化至 Lv.%d（不消耗活动次数）" % (level+1)
  return result
 
 static func train(card_id: String, quality: String = "common") -> bool:
@@ -107,7 +168,6 @@ static func train(card_id: String, quality: String = "common") -> bool:
  GameState.scrap_metal -= int(quote["points"])
  GameState.exploration_materials[quality] -= int(quote["amount"])
  GameState.card_levels[card_id] = int(quote["level"]) + 1
- DayCycle.spend_action("upgrade")
  GameState.materials_changed.emit()
  GameState.inventory_changed.emit()
  GameState.deck_changed.emit()
@@ -146,24 +206,45 @@ static func apply_loadout(index: int) -> bool:
  return GameState.apply_equipped_deck(ids,index)
 
 static func milestones() -> Array[Dictionary]:
- var trained := false
- for id in GameState.unlocked_card_ids:
-  if int(GameState.card_levels.get(id,1)) >= 2: trained = true
+ var trained := has_upgraded_card()
  var completed_route: bool = GameState.exploration_state.get("status", "") == "completed"
  for entry in GameState.player_profile["exploration_log"]:
   if entry["status"] == "completed": completed_route = true
  var friends := 0
- for id in ["yang_zi_ying","liu_yu_long","jiang_zi"]:
-  if GameState.companions.get(id,{}).get("unlocked",false): friends += 1
+ var max_favor := 0
+ for id in COMPANION_ORDER:
+  var comp: Dictionary = GameState.companions.get(id, {})
+  if comp.get("unlocked", false):
+   friends += 1
+   max_favor = maxi(max_favor, int(comp.get("favor", 0)))
+ var activities: Dictionary = GameState.player_profile.get("activities", {})
+ var work_count := int(activities.get("work_count", 0))
+ var study_count := int(activities.get("study_count", 0))
+ var total_acts := campus_activities_done()
  var deck := deck_summary()
- var conditions := [bool(deck["ready"]) and int(deck["count"]) >= 4, trained, completed_route, friends >= 3, bool(GameState.story_flags.get("chapter_1_completed",false))]
- var progress := ["%d/4张" % mini(4,GameState.equipped_card_ids.size()),"已练习" if trained else "尚未练习","已完成" if completed_route else "尚未完成","%d/3位" % friends,"已完成" if conditions[4] else "行程进行中"]
+ var r1 := bool(GameState.story_flags.get("qualifier_r1_won", false))
+ var r3 := bool(GameState.story_flags.get("arete_qualifier_completed", false))
+ var ch1 := bool(GameState.story_flags.get("chapter_1_completed", false))
+ var state_by_id := {
+  "prepare": {"ready": bool(deck["ready"]) and int(deck["count"]) >= 4, "progress": "%d/4张" % mini(4, GameState.equipped_card_ids.size())},
+  "campus_step": {"ready": total_acts >= 1, "progress": "%d/1次" % mini(1, total_acts)},
+  "work_first": {"ready": work_count >= 1, "progress": "%d/1次" % mini(1, work_count)},
+  "study_first": {"ready": study_count >= 1, "progress": "%d/1次" % mini(1, study_count)},
+  "full_deck": {"ready": bool(deck["ready"]) and int(deck["count"]) >= 5, "progress": "%d/5张" % mini(5, GameState.equipped_card_ids.size())},
+  "train": {"ready": trained, "progress": "Lv.2+" if trained else "未强化"},
+  "route": {"ready": completed_route, "progress": "已完成" if completed_route else "未完成"},
+  "friends": {"ready": friends >= 3 and max_favor >= 35, "progress": "%d/3位 · 最高%d" % [friends, max_favor]},
+  "chapter": {"ready": ch1, "progress": "已觉醒" if ch1 else "进行中"},
+  "qualifier_debut": {"ready": r1, "progress": "已首胜" if r1 else "未出战"},
+  "qualifier_champ": {"ready": r3, "progress": "全胜通关" if r3 else "%d/3战" % maxi(0, qualifier_next_round() - 1 if qualifier_next_round() > 0 else 3)}
+ }
  var result: Array[Dictionary] = []
- for i in MILESTONES.size():
-  var item: Dictionary = MILESTONES[i].duplicate(true)
-  item["ready"] = conditions[i]
+ for raw_item in MILESTONES:
+  var item: Dictionary = raw_item.duplicate(true)
+  var st: Dictionary = state_by_id[item["id"]]
+  item["ready"] = bool(st["ready"])
   item["claimed"] = GameState.player_profile["milestone_claims"].has(item["id"])
-  item["progress"] = progress[i]
+  item["progress"] = str(st["progress"])
   result.append(item)
  return result
 
@@ -186,7 +267,8 @@ static func claim_milestone(id: String) -> bool:
   var definition := ItemCatalog.definition(item_id)
   var source: String = str(definition.get("source",""))
   if source == "drinks": GameState.energy_drinks += int(goal["items"][item_id])
-  else: GameState.exploration_materials[source] += int(goal["items"][item_id])
+  elif source != "": GameState.exploration_materials[source] += int(goal["items"][item_id])
+  else: GameState.inventory_items[item_id] = GameState.get_inventory_quantity(item_id) + int(goal["items"][item_id])
   GameState._record_inventory_acquisition(item_id)
  if goal.has("card") and not GameState.unlocked_card_ids.has(goal["card"]):
   GameState.unlocked_card_ids.append(goal["card"])
@@ -239,18 +321,9 @@ static func home_snapshot() -> Dictionary:
  var deck := deck_summary()
  var pending: bool = GameState.get_exploration_snapshot().get("resume",false)
  var complete: bool = GameState.story_flags.get("chapter_1_completed",false)
- var action := "quest"
- if not deck["ready"] and GameState.phase_two_combat_checkpoint.is_empty() and not pending: action = "workshop"
- elif pending and (GameState.player_profile["last_activity"] == "exploration" or complete): action = "resume_route"
- elif not complete: action = "story"
- elif complete: action = "quest"
- var titles := {"story":"今天的行程","workshop":"出发前，准备一下","resume_route":"接着走完这条路","quest":"今天的安排" if DayCycle.has_story() else "日常自由时间"}
- var copy := PhaseTwoContent.current_objective()
- if action == "workshop": copy = deck["reason"]
- elif action == "resume_route": copy = "训练进度已保留，可以从校园地图前往体育馆继续。"
- elif action == "quest": copy = ("今天有重要的安排。" if DayCycle.has_story() else "今天是自由活动日。")+DayCycle.activity_hint()+"，也可以休息推进时段。"
- var goal: Dictionary = {}
+ var qualifier_done: bool = GameState.story_flags.get("arete_qualifier_completed",false)
  var claims := 0
+ var goal: Dictionary = {}
  for item in milestones():
   if item["ready"] and not item["claimed"]:
    claims += 1
@@ -260,10 +333,106 @@ static func home_snapshot() -> Dictionary:
    if not item["claimed"]:
     goal = item
     break
- return {"action":action,"title":titles[action],"body":copy,"button":{"story":"继续行程" if not GameState.visited_node_ids.is_empty() else "出发去学校","workshop":"整理行动卡","resume_route":"打开校园地图","quest":"打开校园地图"}[action],"story_label":DayCycle.rest_label(),"complete":complete,"claim_count":claims,"goal":goal,"deck":deck}
+ var action := "quest"
+ var title := "今天的安排"
+ var copy := PhaseTwoContent.current_objective()
+ var button := "打开校园地图"
+ var next_node: String = GameState.next_phase_two_node()
+ var prologue_done: bool = bool(GameState.story_flags.get("prologue_completed", false))
+ if not deck["ready"] and GameState.phase_two_combat_checkpoint.is_empty() and not pending:
+  action = "workshop"
+  title = "出发前，准备一下"
+  copy = deck["reason"]
+  button = "整理行动卡"
+ elif pending:
+  action = "resume_route"
+  title = "接着走完训练路线"
+  copy = "训练进度已保留，可以从校园地图前往体育馆继续。"
+  button = "前往体育馆"
+ elif not prologue_done and not complete and next_node in ["n0", "n_gate", "n_club_intro"]:
+  action = "story"
+  title = "序章 · 初遇与入部"
+  button = "继续序章" if not GameState.visited_node_ids.is_empty() else "开始序章"
+ elif not complete and GameState.equipped_card_ids.size() < 4:
+  action = "workshop"
+  title = "入部引导 · 第1步"
+  copy = "先点击下方【卡牌整理】，把第4张储备卡编入卡匣并保存应用。"
+  button = "整理行动卡"
+ elif not complete and not GameState.player_profile["milestone_claims"].has("prepare"):
+  action = "records_growth"
+  title = "入部引导 · 第2步"
+  copy = "点击右下【放映档案室】，为「正式入部整备」盖章领取 120 零用钱与材料！"
+  button = "去放映室领奖"
+ elif not complete and next_node == "n_affairs":
+  if act1_story_ready():
+   action = "travel_library"
+   title = "第一幕 · 图书馆的午后约见"
+   copy = "黄秋枫正在「图书馆」窗边等你。随时可点右侧直达图书馆触发剧情。"
+   button = "前往图书馆"
+  else:
+   action = "quest"
+   title = "第一幕 · 熟悉阿瑞忒校园"
+   copy = "打开「校园地图」体验日常活动（图书馆研习/商店打工/体育馆训练），完成1次后去找黄秋枫。"
+   button = "打开校园地图"
+ elif not complete and next_node == "n_dusk":
+  if act2_combat_ready():
+   action = "travel_old_park"
+   title = "第二幕 · 旧公园的黄昏之约"
+   copy = "卡匣已整备就绪！前往校外「旧公园」长椅赴黄秋枫的放学之约。"
+   button = "前往旧公园"
+  else:
+   action = "workshop"
+   title = "第二幕 · 赴约前的卡匣整备"
+   copy = "街区外围限幅器出现异常。请先编满 5 张行动卡（商店可购新卡）或将任意卡强化至 Lv.2。"
+   button = "整理行动卡"
+ elif not complete:
+  action = "story"
+  title = "红月超限 · 旧公园突围"
+  button = "继续主线"
+ elif not qualifier_done:
+  action = "travel_gym"
+  var done_rounds := maxi(0, qualifier_next_round() - 1) if qualifier_next_round() > 0 else 3
+  title = "终幕挑战 · 代表选拔赛"
+  copy = "前往「体育馆」迎战 3 轮校内选拔赛（已胜 %d/3 战），赢得巡回代表通行章！" % done_rounds
+  button = "前往体育馆"
+ else:
+  action = "quest"
+  var unlocked_cards := GameState.unlocked_card_ids.size()
+  var notes_cnt: int = GameState.player_profile.get("reading_notes", []).size()
+  title = "阿瑞忒代表 · 诺莫斯行前整备"
+  if claims > 0:
+   copy = "已赢下「阿瑞忒代表通行章」！放映档案室尚有 %d 项委托印章可盖章领奖，也可回巡回总图预览第 2 站《诺莫斯》。" % claims
+  elif unlocked_cards < 16 or notes_cnt < CampusPlaces.LIBRARY_NOTES.size():
+   copy = "已达成阿瑞忒代表资格！行前可继续收录全 16 张刻印卡（%d/16）与风物纪要（%d/%d），或前往「巡回总图」预览下一站《诺莫斯》。" % [unlocked_cards, notes_cnt, CampusPlaces.LIBRARY_NOTES.size()]
+  else:
+   copy = "已收集齐阿瑞忒全部刻印卡与风物纪要，巡回代表准备万全！第二章《诺莫斯》筹备中，可自由切磋与重温胶片。"
+  button = "打开校园地图"
+ return {"action":action,"title":title,"body":copy,"button":button,"story_label":DayCycle.rest_label(),"complete":complete,"claim_count":claims,"goal":goal,"deck":deck}
+
+static func companion_favor_tier(companion_id: String) -> int:
+ var favor: int = int(GameState.companions.get(companion_id, {}).get("favor", 0))
+ if favor >= 70: return 3
+ if favor >= 35: return 2
+ return 1
 
 static func companion_assist_spec(companion_id: String) -> Dictionary:
- return COMPANION_ASSISTS.get(companion_id, {}).duplicate(true)
+ if not COMPANION_ASSISTS.has(companion_id): return {}
+ var spec: Dictionary = COMPANION_ASSISTS[companion_id].duplicate(true)
+ var tier := companion_favor_tier(companion_id)
+ spec["tier"] = tier
+ match companion_id:
+  "yang_zi_ying":
+   spec["heal"] = [10, 13, 16][tier - 1]
+   spec["shield"] = [8, 11, 14][tier - 1]
+   spec["summary"] = "默契Lv.%d · 每打出3张卡：恢复%d点体力并获得%d点护盾" % [tier, int(spec["heal"]), int(spec["shield"])]
+  "liu_yu_long":
+   spec["damage"] = [14, 18, 22][tier - 1]
+   spec["summary"] = "默契Lv.%d · 每打出3张卡：对主目标追加%d点协战伤害" % [tier, int(spec["damage"])]
+  "jiang_zi":
+   spec["shield"] = [12, 15, 19][tier - 1]
+   spec["damage"] = [6, 8, 11][tier - 1]
+   spec["summary"] = "默契Lv.%d · 每打出3张卡：获得%d点护盾并追加%d点干扰伤害" % [tier, int(spec["shield"]), int(spec["damage"])]
+ return spec
 
 static func zodiac_resonance_spec(zodiac_id: String) -> Dictionary:
  return ZODIAC_RESONANCES.get(zodiac_id, {}).duplicate(true)

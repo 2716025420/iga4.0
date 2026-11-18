@@ -36,7 +36,7 @@ func _ready() -> void:
 	_label("GameTitle", "IGA", 110, Vector2(252, 142), Vector2(900, 150), true)
 	_rule(presentation, Vector2(256, 296), 488)
 	_label("Tagline", "Inorganic General Alien", 36, Vector2(256, 315), Vector2(680, 64), true)
-	_label("BuildNotice", "开发测试版 · 剧情与设定待完善", 24, Vector2(258, 392), Vector2(720, 42))
+	_label("BuildNotice", "阿瑞忒篇 · 序章至校内代表选拔赛", 24, Vector2(258, 392), Vector2(720, 42))
 	continue_button = _menu_row("ContinueButton", "继续游戏", 304)
 	new_button = _menu_row("NewGameButton", "开始新游戏", 402)
 	test_button = _menu_row("TestSaveButton", "测试存档（全解锁）", 500)

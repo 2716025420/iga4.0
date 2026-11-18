@@ -13,10 +13,8 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 SUITES = {
-    "regions": ("p5_regions", "P5_RESULT"),
-    "home": ("home_objects", "HOME_OBJECT_RESULT"),
-    "scenes": ("scene_reset", "SCENE_RESET_RESULT"),
-    "zodiac": ("zodiac_and_shop", "ZODIAC_RESULT"),
+    "smoke": ("core_smoke", "CORE_SMOKE_RESULT"),
+    "captures": ("capture_scenes", "CAPTURE_SCENES_RESULT"),
 }
 ERROR = re.compile(r"SCRIPT ERROR:|(?:^|\s)ERROR:|FAIL:", re.MULTILINE)
 
@@ -50,7 +48,7 @@ def check_indentation() -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--godot", default=os.environ.get("GODOT_BIN"), required=not os.environ.get("GODOT_BIN"))
-    parser.add_argument("--suite", choices=[*SUITES, "all"], default="all")
+    parser.add_argument("--suite", choices=[*SUITES, "all"], default="smoke")
     parser.add_argument("--resolution", help="Render using the native window driver, e.g. 1600x900; default is headless")
     parser.add_argument("--captures", type=Path, help="Local output directory; requires --resolution")
     parser.add_argument("--fullscreen", action="store_true", help="Use the monitor's full canvas to avoid desktop window-size clamping")
@@ -60,6 +58,8 @@ def main() -> int:
         parser.error("--captures requires --resolution")
     if args.fullscreen and not args.resolution:
         parser.error("--fullscreen requires --resolution")
+    if args.captures and args.suite == "smoke":
+        args.suite = "captures"
     args.output.mkdir(parents=True, exist_ok=True)
     indentation_errors = check_indentation()
     if indentation_errors:

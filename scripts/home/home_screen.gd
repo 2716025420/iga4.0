@@ -15,7 +15,7 @@ const SUBTITLE_INK := Color("#3B466B")
 const ENTRY_ORDER := ["lounge", "workshop", "records", "quest", "explore", "zodiac"]
 const ENTRY_TITLES := {
 	"lounge": "同学交流", "workshop": "卡牌整理",
-	"records": "放映档案", "quest": "校园地图", "explore": "进入第一章"
+	"records": "放映档案室", "quest": "校园地图", "explore": "进入第一章"
 }
 
 var presentation: Control
@@ -218,9 +218,10 @@ func _build_navigation() -> void:
 	var objects := SchoolObjectUI.art(hotspots_layer,"StudentObjects",OBJECTS_PATH,Rect2(0,30,1920,1080))
 	objects.set_meta("role","desk_objects_without_itinerary")
 	room_art.set_meta("role","room_with_pinned_itinerary")
-	activity_title = SchoolObjectUI.text(hotspots_layer,"ActivityTitle","",Rect2(1115,145,530,62),38,TITLE_INK)
-	activity_body = SchoolObjectUI.text(hotspots_layer,"ActivityBody","",Rect2(1030,397,420,114),26,SUBTITLE_INK)
+	activity_title = SchoolObjectUI.text(hotspots_layer,"ActivityTitle","",Rect2(1080,145,580,62),34,TITLE_INK)
+	activity_body = SchoolObjectUI.text(hotspots_layer,"ActivityBody","",Rect2(1030,394,430,122),22,SUBTITLE_INK)
 	activity_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	activity_body.clip_text = true
 	btn_explore = SchoolObjectUI.hit(hotspots_layer,"PrimaryActivity",Rect2(1480,304,240,67),"",28)
 	for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: btn_explore.add_theme_color_override(key,Color.WHITE)
 	for state in ["hover","pressed","hover_pressed"]:
@@ -255,6 +256,14 @@ func _build_navigation() -> void:
 	btn_workshop = _entries["workshop"]
 	btn_records = _entries["records"]
 	btn_quest = _entries["quest"]
+	var badge_pos := Vector2(labels["records"].position - positions["records"].position) + Vector2(20, -40)
+	var badge := SchoolObjectUI.text(btn_records, "ClaimBadge", "", Rect2(badge_pos, Vector2(180, 32)), 18, Color("#FFF9EE"), true)
+	var badge_box := StyleBoxFlat.new()
+	badge_box.bg_color = Color("#C95645")
+	badge_box.set_corner_radius_all(12)
+	badge.add_theme_stylebox_override("normal", badge_box)
+	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	badge.visible = false
 	var rooftop := SchoolObjectUI.hit(hotspots_layer,"RooftopExit",Rect2(65,238,245,50),"去天台  →",25)
 	DaylightUI.bind_button_audio(rooftop)
 	rooftop.pressed.connect(func(): CampusLife.travel_to("rooftop"))
@@ -291,6 +300,12 @@ func _activate_primary() -> void:
 	match data["action"]:
 		"story": _start_chapter()
 		"workshop": _open_workshop()
+		"records_growth":
+			_records_open_tab = "growth"
+			_open_records()
+		"travel_library": CampusLife.travel_to("library")
+		"travel_old_park": CampusLife.travel_to("old_park")
+		"travel_gym": CampusLife.travel_to("gym")
 		"resume_route": _open_training()
 		"quest": _open_training()
 
@@ -394,6 +409,11 @@ func _update_top_bar() -> void:
 	activity_body.text = activity["body"]
 	btn_explore.text = activity["button"]
 	story_button.text = activity["story_label"]
+	var claim_badge := btn_records.get_node_or_null("ClaimBadge") as Label if is_instance_valid(btn_records) else null
+	if is_instance_valid(claim_badge):
+		var count: int = int(activity.get("claim_count", 0))
+		claim_badge.visible = count > 0
+		claim_badge.text = "★ %d项可盖章" % count
 
 
 func _panel_context() -> Dictionary:
@@ -687,9 +707,13 @@ func _on_panel_action(action: String, payload: Dictionary) -> void:
 			var legacy_companion: String = {"chat_yang": "yang_zi_ying", "chat_liu": "liu_yu_long", "chat_jiang": "jiang_zi"}.get(dialogue_id, "")
 			var companion_id: String = str(payload.get("companion_id", legacy_companion))
 			if companion_id != "" and PhaseTwoContent.SCRIPTS.has(dialogue_id) and GameState.companions.get(companion_id, {}).get("unlocked", false):
-				if not DayCycle.spend_action("chat"):
-					_set_feedback(DayCycle.block_reason())
-					return
+				var chat_periods: Dictionary = GameState.player_profile.get("chat_periods", {}).duplicate()
+				var period_key := "%s_%d_%s" % [companion_id, GameState.game_day, DayCycle.period()]
+				if not chat_periods.has(period_key):
+					chat_periods[period_key] = true
+					GameState.player_profile["chat_periods"] = chat_periods
+					GameState.add_companion_favor(companion_id, 8)
+					GameState.profile_changed.emit()
 				GameState.pending_dialogue_id = dialogue_id
 				_hide_all_modals()
 				SceneManager.change_scene(SceneManager.TargetScene.STORY)

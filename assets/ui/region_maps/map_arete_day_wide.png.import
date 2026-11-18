@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bmulst47471i0"
-path="res://.godot/imported/zodiac_crest.svg-8cdc82eb5b9c7dcae4bb665ac4fe930e.ctex"
+uid="uid://e5kxbnyl3ckv"
+path="res://.godot/imported/map_arete_day_wide.png-96f871fbaaa16cf73e0ad9ea8cd08d3a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui_core/icons/combat/zodiac_crest.svg"
-dest_files=["res://.godot/imported/zodiac_crest.svg-8cdc82eb5b9c7dcae4bb665ac4fe930e.ctex"]
+source_file="res://assets/ui/region_maps/map_arete_day_wide.png"
+dest_files=["res://.godot/imported/map_arete_day_wide.png-96f871fbaaa16cf73e0ad9ea8cd08d3a.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

@@ -135,6 +135,7 @@ static func finish(outcome: String = "victory") -> bool:
 		if SchoolExplorationRoutes.kind_for(node) != "exit": return false
 		state["settled"][node["id"]] = {"outcome": "exit", "reward": {}}
 		state["visited"].append(node["id"])
+		GameState._award_training_completion(str(state.get("dungeon_id", "")))
 	elif outcome not in ["defeat", "retreated"]: return false
 	state["status"] = "completed" if outcome == "victory" else outcome
 	state["stage"] = "finished"

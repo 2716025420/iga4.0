@@ -1,6 +1,93 @@
 > **2026-11-14 全案重构最新基线**：[世界观与全案重构设计书](docs/story/2026-11-14-世界观与全案重构设计书.md) 已确认作后续剧本、系统、UI 与素材需求的最高优先级总纲；以下旧 10-28 提示保留溯源。
 > **2026-10-28 序章历史说明**：黄秋枫（原暂称梧桐）序章原始脉络见[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)。
 
+## 2026-11-18 进度盘点、弃用批处理需求包与冗余旧素材清理（保留世界地图背景）
+
+- **主创审定与素材清理结论（释放 911.46 MB，移除 53 项旧/无引用资源）**：
+  - **保留当前大世界地图背景**：[world.png](assets/ui/scene_reset/maps/world.png) 与 [world_wide.png](assets/ui/scene_reset/maps/world_wide.png) 经主创确认保留作为六地区巡回总图底图；现行可玩阿瑞忒昼夜校园图（[region_maps](assets/ui/region_maps/)）、社团教室/放映室/卡匣工坊与战斗素材均保留完好，[characters](assets/references/characters/) 四张唯一角色人设参照亦完整保留。
+  - **终止并撤除最新提示词生图批次与过时归档包**：因 v12 批次提示词成图效果未达预期，已删除 `archive/` 下全部 29 份过时或弃用的需求与交付压缩包（`v1–v12`、`864.23 MB`）。
+  - **清理项目内确认零引用的旧占位素材**：删除已被替换的 `assets/ui/region_maps/campus_{indigo,vermilion}_first_pass.png`（含 `.import`）、从未纳入导入的废弃 `assets/references/wave5_concepts/`（16 项早期废案草图与图框，含已废除的 `study` / `stockroom` / 抽卡包概念，释放 `41.9 MB`），以及零引用遗留图标 `zodiac_crest.svg`、`icon_card_pack.png`（含 `.import`）。
+- **当前已实装功能与待推进现状总览**：
+  - **主线与校园养成闭环（标题 → 序章 → 社团日常⇄主线 → 代表选拔赛）**：次日运动会伏笔、`n_club_intro` 引导、白羊座母卡 `hero` 共鸣、放映档案室四合一（11 枚印章领奖、8 篇《风物纪要》、7 人拍立得与 `Lv.1–3` 协战）、三档校园商店（`6 → 11 → 16` 卡）、0 活动点工坊强化及体育馆 3 轮选拔赛已全线贯通。
+  - **地图精简与动态 UI**：阿瑞忒校园地图已整合为 7 大主地标（《旧公园》与《阿瑞忒海滩》迁入《沿海公路》双分支入口）；六地区巡回总图已去除冗余 `Browse_*` 按钮，改为每区唯一卡片 `RegionCard_<id>` 与动态航线；[dynamic_ui.gd](scripts/ui/dynamic_ui.gd) 动效与 6 份脚本纯 Tab 缩进修复已落库。
+  - **待下一轮决定项**：第 2–5 章正式剧本与其余 5 地区保持框架占位；暂缓大规模重绘提示词发包，后续按新确认方向定向替换仍需重做的单张背景或 UI。
+
+## 2026-11-18 地图入口精简、世界总图单卡化、动态 UI 体系与脚本 Tab 统一
+
+- **校园地图 7 地标精简 & 沿海公路双分支接入**：
+  - [campus_places.gd](scripts/campus/campus_places.gd)、[world_region_content.gd](scripts/campus/world_region_content.gd)、[region_catalog.gd](scripts/campus/region_catalog.gd) 与 [scene_design_catalog.gd](scripts/campus/scene_design_catalog.gd)：
+    - 将 `old_park`（旧公园）与 `arete_beach_test`（阿瑞忒海滩）的归属父级 `parent` 与出口跳转统一并入 `arete_coast_test`（沿海公路），校园主图简化为 `教学楼天台 / 学生宿舍 / 社团教室 / 图书馆 / 校园商店 / 体育馆 / 沿海公路` 共 **7 处核心地点**（Esc 从旧公园/海滩逐级返回沿海公路 → 地图）。
+  - [campus_screen.gd](scripts/campus/campus_screen.gd) & [scene_object_view.gd](scripts/campus/scene_object_view.gd)：在沿海公路内挂载动态引导入口 `Action_enter_old_park`（未开放提示 / `✦ 旧公园（黄昏之约）` 悬浮微动+扫光 / 常态入口）与 `Action_go`（走向海滩），并将旧公园悬停/返回逻辑切换至沿海公路；清理 `campus_screen.gd` / `scene_object_view.gd` / `day_cycle.gd` 混合 Tab 缩进。
+- **全新 UI 按钮、总图单一卡片化与动态 UI 系统（保持既有室内功能区不变）**：
+  - 新建公共模块 [dynamic_ui.gd](scripts/ui/dynamic_ui.gd)（`DynamicUI`）：实现悬停弹跳 `attach_hover_pop`、徽标轻量浮漂 `attach_float_bob`、脉冲扩散环 `_PulseRingControl`、Shader 对角扫光 `attach_sheen`、错峰滑入 `slide_in`、触感 3D 厚涂赛璐璐胶囊按钮 `make_cel_button` 及世界卡样式 `apply_world_card_style`；严格遵守 `SaveManager.settings["reduced_motion"]` 与 `SchoolObjectUI.borderless()`。
+  - 升级 [region_map_view.gd](scripts/campus/region_map_view.gd)：新增 `HeaderBacking` 与 4 枚赛璐璐功能按钮、地标悬停/聚焦名牌联动缩放、昼夜切换淡入平滑过渡、`old_park`/`beach` 当前所在与 `n_dusk` 剧情标签自动映射至 `arete_coast_test`（顶部 `library` 徽标智能下挂避让按钮），以及 `● 当前所在` 脉冲光环与 `✦` 徽标浮动扫光。
+  - 升级 [region_atlas_view.gd](scripts/campus/region_atlas_view.gd)：彻底移除冗余的 `Browse_*`（地区地图）、`Enter_*` 与 `RegionStatus_*` 多重入口；为六地区各自渲染 **唯一 1 张统一卡片 `RegionCard_<id>`**（含序号圆章 `01..06`、地区标题与精简状态），统一顶栏风格并升级 `TourRouteOverlay` 流动虚线与发光信标效果。
+- **回归与双分辨率验收**：
+  - [core_smoke.gd](tools/tests/core_smoke.gd) 新增校园地图 7 地标归拢校验（有 `NameBacking_arete_coast_test` 且无独立 `old_park`/`beach` 牌）、世界总图单卡零 `Browse_*` 校验及沿海公路双入口校验；同时将 `day_cycle.gd / dynamic_ui.gd / campus_screen.gd / scene_object_view.gd / region_map_view.gd / region_atlas_view.gd` 共 6 份脚本统一转为纯 Tab（`\t`）缩进，避免 Godot 编辑器「制表符」模式下将 4 空格自动折算导致混合缩进解析失败；`Godot --headless --quit` 零报错、`smoke` 957 项检查 **0 失败**（`14.79s`），OpenGL `1600×900`（`13.39s`、`12` 张）全通过。
+
+## 2026-11-18 v11 蔚蓝档案 × 罗小黑水彩设计感地图全量验收与实装接入
+
+- **交付包全检与资产入库（9/9 项全过 `qa_check_scenes_and_ui.py` 与目检）**：
+  - 解包核对 `IGA_v11_Batch_01_Arete_Day.zip`、`Batch_02_Arete_Night.zip`、`Batch_03_Map_Pin_Plates.zip`、`Batch_04_World_Tour.zip`：全套 9 张 PNG `8-bit`、`210px` 超宽延展无拖尾、`ui_map_pin_plates.png` 真透明 `alpha=0` 占比 `82.5%` 全部 `[PASS]`；保留清透简化水彩建筑群与充足留白，彻底解决 v10 写实噪点。
+  - 合入运行路径：`assets/ui/region_maps/{map_arete_day,map_arete_day_wide,map_arete_night,map_arete_night_wide,ui_map_pin_plates}.png`、`assets/ui/scene_reset/maps/{world,world_wide}.png` 及概念母图 `docs/concepts/v11/`，并完成 Godot `--headless --import --quit` 重导。
+- **地图坐标配准、贴片与超宽屏适配**：
+  - [region_catalog.gd](scripts/campus/region_catalog.gd)、[region_map_view.gd](scripts/campus/region_map_view.gd)、[map_page_ui.gd](scripts/campus/map_page_ui.gd) 与 [map_screen.gd](scripts/campus/map_screen.gd)：
+    - 将阿瑞忒昼（`vermilion` 晨海绘卷）与夜（`indigo` 夜月星图）双底图及 `2340×1080` `WideMapBackground` 接入校园地图，将含 **《旧公园》《沿海公路》《阿瑞忒海滩》在内全 9 处地点** 统一标绘于地图实景之上并移除旧版底部 3 栏外置按钮；
+    - 用 `ui_map_pin_plates.png` 真透明手绘叶边胶囊签（鼠尾草绿/晴空蓝/暖琥珀）呈现清晰地标名牌，同步扩展 `MapPageUI.button` 支持零灰框 `disabled` 锁闭态（如未解锁《旧公园》）与半透顶部功能栏。
+  - [scene_design_catalog.gd](scripts/campus/scene_design_catalog.gd) & [region_atlas_view.gd](scripts/campus/region_atlas_view.gd)：按新水彩六地区总图重配 `WORLD` 六区多边形与名牌坐标，彻底避让所有建筑、巡回航线节点与底部分区条；`MapScreen._layout()` 兼容识别 `WideWorldBackground`。
+- **最终回归与双分辨率视觉验收（最后一次编辑后全通过）**：
+  - `--headless` `--suite smoke`：**945 项检查，0 失败**（`11.82s`，新增旧公园水彩路牌与 `2340` 宽边节点校验）；
+  - OpenGL `1600×900`（`13.42s`）与 `1600×720`（`12.20s`）`--suite captures`：均输出 12 张截图（**0 失败**），已逐图目检双分辨率 `05_campus_map.png` 与 `06_world_atlas.png`——9 地标名牌/双徽章与六地区航线布局清朗零重叠，超宽边自然平滑延展。
+
+## 2026-11-18 v10 素材审查定调（退回写实地图、保住既有 UI）、v11 地图专项包与地图/交互/后续内容升级
+
+- **4 批 v10 交付包全检与美术方向决断（已停止错误合入写实UI/重影家具）**：
+  - 逐图检核用户传入的 `IGA_v10_P0-1_Maps.zip`、`P0-2_Core_UI_and_Arena.zip`、`P0-3_Old_Park_and_Campus.zip` 与 `P1_Story_and_Card_Art.zip` 共 35 项后，确认仅技术规范通过 `qa_check_scenes_and_ui.py`，美术存在明显「过度写实、碎叶/木纹/砖石细节过载」问题；且 `P0-3` 7 处 `*_objects.png` 与现有背景自带家具产生重影叠加。
+  - 按主创指令**不重绘/不覆写现有社团、放映室、工坊及校园室内 UI**，仅从 `P1` 遴选合入洁净无水印的 [card_art_final_trump.png](assets/combat/card_art/card_art_final_trump.png)（512×512 完成 Godot `--headless --import`）；并专项输出面向 **「蔚蓝档案清透光影色彩对比度 × 罗小黑战记水彩留白与简化组合感标志地标」** 的地图重制需求总包：[IGA_GPT_Asset_Pack_Brief_v11_Maps_Stylized.zip](archive/IGA_GPT_Asset_Pack_Brief_v11_Maps_Stylized.zip)（含 9 项地图清单、`campus_vermilion/indigo_first_pass` 简化参考、v10 写实对照反例、`07_asset_manifest_v11.json` 与 `qa_check_scenes_and_ui.py`）。
+- **地图功能增强（[campus_life.gd](scripts/campus/campus_life.gd)、[region_map_view.gd](scripts/campus/region_map_view.gd)、[region_atlas_view.gd](scripts/campus/region_atlas_view.gd)）**：
+  - **校园地图**：新增 `● 当前所在` 位置徽章（与珊瑚红 `✦ 主线/选拔赛` 徽章错位共存）、左下双行实时悬停/聚焦地标情报卡（含产出收益、时段在场人物与未解锁条件说明）、右上「进入下一时段」按钮与「切至夜课星图/放学晨图」手动切换（合法持久化至 `campus_life.map_concept`）；
+  - **六地区巡回总图**：新增 `TourRouteOverlay` 深海蓝描边＋象牙/琥珀巡回航线（第 1 站阿瑞忒通关选拔赛后点亮通往诺莫斯的琥珀航线）与底部 `AtlasPreviewText` 情报带，悬停任意已解锁或未解锁地区即展示巡回站序、据点风貌定位与解锁进度。
+- **场景交互与选拔赛后后续衔接（[scene_object_view.gd](scripts/campus/scene_object_view.gd)、[campus_screen.gd](scripts/campus/campus_screen.gd)、[player_journey.gd](scripts/global/player_journey.gd)）**：
+  - 场景交互热点（`Landmark_*`、`Action_*`、剧情触发点）统一挂载左下悬停收益说明，明确是否消耗活动次数；
+  - `CampusScreen` 新增活动收益飘字胶囊 `_run_activity()` 与 `M` 键呼出地图快捷键；选拔赛全胜后在 `QualifierModal` 增加「巡回总图 →」快捷入口，并在社团黑板 `home_snapshot()` 动态追踪剩余印章、16 张行动卡与 8 篇《风物纪要》收集，同步提示第 2 站《诺莫斯》筹备衔接。
+- **本轮最终改动后三环境校验全通过**：
+  - `--headless` `--suite smoke`：**937 项检查，0 失败**（`11.82s`，新增地图按钮/预览条/徽章/切换器校验）；
+  - OpenGL `1600×900` & `1600×720` `--suite captures`：均输出 12 张截图（**0 失败**，`13.23s` / `12.12s`），已目检 `05_campus_map` 与 `06_world_atlas` 双分辨率画面，航线对比度、双向徽章、预览情报栏均清晰无遮挡。
+
+## 2026-11-18 阶段二全面重构落地：序章-日常-主线-选拔赛闭环、放映档案室、8 场景驻场功能与测试精简
+
+- **重塑宏观流程（标题 → 序章 → 社团引导 → 日常⇄主线交替 → 选拔赛终幕）**：
+  - [game_state.gd](scripts/global/game_state.gd)、[phase_two_content.gd](scripts/global/phase_two_content.gd)、[dialogue_screen.gd](scripts/story/dialogue_screen.gd)、[school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd) 与 [parallax_cutscene_stage.gd](scripts/ui/parallax_cutscene_stage.gd)：
+    - 新增次日 `09:20` 运动会第 4 名呼吸伏笔、`n_club_intro`（`club_welcome`）社团教室入驻引导与 `story_flags.club_onboarding_done` 状态流；
+    - 打通阶段边界交接：`n_club_intro` 结算进入 `HOME` 开启自由探索与主线交替，`n_affairs`（图书馆与黄秋枫会面）与 `n_find_yang` 分别解锁/推进校园闭环，并于次晨唤醒白羊座母卡 `hero`；兼容迁移既有测试/旧存档的 `n_club_intro` 与 `hero`。
+    - 删除对话与卡牌文案中遗留的「学生智能终端」设定表达（`player_journey`、`game_state`、`phase_two_content`、`combat_screen`），统一为战术刻印与护盾裁决表述；[title_screen.gd](scripts/title/title_screen.gd) 顶部版本栏更新为「阿瑞忒篇 · 序章至校内代表选拔赛」。
+- **升级《放映档案室》四合一中枢与委托成就盖章（替代终端记录设定）**：
+  - [player_workspace.gd](scripts/home/player_workspace.gd)、[home_screen.gd](scripts/home/home_screen.gd)、[player_journey.gd](scripts/global/player_journey.gd)、[home_panels.gd](scripts/home/home_panels.gd) 与 [school_object_panels.gd](scripts/home/school_object_panels.gd)：
+    - 社团桌面「records」入口正式更名为「放映档案室」并挂载待领红点 `ClaimBadge`（如 `★ 8项可盖章`）；
+    - `PlayerWorkspace("records")` 重构为 **委托与成就（11 枚社团巡回印章领奖）/ 故事胶片（含第 3 子页《风物纪要》读取 8 篇校园笔记）/ 同学拍立得（7 人遇面羁绊与 `Lv.1–3` 协战成长档）/ 社团收纳**；
+    - 同伴「同学交流」与工坊行动卡强化全面改为 **0 活动点消耗**（交谈每时段限领一次 `+8` 好感），协战随好感度分 3 档成长（`Lv.1` / `>=35 Lv.2` / `>=70 Lv.3`）。
+- **阿瑞忒 8 场景功能闭环、三档商店库存、驻场立绘与代表选拔赛**：
+  - [campus_places.gd](scripts/campus/campus_places.gd)、[campus_life.gd](scripts/campus/campus_life.gd)、[campus_screen.gd](scripts/campus/campus_screen.gd)、[scene_design_catalog.gd](scripts/campus/scene_design_catalog.gd)、[scene_object_view.gd](scripts/campus/scene_object_view.gd)、[region_map_view.gd](scripts/campus/region_map_view.gd)、[region_atlas_view.gd](scripts/campus/region_atlas_view.gd)、[campus_shop_catalog.gd](scripts/data_models/campus_shop_catalog.gd)、[campus_shop_panel.gd](scripts/campus/campus_shop_panel.gd) 与 [combat_screen.gd](scripts/combat/combat_screen.gd)：
+    - 合并冗余 `study` / `stockroom` 功能至「图书馆」与「校园商店」，正式开放 `old_park`（旧公园，复用 `cutscene_old_park_dusk_bg.png` 2340 宽图），清除海滩、沿海公路、旧公园及 [item_catalog.gd](scripts/data_models/item_catalog.gd) / [save_manager.gd](scripts/global/save_manager.gd) / `RegionAtlasView` 页脚等遗留 `"TEST"` 文案；
+    - 实装各场景不重叠产出（商店兼职 `+100` 零用钱、图书馆研习 `+35` 练习点+风物纪要、天台复盘回血加好感、沿海/海滩散步加羁绊与材料、旧公园追忆），接入三档随剧情解锁的商店行动卡供货（`6 → 11 → 16` 款）；
+    - 挂载 `ResidentActors` 驻场/剧情立绘（林知夏、唐小满、柳宇龙、杨子英、黄秋枫）并修复 `_actor_layer` 与 `HomeObjectButton` 遮挡顺序及 NPC 交互标签位置，同时为地图/场景/总图提示条增加磨砂深色底板；
+    - 实装体育馆「阿瑞忒巡回代表选拔赛」3 轮递增挑战弹窗（`QualifierModal`）与非超限选拔战逻辑（`CombatScreen._qualifier_mode`），完赛颁发「阿瑞忒代表通行章」并在世界总图标识诺莫斯「第二章待开」。
+- **自动化测试精简与双分辨率验收结果（最终改动后全量通过）**：
+  - 移除旧重型套件 `tools/tests/{p5_regions,home_objects,scene_reset,zodiac_and_shop}.*`，新建精简回归入口 [core_smoke.gd](tools/tests/core_smoke.gd) / `.tscn` 与按需实机截图 [capture_scenes.gd](tools/tests/capture_scenes.gd) / `.tscn`，同步精简 [run_godot_tests.py](tools/run_godot_tests.py) 与 [test_p5.sh](tools/cloud/test_p5.sh) 仅开放 `--suite smoke` 与 `--suite captures`。
+  - `--headless` `--suite smoke`：**919 项检查，0 失败**（`14.85s`）。
+  - OpenGL `1600×900` `--suite captures`：产出并目检 12 张完整 UI 截图（**0 失败**，`13.23s`），确认商店/图书馆 NPC 完整无裁剪、标签零遮脸、放映档案室/黑板/商店/选拔赛/地图排版正常。
+  - OpenGL `1600×720` `--suite captures`：产出 12 张宽屏截图并逐图目检 `02_home_club`、`03_projection_records`、`07_library_npc`、`08_shop_npc`、`10_gym_qualifier`、`11_old_park`、`12_coast`（**0 失败**，`12.21s`）。
+
+## 2026-11-18 全游内容设计审核（v2）、流程与胶片手帐中枢重构方案及 v10 GPT 素材总包
+
+- **按主创批示完成方案全面修订与重构实施方案落库**：
+  - 更新 [2026-11-18-全游内容设计审核与重构实施方案.md](docs/story/2026-11-18-全游内容设计审核与重构实施方案.md)（本轮未改运行期代码，待确认后执行阶段二）：
+    - **重排宏观游戏顺序**：从“脱离场景播完 9 幕后断崖”调整为**「标题页 → 独立序章（含运动会伏笔与初战） → 社团教室主场景交互引导 → 日常场景游玩循环 ⇄ 第一章分阶段剧情交替 → 校内代表选拔赛决胜」**。
+    - **废弃「学生智能终端」，升级《放映档案与成就领奖室》**：结合游戏木质社团与胶片手帐美学，将放映室重构为「成就委托盖章领奖（投放零用钱/材料/新卡）+ 故事胶片 + 同伴拍立得羁绊墙 + 社团仓库」四合一中枢；校园地图正式新增可探索剧情场景**《旧公园》**。
+    - **清理冗余与修 Bug 路线**：聊天/升级归零活动点，修复 `CampusScreen` 跳过 `_build_actor()` 致 NPC 消失与 `study` 死房间，商店兼职解决零用钱断源，合并精简 `tools/tests/`（1,510 行 / 5,636 项检查 → `core_smoke.gd` + 按需 `capture_scenes.gd`）。
+- **GPT 素材需求总包 [IGA_GPT_Asset_Pack_Brief_v10_Scene_and_Loop_Remake.zip](archive/IGA_GPT_Asset_Pack_Brief_v10_Scene_and_Loop_Remake.zip) 更新与全检通过**：
+  - 彻底摆脱早期粗糙框图坐标束缚，精准收录 **35 项**清单（`P0-1` 含旧公园 8 地标昼夜校园地图与近未来六地区总图、`P0-2` 自由重绘放映档案室/卡匣工坊/选拔赛擂台、`P0-3` 新增旧公园实景与 7 处现有场景透明拆层、`P1` 运动会过场与终局卡去水印），附 7 份文档、新版 3 张布局蓝图 `TPL_01..03`、20 张参考图与零依赖自动质检工具 `08_Tools/qa_check_scenes_and_ui.py`。
+
 ## 2026-11-17 剧情人物立绘统一规格（v9.1）、页面布局占比制定与 75 项新立绘全量合入
 
 - **交付素材包 [IGA_Story_Portraits_v9.1_Delivery.zip](archive/IGA_Story_Portraits_v9.1_Delivery.zip) 审核校验与全量接入**：

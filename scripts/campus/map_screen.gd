@@ -32,6 +32,7 @@ func _ready() -> void:
 func _layout() -> void:
  var bg_tex: Texture2D = null
  var wide_map := view.get_node_or_null("WideMapBackground") as TextureRect if is_instance_valid(view) else null
+ if wide_map == null and is_instance_valid(view): wide_map = view.get_node_or_null("WideWorldBackground") as TextureRect
  if wide_map != null and wide_map.texture != null: bg_tex = wide_map.texture
  var mother := view.get_node_or_null("ConceptMother") as TextureRect if is_instance_valid(view) else null
  if bg_tex == null and mother != null: bg_tex = mother.texture

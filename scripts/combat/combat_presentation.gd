@@ -238,7 +238,12 @@ static func layout(root: Control, extent: Vector2) -> void:
 	round_label.add_theme_color_override("font_color", Color("#FFF8EC"))
 	round_label.add_theme_constant_override("outline_size", 0)
 	round_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	var loc := _text(header, "EncounterLocation", "校园练习" if bool(root.get("_exploration_mode")) else "校园侧门", Rect2(236, 10, 240, 54), 27, Color("#FFF8EC"))
+	var encounter_copy := "校园练习" if bool(root.get("_exploration_mode")) else "旧公园街角"
+	if str(GameState.pending_combat_data.get("mode", "")) == "qualifier":
+		encounter_copy = "阿瑞忒选拔赛 · 第%d战" % int(GameState.pending_combat_data.get("qualifier_round", 1))
+	elif GameState.current_node_id == "n_gate":
+		encounter_copy = "运动会决斗台"
+	var loc := _text(header, "EncounterLocation", encounter_copy, Rect2(236, 10, 260, 54), 27, Color("#FFF8EC"))
 	loc.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var pause := header.get_node_or_null("EscapeButton") as Button
 	if pause:
@@ -618,6 +623,8 @@ static func update_player_status_chips(root: Control) -> void:
 	assist_chip.visible = not comp_spec.is_empty()
 
 static func is_overclock_combat(root: Control) -> bool:
+	if str(GameState.pending_combat_data.get("mode", "")) == "qualifier":
+		return false
 	if bool(GameState.pending_combat_data.get("overclock", false)):
 		return true
 	if GameState.current_node_id in ["n_guard", "n_robot", "n5_boss"] or DayCycle.period() == "night":

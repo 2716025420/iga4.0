@@ -10,8 +10,8 @@ const LEGACY_REGIONS := {
 static var REGIONS: Dictionary = LEGACY_REGIONS.merged(WorldRegionContent.REGIONS)
 
 const CONCEPTS := {
- "vermilion":{"title":"放学环线","subtitle":"朱砂 / 夕照 / 环形版画","path":"res://assets/ui/region_maps/campus_vermilion_first_pass.png","accent":"#B64E36","paper":"#F5E9D9","ink":"#283B50"},
- "indigo":{"title":"星轨课表","subtitle":"靛蓝 / 暮色 / 轨道星图","path":"res://assets/ui/region_maps/campus_indigo_first_pass.png","accent":"#C9B889","paper":"#25314F","ink":"#F0EDDF"}
+ "vermilion":{"title":"晨海绘卷","subtitle":"晴日 / 蔚蓝水彩 / 阿瑞忒全图","path":"res://assets/ui/region_maps/map_arete_day.png","accent":"#C95645","paper":"#FFF9EE","ink":"#24354F"},
+ "indigo":{"title":"夜月星图","subtitle":"靛青 / 柔夜水彩 / 阿瑞忒夜图","path":"res://assets/ui/region_maps/map_arete_night.png","accent":"#E29578","paper":"#232E4A","ink":"#FFF7E5"}
 }
 const MAP_RECTS := {
  "rooftop":Rect2(180,190,330,250),"club":Rect2(460,350,500,315),"library":Rect2(1160,200,390,285),
@@ -77,13 +77,13 @@ const PLACE_ZONES := {
   "旅途物品"
  ]
 }
-const SHORT_NAMES := {"library":"图书馆","rooftop":"教学楼天台","dorm":"宿舍"}
+const SHORT_NAMES := {"library":"图书馆","rooftop":"教学楼天台","dorm":"学生宿舍","arete_coast_test":"沿海公路","arete_beach_test":"阿瑞忒海滩"}
 
 static func region_for_place(id: String) -> String:
- if id in ["study","stockroom"]: return "campus"
+ if id in ["study","stockroom","old_park","arete_coast_test","arete_beach_test"]: return "university_arete"
  for region in REGIONS:
   if owns_place(str(region),id): return str(region)
- return "campus"
+ return "university_arete"
 
 static func is_home(id: String) -> bool:
  for region in REGIONS.values():
@@ -111,12 +111,44 @@ static func territory(id: String) -> PackedVector2Array:
  return PackedVector2Array()
 
 const PAINTED_RECTS := {
- "vermilion":{"rooftop":Rect2(270,175,480,235),"club":Rect2(595,350,520,260),"library":Rect2(1260,125,440,310),"gym":Rect2(1390,535,500,320),"dorm":Rect2(230,640,385,270),"shop":Rect2(855,730,415,230)},
- "indigo":{"rooftop":Rect2(350,160,415,220),"club":Rect2(645,335,485,270),"library":Rect2(1320,145,350,290),"gym":Rect2(1420,510,480,300),"dorm":Rect2(120,600,410,280),"shop":Rect2(820,740,440,235)}
+ "vermilion":{
+  "rooftop":Rect2(128,215,425,195),
+  "dorm":Rect2(24,465,422,275),
+  "club":Rect2(468,335,572,300),
+  "library":Rect2(1170,175,540,215),
+  "shop":Rect2(492,640,278,205),
+  "gym":Rect2(1140,415,555,255),
+  "arete_coast_test":Rect2(1585,615,315,325)
+ },
+ "indigo":{
+  "rooftop":Rect2(128,215,425,195),
+  "dorm":Rect2(24,465,422,275),
+  "club":Rect2(468,335,572,300),
+  "library":Rect2(1170,175,540,215),
+  "shop":Rect2(492,640,278,205),
+  "gym":Rect2(1140,415,555,255),
+  "arete_coast_test":Rect2(1585,615,315,325)
+ }
 }
 const PAINTED_LABELS := {
- "vermilion":{"rooftop":Rect2(294,376,300,40),"club":Rect2(800,570,300,40),"library":Rect2(1165,402,300,40),"gym":Rect2(1376,791,300,40),"dorm":Rect2(498,866,300,40),"shop":Rect2(879,901,300,40)},
- "indigo":{"rooftop":Rect2(300,364,300,40),"club":Rect2(750,597,300,40),"library":Rect2(1362,379,300,40),"gym":Rect2(1488,751,300,40),"dorm":Rect2(414,869,300,40),"shop":Rect2(910,884,300,40)}
+ "vermilion":{
+  "rooftop":Rect2(220,398,216,58),
+  "dorm":Rect2(118,744,206,58),
+  "club":Rect2(675,622,216,58),
+  "library":Rect2(1345,146,206,58),
+  "shop":Rect2(525,842,206,58),
+  "gym":Rect2(1328,674,206,58),
+  "arete_coast_test":Rect2(1612,748,220,58)
+ },
+ "indigo":{
+  "rooftop":Rect2(220,398,216,58),
+  "dorm":Rect2(118,744,206,58),
+  "club":Rect2(675,622,216,58),
+  "library":Rect2(1345,146,206,58),
+  "shop":Rect2(525,842,206,58),
+  "gym":Rect2(1328,674,206,58),
+  "arete_coast_test":Rect2(1612,748,220,58)
+ }
 }
 
 
@@ -127,7 +159,7 @@ static func owns_place(region_id: String, location_id: String) -> bool:
  if not REGIONS.has(region_id): return false
  if REGIONS[region_id]["places"].has(location_id): return true
  if REGIONS[region_id].get("first_entry_id", "") == location_id: return true
- return region_id in ["campus", "university_arete"] and location_id in ["study", "stockroom"]
+ return region_id in ["campus", "university_arete"] and location_id in ["study", "stockroom", "old_park", "arete_coast_test", "arete_beach_test", "arete_arrival_test"]
 
 static func home_for_region(region_id: String) -> String:
  return str(REGIONS.get(region_id, {}).get("home", ""))

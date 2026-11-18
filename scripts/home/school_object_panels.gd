@@ -58,7 +58,7 @@ func refresh(panel_context: Dictionary = {}) -> void:
 	add_child(backing_input)
 	DaylightUI.place(backing_input, 570, 80, 1320, 940)
 	SchoolObjectUI.text(self, "Title", "同学交流", Rect2(655, 100, 460, 116), 64)
-	SchoolObjectUI.text(self, "Subtitle", "放学后，慢慢聊。", Rect2(1155, 120, 450, 90), 34)
+	SchoolObjectUI.text(self, "Subtitle", "日常交流不消耗活动次数 · 熟悉度提升协战威力。", Rect2(1070, 126, 650, 80), 27)
 	var close := SchoolObjectUI.hit(self, "CloseButton", Rect2(1748, 86, 88, 60), "×", 40)
 	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
 		var pill := StyleBoxFlat.new()
@@ -147,7 +147,9 @@ func _classmate_card(mate: Dictionary, index: int) -> Control:
 	motive.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var unlocked: bool = bool(mate["unlocked"])
 	var favor := int(mate["favor"])
-	SchoolObjectUI.text(info, "Favor", "熟悉度 %d" % favor if unlocked else "继续行程后可交流", Rect2(42, 486, 360 if not unlocked else 158, 39), 25, SchoolObjectUI.MUTED)
+	var tier := PlayerJourney.companion_favor_tier(str(mate["id"]))
+	var favor_copy := ("熟悉度 %d · 默契Lv.%d" % [favor, tier]) if unlocked else "继续行程后可交流"
+	SchoolObjectUI.text(info, "Favor", favor_copy, Rect2(38, 486, 360 if not unlocked else 196, 39), 21 if unlocked else 24, SchoolObjectUI.MUTED)
 	var progress := ProgressBar.new()
 	progress.name = "Familiarity"
 	progress.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -162,7 +164,7 @@ func _classmate_card(mate: Dictionary, index: int) -> Control:
 	progress.add_theme_stylebox_override("background", track_style)
 	progress.add_theme_stylebox_override("fill", fill_style)
 	info.add_child(progress)
-	DaylightUI.place(progress, 202, 496, 192, 20)
+	DaylightUI.place(progress, 238, 496, 158, 20)
 	progress.visible = unlocked
 	SchoolObjectUI.slab(info, "ChatColor", Rect2(38, 546, 364, 74), tint if unlocked else Color("#D8D5DD"))
 	var chat := SchoolObjectUI.hit(info, "Chat_" + str(mate["id"]), Rect2(38, 546, 364, 74), str(TOPICS.get(mate["id"], "聊聊近况")) if unlocked else "尚未交流", 32)

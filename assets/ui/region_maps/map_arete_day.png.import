@@ -2,23 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://hr2c6whx17aa"
-path.bptc="res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.bptc.ctex"
-path.astc="res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.astc.ctex"
+uid="uid://c7qnv2c5ty0mm"
+path="res://.godot/imported/map_arete_day.png-179fe7e0b79cc7fb166a3d57c009a2d1.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/region_maps/campus_indigo_first_pass.png"
-dest_files=["res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.bptc.ctex", "res://.godot/imported/campus_indigo_first_pass.png-a70cb36b3794b98b93898fbbfe81fb70.astc.ctex"]
+source_file="res://assets/ui/region_maps/map_arete_day.png"
+dest_files=["res://.godot/imported/map_arete_day.png-179fe7e0b79cc7fb166a3d57c009a2d1.ctex"]
 
 [params]
 
-compress/mode=2
-compress/high_quality=true
+compress/mode=0
+compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

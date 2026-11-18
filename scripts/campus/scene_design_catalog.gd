@@ -12,7 +12,7 @@ const PLACES := {
   "objects": [
    {
     "id": "talk",
-    "label": "聊聊天",
+    "label": "和同伴聊聊",
     "polygon": [
      [
       969,
@@ -38,13 +38,13 @@ const PLACES := {
     "tag": [
      1227,
      444,
-     170,
+     200,
      60
     ]
    },
    {
-    "id": "rooftop_note",
-    "label": "看看纸条",
+    "id": "rooftop_review",
+    "label": "午后复盘 · 1活动",
     "polygon": [
      [
       818,
@@ -68,9 +68,9 @@ const PLACES := {
      ]
     ],
     "tag": [
-     688,
+     650,
      528,
-     190,
+     250,
      60
     ]
    }
@@ -81,8 +81,36 @@ const PLACES := {
   "title": "图书馆",
   "objects": [
    {
-    "id": "read",
-    "label": "翻阅书页",
+    "id": "library_study",
+    "label": "牌理研习 · 1活动",
+    "polygon": [
+     [
+      280,
+      430
+     ],
+     [
+      580,
+      430
+     ],
+     [
+      580,
+      565
+     ],
+     [
+      280,
+      565
+     ]
+    ],
+    "tag": [
+     290,
+     472,
+     255,
+     64
+    ]
+   },
+   {
+    "id": "read_notes",
+    "label": "翻阅风物纪要",
     "polygon": [
      [
       251,
@@ -112,13 +140,13 @@ const PLACES := {
     "tag": [
      800,
      623,
-     198,
+     230,
      64
     ]
    },
    {
     "id": "talk",
-    "label": "和同学聊聊",
+    "label": "和林知夏聊聊",
     "polygon": [
      [
       1280,
@@ -138,9 +166,9 @@ const PLACES := {
      ]
     ],
     "tag": [
-     1218,
-     367,
-     210,
+     1150,
+     675,
+     230,
      64
     ]
    }
@@ -180,6 +208,34 @@ const PLACES := {
      352,
      210,
      64
+    ]
+   },
+   {
+    "id": "qualifier",
+    "label": "代表选拔赛",
+    "polygon": [
+     [
+      670,
+      310
+     ],
+     [
+      980,
+      310
+     ],
+     [
+      980,
+      490
+     ],
+     [
+      670,
+      490
+     ]
+    ],
+    "tag": [
+     540,
+     355,
+     235,
+     66
     ]
    },
    {
@@ -226,7 +282,7 @@ const PLACES := {
   "objects": [
    {
     "id": "shop",
-    "label": "查看商品",
+    "label": "查看商品柜台",
     "polygon": [
      [
       1179,
@@ -250,15 +306,15 @@ const PLACES := {
      ]
     ],
     "tag": [
-     1185,
-     367,
-     226,
+     1335,
+     455,
+     245,
      64
     ]
    },
    {
-    "id": "delivery",
-    "label": "看看送货单",
+    "id": "shop_work",
+    "label": "店务兼职 · 1活动",
     "polygon": [
      [
       569,
@@ -278,21 +334,55 @@ const PLACES := {
      ]
     ],
     "tag": [
-     595,
+     565,
      466,
-     220,
+     255,
+     64
+    ]
+   },
+   {
+    "id": "talk",
+    "label": "与唐小满聊聊",
+    "polygon": [
+     [
+      950,
+      290
+     ],
+     [
+      1220,
+      290
+     ],
+     [
+      1220,
+      760
+     ],
+     [
+      950,
+      760
+     ]
+    ],
+    "tag": [
+     1015,
+     742,
+     225,
      64
     ]
    }
   ]
  },
+ "old_park": {
+  "image": "old_park",
+  "custom_bg": "res://assets/backgrounds/cutscenes/cutscene_old_park_dusk_bg.png",
+  "title": "旧公园",
+  "objects": []
+ },
  "arete_coast_test": {
   "image": "coast",
-  "title": "沿海道路 · TEST",
+  "title": "阿瑞忒沿海公路",
   "objects": [
    {
-    "id": "coast_observe",
-    "label": "看看海风",
+    "id": "coast_walk",
+    "label": "海风漫步 · 1活动",
     "polygon": [
      [
       156,
@@ -316,15 +406,43 @@ const PLACES := {
      ]
     ],
     "tag": [
-     289,
+     280,
      510,
-     210,
+     250,
+     64
+    ]
+   },
+   {
+    "id": "coast_observe",
+    "label": "吹吹海风",
+    "polygon": [
+     [
+      640,
+      430
+     ],
+     [
+      940,
+      430
+     ],
+     [
+      940,
+      600
+     ],
+     [
+      640,
+      600
+     ]
+    ],
+    "tag": [
+     670,
+     460,
+     200,
      64
     ]
    },
    {
     "id": "go",
-    "label": "走向海滩",
+    "label": "走向海滩 →",
     "target": "arete_beach_test",
     "polygon": [
      [
@@ -351,7 +469,36 @@ const PLACES := {
     "tag": [
      1270,
      599,
-     220,
+     230,
+     64
+    ]
+   },
+   {
+    "id": "enter_old_park",
+    "label": "拐进旧公园 →",
+    "target": "old_park",
+    "polygon": [
+     [
+      55,
+      290
+     ],
+     [
+      320,
+      290
+     ],
+     [
+      335,
+      445
+     ],
+     [
+      55,
+      445
+     ]
+    ],
+    "tag": [
+     85,
+     315,
+     240,
      64
     ]
    }
@@ -359,11 +506,11 @@ const PLACES := {
  },
  "arete_beach_test": {
   "image": "beach",
-  "title": "阿瑞忒海滩 · TEST",
+  "title": "阿瑞忒海滩",
   "objects": [
    {
-    "id": "coast_observe",
-    "label": "看看海面",
+    "id": "beach_rest",
+    "label": "海边休整 · 1活动",
     "polygon": [
      [
       120,
@@ -383,38 +530,66 @@ const PLACES := {
      ]
     ],
     "tag": [
-     440,
+     410,
      560,
-     220,
+     255,
+     64
+    ]
+   },
+   {
+    "id": "beach_observe",
+    "label": "远眺海平线",
+    "polygon": [
+     [
+      920,
+      430
+     ],
+     [
+      1420,
+      430
+     ],
+     [
+      1420,
+      680
+     ],
+     [
+      920,
+      680
+     ]
+    ],
+    "tag": [
+     1040,
+     450,
+     215,
      64
     ]
    },
    {
     "id": "go",
-    "label": "返回沿海道路",
+    "label": "← 返回沿海公路",
     "target": "arete_coast_test",
     "polygon": [
      [
       1060,
-      470
+      740
      ],
      [
       1560,
-      470
+      740
      ],
      [
       1580,
-      780
+      890
      ],
      [
       1050,
-      780
+      890
      ]
     ],
     "tag": [
      1190,
      790,
-     260,
+     265,
      64
     ]
    }
@@ -1238,205 +1413,169 @@ const WORLD := {
  "university_nomos": {
   "polygon": [
    [
-    100,
-    143
+    139,
+    183
    ],
    [
-    489,
-    100
+    488,
+    170
    ],
    [
-    610,
-    252
+    509,
+    340
    ],
    [
-    599,
-    382
+    427,
+    423
    ],
    [
-    252,
-    450
+    165,
+    414
    ],
    [
-    78,
-    326
+    122,
+    309
    ]
   ],
   "tag": [
-   355,
-   335,
-   245,
-   66
+   161,
+   387,
+   209,
+   51
   ]
  },
  "university_arete": {
   "polygon": [
    [
-    70,
-    438
+    100,
+    527
    ],
    [
-    424,
-    435
+    466,
+    510
    ],
    [
-    604,
-    562
+    509,
+    649
    ],
    [
-    562,
-    748
+    353,
+    723
    ],
    [
-    230,
-    794
-   ],
-   [
-    78,
-    668
+    100,
+    693
    ]
   ],
   "tag": [
-   304,
-   662,
-   245,
-   66
+   213,
+   708,
+   222,
+   54
   ]
  },
  "university_techne": {
   "polygon": [
    [
-    665,
-    126
+    649,
+    170
    ],
    [
-    976,
-    96
+    936,
+    166
    ],
    [
-    1121,
-    252
+    954,
+    318
    ],
    [
-    1111,
-    426
-   ],
-   [
-    836,
-    433
-   ],
-   [
-    630,
-    307
+    657,
+    335
    ]
   ],
   "tag": [
-   896,
-   310,
-   245,
-   66
+   893,
+   248,
+   209,
+   51
   ]
  },
  "university_agora": {
   "polygon": [
    [
-    1189,
-    153
+    1163,
+    183
    ],
    [
-    1516,
-    114
+    1515,
+    174
    ],
    [
-    1657,
-    247
+    1528,
+    366
    ],
    [
-    1655,
-    432
-   ],
-   [
-    1351,
-    450
-   ],
-   [
-    1169,
-    335
+    1171,
+    388
    ]
   ],
   "tag": [
-   1385,
-   329,
-   247,
-   66
+   1367,
+   389,
+   209,
+   51
   ]
  },
  "region_failed_alliance": {
   "polygon": [
    [
-    683,
-    499
+    688,
+    440
    ],
    [
-    924,
-    437
+    1015,
+    440
    ],
    [
-    1163,
-    554
+    1036,
+    597
    ],
    [
-    1187,
-    727
-   ],
-   [
-    891,
-    824
-   ],
-   [
-    667,
-    703
+    684,
+    597
    ]
   ],
   "tag": [
-   917,
-   684,
-   260,
-   66
+   736,
+   629,
+   231,
+   54
   ]
  },
  "region_iga_church": {
   "polygon": [
    [
-    1242,
-    508
+    1215,
+    449
    ],
    [
-    1518,
-    457
+    1511,
+    449
    ],
    [
-    1658,
-    579
+    1528,
+    680
    ],
    [
-    1630,
-    762
-   ],
-   [
-    1373,
-    816
-   ],
-   [
-    1196,
-    698
+    1210,
+    680
    ]
   ],
   "tag": [
-   1360,
-   650,
-   280,
-   66
+   1215,
+   701,
+   239,
+   54
   ]
  }
 }
@@ -1473,4 +1612,7 @@ static func place_config(id: String) -> Dictionary:
 static func place_path(id: String) -> String:
  var config := place_config(id)
  if config.is_empty(): return ""
- return ROOT+("maps/" if config.get("map_image",false) else "places/")+str(config["image"])+".png"
+ var std := ROOT+("maps/" if config.get("map_image",false) else "places/")+str(config["image"])+".png"
+ if not ResourceLoader.exists(std) and config.has("custom_bg"):
+  return str(config["custom_bg"])
+ return std

@@ -7,7 +7,7 @@ var refs: Dictionary = {}
 var mode := "buy"
 var category := "cards"
 var filter_unowned := false
-var selected_id := "card_fake_cheque"
+var selected_id := "card_desk_vault"
 var quantity := 1
 var message := ""
 var _ticket := ""
@@ -65,7 +65,7 @@ func refresh(context: Dictionary = {}) -> void:
 		button.disabled = mode == "sell" and id == "cards"
 		button.pressed.connect(func(): category = id; quantity = 1; refresh())
 		index += 1
-	var products: Array = CampusShopCatalog.PRODUCTS.keys().filter(func(id: String): return CampusShopCatalog.PRODUCTS[id]["category"] == category and (not filter_unowned or mode != "buy" or category != "cards" or int(CampusShopCatalog.definition(id).get("owned", 0)) == 0))
+	var products: Array = CampusShopCatalog.PRODUCTS.keys().filter(func(id: String): return CampusShopCatalog.PRODUCTS[id]["category"] == category and CampusShopCatalog.is_product_unlocked(id) and (not filter_unowned or mode != "buy" or category != "cards" or int(CampusShopCatalog.definition(id).get("owned", 0)) == 0))
 	if not products.has(selected_id): selected_id = str(products[0]) if not products.is_empty() else ""
 	refs["products"] = {}
 	var scroll := ScrollContainer.new()
@@ -118,7 +118,7 @@ func refresh(context: Dictionary = {}) -> void:
 	ShopCounterTheme.text(_canvas,"Feedback",message,Rect2(460,949,1000,36),21)
 	var footer := ShopCounterTheme.panel(_canvas,"FooterBacking",Rect2(440,1000,1040,46),Color(0.97,0.94,0.87,0.88))
 	footer.name = "FooterBacking"
-	ShopCounterTheme.text(_canvas,"Rules","交易不消耗活动次数 · 星座卡与任务道具不参与交易",Rect2(460,1004,1000,38),22,true)
+	ShopCounterTheme.text(_canvas,"Rules","交易不消耗活动次数 · 已上架行动卡 %d / 16 款（随主线推进到货）" % CampusShopCatalog.unlocked_card_stock_count(),Rect2(460,1004,1000,38),22,true)
 	ShopCounterTheme.apply(self)
 	if focus_name != "": _restore_focus.call_deferred(focus_name)
 

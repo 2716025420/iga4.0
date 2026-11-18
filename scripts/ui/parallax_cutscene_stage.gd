@@ -133,8 +133,6 @@ static func preset_for_dialogue(dialogue_id: String, region_id: String = "") -> 
 	match dialogue_id:
 		"after_school":
 			return "dusk_corridor"
-		"school_affairs":
-			return "old_park_dusk"
 		"yang_rescue":
 			return "rebel_warning"
 		"principal_confrontation":

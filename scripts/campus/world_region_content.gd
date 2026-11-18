@@ -59,7 +59,7 @@ const REGIONS := {
   "area_map_id": "university_arete",
   "unlock_condition": "",
   "first_visit_event_id": "",
-  "first_entry_id": "arete_arrival_test",
+  "first_entry_id": "club",
   "entry_id": "club",
   "accent": "#88948A",
   "ink": "#E7EBED",
@@ -71,6 +71,7 @@ const REGIONS := {
    "dorm",
    "shop",
    "rooftop",
+   "old_park",
    "arete_coast_test",
    "arete_beach_test"
   ],
@@ -323,19 +324,19 @@ const PLACES := {
   ]
  },
  "arete_coast_test": {
-  "title": "TEST · 出校城区 / 沿海道路",
+  "title": "阿瑞忒沿海公路",
   "parent": "map",
   "npc": "",
-  "test": true,
-  "description": "校园与海滩之间的地区内生活空间。正式地图与玩法待审核。",
+  "test": false,
+  "description": "连接校园、旧城区与海岸的林荫大道。沿堤散步与吹海风可加深和同伴之间的默契。",
   "actions": []
  },
  "arete_beach_test": {
-  "title": "TEST · 海滩",
-  "parent": "map",
+  "title": "阿瑞忒海滩",
+  "parent": "arete_coast_test",
   "npc": "",
-  "test": true,
-  "description": "阿瑞忒地区内的海滩，非独立世界地区。正式地图与玩法待审核。",
+  "test": false,
+  "description": "阿瑞忒盛夏阳光下的碧蓝浅湾。可在木椅休息恢复体力，并拾取海边的练习素材。",
   "actions": []
  },
  "agora_arrival_test": {

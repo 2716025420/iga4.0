@@ -93,8 +93,11 @@ func load_dialogue(dialogue_id: String) -> void:
 	if is_instance_valid(history_panel): history_panel.visible = false
 	AudioManager.play_bgm_for_scene(SceneManager.TargetScene.STORY, false, current_dialogue_id)
 	_show_next_line()
-	if not _archive_mode and line_index == 0 and current_dialogue_id in ["campus_morning", "prologue_intro", "chapter_1_intro"] and is_instance_valid(story_presentation):
-		story_presentation.show_chapter_banner(PhaseTwoContent.CHAPTER_TITLE)
+	if not _archive_mode and line_index == 0 and is_instance_valid(story_presentation):
+		if current_dialogue_id in ["campus_morning", "prologue_intro", "chapter_1_intro"]:
+			story_presentation.show_chapter_banner(PhaseTwoContent.PROLOGUE_TITLE)
+		elif current_dialogue_id in ["school_affairs", "after_school"]:
+			story_presentation.show_chapter_banner(PhaseTwoContent.CHAPTER_TITLE)
 	DaylightUI.layout(self)
 
 func _get_script_lines(d_id: String) -> Array[Dictionary]:
@@ -353,18 +356,24 @@ func _finish_dialogue() -> void:
 		"school_gate":
 			GameState.companions["liu_yu_long"]["unlocked"] = true
 			GameState.set_story_flag("school_gate_done", true)
-			GameState.advance_story_time( 8, 5)
+			if GameState.game_day < 2:
+				GameState.set_game_time(2, 9, 20, DayCycleService.weekday_for_day(2))
+			else:
+				GameState.advance_story_time(9, 20)
+		"club_welcome":
+			GameState.companions["jiang_zi"]["unlocked"] = true
+			GameState.set_story_flag("prologue_completed", true)
 		"school_affairs":
 			GameState.companions["jiang_zi"]["unlocked"] = true
 			GameState.set_story_flag("school_affairs_done", true)
-			GameState.advance_story_time( 10, 20)
-		"after_school": GameState.advance_story_time( 17, 25)
+			GameState.advance_story_time(16, 20)
+		"after_school":
+			GameState.advance_story_time(17, 25)
 		"yang_rescue":
 			GameState.set_story_flag("yang_rescued_player", true)
-			GameState.advance_story_time( 17, 40)
+			GameState.advance_story_time(17, 40)
 		"campus_morning", "chapter_1_intro", "prologue_intro":
-			GameState.set_story_flag("prologue_completed", true)
-			GameState.advance_story_time( 8, 0)
+			GameState.advance_story_time(8, 0)
 	if current_dialogue_id.begins_with("chat_"):
 		SceneManager.change_scene(SceneManager.TargetScene.HOME)
 	elif current_dialogue_id == "school_gate":

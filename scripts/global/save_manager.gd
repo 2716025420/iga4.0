@@ -227,6 +227,7 @@ static func build_test_progress() -> Dictionary:
 		},
 		"story_flags": {
 			"prologue_completed": true,
+			"club_onboarding_done": true,
 			"chapter_1_unlocked": true,
 			"chapter_1_completed": true,
 			"school_gate_done": true,
@@ -236,6 +237,10 @@ static func build_test_progress() -> Dictionary:
 			"principal_stopped": true,
 			"principal_briefing_done": true,
 			"first_battle_hint_dismissed": true,
+			"arete_qualifier_completed": false,
+			"qualifier_r1_won": false,
+			"qualifier_r2_won": false,
+			"qualifier_r3_won": false,
 			"region_nomos_unlocked": true,
 			"region_agora_unlocked": true,
 			"region_techne_unlocked": true,
@@ -244,7 +249,7 @@ static func build_test_progress() -> Dictionary:
 		},
 		"current_chapter_id": "chapter_1",
 		"current_node_id": "n_find_yang",
-		"visited_node_ids": ["n0", "n_gate", "n_affairs", "n_dusk", "n_guard", "n_rescue", "n_robot", "n5_boss", "n_find_yang"],
+		"visited_node_ids": ["n0", "n_gate", "n_club_intro", "n_affairs", "n_dusk", "n_guard", "n_rescue", "n_robot", "n5_boss", "n_find_yang"],
 		"pending_combat_data": {},
 		"pending_dialogue_id": "",
 		"phase_two_checkpoint": {},
@@ -263,12 +268,15 @@ static func build_test_progress() -> Dictionary:
 			"loadouts": [
 				{"name": "方案1", "card_ids": ["wrench_smash", "scrap_shield", "icy_soda", "overclock_torch", "steel_barricade"]},
 				{"name": "方案2", "card_ids": ["wrench_smash", "fake_cheque", "overclock_torch"]},
-				{"name": "决斗包·TEST", "card_ids": ["final_trump", "crimson_pulse", "desk_vault", "emergency_tape", "tag_assist"]}
+				{"name": "阿瑞忒强攻包", "card_ids": ["final_trump", "crimson_pulse", "desk_vault", "emergency_tape", "tag_assist"]}
 			],
 			"active_loadout_index": 0,
 			"milestone_claims": {},
 			"exploration_log": [],
 			"last_activity": "story",
+			"activities": {"study_count": 2, "work_count": 2},
+			"reading_notes": ["note_arbitration", "note_red_moon"],
+			"chat_periods": {},
 			"campus_life": {
 				"last_location": "club",
 				"region_id": "university_arete",

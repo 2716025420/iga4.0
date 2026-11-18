@@ -10,10 +10,10 @@ var current_region: String:
   var id := current_location if current_location != "map" else str(data.get("last_location","club"))
   var region := str(data.get("region_id",""))
   return region if RegionCatalog.owns_place(region,id) else RegionCatalog.region_for_place(id)
-var map_region_id := "campus"
+var map_region_id := "university_arete"
 var map_return_location := "club"
-var map_return_region := "campus"
-const DEFAULT_STATE := {"last_location":"club","visited":[],"notes":{},"npc_talks":{},"studied_on_day":0,"last_sleep_day":0}
+var map_return_region := "university_arete"
+const DEFAULT_STATE := {"last_location":"club","region_id":"university_arete","visited":["club"],"notes":{},"npc_talks":{},"studied_on_day":0,"last_sleep_day":0,"region_visits":{"university_arete":"completed"}}
 
 func snapshot() -> Dictionary:
  var data: Dictionary = GameState.player_profile.get("campus_life",DEFAULT_STATE)
@@ -24,7 +24,17 @@ func _commit(data: Dictionary) -> void:
  GameState.profile_changed.emit()
 
 func map_concept() -> String:
+ var preferred := str(snapshot().get("map_concept", ""))
+ if preferred in ["vermilion", "indigo"]:
+  return preferred
  return "indigo" if DayCycle.period() == "night" else "vermilion"
+
+func toggle_map_concept() -> String:
+ var next := "indigo" if map_concept() == "vermilion" else "vermilion"
+ var data := snapshot()
+ data["map_concept"] = next
+ _commit(data)
+ return next
 
 func travel_to(location_id: String, region_id: String = "") -> bool:
  if not _can_travel() or (location_id != "map" and not CampusPlaces.PLACES.has(location_id)): return false
@@ -82,7 +92,9 @@ func _remember_location(id: String, region: String = "") -> void:
  var started := false
  if RegionCatalog.is_primary(data["region_id"]):
   var visits: Dictionary = data.get("region_visits",{})
-  if not visits.has(data["region_id"]):
+  if data["region_id"] == "university_arete":
+   visits["university_arete"] = "completed"
+  elif not visits.has(data["region_id"]):
    visits[data["region_id"]] = "arrived"
    started = true
   data["region_visits"] = visits
@@ -90,9 +102,10 @@ func _remember_location(id: String, region: String = "") -> void:
  if started: first_visit_started.emit(data["region_id"],str(RegionCatalog.REGIONS[data["region_id"]]["first_visit_event_id"]))
 
 func arrive_at_club() -> void:
- var region := current_region if RegionCatalog.owns_place(current_region,"club") else "campus"
+ var region := current_region if RegionCatalog.owns_place(current_region,"club") else "university_arete"
  current_location = "club"
- if snapshot().get("last_location","club") != "club": _remember_location("club",region)
+ if snapshot().get("last_location","club") != "club" or snapshot().get("region_visits",{}).get("university_arete","") != "completed":
+  _remember_location("club",region)
 
 func restore_saved_location() -> void:
  var data := snapshot()
@@ -122,12 +135,138 @@ func npc_lines(npc_id: String) -> Array:
  _commit(data)
  match npc_id:
   "lin_zhi_xia":
-   return [["林知夏","你好，我是图书委员林知夏。这里有安静的阅读位置，窗边的书可以直接翻阅。"],["林知夏","窗边的书可以随手翻阅。等你读到喜欢的句子，下次也讲给我听吧。"]] if count == 0 else [["林知夏","又见面了。刚才的风把书签吹到了下一页，像是在催我继续读。"],["林知夏","今天想看哪一本书？"]]
+   if count == 0:
+    return [["林知夏","你好，我是图书委员林知夏。窗边的座位很亮堂，适合静下心来研习战术牌理。"],["林知夏","桌上的《阿瑞忒风物纪要》都可以随时翻阅。常来研习的话，我会帮你把新抄录好的手记留在这里。"]]
+   return [["林知夏","欢迎回来。刚才又整理出几页关于四大学院规约的剪报，有空一起看看吧？"]]
   "tang_xiao_man":
-   return [["唐小满","我是今天值班的唐小满。这里还在整理，先陪我聊聊天吧。"],["唐小满","送货单夹在箱子边，社团要用的东西都分箱放好了。"]] if count == 0 else [["唐小满","你来得正好，我终于把送货单核对完了。"],["唐小满","忙完这些小事，放学后剩下的时间就都是自己的啦。"]]
-  "liu_yu_long": return [["柳宇龙","这里风大，但比楼下清静。偶尔来坐一会儿，也算给脑袋放个假。"],["柳宇龙","社团教室就在下面。等风小一点，我们再回去。"]]
-  "jiang_zi": return [["姜梓","今天想去哪里走走？地图已经放在桌上了。"],["姜梓","整理卡牌和校园记录还是在这里。走累了，也随时可以回来。"]]
+   if count == 0:
+    return [["唐小满","嗨！我是店员唐小满。随着校内赛事推进，柜台会陆续进货一共 16 张各色刻印卡哦！"],["唐小满","要是零用钱紧了，随时接一次店务盘点兼职，一次稳拿 100 零用钱呢！"]]
+   return [["唐小满","今天货架刚补充完新卡与补给。逛累了记得顺便喝瓶汽水！"]]
+  "liu_yu_long":
+   if bool(GameState.story_flags.get("arete_qualifier_completed", false)):
+    return [["柳宇龙","阿瑞忒代表选拔赛三连胜真解气！以后也别忘了每天保持卡匣手感和默契配合！"]]
+   return [["柳宇龙","天台或者体育馆的风都很适合活动筋骨！想试验新配的 5 卡卡序，随时去擂台找我！"]]
+  "yang_zi_ying":
+   return [["杨子英","清晨天台的海风真舒服，取景框里连远处的白色灯塔都看得一清二楚！"],["杨子英","要在这里一起做一次战术复盘吗？平时去图书馆、商店、海边转转也很不错哦。"]]
+  "jiang_zi":
+   return [["姜梓","今天想去哪里走走？手绘校园地图就在旁边，放映档案室也能随时加盖委托印章。"],["姜梓","强化行动卡与找同伴交流都不占白天活动次数，先把节奏理顺再出门吧。"]]
  return []
+
+func _record_activity(key: String) -> int:
+ var activities: Dictionary = GameState.player_profile.get("activities", {}).duplicate()
+ var next := int(activities.get(key, 0)) + 1
+ activities[key] = next
+ GameState.player_profile["activities"] = activities
+ GameState.profile_changed.emit()
+ return next
+
+func _active_walk_companion() -> String:
+ var cid := GameState.get_active_companion_id()
+ if cid != "" and bool(GameState.companions.get(cid, {}).get("unlocked", false)):
+  return cid
+ for candidate in PlayerJourney.COMPANION_ORDER:
+  if bool(GameState.companions.get(candidate, {}).get("unlocked", false)):
+   return candidate
+ return "yang_zi_ying"
+
+func study_in_library() -> Array:
+ if SceneManager.is_transitioning: return []
+ if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
+ if not DayCycle.spend_action("study"): return [["我",DayCycle.block_reason()]]
+ var data := snapshot()
+ data["studied_on_day"] = GameState.game_day
+ _commit(data)
+ var count := _record_activity("study_count")
+ GameState.add_scrap(35, false)
+ var notes: Array = GameState.player_profile.get("reading_notes", []).duplicate()
+ var unlocked_title := ""
+ for note in CampusPlaces.LIBRARY_NOTES:
+  var nid := str(note["id"])
+  if not notes.has(nid):
+   notes.append(nid)
+   unlocked_title = str(note["title"])
+   GameState.player_profile["reading_notes"] = notes
+   GameState.profile_changed.emit()
+   break
+ if unlocked_title != "":
+  return [["林知夏","认真做完了一次牌理推演呢（练习点 +35）。另外，这份新抄录的【%s】我也夹进你的放映室档案里啦。" % unlocked_title]]
+ return [["我","在窗边静心梳理了卡组冷却与防线联动，思路清楚了不少（练习点 +35，已累计研习 %d 次）。" % count]]
+
+func read_library_notes() -> Array:
+ var notes: Array = GameState.player_profile.get("reading_notes", []).duplicate()
+ if notes.is_empty():
+  notes.append(str(CampusPlaces.LIBRARY_NOTES[0]["id"]))
+  GameState.player_profile["reading_notes"] = notes
+  GameState.profile_changed.emit()
+ var latest_id := str(notes[-1])
+ var latest := {}
+ for note in CampusPlaces.LIBRARY_NOTES:
+  if str(note["id"]) == latest_id:
+   latest = note
+   break
+ return [
+  ["林知夏","目前你已收录《阿瑞忒与红月风物纪要》共 %d / %d 篇（随时可在社团【放映档案室】重读全篇）。" % [notes.size(), CampusPlaces.LIBRARY_NOTES.size()]],
+  [str(latest.get("title", "风物纪要")), str(latest.get("body", ""))]
+ ]
+
+func work_in_shop() -> Array:
+ if SceneManager.is_transitioning: return []
+ if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
+ if not DayCycle.spend_action("work"): return [["我",DayCycle.block_reason()]]
+ var count := _record_activity("work_count")
+ GameState.add_crystals(100)
+ var drink_bonus := ""
+ if count % 2 == 0:
+  GameState.add_inventory_item("drink", 1, false)
+  drink_bonus = "，唐小满还多塞了一瓶「饮品补给」给你"
+ return [["唐小满","货架和快递单都核对得整整齐齐！辛苦啦——这是今天的兼职零用钱 +100%s！" % drink_bonus]]
+
+func rooftop_review() -> Array:
+ if SceneManager.is_transitioning: return []
+ if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
+ if not DayCycle.spend_action("rooftop"): return [["我",DayCycle.block_reason()]]
+ _record_activity("rooftop_count")
+ var cid := "yang_zi_ying" if DayCycle.period() == "morning" else ("liu_yu_long" if bool(GameState.companions.get("liu_yu_long", {}).get("unlocked", false)) else "yang_zi_ying")
+ var cname := str(PhaseTwoContent.ACTORS.get(cid, {}).get("name", "同伴"))
+ GameState.heal_player(40)
+ GameState.add_scrap(20, false)
+ GameState.add_companion_favor(cid, 12)
+ return [[cname,"吹着天台的海风复盘上几场出牌顺序，疲劳一下子散掉了！（体力 +40 · 练习点 +20 · %s熟悉度 +12）" % cname]]
+
+func coast_walk() -> Array:
+ if SceneManager.is_transitioning: return []
+ if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
+ if not DayCycle.spend_action("coast"): return [["我",DayCycle.block_reason()]]
+ _record_activity("coast_count")
+ var cid := _active_walk_companion()
+ var cname := str(PhaseTwoContent.ACTORS.get(cid, {}).get("name", "同伴"))
+ GameState.add_scrap(15, false)
+ GameState.add_companion_favor(cid, 15)
+ return [[cname,"沿着阿瑞忒的沿海步道慢慢走了好远，海风里连平时紧绷的心情也跟着放松下来了。（练习点 +15 · %s熟悉度 +15）" % cname]]
+
+func beach_rest() -> Array:
+ if SceneManager.is_transitioning: return []
+ if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
+ if not DayCycle.spend_action("beach"): return [["我",DayCycle.block_reason()]]
+ _record_activity("beach_count")
+ var cid := _active_walk_companion()
+ var cname := str(PhaseTwoContent.ACTORS.get(cid, {}).get("name", "同伴"))
+ GameState.heal_player(35)
+ GameState.add_inventory_item("material_common", 2, false)
+ GameState.add_companion_favor(cid, 10)
+ return [["我","在海滩边坐了会儿，顺手捡起两块适合刻制护盾卡的海岩素材。（体力 +35 · 普通材料 +2 · %s熟悉度 +10）" % cname]]
+
+func park_reflect() -> Array:
+ if SceneManager.is_transitioning: return []
+ if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
+ if not DayCycle.spend_action("park"): return [["我",DayCycle.block_reason()]]
+ _record_activity("park_count")
+ GameState.heal_player(30)
+ GameState.add_scrap(30, false)
+ var ring_note := ""
+ if GameState.grant_inventory_reward("old_park_soda_ring", {"sealed_note": 1}, false):
+  ring_note = "在长椅旁拾起一枚「旧公园的汽水拉环」，妥善收进了社团收纳箱。"
+ return [["我","看着夕照把长椅与街角贩卖机镀上一层暖金色，暗自记下了再次踏上旅途的决心。（体力 +30 · 练习点 +30）" + ("\n" + ring_note if ring_note != "" else "")]]
 
 func inspect(action_id: String) -> Array:
  if not CampusPlaces.SNIPPETS.has(action_id): return []
@@ -138,16 +277,7 @@ func inspect(action_id: String) -> Array:
  return CampusPlaces.SNIPPETS[action_id].duplicate(true)
 
 func study() -> Array:
- if current_location != "study" or SceneManager.is_transitioning: return []
- var data := snapshot()
- if int(data["studied_on_day"]) == GameState.game_day:
-  return [["我","今天的自习已经完成了。再坐一会儿，或者去别的地方走走吧。"]]
- if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
- data["studied_on_day"] = GameState.game_day
- _commit(data)
- GameState.add_scrap(20)
- DayCycle.spend_action("study")
- return [["我","把注意力放回纸页上，认真完成了一次自习，今天的思路清楚了一些。（练习点 +20）"]]
+ return study_in_library()
 
 func sleep_to_morning() -> Array:
  if current_location != "dorm": return []

@@ -7,6 +7,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "wrench_smash",
 		"category": "cards",
+		"tier": 1,
 		"buy": 90,
 		"sell": 0
 	},
@@ -14,6 +15,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "scrap_shield",
 		"category": "cards",
+		"tier": 1,
 		"buy": 110,
 		"sell": 0
 	},
@@ -21,6 +23,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "icy_soda",
 		"category": "cards",
+		"tier": 1,
 		"buy": 80,
 		"sell": 0
 	},
@@ -28,6 +31,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "overclock_torch",
 		"category": "cards",
+		"tier": 1,
 		"buy": 140,
 		"sell": 0
 	},
@@ -35,6 +39,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "fake_cheque",
 		"category": "cards",
+		"tier": 2,
 		"buy": 180,
 		"sell": 0
 	},
@@ -42,6 +47,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "steel_barricade",
 		"category": "cards",
+		"tier": 3,
 		"buy": 220,
 		"sell": 0
 	},
@@ -49,6 +55,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "coin_gambit",
 		"category": "cards",
+		"tier": 2,
 		"buy": 160,
 		"sell": 0
 	},
@@ -56,6 +63,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "counter_seal",
 		"category": "cards",
+		"tier": 2,
 		"buy": 170,
 		"sell": 0
 	},
@@ -63,6 +71,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "crimson_pulse",
 		"category": "cards",
+		"tier": 3,
 		"buy": 210,
 		"sell": 0
 	},
@@ -70,6 +79,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "desk_vault",
 		"category": "cards",
+		"tier": 1,
 		"buy": 130,
 		"sell": 0
 	},
@@ -77,6 +87,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "duel_draw",
 		"category": "cards",
+		"tier": 1,
 		"buy": 140,
 		"sell": 0
 	},
@@ -84,6 +95,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "emergency_tape",
 		"category": "cards",
+		"tier": 2,
 		"buy": 150,
 		"sell": 0
 	},
@@ -91,6 +103,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "final_trump",
 		"category": "cards",
+		"tier": 3,
 		"buy": 260,
 		"sell": 0
 	},
@@ -98,6 +111,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "focus_lens",
 		"category": "cards",
+		"tier": 2,
 		"buy": 175,
 		"sell": 0
 	},
@@ -105,6 +119,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "silent_library",
 		"category": "cards",
+		"tier": 3,
 		"buy": 195,
 		"sell": 0
 	},
@@ -112,6 +127,7 @@ const PRODUCTS := {
 		"kind": "card",
 		"ref": "tag_assist",
 		"category": "cards",
+		"tier": 3,
 		"buy": 210,
 		"sell": 0
 	},
@@ -170,12 +186,30 @@ static func is_shop_location(id: String) -> bool:
 	var region := CampusLife.current_region
 	return id != "" and str(REGION_SHOPS.get(region,"shop" if region == "campus" else "")) == id and RegionCatalog.is_unlocked(region) and RegionCatalog.owns_place(region,id)
 
+static func is_product_unlocked(id: String) -> bool:
+	if not PRODUCTS.has(id): return false
+	var tier := int(PRODUCTS[id].get("tier", 1))
+	if tier <= 1 or SaveManager.test_session: return true
+	if tier == 2:
+		return bool(GameState.story_flags.get("school_affairs_done", false)) or bool(GameState.story_flags.get("chapter_1_completed", false))
+	return bool(GameState.story_flags.get("chapter_1_completed", false))
+
+static func unlocked_card_stock_count() -> int:
+	var count := 0
+	for id in PRODUCTS:
+		if PRODUCTS[id]["kind"] == "card" and is_product_unlocked(str(id)):
+			count += 1
+	return count
+
 static func quote(id: String, quantity: Variant, mode: String) -> Dictionary:
 	var result := {"ok":false,"message":"请选择有效商品","total":0,"quantity":0,"product":{}}
 	var product := definition(id)
 	if product.is_empty() or not GameState._whole_number(quantity) or int(quantity) < 1 or int(quantity) > 99 or mode not in ["buy","sell"]: return result
 	result["product"] = product
 	result["quantity"] = int(quantity)
+	if not is_product_unlocked(id):
+		result["message"] = "这款行动卡将在主线继续推进后到货上架"
+		return result
 	if not is_shop_location(CampusLife.current_location) or GameState.exploration_active or SceneManager.is_transitioning or DayCycle.has_story():
 		result["message"] = "请到当前地区已开放的商店办理交易"
 		return result

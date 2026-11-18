@@ -50,12 +50,13 @@ var card_levels: Dictionary = {
 var companions: Dictionary = {
 	"yang_zi_ying": {"name":"杨子英","title":"摄影社热心社员","bio":"热心、行动快，喜欢用镜头记录校园夕阳与战术刻印卡切磋。每打出3张卡可发动「快门闪光支援」，兼顾续航与护盾。","unlocked":true,"favor":20,"avatar_key":"yang_zi_ying"},
 	"liu_yu_long": {"name":"柳宇龙","title":"竞技对抗狂热者","bio":"爱开玩笑也很不服输，把非致命护盾裁决当成堂堂正正的决斗舞台。每打出3张卡可发动「热血追击重扣」，追加高额单体伤害。","unlocked":false,"favor":0,"avatar_key":"liu_yu_long"},
-	"jiang_zi": {"name":"姜梓","title":"学生会事务干事","bio":"严谨干练，负责核对六地区巡回赛名录与终端安全日志。每打出3张卡可发动「战术统筹屏障」，提供高额护盾并干扰敌方。","unlocked":false,"favor":0,"avatar_key":"jiang_zi"}
+	"jiang_zi": {"name":"姜梓","title":"学生会事务干事","bio":"严谨干练，负责核对六地区巡回赛名录与校园安全日志。每打出3张卡可发动「战术统筹屏障」，提供高额护盾并干扰敌方。","unlocked":false,"favor":0,"avatar_key":"jiang_zi"}
 }
 
 # 剧情标志位
 var story_flags: Dictionary = {
 	"prologue_completed": false,
+	"club_onboarding_done": false,
 	"chapter_1_unlocked": true,
 	"chapter_1_completed": false,
 	"school_gate_done": false,
@@ -64,7 +65,11 @@ var story_flags: Dictionary = {
 	"yang_rescued_player": false,
 	"principal_stopped": false,
 	"principal_briefing_done": false,
-	"first_battle_hint_dismissed": false
+	"first_battle_hint_dismissed": false,
+	"arete_qualifier_completed": false,
+	"qualifier_r1_won": false,
+	"qualifier_r2_won": false,
+	"qualifier_r3_won": false
 }
 
 # 当前正在进行的探索节点与关卡状态
@@ -88,7 +93,26 @@ var exploration_return_hp: int = -1
 
 # Persistent optional experience data; old saves receive empty defaults.
 const DECK_RULE_MESSAGE := "卡组至少保留一张攻击卡"
-var player_profile: Dictionary = {"loadouts": [{"name":"方案1","card_ids":["wrench_smash", "scrap_shield", "icy_soda"]}], "active_loadout_index": 0, "milestone_claims": {}, "exploration_log": [], "last_activity": "story"}
+var player_profile: Dictionary = {
+	"loadouts": [{"name":"方案1","card_ids":["wrench_smash", "scrap_shield", "icy_soda"]}],
+	"active_loadout_index": 0,
+	"milestone_claims": {},
+	"exploration_log": [],
+	"last_activity": "story",
+	"activities": {},
+	"reading_notes": [],
+	"chat_periods": {},
+	"campus_life": {
+		"last_location": "club",
+		"region_id": "university_arete",
+		"visited": ["club"],
+		"notes": {},
+		"npc_talks": {},
+		"studied_on_day": 0,
+		"last_sleep_day": 0,
+		"region_visits": {"university_arete": "completed"}
+	}
+}
 # Read-only memories are a viewing context, never saved as story progress.
 var archive_dialogue_id: String = ""
 var archive_return_tab: String = ""
@@ -257,6 +281,15 @@ func import_progress(progress: Dictionary) -> bool:
 		else: equipped_card_ids.append("wrench_smash")
 	if player_profile["loadouts"].is_empty():
 		player_profile["loadouts"].append({"name":"方案1","card_ids":equipped_card_ids.duplicate()})
+	if not player_profile.has("activities"): player_profile["activities"] = {}
+	if not player_profile.has("reading_notes"): player_profile["reading_notes"] = []
+	if not player_profile.has("chat_periods"): player_profile["chat_periods"] = {}
+	if not player_profile.has("campus_life"): player_profile["campus_life"] = _initial_progress["player_profile"]["campus_life"].duplicate(true)
+	if (visited_node_ids.has("n_affairs") or bool(story_flags.get("chapter_1_completed", false))) and not visited_node_ids.has("n_club_intro"):
+		visited_node_ids.append("n_club_intro")
+		story_flags["prologue_completed"] = true
+	if bool(story_flags.get("chapter_1_completed", false)) and not SpecialCardCollection.collected("hero"):
+		SpecialCardCollection.acquire_from_story("hero", "chapter_1_aries_awakening")
 	# Old saves did not record identity: choose the first matching preset once.
 	# An explicit -1 means a custom equipped deck, even if another preset matches.
 	var entries: Array = player_profile["loadouts"]
@@ -295,7 +328,7 @@ func begin_phase_two_chapter() -> void:
 	reset_exploration_progress()
 	pending_combat_data.clear()
 	pending_dialogue_id = ""
-	for flag in ["prologue_completed", "chapter_1_completed", "school_gate_done", "school_gate_duel_briefed", "school_affairs_done", "yang_rescued_player", "principal_stopped", "principal_briefing_done"]:
+	for flag in ["prologue_completed", "club_onboarding_done", "chapter_1_completed", "school_gate_done", "school_gate_duel_briefed", "school_affairs_done", "yang_rescued_player", "principal_stopped", "principal_briefing_done", "arete_qualifier_completed", "qualifier_r1_won", "qualifier_r2_won", "qualifier_r3_won"]:
 		set_story_flag(flag, false)
 	companions["liu_yu_long"]["unlocked"] = false
 	companions["jiang_zi"]["unlocked"] = false
@@ -319,11 +352,11 @@ func _init_default_cards() -> void:
 	c1.card_type = CardData.CardType.ATTACK
 	c1.base_cooldown = 1
 	c1.damage = 18
-	c1.description = "展开终端高频突刺刻印，对单个目标造成 [color=#ff5555]18点[/color] 伤害。"
+	c1.description = "展开卡匣高频突刺刻印，对单个目标造成 [color=#ff5555]18点[/color] 伤害。"
 	c1.flavor_text = "校内裁决与实战通用的基础起手式：先观察，再抢出空隙。"
 	all_cards[c1.id] = c1
 
-	# 2. 刻印·书包偏转盾（原：书包格挡）
+	# 2. 刻印·便携偏转盾（原：书包格挡）
 	var c2 = CardData.new()
 	c2.id = "scrap_shield"
 	c2.name = "便携偏转盾"
@@ -331,7 +364,7 @@ func _init_default_cards() -> void:
 	c2.target_type = CardData.TargetType.SELF
 	c2.base_cooldown = 1
 	c2.shield = 14
-	c2.description = "在身前展开学生终端护盾，自身获得 [color=#55aaff]14点[/color] 护盾，持续 1 回合。"
+	c2.description = "在身前展开刻印护盾，自身获得 [color=#55aaff]14点[/color] 护盾，持续 1 回合。"
 	c2.flavor_text = "夹在课本间的简易偏转发生器，护盾裁决时最常用的标准防壁。"
 	all_cards[c2.id] = c2
 
@@ -343,7 +376,7 @@ func _init_default_cards() -> void:
 	c3.target_type = CardData.TargetType.SELF
 	c3.base_cooldown = 3
 	c3.heal = 24
-	c3.description = "稳定呼吸与终端同期率，恢复叶舟 [color=#55ff55]24点[/color] 体力（每场最多2次）。"
+	c3.description = "稳定呼吸与刻印共鸣节拍，恢复叶舟 [color=#55ff55]24点[/color] 体力（每场最多2次）。"
 	c3.flavor_text = "一瓶汽水的间隙，足够把慌乱的心跳重新稳下来。"
 	all_cards[c3.id] = c3
 
@@ -373,7 +406,7 @@ func _init_default_cards() -> void:
 	c5.flavor_text = "出自阿戈拉赌桌思路的电子诱导刻印，能短暂骗过对手的瞄准算力。"
 	all_cards[c5.id] = c5
 
-	# 6. 刻印·默契联防壁垒（原：默契掩护）
+	# 6. 刻印·默契反制壁（原：默契掩护）
 	var c6 = CardData.new()
 	c6.id = "steel_barricade"
 	c6.name = "默契反制壁"
@@ -396,7 +429,7 @@ func _register_test_duel_cards() -> void:
 		{"id": "crimson_pulse", "name": "赤月超限脉冲", "type": CardData.CardType.ATTACK, "target": CardData.TargetType.SINGLE_ENEMY, "cd": 2, "dmg": 22, "burn": 5, "burn_dur": 2, "desc": "造成 22点 伤害，并附加 2 回合“压制”（每回合5点）。", "flavor": "模拟红月高负载频率的高输出刻印，持续灼烧目标护盾槽。"},
 		{"id": "desk_vault", "name": "教室掩体阵", "type": CardData.CardType.DEFENSE, "target": CardData.TargetType.SELF, "cd": 1, "shield": 16, "desc": "自身获得 16点 护盾，持续 1 回合。", "flavor": "阿瑞忒社团教室最常演练的快充护盾印，稳妥而可靠。"},
 		{"id": "duel_draw", "name": "巡回先手斩", "type": CardData.CardType.ATTACK, "target": CardData.TargetType.SINGLE_ENEMY, "cd": 1, "dmg": 16, "desc": "快速展开低冷却突击投影，对单个目标造成 16点 伤害。", "flavor": "柳宇龙最喜欢的起手节拍——先拿下主攻主动权。"},
-		{"id": "emergency_tape", "name": "光学修复带", "type": CardData.CardType.RECOVERY, "target": CardData.TargetType.SELF, "cd": 3, "heal": 22, "desc": "紧急安定回路并整理伤势，恢复叶舟 22点 体力（每场限2次）。", "flavor": "忒克捏工坊流出的携行修复片，也能稳定终端同步疲劳。"},
+		{"id": "emergency_tape", "name": "光学修复带", "type": CardData.CardType.RECOVERY, "target": CardData.TargetType.SELF, "cd": 3, "heal": 22, "desc": "紧急安定回路并整理伤势，恢复叶舟 22点 体力（每场限2次）。", "flavor": "忒克捏工坊流出的携行修复片，也能稳定卡匣回路负荷。"},
 		{"id": "final_trump", "name": "决赛终极底牌", "type": CardData.CardType.ATTACK, "target": CardData.TargetType.SINGLE_ENEMY, "cd": 3, "dmg": 30, "desc": "蓄能倾泻全部高频刻印，对单个目标造成 30点 伤害。", "flavor": "六地区巡回锦标赛决胜局专用的高能终结卡，不留退路。"},
 		{"id": "focus_lens", "name": "对焦干涉镜", "type": CardData.CardType.DEBUFF, "target": CardData.TargetType.ALL_ENEMIES, "cd": 2, "atk_down": 0.25, "debuff_dur": 2, "desc": "锁定对手算力视界，使敌方全体伤害降低 25%，持续 2 回合。", "flavor": "杨子英根据摄影社定焦镜头改良的光学眩光干扰印。"},
 		{"id": "silent_library", "name": "寂静档案室", "type": CardData.CardType.DEBUFF, "target": CardData.TargetType.ALL_ENEMIES, "cd": 3, "atk_down": 0.30, "debuff_dur": 2, "desc": "启动全域频段静默，使敌方全体伤害降低 30%，持续 2 回合。", "flavor": "姜梓偏好的秩序压场卡：喧嚣退去后，最先乱阵脚的是对手。"},
@@ -595,10 +628,51 @@ func start_story_from_home(restart: bool = false) -> void:
 	if story_flags.get("chapter_1_completed", false):
 		return
 	if phase_two_combat_checkpoint.is_empty() and not PlayerJourney.deck_summary()["ready"]: return
+	var next_node: String = next_phase_two_node()
+	if next_node == "":
+		return
 	player_profile["last_activity"] = "story"
 	profile_changed.emit()
 	phase_two_stream_active = true
-	_open_phase_two_node(next_phase_two_node())
+	_open_phase_two_node(next_node)
+
+func trigger_scene_story(node_id: String) -> bool:
+	if SceneManager.is_transitioning or story_flags.get("chapter_1_completed", false):
+		return false
+	if node_id == "" or next_phase_two_node() != node_id:
+		return false
+	if phase_two_combat_checkpoint.is_empty() and not PlayerJourney.deck_summary()["ready"]:
+		return false
+	player_profile["last_activity"] = "story"
+	profile_changed.emit()
+	phase_two_stream_active = true
+	_open_phase_two_node(node_id)
+	return true
+
+func start_qualifier_battle(round_index: int) -> bool:
+	if SceneManager.is_transitioning or exploration_active:
+		return false
+	if not bool(story_flags.get("chapter_1_completed", false)) or not PlayerJourney.deck_summary()["ready"]:
+		return false
+	var spec: Dictionary = PlayerJourney.qualifier_round_spec(round_index)
+	if spec.is_empty():
+		return false
+	if round_index > 1 and not bool(story_flags.get("qualifier_r%d_won" % (round_index - 1), false)):
+		return false
+	current_chapter_id = "chapter_1"
+	current_node_id = "qualifier_r%d" % round_index
+	pending_dialogue_id = ""
+	var raw_enemies: Array = spec.get("enemies", ["duel_student_ace"])
+	pending_combat_data = {
+		"mode": "qualifier",
+		"qualifier_round": round_index,
+		"enemies": raw_enemies.duplicate(),
+		"is_boss": round_index == 3,
+		"overclock": false
+	}
+	reset_player_hp()
+	SceneManager.change_scene(SceneManager.TargetScene.COMBAT)
+	return true
 
 func _open_phase_two_node(node_id: String) -> void:
 	var step: Dictionary = PhaseTwoContent.step_for(node_id)
@@ -645,13 +719,41 @@ func complete_phase_two_step(node_id: String) -> bool:
 	phase_two_combat_checkpoint.clear()
 	pending_dialogue_id = ""
 	pending_combat_data.clear()
+	if node_id == "n_club_intro":
+		companions["jiang_zi"]["unlocked"] = true
+		set_story_flag("prologue_completed", true)
+		var next_day: int = maxi(2, game_day)
+		if game_day < 2 or game_hour < 14:
+			set_game_time(next_day, 14, 0, DayCycleService.weekday_for_day(next_day))
+		current_node_id = ""
+		phase_two_stream_active = false
+		CampusLife.arrive_at_club()
+		SceneManager.change_scene(SceneManager.TargetScene.HOME)
+		return true
+	if node_id == "n_affairs":
+		companions["jiang_zi"]["unlocked"] = true
+		set_story_flag("school_affairs_done", true)
+		set_story_flag("club_onboarding_done", true)
+		grant_inventory_reward("story_act1_library_card", {"quest_sample": 1}, true)
+		advance_story_time(16, 30)
+		current_node_id = ""
+		phase_two_stream_active = false
+		if not CampusLife.travel_to("library"):
+			CampusLife.arrive_at_club()
+			SceneManager.change_scene(SceneManager.TargetScene.HOME)
+		return true
 	phase_two_stream_active = true
 	var next_node: String = next_phase_two_node()
 	if next_node == "":
 		set_story_flag("chapter_1_completed", true)
-		advance_story_time(18,0)
+		if get_active_zodiac_id() == "":
+			set_active_zodiac_id("hero")
+		var morning_day: int = game_day + 1
+		set_game_time(morning_day, 8, 0, DayCycleService.weekday_for_day(morning_day))
+		reset_player_hp()
 		current_node_id = ""
 		phase_two_stream_active = false
+		CampusLife.arrive_at_club()
 		SceneManager.change_scene(SceneManager.TargetScene.HOME)
 	else:
 		_open_phase_two_node(next_node)
@@ -849,6 +951,17 @@ func complete_exploration_node(node_id: String, outcome: String = "victory", sho
 		exploration_changed.emit()
 	return true
 
+func _award_training_completion(dungeon_id: String) -> void:
+	var tier: int = int(ExplorationContent.dungeon_definition(dungeon_id).get("tier", 1))
+	var first_key: String = "training_first_clear_" + dungeon_id
+	var first_bonus: int = 40 + tier * 40
+	var repeat_bonus: int = 20 + tier * 20
+	var bonus: int = repeat_bonus
+	if not inventory_reward_ledger.has(first_key):
+		inventory_reward_ledger[first_key] = true
+		bonus = first_bonus
+	add_crystals(bonus)
+
 func finish_exploration(outcome: String = "victory") -> bool:
 	if SchoolExplorationFlow.enabled(): return SchoolExplorationFlow.finish(outcome)
 	if not _exploration_pending(): return false
@@ -856,6 +969,7 @@ func finish_exploration(outcome: String = "victory") -> bool:
 		var last_id: String = str(exploration_state.get("current_node_id", ""))
 		var node := get_exploration_node(last_id)
 		if node.is_empty() or int(node["type"]) != MapNodeData.NodeType.BOSS or not exploration_state.get("settled", {}).has(last_id): return false
+		_award_training_completion(str(exploration_state.get("dungeon_id", "")))
 	elif outcome not in ["defeat", "retreated"]: return false
 	exploration_state["status"] = "completed" if outcome == "victory" else outcome
 	exploration_state["stage"] = "finished"

@@ -53,6 +53,8 @@ var _defeat_settled := false
 var _result_action_pending: bool = false
 var _combat_outcome: String = ""
 var _exploration_mode: bool = false
+var _qualifier_mode: bool = false
+var _qualifier_round: int = 0
 var _exploration_node_id: String = ""
 var _exploration_run_id: int = -1
 var _exploration_data: Dictionary = {}
@@ -68,6 +70,9 @@ func _ready() -> void:
 		_exploration_data = GameState.get_exploration_combat_data()
 		_exploration_node_id = str(_exploration_data.get("node_id", ""))
 		_exploration_run_id = int(_exploration_data.get("run_id", -1))
+	if not _exploration_mode and str(GameState.pending_combat_data.get("mode", "")) == "qualifier":
+		_qualifier_mode = true
+		_qualifier_round = int(GameState.pending_combat_data.get("qualifier_round", 1))
 	result_modal.visible = false
 	result_button.pressed.connect(_on_result_button_pressed)
 	
@@ -308,7 +313,14 @@ func _create_enemy_data(eid: String) -> EnemyData:
 			e.max_hp = 60
 			e.base_atk = 10
 			e.actions_per_turn = 1
-			e.skills = [{"name": "直拳试探", "type": "attack", "damage": 10}, {"name": "终端护盾展开", "type": "defend", "shield": 8}, {"name": "热情连扣", "type": "attack", "damage": 14}]
+			e.skills = [{"name": "直拳试探", "type": "attack", "damage": 10}, {"name": "偏转护盾展开", "type": "defend", "shield": 8}, {"name": "热情连扣", "type": "attack", "damage": 14}]
+		"arena_tactician":
+			visual_id = "liu_yu_long_duel"
+			e.name = "竞技社战术搭档"
+			e.max_hp = 110
+			e.base_atk = 15
+			e.actions_per_turn = 1
+			e.skills = [{"name": "快攻牵制", "type": "attack", "damage": 15}, {"name": "联防偏折盾", "type": "defend", "shield": 12}]
 		"security_guard", "drone":
 			visual_id = "security_guard"
 			e.name = "被劫持的门岗卫兵"
@@ -325,26 +337,26 @@ func _create_enemy_data(eid: String) -> EnemyData:
 			e.skills = [{"name": "超限射线截击", "type": "attack", "damage": 18}, {"name": "高能冲击蓄势", "type": "attack", "damage": 28}, {"name": "脉冲护御力场", "type": "defend", "shield": 14}]
 		"ch1_hunter_mech", "principal", "boss_frank":
 			visual_id = "ch1_hunter_mech"
-			e.name = "灰区超限猎杀终端"
+			e.name = "灰区超限猎杀机兵"
 			e.rank = EnemyData.EnemyRank.BOSS
 			e.max_hp = 260
 			e.base_atk = 16
 			e.actions_per_turn = 2
-			e.skills = [{"name": "强制限幅解除", "type": "attack", "damage": 16}, {"name": "红月干扰波", "type": "aoe", "damage": 14}, {"name": "核心防火墙重构", "type": "defend", "shield": 12}]
+			e.skills = [{"name": "强制限幅解除", "type": "attack", "damage": 16}, {"name": "红月干扰波", "type": "aoe", "damage": 14}, {"name": "核心护壁重构", "type": "defend", "shield": 12}]
 			e.has_phase_two = true
 			e.phase_two_hp_threshold = 0.5
 			e.phase_two_skill = {"name": "编号抹除协议", "type": "attack", "damage": 28}
 		"duel_student_ace":
 			e.name = "学园预选代表"
 			e.rank = EnemyData.EnemyRank.NORMAL
-			e.max_hp = 120
+			e.max_hp = 115
 			e.base_atk = 17
 			e.actions_per_turn = 1
 			e.skills = [{"name": "先手强攻", "type": "attack", "damage": 17}, {"name": "卡组护御", "type": "defend", "shield": 12}]
 		"national_finalist":
-			e.name = "巡回赛种子候补"
+			e.name = "巡回赛种子代表"
 			e.rank = EnemyData.EnemyRank.ELITE
-			e.max_hp = 180
+			e.max_hp = 195
 			e.base_atk = 20
 			e.actions_per_turn = 1
 			e.skills = [{"name": "决胜推击", "type": "attack", "damage": 20}, {"name": "舞台威压", "type": "aoe", "damage": 16}, {"name": "反制壁垒", "type": "defend", "shield": 15}]
@@ -354,7 +366,7 @@ func _create_enemy_data(eid: String) -> EnemyData:
 			e.max_hp = 155
 			e.base_atk = 19
 			e.actions_per_turn = 1
-			e.skills = [{"name": "反终端狙击", "type": "attack", "damage": 19}, {"name": "光学回路调整", "type": "heal", "heal": 14}]
+			e.skills = [{"name": "反刻印狙击", "type": "attack", "damage": 19}, {"name": "光学回路调整", "type": "heal", "heal": 14}]
 		"church_guardian":
 			e.name = "红月圣堂守卫"
 			e.rank = EnemyData.EnemyRank.BOSS
@@ -376,6 +388,13 @@ func _resolve_companion_id(battle_data: Dictionary) -> String:
 	var chosen := GameState.get_active_companion_id()
 	if chosen != "" and (SaveManager.test_session or GameState.companions.get(chosen, {}).get("unlocked", false)):
 		return chosen
+	if str(battle_data.get("mode", "")) == "qualifier":
+		if chosen != "" and (SaveManager.test_session or GameState.companions.get(chosen, {}).get("unlocked", false)):
+			return chosen
+		for cid in ["yang_zi_ying", "liu_yu_long", "jiang_zi"]:
+			if SaveManager.test_session or GameState.companions.get(cid, {}).get("unlocked", false):
+				return cid
+		return ""
 	var story_assist: bool = GameState.current_node_id in ["n_robot", "n5_boss"] or bool(GameState.story_flags.get("yang_rescued_player", false))
 	var has_assist := GameState.equipped_card_ids.has("tag_assist") or GameState.equipped_card_ids.has("focus_lens") or GameState.equipped_card_ids.has("silent_library") or GameState.equipped_card_ids.has("duel_draw")
 	if not _exploration_mode and not SaveManager.test_session and not has_assist and not story_assist:
@@ -891,6 +910,37 @@ func _trigger_victory() -> void:
 	if _exploration_mode:
 		_show_exploration_result(true)
 		return
+	if str(GameState.pending_combat_data.get("mode", "")) == "qualifier":
+		var round_idx := int(GameState.pending_combat_data.get("qualifier_round", 1))
+		var spec := PlayerJourney.qualifier_round_spec(round_idx)
+		var flag_key := str(spec.get("flag", "qualifier_r%d_won" % round_idx))
+		var first_win := not bool(GameState.story_flags.get(flag_key, false))
+		GameState.set_story_flag(flag_key, true)
+		if round_idx == 3:
+			GameState.set_story_flag("arete_qualifier_completed", true)
+		var money_gain := int(spec.get("money", 150)) if first_win else 60
+		var pts_gain := int(spec.get("points", 45)) if first_win else 25
+		GameState.add_crystals(money_gain)
+		GameState.add_scrap(pts_gain, false)
+		var item_desc := ""
+		if first_win and GameState.grant_inventory_reward("qualifier_reward_r%d" % round_idx, spec.get("items", {}), false):
+			for iid in spec.get("items", {}):
+				var idef := ItemCatalog.definition(str(iid))
+				if not idef.is_empty():
+					item_desc += " · %s×%d" % [str(idef["name"]), int(spec["items"][iid])]
+		GameState.reset_player_hp()
+		_log_combat("选拔赛第 %d 战获胜！零用钱 +%d · 练习点 +%d。" % [round_idx, money_gain, pts_gain])
+		if round_idx == 3:
+			result_title.text = "★ 阿瑞忒代表选拔赛 · 全胜制霸！"
+			result_desc.text = "恭喜赢得「%s」与【阿瑞忒代表通行章】！\n奖励：零用钱 +%d · 练习点 +%d%s。\n\n阿瑞忒篇主线与代表资格已全部达成！第二章「诺莫斯」尚在筹备中，可自由在校园内收集全部16张刻印卡、风物纪要与放映室印章。" % [str(spec.get("title", "最终战")), money_gain, pts_gain, item_desc]
+			result_button.text = "回到社团教室"
+		else:
+			result_title.text = "选拔赛第 %d 战告捷！" % round_idx
+			result_desc.text = "成功晋级下一轮校内代表选拔！\n奖励：零用钱 +%d · 练习点 +%d%s。\n\n整理卡匣后即可继续挑战第 %d 战。" % [money_gain, pts_gain, item_desc, round_idx + 1]
+			result_button.text = "返回体育馆擂台"
+		DaylightUI.polish(result_modal)
+		result_button.grab_focus()
+		return
 	var is_duel_tutorial: bool = GameState.current_node_id == "n_gate"
 	result_title.text = "热身切磋结束" if is_duel_tutorial else "暂时安全了"
 	var is_boss: bool = GameState.pending_combat_data.get("is_boss", false) or GameState.current_node_id == "n5_boss"
@@ -908,7 +958,7 @@ func _trigger_victory() -> void:
 		desc += "成功击退灰区超限猎杀终端，解锁「扰频假票令」。\n接下来确认黄秋枫与白羊座母卡的状态。"
 		result_button.text = "确认情况"
 	elif is_duel_tutorial:
-		desc += "柳宇龙已加入协战同伴，接下来按约定赴旧园与放学之约。"
+		desc += "柳宇龙已加入协战同伴！接下来一起去入驻「社团教室」。"
 		result_button.text = "继续行程"
 	else:
 		desc += "先确认周围安全，再继续今天的行程。"
@@ -937,9 +987,14 @@ func _trigger_defeat() -> void:
 	if _exploration_mode:
 		_show_exploration_result(false)
 		return
-	result_title.text = "逃跑 · 战斗失败" if _escaped else "先休息一下"
-	result_desc.text = "已结束本场战斗，按失败结算。\n本场不会获得胜利奖励；已完成的行程会保留。再次挑战将从头开始。" if _escaped else "叶舟暂时体力不支，先回安全的社团教室。\n已完成的行程与练习点会保留，整理行动卡后可以重新挑战。"
-	result_button.text = "返回社团教室"
+	if _qualifier_mode:
+		result_title.text = "逃跑 · 选拔赛判负" if _escaped else "选拔赛惜败"
+		result_desc.text = "本场选拔赛按失败结算。\n可回体育馆调整卡匣与刻印卡强化等级后再次登台。" if _escaped else "本场代表选拔赛未能取胜。\n叶舟已恢复体力，回到体育馆整理卡匣与协战同伴后再战吧。"
+		result_button.text = "返回体育馆擂台"
+	else:
+		result_title.text = "逃跑 · 战斗失败" if _escaped else "先休息一下"
+		result_desc.text = "已结束本场战斗，按失败结算。\n本场不会获得胜利奖励；已完成的行程会保留。再次挑战将从头开始。" if _escaped else "叶舟暂时体力不支，先回安全的社团教室。\n已完成的行程与练习点会保留，整理行动卡后可以重新挑战。"
+		result_button.text = "返回社团教室"
 	_log_combat("选择逃跑，本场战斗判负。" if _escaped else "本场战斗失败，先恢复体力。")
 	DaylightUI.polish(result_modal)
 	result_button.grab_focus()
@@ -983,6 +1038,14 @@ func _on_result_button_pressed() -> void:
 	_result_action_pending = true
 	result_button.disabled = true
 	GameState.phase_two_combat_checkpoint.clear()
+	if _qualifier_mode:
+		var q_round := _qualifier_round
+		var won := (_combat_outcome == "victory")
+		GameState.pending_combat_data.clear()
+		GameState.current_node_id = ""
+		GameState.reset_player_hp()
+		CampusLife.travel_to("club" if (won and q_round == 3) else "gym")
+		return
 	if _combat_outcome == "defeat" or GameState.player_current_hp <= 0:
 		GameState.reset_player_hp()
 		GameState.pending_combat_data.clear()

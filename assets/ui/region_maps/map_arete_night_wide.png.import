@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cgnx1o2oe2073"
-path="res://.godot/imported/icon_card_pack.png-0720131f26ed6bb5f8a966d5846434de.ctex"
+uid="uid://nvs5refjmiyv"
+path="res://.godot/imported/map_arete_night_wide.png-3848bbf4932859525c8d145827ded8b0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui_core/icons/economy/icon_card_pack.png"
-dest_files=["res://.godot/imported/icon_card_pack.png-0720131f26ed6bb5f8a966d5846434de.ctex"]
+source_file="res://assets/ui/region_maps/map_arete_night_wide.png"
+dest_files=["res://.godot/imported/map_arete_night_wide.png-3848bbf4932859525c8d145827ded8b0.ctex"]
 
 [params]
 

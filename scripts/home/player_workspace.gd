@@ -37,7 +37,12 @@ static func create(kind: String, panel_context: Dictionary = {}) -> PlayerWorksp
  if kind not in ["workshop","records"]: return null
  var panel := PlayerWorkspace.new()
  panel.panel_kind = kind
- panel.current_tab = str(panel_context.get("tab","journey"))
+ if panel_context.has("tab"):
+  panel.current_tab = str(panel_context["tab"])
+ elif kind == "records":
+  panel.current_tab = "growth" if int(PlayerJourney.home_snapshot().get("claim_count", 0)) > 0 else "journey"
+ else:
+  panel.current_tab = "journey"
  if panel.current_tab not in ["journey","growth","classmates","warehouse"]: panel.current_tab = "journey"
  panel.refresh(panel_context)
  return panel
@@ -291,7 +296,7 @@ func _render_workshop() -> void:
  if current_comp == "" or not eligible_companions.has(current_comp):
   current_comp = eligible_companions[0] if not eligible_companions.is_empty() else ""
  var comp_spec := PlayerJourney.companion_assist_spec(current_comp)
- var comp_label := "协战：%s" % str(comp_spec.get("name","未解锁")) if not comp_spec.is_empty() else "协战：未解锁"
+ var comp_label := "协战：%s Lv.%d" % [str(comp_spec.get("name","未解锁")), int(comp_spec.get("tier",1))] if not comp_spec.is_empty() else "协战：未解锁"
  var comp_btn := _plate_button(stage,"CompanionButton",comp_label,Rect2(1524,80,260,48),true)
  comp_btn.add_theme_font_size_override("font_size",22)
  for state in ["normal","hover","pressed","hover_pressed"]:
@@ -473,16 +478,20 @@ func _slot_style(active: bool, state: String = "normal") -> StyleBoxFlat:
 
 func _render_records() -> void:
  _pill(stage,"HeaderBacking",Rect2(68,28,376,260),Color(0.97,0.94,0.88,0.92),12)
- _text(stage,"Title","校园记录",Rect2(84,38,344,92),58,INK)
- _text(stage,"IndexCaption","那些放学后的时光，\n都被好好记住了。",Rect2(84,132,344,86),24,BLUE,true)
- var keys := ["journey","growth","classmates","warehouse"]
- var names := ["行程足迹","成长目标","同学档案","物品收纳"]
- var symbols := ["◉","↗","◇","□"]
+ _text(stage,"Title","放映档案室",Rect2(84,38,344,92),52,INK)
+ _text(stage,"IndexCaption","胶片留住回忆，\n印章见证每一次成长。",Rect2(84,132,344,86),23,BLUE,true)
+ var unclaimed_cnt := 0
+ for item in PlayerJourney.milestones():
+  if bool(item["ready"]) and not bool(item["claimed"]): unclaimed_cnt += 1
+ var growth_label := ("委托与成就·%d" % unclaimed_cnt) if unclaimed_cnt > 0 else "委托与成就"
+ var keys := ["growth","journey","classmates","warehouse"]
+ var names := [growth_label,"故事胶片","同学拍立得","社团收纳"]
+ var symbols := ["★","◉","◇","□"]
  for i in keys.size():
   var tab := SchoolObjectUI.hit(stage,"Tab_"+keys[i],Rect2(72,300+i*110,360,100),"",31)
   tab.set_meta("plate_light_text",true)
   _text(tab,"Symbol",symbols[i],Rect2(18,15,65,70),43,Color.WHITE,true)
-  _text(tab,"Title",names[i],Rect2(98,16,242,68),33,Color.WHITE)
+  _text(tab,"Title",names[i],Rect2(94,16,252,68),30 if names[i].length() <= 6 else 26,Color.WHITE)
   if current_tab == keys[i]:
    var wash := StyleBoxFlat.new()
    wash.bg_color = Color(1.0,0.96,0.84,0.20)
@@ -516,7 +525,9 @@ func _render_records() -> void:
    child.position -= RECORDS_BODY_SOURCE.position
  _render_history()
  var complete: bool = snapshot["completed"]
- _text(stage,"CurrentObjective","行程已完成 · 回看熟悉的片段" if complete else str(snapshot["current_title"]),Rect2(565,946,620,69),28,Color("#FCF6E8"))
+ var qual_done: bool = bool(GameState.story_flags.get("arete_qualifier_completed", false))
+ var bottom_objective := "行程已完成 · 回看熟悉的片段" if qual_done else ("已唤醒白羊座母卡 · 前往体育馆参加代表选拔赛" if complete else str(snapshot["current_title"]))
+ _text(stage,"CurrentObjective",bottom_objective,Rect2(565,946,620,69),26,Color("#FCF6E8"))
  var zodiac_btn := SchoolObjectUI.hit(stage,"OpenZodiac",Rect2(1205,950,225,74),"✦ 星座图鉴",27)
  zodiac_btn.set_meta("plate_light_text",true)
  for state in ["normal","hover","pressed","hover_pressed"]:
@@ -526,18 +537,33 @@ func _render_records() -> void:
   zodiac_btn.add_theme_stylebox_override(state,wash)
  for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: zodiac_btn.add_theme_color_override(state,Color.WHITE)
  zodiac_btn.pressed.connect(func(): action_requested.emit("open_zodiac",{}))
- var next := SchoolObjectUI.hit(stage,"ContinueJourney",Rect2(1460,946,354,83),"整理卡组" if complete else "继续行程",33)
+ var next_label := "整理卡组" if qual_done else ("前往校园地图" if complete else "继续行程")
+ var next_action := "open_workshop" if qual_done else ("open_quest" if complete else "start_chapter")
+ var next := SchoolObjectUI.hit(stage,"ContinueJourney",Rect2(1460,946,354,83),next_label,33)
  next.set_meta("plate_light_text",true)
  for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: next.add_theme_color_override(state,Color.WHITE)
- next.pressed.connect(func(): action_requested.emit("open_workshop" if complete else "start_chapter",{}))
+ next.pressed.connect(func(): action_requested.emit(next_action,{}))
 
 func _render_journey() -> void:
- _text(stage,"ChapterTitle","第一章 · 放学后的那条路",Rect2(420,170,790,55),34)
- _text(stage,"ChapterProgress","已走过 %d / %d 段 · %s" % [snapshot["completed_count"],snapshot["total_steps"],"行程完成" if snapshot["completed"] else "继续写下今天的经历"],Rect2(420,226,790,42),24,MUTED)
- _button(stage,"MemoryTab","经历与回看",Rect2(420,285,260,48),false,journey_mode == "memories").pressed.connect(func(): journey_mode = "memories"; refresh())
- _button(stage,"ClueTab","调查线索",Rect2(705,285,240,48),false,journey_mode == "clues").pressed.connect(func(): journey_mode = "clues"; refresh())
+ _text(stage,"ChapterTitle","故事胶片与阿瑞忒纪要",Rect2(420,170,790,55),34)
+ _text(stage,"ChapterProgress","已走过 %d / %d 段主线 · %s" % [snapshot["completed_count"],snapshot["total_steps"],"第一章完成" if snapshot["completed"] else "继续写下校园经历"],Rect2(420,226,790,42),24,MUTED)
+ _button(stage,"MemoryTab","剧情胶片",Rect2(420,285,205,48),false,journey_mode == "memories").pressed.connect(func(): journey_mode = "memories"; refresh())
+ _button(stage,"ClueTab","调查线索",Rect2(640,285,205,48),false,journey_mode == "clues").pressed.connect(func(): journey_mode = "clues"; refresh())
+ _button(stage,"NoteTab","风物纪要",Rect2(860,285,205,48),false,journey_mode == "notes").pressed.connect(func(): journey_mode = "notes"; refresh())
  if journey_mode == "clues":
-  _text(stage,"InvestigationRecord",snapshot["record_anomaly"],Rect2(430,370,765,330),30)
+  _text(stage,"InvestigationRecord",snapshot["record_anomaly"],Rect2(430,370,765,330),28)
+  return
+ if journey_mode == "notes":
+  var note_list := _scroll(stage,"NotesScroll",Rect2(420,357,875,500))
+  var unlocked_notes: Array = GameState.player_profile.get("reading_notes", [])
+  note_list.custom_minimum_size = Vector2(850, maxi(480, CampusPlaces.LIBRARY_NOTES.size() * 145))
+  for i in CampusPlaces.LIBRARY_NOTES.size():
+   var note: Dictionary = CampusPlaces.LIBRARY_NOTES[i]
+   var unlocked: bool = unlocked_notes.has(note["id"]) or SaveManager.test_session
+   var ny := i * 145
+   _surface(note_list,"NoteCard%d" % i,Rect2(0,ny,838,132),Color("#F7F1E2") if unlocked else Color("#ECE8DC"),Color("#CBB89D"))
+   _text(note_list,"NoteTitle%d" % i,("【已收录】" + str(note["title"])) if unlocked else ("【%02d · 未收录】前往图书馆研习或翻阅书页解锁" % (i + 1)),Rect2(18,ny+10,802,38),24,CORAL if unlocked else MUTED)
+   _text(note_list,"NoteBody%d" % i,str(note["body"]) if unlocked else "阿瑞忒图书馆藏有许多学园史话与卡片手记，完成图书馆牌理研习即可逐步收录。",Rect2(18,ny+52,802,72),20,INK if unlocked else MUTED)
   return
  var list := _scroll(stage,"JourneyScroll",Rect2(420,357,875,500))
  var source := HomePanels.new()
@@ -568,48 +594,73 @@ func _render_journey() -> void:
  if entries.is_empty(): _text(list,"EmptyMemories","今天的故事还没开始。\n先一起走到学校吧。",Rect2(20,80,730,180),30,MUTED,true)
 
 func _render_growth() -> void:
- _text(stage,"GrowthTitle","把每一次进步留在这里",Rect2(420,170,790,60),34)
- _text(stage,"GrowthHint","永久目标 · 达成后手动领取奖励",Rect2(420,238,790,42),24,MUTED)
- var list := _scroll(stage,"GrowthScroll",Rect2(420,305,795,550))
  var goals := PlayerJourney.milestones()
- list.custom_minimum_size = Vector2(772,goals.size()*167)
+ var stamped := 0
+ for g in goals:
+  if bool(g["claimed"]): stamped += 1
+ _text(stage,"GrowthTitle","社团委托与成就印章",Rect2(420,170,790,56),34)
+ _text(stage,"GrowthHint","达成目标后加盖社团印章 · 已收录 %d / %d 枚巡回印章" % [stamped, goals.size()],Rect2(420,234,790,42),23,MUTED)
+ var list := _scroll(stage,"GrowthScroll",Rect2(420,295,845,560))
+ list.custom_minimum_size = Vector2(822,goals.size()*167)
  refs["milestone_buttons"] = {}
  for i in goals.size():
   var goal: Dictionary = goals[i]
   var y := i*167
-  _surface(list,"Goal_"+goal["id"],Rect2(0,y,770,151),Color("#F4EBDC"),Color("#D6C6AB"))
-  _text(list,"Title",goal["title"],Rect2(18,y+8,540,40),29)
-  _text(list,"Condition",goal["condition"]+" · "+goal["progress"],Rect2(18,y+51,540,46),23,MUTED)
-  _text(list,"Reward",goal["reward"],Rect2(18,y+102,540,38),23,CORAL)
-  var claim := _button(list,"Claim_"+goal["id"],"已领取" if goal["claimed"] else ("领取" if goal["ready"] else "未达成"),Rect2(584,y+44,166,65),bool(goal["ready"]) and not goal["claimed"])
-  claim.disabled = goal["claimed"] or not goal["ready"]
+  var claimed: bool = bool(goal["claimed"])
+  var ready: bool = bool(goal["ready"])
+  _surface(list,"Goal_"+goal["id"],Rect2(0,y,815,151),Color("#F0E4CE") if claimed else Color("#F4EBDC"),CORAL if (ready and not claimed) else Color("#D6C6AB"))
+  _text(list,"Title",goal["title"],Rect2(18,y+8,565,40),28)
+  _text(list,"Condition",goal["condition"]+" · "+goal["progress"],Rect2(18,y+50,565,46),21,MUTED)
+  _text(list,"Reward","奖励："+goal["reward"],Rect2(18,y+102,565,38),22,CORAL)
+  if claimed:
+   _pill(list,"StampPill_"+goal["id"],Rect2(604,y+14,192,30),Color("#C95645"),8)
+   _text(list,"StampCopy_"+goal["id"],"★ 社团已盖章",Rect2(604,y+14,192,30),17,Color.WHITE,true)
+  var btn_y := y+54 if claimed else y+44
+  var btn_h := 56 if claimed else 65
+  var claim := _button(list,"Claim_"+goal["id"],"已领奖" if claimed else ("盖章领奖" if ready else "未达成"),Rect2(604,btn_y,192,btn_h),ready and not claimed)
+  claim.disabled = claimed or not ready
   claim.pressed.connect(func(): action_requested.emit("claim_milestone",{"id":goal["id"]}))
   refs["milestone_buttons"][goal["id"]] = claim
 
 func _render_classmates() -> void:
- _text(stage,"ClassmatesTitle","见过的同学，各有自己的计划",Rect2(420,170,790,80),33)
+ _text(stage,"ClassmatesTitle","同学拍立得与协战档案",Rect2(420,170,790,64),34)
+ var campus_talks: Dictionary = CampusLife.snapshot().get("npc_talks", {})
+ var activities: Dictionary = GameState.player_profile.get("activities", {})
  var met: Array = []
  for actor in snapshot["cast"]:
-  if actor["id"] == "ye_zhou" or GameState.companions.get(actor["id"],{}).get("unlocked",false): met.append(actor)
- var list := _scroll(stage,"ClassmatesScroll",Rect2(420,280,795,575))
+  var aid := str(actor["id"])
+  var unlocked := false
+  if aid == "ye_zhou": unlocked = true
+  elif aid == "huang_qiufeng": unlocked = GameState.visited_node_ids.has("n0") or SaveManager.test_session
+  elif aid == "lin_zhi_xia": unlocked = int(campus_talks.get("lin_zhi_xia", 0)) > 0 or int(activities.get("study_count", 0)) > 0 or SaveManager.test_session
+  elif aid == "tang_xiao_man": unlocked = int(campus_talks.get("tang_xiao_man", 0)) > 0 or int(activities.get("work_count", 0)) > 0 or SaveManager.test_session
+  else: unlocked = GameState.companions.get(aid,{}).get("unlocked",false) or SaveManager.test_session
+  if unlocked: met.append(actor)
+ var list := _scroll(stage,"ClassmatesScroll",Rect2(420,256,845,595))
  var y := 0.0
  for i in met.size():
   var actor: Dictionary = met[i]
-  var bio := _text(list,"Bio%d" % i,PhaseTwoContent.ACTORS[actor["id"]]["bio"],Rect2(183,0,560,90),24,MUTED)
+  var aid := str(actor["id"])
+  var bio_copy := str(PhaseTwoContent.ACTORS[aid]["bio"])
+  if PlayerJourney.COMPANION_ASSISTS.has(aid):
+   var assist := PlayerJourney.companion_assist_spec(aid)
+   var favor := int(GameState.companions.get(aid, {}).get("favor", 0))
+   bio_copy += "\n熟悉度 %d · %s" % [favor, str(assist.get("summary", ""))]
+  var bio := _text(list,"Bio%d" % i,bio_copy,Rect2(183,0,610,96),22,MUTED)
   bio.vertical_alignment = VERTICAL_ALIGNMENT_TOP
   # Measure at the final wrapped width; the card and scroll extent grow with the copy.
-  var bio_height := maxf(90.0,bio.get_minimum_size().y)
-  var row_height := maxf(208.0,105.0+bio_height+24.0)
-  var plate := _surface(list,"Classmate_"+actor["id"],Rect2(0,y,770,row_height),Color("#F4EBDC"),Color("#D6C6AB"))
+  var bio_height := maxf(96.0,bio.get_minimum_size().y)
+  var row_height := maxf(212.0,105.0+bio_height+26.0)
+  var plate := _surface(list,"Classmate_"+aid,Rect2(0,y,815,row_height),Color("#F4EBDC"),Color("#D6C6AB"))
   plate.clip_contents = true
   list.move_child(plate,bio.get_index())
   bio.position = Vector2(183,y+105)
-  bio.size = Vector2(560,bio_height)
+  bio.size = Vector2(610,bio_height)
   SchoolObjectUI.art(list,"Portrait%d" % i,actor["portrait"],Rect2(16,y+12,145,180))
-  _text(list,"Name%d" % i,actor["name"],Rect2(183,y+12,560,48),31)
-  _text(list,"Subtitle%d" % i,actor["subtitle"],Rect2(183,y+62,560,40),24,BLUE)
+  _text(list,"Name%d" % i,actor["name"],Rect2(183,y+12,610,48),31)
+  _text(list,"Subtitle%d" % i,actor["subtitle"],Rect2(183,y+62,610,40),24,BLUE)
   y += row_height+18.0
- list.custom_minimum_size = Vector2(772,maxf(575.0,y))
+ list.custom_minimum_size = Vector2(822,maxf(595.0,y))
 
 func _inventory_field(control: Control, option: bool = false) -> void:
  for state in (["normal","hover","pressed","hover_pressed","disabled"] if option else ["normal","read_only"]):
