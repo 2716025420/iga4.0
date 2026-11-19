@@ -57,6 +57,12 @@ var menu_button: Button
 var activity_title: Label
 var activity_body: Label
 var story_button: Button
+var period_dial: SceneHUDLayout.PeriodDial
+var activity_pip_badge: Label
+var quick_map_button: Button
+var quick_rest_button: Button
+var rooftop_button: Button
+var jiang_bubble: Panel
 var _records_open_tab := ""
 var _panel_refresh_pending := false
 
@@ -139,22 +145,31 @@ func _build_home_scene() -> void:
 	title_wash.name = "TitleHeaderWash"
 	title_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_wash.z_index = 1
-	var wash_style := CombatSkin.flat(Color(0.99, 0.96, 0.90, 0.90), Vector4.ZERO)
+	var wash_style := CombatSkin.flat(Color(0.99, 0.96, 0.90, 0.92), Vector4.ZERO)
 	wash_style.border_color = Color(0.84, 0.77, 0.68, 0.65)
 	wash_style.set_corner_radius_all(22)
 	title_wash.add_theme_stylebox_override("panel", wash_style)
 	presentation.add_child(title_wash)
-	_place(title_wash, Vector2(68, 16), Vector2(560, 206))
-	title_label = _label("MainTitle", "社团教室", 80, _title_font, TITLE_INK)
+	_place(title_wash, Vector2(56, 16), Vector2(618, 206))
+	period_dial = SceneHUDLayout.PeriodDial.new()
+	period_dial.name = "HomePeriodDial"
+	period_dial.z_index = 2
+	presentation.add_child(period_dial)
+	_place(period_dial, Vector2(76, 36), Vector2(76, 76))
+	title_label = _label("MainTitle", "社团教室", 72, _title_font, TITLE_INK)
 	title_label.z_index = 2
 	presentation.add_child(title_label)
-	_place(title_label, Vector2(92, 25), Vector2(680, 110))
-	subtitle_label = _label("Subtitle", "", 26, _body_font, SUBTITLE_INK)
+	_place(title_label, Vector2(168, 22), Vector2(490, 102))
+	subtitle_label = _label("Subtitle", "", 24, _body_font, SUBTITLE_INK)
 	subtitle_label.z_index = 2
 	subtitle_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	subtitle_label.add_theme_constant_override("line_spacing", 8)
+	subtitle_label.add_theme_constant_override("line_spacing", 6)
 	presentation.add_child(subtitle_label)
-	_place(subtitle_label, Vector2(95, 142), Vector2(650, 75))
+	_place(subtitle_label, Vector2(170, 134), Vector2(485, 76))
+	activity_pip_badge = SchoolObjectUI.text(presentation, "ActivityPipBadge", "", Rect2(66, 134, 96, 32), 17, Color("#FFFBF2"), true)
+	activity_pip_badge.z_index = 2
+	activity_pip_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	activity_pip_badge.add_theme_stylebox_override("normal", DynamicUI.make_paper_tag(Color("#367D6D"), Color("#24594D"), 6, 8.0, 2.0))
 	_build_top_bar()
 	_build_navigation()
 	_build_modals_layer()
@@ -162,52 +177,40 @@ func _build_home_scene() -> void:
 		SchoolObjectUI.borderless(button)
 
 func _build_top_bar() -> void:
-	menu_button = Button.new()
-	menu_button.name = "MainMenuButton"
-	menu_button.text = "☰  菜单"
-	menu_button.add_theme_font_size_override("font_size", 25)
-	for state in ["normal","hover","pressed","disabled","focus"]:
-		var capsule := StyleBoxFlat.new()
-		capsule.bg_color = Color("#FFF9EE") if state != "hover" else Color("#FFF0D8")
-		if state == "pressed": capsule.bg_color = Color("#EBDECA")
-		capsule.set_corner_radius_all(30)
-		capsule.border_color = Color("#71849E") if state == "focus" else Color("#F9F1E2")
-		capsule.set_border_width_all(2 if state == "focus" else 1)
-		menu_button.add_theme_stylebox_override(state,capsule)
-	for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
-		menu_button.add_theme_color_override(key,TITLE_INK)
-	presentation.add_child(menu_button)
-	_place(menu_button, Vector2(1065, 32), Vector2(148, 60))
-	menu_button.pressed.connect(_open_system_menu)
 	top_bar = Control.new()
 	top_bar.name = "TopBar"
 	top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	presentation.add_child(top_bar)
-	_place(top_bar, Vector2(1225, 32), Vector2(650, 60))
-	var rail := SchoolObjectUI.slab(top_bar,"StatusCapsule",Rect2(0,0,650,60),Color("#FFF9EE"))
-	var rail_style := rail.get_theme_stylebox("panel") as StyleBoxFlat
-	rail_style.set_corner_radius_all(30)
-	rail_style.set_border_width_all(0)
-	var specs := [["体力",0,210,""],["练习点",214,216,"res://assets/ui_core/icons/economy/icon_practice_points.png"],["零用钱",434,216,"res://assets/ui_core/icons/economy/icon_allowance.png"]]
+	_place(top_bar, Vector2(1142, 28), Vector2(602, 54))
+	var rail := SchoolObjectUI.slab(top_bar,"StatusCapsule",Rect2(0,0,602,54),Color("#FFF9EE"))
+	if not DynamicUI.apply_nine_slice_panel(rail, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), Color(1.0, 0.99, 0.96, 0.98)):
+		var rail_style := rail.get_theme_stylebox("panel") as StyleBoxFlat
+		rail_style.set_corner_radius_all(8)
+		rail_style.border_color = Color("#9B8E7E", 0.55)
+		rail_style.set_border_width_all(1)
+	var specs := [["体力",16,26,50,76,108],["练习点",204,218,64,284,94],["零用钱",398,412,64,478,98]]
 	var values: Array[Label] = []
 	for spec in specs:
-		var x := float(spec[1])
-		if spec[3] == "":
-			SchoolObjectUI.text(top_bar,"HealthIcon","♥",Rect2(x+14,9,36,42),34,Color("#EA7883"),true)
-		else:
-			var icon_ref := str(spec[3])
-			var icon_path := icon_ref if icon_ref.begins_with("res://") else ICON_ROOT + icon_ref
-			_icon(top_bar,"Icon"+str(spec[1]),icon_path,Vector2(x+9,12),Vector2(36,36))
-		SchoolObjectUI.text(top_bar,"Caption"+str(spec[1]),str(spec[0]),Rect2(x+50,12,76,36),22,TITLE_INK)
-		var value := SchoolObjectUI.text(top_bar,"Value"+str(spec[1]),"",Rect2(x+122,12,88,36),24,TITLE_INK,true)
-		if spec[0] == "体力":
-			value.position.x = x+97
-			value.size.x = 112
+		var div_x := float(spec[1])
+		if div_x > 20.0:
+			SchoolObjectUI.rule(top_bar, "Divider" + str(int(div_x)), Rect2(div_x, 13, 1, 28))
+		var cap := SchoolObjectUI.text(top_bar, "Caption" + str(int(div_x)), str(spec[0]), Rect2(float(spec[2]), 8, float(spec[3]), 38), 18, Color("#5A6B82"))
+		cap.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		var value := SchoolObjectUI.text(top_bar, "Value" + str(int(div_x)), "", Rect2(float(spec[4]), 7, float(spec[5]), 40), 22, TITLE_INK, true)
+		value.add_theme_font_override("font", _title_font)
+		value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		values.append(value)
-		if x > 0: SchoolObjectUI.rule(top_bar,"Divider"+str(spec[1]),Rect2(x,15,1,30))
 	hp_label = values[0]
 	scrap_label = values[1]
 	crystal_label = values[2]
+
+	menu_button = Button.new()
+	menu_button.name = "MainMenuButton"
+	menu_button.text = "菜单"
+	presentation.add_child(menu_button)
+	_place(menu_button, Vector2(1758, 28), Vector2(126, 54))
+	DynamicUI.make_cel_button(menu_button, Color("#F3F6FA"), TITLE_INK, Color("#4C75A6"), 20, 8)
+	menu_button.pressed.connect(_open_system_menu)
 
 func _build_navigation() -> void:
 	hotspots_layer = Control.new()
@@ -223,11 +226,12 @@ func _build_navigation() -> void:
 	activity_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	activity_body.clip_text = true
 	btn_explore = SchoolObjectUI.hit(hotspots_layer,"PrimaryActivity",Rect2(1480,304,240,67),"",28)
-	for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]: btn_explore.add_theme_color_override(key,Color.WHITE)
+	for key in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+		btn_explore.add_theme_color_override(key, Color.WHITE)
 	for state in ["hover","pressed","hover_pressed"]:
 		var primary_wash := StyleBoxFlat.new()
 		primary_wash.bg_color = Color(1.0,1.0,1.0,0.14) if state == "hover" else Color(0.18,0.08,0.12,0.18)
-		primary_wash.set_corner_radius_all(16)
+		primary_wash.set_corner_radius_all(12)
 		btn_explore.add_theme_stylebox_override(state,primary_wash)
 	SchoolObjectUI.borderless(btn_explore)
 	DaylightUI.bind_button_audio(btn_explore)
@@ -257,30 +261,24 @@ func _build_navigation() -> void:
 	btn_records = _entries["records"]
 	btn_quest = _entries["quest"]
 	var badge_pos := Vector2(labels["records"].position - positions["records"].position) + Vector2(20, -40)
-	var badge := SchoolObjectUI.text(btn_records, "ClaimBadge", "", Rect2(badge_pos, Vector2(180, 32)), 18, Color("#FFF9EE"), true)
-	var badge_box := StyleBoxFlat.new()
-	badge_box.bg_color = Color("#C95645")
-	badge_box.set_corner_radius_all(12)
-	badge.add_theme_stylebox_override("normal", badge_box)
+	var badge := SchoolObjectUI.text(btn_records, "ClaimBadge", "", Rect2(badge_pos, Vector2(180, 32)), 17, Color("#FFFBF2"), true)
+	badge.add_theme_stylebox_override("normal", DynamicUI.make_paper_tag(Color("#C85242"), Color("#9E3B2E"), 6, 8.0, 2.0))
 	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	badge.visible = false
-	var rooftop := SchoolObjectUI.hit(hotspots_layer,"RooftopExit",Rect2(65,238,245,50),"去天台  →",25)
-	DaylightUI.bind_button_audio(rooftop)
-	rooftop.pressed.connect(func(): CampusLife.travel_to("rooftop"))
+	rooftop_button = SchoolObjectUI.hit(hotspots_layer,"RooftopExit",Rect2(62,232,168,50),"去天台",20)
+	DaylightUI.bind_button_audio(rooftop_button)
+	rooftop_button.pressed.connect(func(): CampusLife.travel_to("rooftop"))
 	var talk := SchoolObjectUI.hit(hotspots_layer,"TalkJiangZi",Rect2(345,320,430,380))
 	for state in ["normal","hover","pressed","hover_pressed","focus"]: talk.add_theme_stylebox_override(state,StyleBoxEmpty.new())
-	var talk_hint := SchoolObjectUI.text(talk,"TalkHint","和姜梓聊聊",Rect2(130,310,170,38),22,Color("#FFFDF8"))
-	talk_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	talk_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	var talk_pill := StyleBoxFlat.new()
-	talk_pill.bg_color = Color(0.22,0.25,0.34,0.82)
-	talk_pill.set_corner_radius_all(12)
-	talk_hint.add_theme_stylebox_override("normal",talk_pill)
-	talk_hint.visible = false
-	talk.mouse_entered.connect(func(): talk_hint.visible = true)
-	talk.focus_entered.connect(func(): talk_hint.visible = true)
-	talk.mouse_exited.connect(func(): talk_hint.visible = false)
-	talk.focus_exited.connect(func(): talk_hint.visible = false)
+	jiang_bubble = SchoolObjectUI.slab(talk,"TalkHint",Rect2(314,4,108,42),Color("#FFFDF8",0.96))
+	if not DynamicUI.apply_nine_slice_panel(jiang_bubble, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32)):
+		var bstyle := jiang_bubble.get_theme_stylebox("panel") as StyleBoxFlat
+		bstyle.set_corner_radius_all(8)
+		bstyle.border_color = Color("#89AC9E")
+		bstyle.set_border_width_all(1)
+	var bubble_lbl := SchoolObjectUI.text(jiang_bubble,"Text","姜梓",Rect2(0,0,108,42),19,TITLE_INK,true)
+	bubble_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	DynamicUI.attach_float_bob(jiang_bubble, 2.8, 2.3)
 	DaylightUI.bind_button_audio(talk)
 	talk.pressed.connect(_talk_to_jiang)
 
@@ -381,9 +379,22 @@ func _refresh_artwork() -> void:
 		wash_style.border_color = Color(0.32, 0.37, 0.50, 0.65) if night else Color(0.84, 0.77, 0.68, 0.65)
 		wash_style.set_corner_radius_all(22)
 		title_wash.add_theme_stylebox_override("panel", wash_style)
-	var rooftop := hotspots_layer.get_node("RooftopExit") as Button
-	for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
-		rooftop.add_theme_color_override(state,Color("#DBE2EA") if night else TITLE_INK)
+	var dock_fill := Color(0.14, 0.19, 0.30, 0.92) if night else Color("#FFFDF8", 0.94)
+	var dock_ink := Color("#EEF3FC") if night else TITLE_INK
+	if is_instance_valid(rooftop_button):
+		DynamicUI.make_cel_button(rooftop_button, dock_fill, dock_ink, Color("#359686"), 20, 8)
+	var rail := top_bar.get_node_or_null("StatusCapsule") as Control if is_instance_valid(top_bar) else null
+	if is_instance_valid(rail):
+		DynamicUI.apply_nine_slice_panel(rail, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), Color(0.24, 0.29, 0.40, 0.96) if night else Color(1.0, 0.99, 0.96, 0.98))
+	if is_instance_valid(top_bar):
+		var cap_col := Color("#A6B7D4") if night else Color("#5A6B82")
+		var val_col := Color("#F2F6FD") if night else TITLE_INK
+		for child in top_bar.get_children():
+			if child is Label:
+				var lbl := child as Label
+				lbl.add_theme_color_override("font_color", cap_col if lbl.name.begins_with("Caption") else val_col)
+	if is_instance_valid(period_dial):
+		period_dial.sync_dial()
 	room_art.texture = load(art["room"])
 	girl_actor.texture = load(art["girl"])
 	foreground_art.texture = load(art["desk"])
@@ -404,6 +415,12 @@ func _update_top_bar() -> void:
 	scrap_label.text = str(GameState.scrap_metal)
 	crystal_label.text = str(GameState.energy_crystals)
 	subtitle_label.text = GameState.get_formatted_time()+"\n在这里歇一会，再一起出发。"
+	if is_instance_valid(activity_pip_badge):
+		activity_pip_badge.text = "活动 %d/%d" % [DayCycle.remaining(), DayCycleService.ACTIONS_PER_PERIOD]
+	if is_instance_valid(quick_rest_button):
+		quick_rest_button.text = DayCycle.rest_label()
+	if is_instance_valid(period_dial):
+		period_dial.sync_dial()
 	var activity := PlayerJourney.home_snapshot()
 	activity_title.text = activity["title"]
 	activity_body.text = activity["body"]
@@ -413,7 +430,7 @@ func _update_top_bar() -> void:
 	if is_instance_valid(claim_badge):
 		var count: int = int(activity.get("claim_count", 0))
 		claim_badge.visible = count > 0
-		claim_badge.text = "★ %d项可盖章" % count
+		claim_badge.text = "%d项可盖章" % count
 
 
 func _panel_context() -> Dictionary:
@@ -561,10 +578,16 @@ func _hide_all_modals() -> void:
 func _set_hotspots_enabled(enabled: bool) -> void:
 	var title_wash := presentation.get_node_or_null("TitleHeaderWash") as CanvasItem
 	if title_wash != null: title_wash.visible = enabled
+	if is_instance_valid(period_dial): period_dial.visible = enabled
+	if is_instance_valid(activity_pip_badge): activity_pip_badge.visible = enabled
 	if is_instance_valid(title_label): title_label.visible = enabled
 	if is_instance_valid(subtitle_label): subtitle_label.visible = enabled
 	if is_instance_valid(menu_button): menu_button.visible = enabled
 	if is_instance_valid(top_bar): top_bar.visible = enabled
+	if is_instance_valid(rooftop_button): rooftop_button.visible = enabled
+	if is_instance_valid(quick_map_button): quick_map_button.visible = enabled
+	if is_instance_valid(quick_rest_button): quick_rest_button.visible = enabled
+	if is_instance_valid(jiang_bubble): jiang_bubble.visible = enabled
 	if is_instance_valid(story_button): story_button.disabled = not enabled
 	for button in hotspots_layer.find_children("*","Button",true,false):
 		button.disabled = not enabled
@@ -607,6 +630,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.keycode == KEY_E and not is_instance_valid(_active_modal) and not is_instance_valid(system_menu):
 		_open_workshop()
+		get_viewport().set_input_as_handled()
+	elif event.keycode == KEY_M and not is_instance_valid(_active_modal) and not is_instance_valid(system_menu):
+		_open_quest()
 		get_viewport().set_input_as_handled()
 
 func _refresh_inventory_ui() -> void:
@@ -802,7 +828,9 @@ func _talk_to_jiang() -> void:
 	var conversation := CampusDialogueUI.new()
 	conversation.lines = CampusLife.npc_lines("jiang_zi")
 	presentation.add_child(conversation)
-	conversation.portrait.texture = load("res://assets/sprites/characters/phase_two/portraits/jiang_zi.png")
+	if conversation.portrait.texture == null:
+		conversation.portrait.texture = load("res://assets/sprites/characters/phase_two/portraits/jiang_zi.png")
+		conversation.portrait.visible = true
 	conversation.closed.connect(func():
 		set_meta("campus_dialogue_open",false)
 		_set_hotspots_enabled(true)

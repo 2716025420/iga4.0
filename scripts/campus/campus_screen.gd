@@ -16,8 +16,12 @@ var object_home: RegionHomeView
 var scene_objects: SceneObjectView
 var _qualifier_backdrop: ColorRect
 var _qualifier_modal: Panel
+var _companion_backdrop: ColorRect
+var _companion_modal: Panel
 var _reward_toast: Panel
 var _toast_tween: Tween
+var _menu_return_focus: Control
+var _modal_return_focus: Control
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -44,17 +48,22 @@ func _exit_tree() -> void:
 
 func _layout() -> void:
 	var background_tex: Texture2D = null
+	var edge_color := Color("#242A32")
 	var wide_shop := presentation.find_child("WideShopBackground",true,false) as TextureRect
 	if wide_shop != null and wide_shop.visible and wide_shop.texture != null: background_tex = wide_shop.texture
 	var wide_room := presentation.find_child("WideRoomBackground",true,false) as TextureRect
 	if background_tex == null and wide_room != null and wide_room.texture != null: background_tex = wide_room.texture
 	var wide_place := presentation.find_child("WidePlaceBackground",true,false) as TextureRect
 	if background_tex == null and wide_place != null and wide_place.texture != null: background_tex = wide_place.texture
+	if is_instance_valid(scene_objects) and is_instance_valid(scene_objects.stage_layers):
+		if background_tex == null:
+			background_tex = scene_objects.stage_layers.primary_wide_texture()
+		edge_color = scene_objects.stage_layers.stage_edge_color()
 	var place_bg := presentation.find_child("PlaceBackground",true,false) as TextureRect
 	if background_tex == null and place_bg != null: background_tex = place_bg.texture
 	var room_bg := presentation.find_child("RoomBackground",true,false) as TextureRect
 	if background_tex == null and room_bg != null: background_tex = room_bg.texture
-	Platform.fit_stage(self,presentation,Color("#242A32"),background_tex)
+	Platform.fit_stage(self,presentation,edge_color,background_tex)
 
 func _button(parent: Control, node_name: String, copy: String, rect: Rect2, primary: bool = false) -> Button:
 	var button := SchoolObjectUI.hit(parent,node_name,rect,copy,27)
@@ -136,7 +145,9 @@ func _build_geometry_place(data: Dictionary) -> void:
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 func _open_menu() -> void:
-	if _busy or _sleep_confirm or is_instance_valid(dialogue) or is_instance_valid(_workspace) or is_instance_valid(system_menu): return
+	if _busy or _sleep_confirm or is_instance_valid(dialogue) or is_instance_valid(_workspace) or is_instance_valid(system_menu) or is_instance_valid(_qualifier_modal) or is_instance_valid(_companion_modal): return
+	_menu_return_focus = get_viewport().gui_get_focus_owner()
+	_set_actions_visible(false)
 	system_menu = GameMenu.new()
 	presentation.add_child(system_menu)
 	set_meta("region_modal_open",true)
@@ -144,6 +155,10 @@ func _open_menu() -> void:
 		system_menu.queue_free()
 		system_menu = null
 		set_meta("region_modal_open",false)
+		_set_actions_visible(true)
+		if is_instance_valid(_menu_return_focus) and _menu_return_focus.is_inside_tree():
+			_menu_return_focus.grab_focus()
+		_menu_return_focus = null
 	)
 
 func _restore_records() -> void:
@@ -166,7 +181,12 @@ func _open_workspace(kind: String, context: Dictionary = {}) -> void:
 		_workspace = PlayerWorkspace.create("records",records_context)
 	elif kind == "shop":
 		if not CampusShopCatalog.is_shop_location(location_id): return
-		_workspace = CampusShopPanel.create()
+		var shop_panel := CampusShopPanel.create()
+		_workspace = shop_panel
+		if is_instance_valid(scene_objects):
+			scene_objects.set_shop_split_mode(true)
+			if is_instance_valid(scene_objects.stage_layers) and location_id == "shop":
+				shop_panel.clerk_reacted.connect(_on_shop_clerk_reacted)
 	else: _workspace = PlayerWorkspace.create("workshop",context)
 	_workspace.name = "LocationWorkspace"
 	if _workspace is PlayerWorkspace:
@@ -184,6 +204,12 @@ func _open_workspace(kind: String, context: Dictionary = {}) -> void:
 			if is_instance_valid(close) and close.is_inside_tree(): close.grab_focus()
 		focus_close.call_deferred()
 
+func _on_shop_clerk_reacted(emotion: String, _line: String) -> void:
+	if not is_instance_valid(scene_objects) or not is_instance_valid(scene_objects.stage_layers) or location_id != "shop":
+		return
+	var tex_path := "res://assets/sprites/characters/phase_two/halfbody/tang_xiao_man_%s.png" % ("happy" if emotion == "happy" else "neutral")
+	scene_objects.stage_layers.set_slot_texture("slot_a", tex_path)
+
 func _close_workspace() -> void:
 	if not is_instance_valid(_workspace): return
 	var panel := _workspace
@@ -192,6 +218,10 @@ func _close_workspace() -> void:
 	var panel_parent := panel.get_parent()
 	if panel_parent != null: panel_parent.remove_child(panel)
 	panel.queue_free()
+	if is_instance_valid(scene_objects):
+		scene_objects.set_shop_split_mode(false)
+		if is_instance_valid(scene_objects.stage_layers) and location_id == "shop":
+			scene_objects.stage_layers.set_slot_texture("slot_a", "res://assets/sprites/characters/phase_two/halfbody/tang_xiao_man_neutral.png")
 	_layout()
 	set_meta("region_modal_open",false)
 	if is_instance_valid(object_home): object_home.select_object()
@@ -247,11 +277,11 @@ func _build_actor(npc_id: String) -> void:
 	refs["npc"] = actor
 
 func _travel(target: String) -> void:
-	if _busy or _sleep_confirm or is_instance_valid(dialogue) or is_instance_valid(system_menu) or is_instance_valid(_workspace): return
+	if _busy or _sleep_confirm or is_instance_valid(dialogue) or is_instance_valid(system_menu) or is_instance_valid(_workspace) or is_instance_valid(_qualifier_modal) or is_instance_valid(_companion_modal): return
 	CampusLife.travel_to(target)
 
 func _action(item: Dictionary) -> void:
-	if _busy or _sleep_confirm or is_instance_valid(dialogue) or is_instance_valid(_workspace) or is_instance_valid(system_menu) or is_instance_valid(_qualifier_modal): return
+	if _busy or _sleep_confirm or is_instance_valid(dialogue) or is_instance_valid(_workspace) or is_instance_valid(system_menu) or is_instance_valid(_qualifier_modal) or is_instance_valid(_companion_modal): return
 	match str(item["id"]):
 		"story_act1": GameState.trigger_scene_story("n_affairs")
 		"story_act3":
@@ -260,6 +290,7 @@ func _action(item: Dictionary) -> void:
 			else:
 				_show_dialogue([["叶舟","街区外围安全限幅器有些异常。赴黄秋枫之约前，先回卡牌工坊编满 5 张行动卡或将任意卡强化到 Lv.2 吧。"]])
 		"qualifier": _open_qualifier_modal()
+		"switch_companion": _open_companion_switcher()
 		"library_study", "study": _run_activity(func(): return CampusLife.study_in_library())
 		"read_notes": _show_dialogue(CampusLife.read_library_notes())
 		"shop_work": _run_activity(func(): return CampusLife.work_in_shop())
@@ -282,7 +313,8 @@ func _action(item: Dictionary) -> void:
 			else:
 				_show_dialogue([["叶舟","林荫小径另一侧通往校外旧公园，现在还是清晨校内时段。先回校园体验一下日常活动，并在图书馆找黄秋枫谈谈吧。"]])
 		"talk":
-			var npc_id := _active_location_npc()
+			var explicit_npc := str(item.get("npc", ""))
+			var npc_id := explicit_npc if explicit_npc != "" else _active_location_npc()
 			_show_dialogue(CampusLife.npc_lines(npc_id), npc_id)
 		"sleep": _confirm_sleep()
 		"training": _open_workspace("training")
@@ -295,19 +327,117 @@ func _action(item: Dictionary) -> void:
 
 func _active_location_npc() -> String:
 	if location_id == "rooftop":
-		return "yang_zi_ying" if DayCycle.period() == "morning" else ("liu_yu_long" if bool(GameState.companions.get("liu_yu_long", {}).get("unlocked", false)) else "yang_zi_ying")
+		return CampusLife.rooftop_active_npc()
+	if location_id in ["arete_coast_test", "arete_beach_test", "old_park"]:
+		return CampusLife.active_walk_companion()
 	return str(CampusPlaces.PLACES[location_id].get("npc", ""))
+
+func _open_companion_switcher() -> void:
+	_close_companion_switcher()
+	_modal_return_focus = get_viewport().gui_get_focus_owner()
+	set_meta("region_modal_open", true)
+	_set_actions_visible(false)
+	_companion_backdrop = ColorRect.new()
+	_companion_backdrop.name = "CompanionBackdrop"
+	_companion_backdrop.color = Color(0.14, 0.18, 0.27, 0.48)
+	_companion_backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
+	_companion_backdrop.gui_input.connect(func(event: InputEvent):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_close_companion_switcher()
+	)
+	presentation.add_child(_companion_backdrop)
+	DaylightUI.place(_companion_backdrop, -600, -300, 3120, 1680)
+	_companion_modal = Panel.new()
+	_companion_modal.name = "CompanionSwitcherModal"
+	if not DynamicUI.apply_nine_slice_panel(_companion_modal, DynamicUI.THEME_PAPER_MODAL, Vector4(72, 56, 44, 44)):
+		var mstyle := StyleBoxFlat.new()
+		mstyle.bg_color = Color("#FAF5E8")
+		mstyle.border_color = Color("#C9B89B")
+		mstyle.set_border_width_all(2)
+		mstyle.set_corner_radius_all(12)
+		mstyle.shadow_color = Color(0.10, 0.14, 0.22, 0.28)
+		mstyle.shadow_size = 16
+		_companion_modal.add_theme_stylebox_override("panel", mstyle)
+	presentation.add_child(_companion_modal)
+	DaylightUI.place(_companion_modal, 440, 180, 1040, 700)
+	var title := SchoolObjectUI.text(_companion_modal, "SwitcherTitle", "切换随行协战同伴", Rect2(44, 30, 680, 50), 34, Color("#1E314D"))
+	title.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+	SchoolObjectUI.text(_companion_modal, "SwitcherSub", "不消耗活动点 · 选定的同伴将在战斗中每 3 张卡触发协战，并陪同海岸与海滩散步。", Rect2(44, 82, 820, 34), 19, Color("#5A687D"))
+	var close_btn := Button.new()
+	close_btn.name = "CloseButton"
+	close_btn.text = "返回 ×"
+	_companion_modal.add_child(close_btn)
+	DaylightUI.place(close_btn, 864, 34, 136, 52)
+	DynamicUI.make_cel_button(close_btn, Color("#FFFDF8"), Color("#1E314D"), Color("#4C75A6"), 20, 12)
+	DaylightUI.bind_button_audio(close_btn)
+	close_btn.pressed.connect(_close_companion_switcher)
+
+	var active_cid := CampusLife.active_walk_companion()
+	for i in PlayerJourney.COMPANION_ORDER.size():
+		var cid := str(PlayerJourney.COMPANION_ORDER[i])
+		var actor: Dictionary = PhaseTwoContent.ACTORS.get(cid, {})
+		var comp_state: Dictionary = GameState.companions.get(cid, {})
+		var unlocked := bool(comp_state.get("unlocked", false)) or SaveManager.test_session
+		var favor := int(comp_state.get("favor", 0))
+		var is_active := cid == active_cid
+		var spec: Dictionary = PlayerJourney.companion_assist_spec(cid)
+		var row := SchoolObjectUI.slab(_companion_modal, "CompanionRow_" + cid, Rect2(44, 138 + float(i) * 168.0, 952, 148), Color("#ECF7F5") if is_active else Color("#FFFDF8"))
+		var comp_tint := Color(0.92, 0.97, 0.94, 1.0) if is_active else Color(1.0, 0.99, 0.96, 1.0)
+		if not DynamicUI.apply_nine_slice_panel(row, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), comp_tint):
+			var rstyle := row.get_theme_stylebox("panel") as StyleBoxFlat
+			rstyle.set_corner_radius_all(10)
+			rstyle.border_color = Color("#359686") if is_active else Color("#D6CBB8")
+			rstyle.set_border_width_all(2 if is_active else 1)
+		var avatar_path := "res://assets/sprites/characters/phase_two/avatars/%s_neutral.png" % cid
+		if not ResourceLoader.exists(avatar_path):
+			avatar_path = "res://assets/sprites/characters/phase_two/portraits/%s.png" % cid
+		SchoolObjectUI.art(row, "Avatar", avatar_path, Rect2(20, 16, 116, 116))
+		SchoolObjectUI.text(row, "Name", "%s · 熟悉度 %d" % [str(actor.get("name", cid)), favor], Rect2(156, 16, 500, 38), 26, Color("#1E314D"))
+		SchoolObjectUI.text(row, "Skill", "协战「%s」" % str(spec.get("skill", "")), Rect2(156, 56, 540, 32), 20, Color("#359686"))
+		var summary_lbl := SchoolObjectUI.text(row, "Summary", str(spec.get("summary", "")) if unlocked else "继续推进主线结识同伴后即可邀请随行。", Rect2(156, 90, 560, 48), 18, Color("#5A687D"))
+		summary_lbl.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+		DaylightUI.place(summary_lbl, 156, 90, 560, 48)
+		var pick_btn := Button.new()
+		pick_btn.name = "SelectCompanion_" + cid
+		pick_btn.text = "随行中 ✓" if is_active else ("设为随行" if unlocked else "待结识")
+		pick_btn.disabled = (not unlocked) or is_active
+		row.add_child(pick_btn)
+		DaylightUI.place(pick_btn, 738, 42, 188, 64)
+		DynamicUI.make_cel_button(pick_btn, Color("#359686") if is_active else Color("#FFFDF8"), Color("#FFFDF8") if is_active else Color("#1E314D"), Color("#359686"), 20, 12)
+		DaylightUI.bind_button_audio(pick_btn)
+		pick_btn.pressed.connect(func():
+			if GameState.set_active_companion_id(cid) or SaveManager.test_session:
+				GameState.player_profile["active_companion"] = cid
+				GameState.profile_changed.emit()
+				_close_companion_switcher()
+				_show_toast_message("随行同伴已切换为「%s」" % str(actor.get("name", cid)))
+		)
+	close_btn.grab_focus.call_deferred()
+
+func _close_companion_switcher() -> void:
+	if is_instance_valid(_companion_modal):
+		_companion_modal.queue_free()
+		_companion_modal = null
+	if is_instance_valid(_companion_backdrop):
+		_companion_backdrop.queue_free()
+		_companion_backdrop = null
+	set_meta("region_modal_open", false)
+	_set_actions_visible(true)
+	if is_instance_valid(_modal_return_focus) and _modal_return_focus.is_inside_tree():
+		_modal_return_focus.grab_focus()
+	_modal_return_focus = null
 
 func _open_qualifier_modal() -> void:
 	if not bool(GameState.story_flags.get("chapter_1_completed", false)):
 		_show_dialogue([["柳宇龙","选拔赛擂台正在筹备中！先去推完第一章《红月下的旧公园》，等明天社团晨会一开咱们就正式报名开打！"]])
 		return
 	_close_qualifier_modal()
+	_modal_return_focus = get_viewport().gui_get_focus_owner()
 	set_meta("region_modal_open", true)
 	_set_actions_visible(false)
 	_qualifier_backdrop = ColorRect.new()
 	_qualifier_backdrop.name = "QualifierBackdrop"
-	_qualifier_backdrop.color = Color(0.14, 0.18, 0.27, 0.50)
+	_qualifier_backdrop.color = Color(0.12, 0.16, 0.25, 0.56)
 	_qualifier_backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
 	_qualifier_backdrop.gui_input.connect(func(event: InputEvent):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -317,41 +447,139 @@ func _open_qualifier_modal() -> void:
 	DaylightUI.place(_qualifier_backdrop, -600, -300, 3120, 1680)
 	_qualifier_modal = Panel.new()
 	_qualifier_modal.name = "QualifierModal"
-	_qualifier_modal.add_theme_stylebox_override("panel", SceneSkin.style("panel_frame", Vector4(28, 24, 28, 24)))
+	if not DynamicUI.apply_nine_slice_panel(_qualifier_modal, DynamicUI.THEME_PAPER_MODAL, Vector4(72, 56, 44, 44)):
+		var qstyle := StyleBoxFlat.new()
+		qstyle.bg_color = Color("#FAF5E8")
+		qstyle.border_color = Color("#C9B89B")
+		qstyle.set_border_width_all(2)
+		qstyle.border_width_bottom = 5
+		qstyle.set_corner_radius_all(12)
+		qstyle.shadow_color = Color(0.10, 0.14, 0.22, 0.30)
+		qstyle.shadow_size = 18
+		_qualifier_modal.add_theme_stylebox_override("panel", qstyle)
 	presentation.add_child(_qualifier_modal)
-	DaylightUI.place(_qualifier_modal, 360, 140, 1200, 780)
-	SchoolObjectUI.text(_qualifier_modal, "QualifierTitle", "阿瑞忒巡回代表选拔赛", Rect2(56, 36, 860, 62), 42, SchoolObjectUI.INK)
+	DaylightUI.place(_qualifier_modal, 240, 130, 1440, 820)
+
+	var title_lbl := SchoolObjectUI.text(_qualifier_modal, "QualifierTitle", "阿瑞忒巡回代表选拔赛", Rect2(44, 28, 720, 50), 38, Color("#1E314D"))
+	title_lbl.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
 	var done_all := bool(GameState.story_flags.get("arete_qualifier_completed", false))
-	var subtitle_copy := "★ 已全胜赢得「阿瑞忒代表通行章」，可随时重温挑战或领取放映室印章。" if done_all else "按顺序赢得 3 轮学园护盾裁决，赢取「阿瑞忒代表通行章」前往诺莫斯。"
-	SchoolObjectUI.text(_qualifier_modal, "QualifierSub", subtitle_copy, Rect2(58, 102, 720, 36), 22, SchoolObjectUI.MUTED)
+	var subtitle_copy := "★ 已全胜赢得「阿瑞忒代表通行章」，可随时重温挑战或前往巡回总图预览诺莫斯。" if done_all else "按顺序赢得 3 轮非致命学园护盾裁决，赢取「阿瑞忒代表通行章」前往第二站诺莫斯。"
+	SchoolObjectUI.text(_qualifier_modal, "QualifierSub", subtitle_copy, Rect2(44, 80, 960, 32), 20, Color("#5A687D"))
 	if done_all:
-		var atlas_btn := _button(_qualifier_modal, "AtlasPreviewButton", "巡回总图 →", Rect2(800, 38, 190, 56), true)
+		var atlas_btn := Button.new()
+		atlas_btn.name = "AtlasPreviewButton"
+		atlas_btn.text = "巡回总图 →"
+		_qualifier_modal.add_child(atlas_btn)
+		DaylightUI.place(atlas_btn, 1044, 30, 194, 56)
+		DynamicUI.make_cel_button(atlas_btn, Color("#D48A30"), Color("#FFFDF8"), Color("#B8701E"), 20, 12)
+		DaylightUI.bind_button_audio(atlas_btn)
 		atlas_btn.pressed.connect(func():
 			_close_qualifier_modal()
 			CampusLife.open_region_atlas()
 		)
-	var close_btn := _button(_qualifier_modal, "CloseButton", "返回 ×", Rect2(1010, 38, 140, 56))
+	var close_btn := Button.new()
+	close_btn.name = "CloseButton"
+	close_btn.text = "返回 ×"
+	_qualifier_modal.add_child(close_btn)
+	DaylightUI.place(close_btn, 1254, 30, 148, 56)
+	DynamicUI.make_cel_button(close_btn, Color("#FFFDF8"), Color("#1E314D"), Color("#4C75A6"), 20, 12)
+	DaylightUI.bind_button_audio(close_btn)
 	close_btn.pressed.connect(_close_qualifier_modal)
-	var deck_ok := bool(PlayerJourney.deck_summary()["ready"])
+
+	# Left Arena Status Column (watercolor index card)
+	var left_col := SchoolObjectUI.slab(_qualifier_modal, "QualifierLeftCol", Rect2(40, 126, 404, 656), Color("#FFFDF8"))
+	if not DynamicUI.apply_nine_slice_panel(left_col, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), Color(1.0, 0.99, 0.97, 1.0)):
+		var lc_style := left_col.get_theme_stylebox("panel") as StyleBoxFlat
+		lc_style.border_color = Color("#D2C5AF")
+		lc_style.set_border_width_all(2)
+		lc_style.set_corner_radius_all(10)
+
+	var yz_avatar := "res://assets/sprites/characters/phase_two/avatars/ye_zhou_%s.png" % ("happy" if done_all else "neutral")
+	SchoolObjectUI.art(left_col, "PlayerAvatar", yz_avatar, Rect2(26, 24, 108, 108))
+	var wins := 0
+	for spec_chk in PlayerJourney.QUALIFIER_ROUNDS:
+		if bool(GameState.story_flags.get(str(spec_chk["flag"]), false)):
+			wins += 1
+	SchoolObjectUI.text(left_col, "RepName", "叶舟", Rect2(150, 26, 230, 38), 28, Color("#1E314D"))
+	SchoolObjectUI.text(left_col, "RepRank", "★ 阿瑞忒首席代表" if done_all else "代表资格进度 %d / 3 胜" % wins, Rect2(150, 68, 236, 30), 19, Color("#D45B49") if not done_all else Color("#359686"))
+	SchoolObjectUI.text(left_col, "RepRule", "护盾裁决规则 · 非致命切磋", Rect2(150, 98, 236, 28), 17, Color("#5A687D"))
+	SchoolObjectUI.rule(left_col, "LeftDiv1", Rect2(24, 152, 356, 2))
+
+	var deck_info := PlayerJourney.deck_summary()
+	var deck_ok := bool(deck_info["ready"])
+	SchoolObjectUI.text(left_col, "DeckCap", "当前出战卡匣（%d / 5）" % int(deck_info["count"]), Rect2(26, 170, 352, 32), 21, Color("#1E314D"))
+	SchoolObjectUI.text(left_col, "DeckText", str(deck_info["text"]), Rect2(26, 206, 352, 30), 18, Color("#359686") if deck_ok else Color("#D45B49"))
+
+	var comp_id := CampusLife.active_walk_companion()
+	var comp_name := str(PhaseTwoContent.ACTORS.get(comp_id, {}).get("name", "杨子英"))
+	var comp_spec: Dictionary = PlayerJourney.companion_assist_spec(comp_id)
+	SchoolObjectUI.text(left_col, "AssistCap", "随行协战：%s" % comp_name, Rect2(26, 258, 352, 30), 20, Color("#1E314D"))
+	var assist_lbl := SchoolObjectUI.text(left_col, "AssistDesc", str(comp_spec.get("summary", "")), Rect2(26, 290, 352, 62), 17, Color("#5A687D"))
+	assist_lbl.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	DaylightUI.place(assist_lbl, 26, 290, 352, 62)
+
+	var z_id := GameState.get_active_zodiac_id()
+	var z_spec: Dictionary = PlayerJourney.zodiac_resonance_spec(z_id)
+	SchoolObjectUI.text(left_col, "ZodiacCap", "星座共鸣：%s" % str(z_spec.get("title", "尚未激活共鸣")), Rect2(26, 370, 352, 30), 20, Color("#1E314D"))
+	var z_lbl := SchoolObjectUI.text(left_col, "ZodiacDesc", str(z_spec.get("summary", "可在社团星座图鉴切换白羊座共鸣。")), Rect2(26, 402, 352, 62), 17, Color("#5A687D"))
+	z_lbl.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	DaylightUI.place(z_lbl, 26, 402, 352, 62)
+
+	var workshop_btn := Button.new()
+	workshop_btn.name = "GotoWorkshopBtn"
+	workshop_btn.text = "整备行动卡匣 →"
+	left_col.add_child(workshop_btn)
+	DaylightUI.place(workshop_btn, 26, 566, 352, 62)
+	DynamicUI.make_cel_button(workshop_btn, Color("#F3F6FA"), Color("#1E314D"), Color("#359686"), 21, 14)
+	DaylightUI.bind_button_audio(workshop_btn)
+	workshop_btn.pressed.connect(func():
+		_close_qualifier_modal()
+		_open_workspace("workshop")
+	)
+
+	# Right Column: 3 Opponent Schedule Cards
 	for i in PlayerJourney.QUALIFIER_ROUNDS.size():
 		var spec: Dictionary = PlayerJourney.QUALIFIER_ROUNDS[i]
 		var r_idx := int(spec["round"])
 		var won := bool(GameState.story_flags.get(str(spec["flag"]), false))
 		var prev_won := r_idx == 1 or bool(GameState.story_flags.get("qualifier_r%d_won" % (r_idx - 1), false))
 		var unlocked := prev_won and deck_ok
-		var card_y := 165 + i * 185
-		var row := SchoolObjectUI.slab(_qualifier_modal, "RoundRow_%d" % r_idx, Rect2(52, card_y, 1096, 164), Color("#F2EADF") if won else Color("#FBF6EB"))
-		var row_style := row.get_theme_stylebox("panel") as StyleBoxFlat
-		row_style.border_color = Color("#BA6A58") if (prev_won and not won) else Color("#D0C3AD")
-		row_style.set_border_width_all(2 if (prev_won and not won) else 1)
-		row_style.set_corner_radius_all(12)
+		var card_y := 126.0 + float(i) * 224.0
+		var row := SchoolObjectUI.slab(_qualifier_modal, "RoundRow_%d" % r_idx, Rect2(464, card_y, 936, 206), Color("#EFF7F5") if won else Color("#FFFDF8"))
+		var row_tint := Color(1.0, 0.95, 0.91, 1.0) if (prev_won and not won) else (Color(0.93, 0.97, 0.94, 1.0) if won else Color(1.0, 0.99, 0.97, 1.0))
+		if not DynamicUI.apply_nine_slice_panel(row, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), row_tint):
+			var row_style := row.get_theme_stylebox("panel") as StyleBoxFlat
+			row_style.border_color = Color("#D45B49") if (prev_won and not won) else (Color("#359686") if won else Color("#D0C3AD"))
+			row_style.set_border_width_all(2 if (prev_won and not won) else 1)
+			row_style.set_corner_radius_all(10)
+
+		var enemy_list: Array = spec.get("enemies", ["duel_student_ace"])
+		var lead_enemy := str(enemy_list[0])
+		var enemy_path := "res://assets/sprites/characters/phase_two/portraits/liu_yu_long.png" if lead_enemy == "arena_tactician" else CombatSkin.enemy_combat_path(lead_enemy)
+		var portrait_frame := SchoolObjectUI.slab(row, "EnemyFrame", Rect2(18, 18, 154, 170), Color("#F2ECE0"))
+		(portrait_frame.get_theme_stylebox("panel") as StyleBoxFlat).set_corner_radius_all(12)
+		var enemy_art := SchoolObjectUI.art(portrait_frame, "EnemyPortrait", enemy_path, Rect2(6, 6, 142, 158))
+		enemy_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
 		var state_tag := "已通关 · 可再战" if won else ("可登台" if unlocked else ("需要先胜第%d战" % (r_idx - 1) if not prev_won else GameState.DECK_RULE_MESSAGE))
-		SchoolObjectUI.text(row, "Title", str(spec["title"]), Rect2(26, 16, 620, 42), 28, SchoolObjectUI.INK)
-		SchoolObjectUI.text(row, "Sub", str(spec["subtitle"]), Rect2(26, 62, 740, 44), 21, SchoolObjectUI.MUTED)
+		var title_r := SchoolObjectUI.text(row, "Title", str(spec["title"]), Rect2(192, 20, 480, 40), 27, Color("#1E314D"))
+		title_r.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
+		var sub_r := SchoolObjectUI.text(row, "Sub", str(spec["subtitle"]), Rect2(192, 66, 490, 56), 19, Color("#5A687D"))
+		sub_r.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+		DaylightUI.place(sub_r, 192, 66, 490, 56)
 		var pass_note := " · 阿瑞忒代表通行章" if r_idx == 3 else ""
-		SchoolObjectUI.text(row, "Reward", "奖励：零用钱 %d · 练习点 %d%s   |   状态：%s" % [int(spec["money"]), int(spec["points"]), pass_note, state_tag], Rect2(26, 112, 760, 36), 20, Color("#985343") if not won else Color("#4F6D5A"))
-		var challenge := _button(row, "Challenge_%d" % r_idx, "再次切磋" if won else ("登台挑战" if unlocked else "待解锁"), Rect2(830, 46, 236, 72), prev_won and not won)
+		SchoolObjectUI.text(row, "Reward", "奖励：零用钱 %d · 练习点 %d%s   |   %s" % [int(spec["money"]), int(spec["points"]), pass_note, state_tag], Rect2(192, 138, 500, 44), 18, Color("#D45B49") if not won else Color("#359686"))
+
+		var challenge := Button.new()
+		challenge.name = "Challenge_%d" % r_idx
+		challenge.text = "再次切磋" if won else ("登台挑战" if unlocked else "待解锁")
 		challenge.disabled = not unlocked
+		row.add_child(challenge)
+		DaylightUI.place(challenge, 704, 68, 208, 70)
+		var c_fill := Color("#D45B49") if (prev_won and not won) else (Color("#359686") if won else Color("#DFDBD2"))
+		var c_ink := Color("#FFFDF8") if unlocked else Color("#6A7485")
+		DynamicUI.make_cel_button(challenge, c_fill, c_ink, c_fill, 21, 14)
+		DaylightUI.bind_button_audio(challenge)
 		challenge.pressed.connect(func():
 			_close_qualifier_modal()
 			GameState.start_qualifier_battle(r_idx)
@@ -367,6 +595,9 @@ func _close_qualifier_modal() -> void:
 		_qualifier_backdrop = null
 	set_meta("region_modal_open", false)
 	_set_actions_visible(true)
+	if is_instance_valid(_modal_return_focus) and _modal_return_focus.is_inside_tree():
+		_modal_return_focus.grab_focus()
+	_modal_return_focus = null
 
 func _show_dialogue(lines: Array, npc_override: String = "") -> void:
 	if lines.is_empty() or is_instance_valid(dialogue): return
@@ -388,29 +619,13 @@ func _show_dialogue(lines: Array, npc_override: String = "") -> void:
 	if npc_id == "rooftop" or npc_id == "":
 		npc_id = _active_location_npc()
 	var speaker := str(lines[0][0])
-	if speaker == "林知夏": npc_id = "lin_zhi_xia"
-	elif speaker == "唐小满": npc_id = "tang_xiao_man"
-	elif speaker == "柳宇龙": npc_id = "liu_yu_long"
-	elif speaker == "杨子英": npc_id = "yang_zi_ying"
-	elif speaker == "姜梓": npc_id = "jiang_zi"
-	if speaker != "我" and npc_id != "":
-		if npc_id in ["liu_yu_long", "yang_zi_ying", "jiang_zi"]:
-			var p_path := "res://assets/sprites/characters/phase_two/portraits/%s.png" % npc_id
-			if ResourceLoader.exists(p_path): dialogue.portrait.texture = load(p_path)
-		elif npc_id in ["lin_zhi_xia","tang_xiao_man"]:
-			var avatar_path := "res://assets/sprites/characters/phase_two/avatars/%s_neutral.png" % npc_id
-			var half_path := "res://assets/sprites/characters/phase_two/halfbody/%s_happy.png" % npc_id
-			if not ResourceLoader.exists(half_path): half_path = "res://assets/sprites/characters/phase_two/halfbody/%s_neutral.png" % npc_id
-			if ResourceLoader.exists(avatar_path):
-				dialogue.portrait.texture = load(avatar_path)
-			elif ResourceLoader.exists(half_path):
-				var half_tex := load(half_path) as Texture2D
-				var face := AtlasTexture.new()
-				face.atlas = half_tex
-				var sz := half_tex.get_size() if half_tex != null else Vector2(1054, 1581)
-				face.region = Rect2(sz.x * 0.22, sz.y * 0.04, sz.x * 0.56, sz.y * 0.37)
-				face.filter_clip = true
-				dialogue.portrait.texture = face
+	if dialogue.portrait.texture == null and speaker != "我" and npc_id != "":
+		var fallback_path := "res://assets/sprites/characters/phase_two/avatars/%s_neutral.png" % npc_id
+		if not ResourceLoader.exists(fallback_path):
+			fallback_path = "res://assets/sprites/characters/phase_two/portraits/%s.png" % npc_id
+		if ResourceLoader.exists(fallback_path):
+			dialogue.portrait.texture = load(fallback_path)
+			dialogue.portrait.visible = true
 
 func _confirm_sleep() -> void:
 	if _sleep_confirm: return
@@ -471,7 +686,7 @@ func _sleep() -> void:
 func _input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo: return
 	if event.keycode == KEY_M:
-		if not _busy and not _sleep_confirm and not is_instance_valid(dialogue) and not is_instance_valid(system_menu) and not is_instance_valid(_workspace) and not is_instance_valid(_qualifier_modal):
+		if not _busy and not _sleep_confirm and not is_instance_valid(dialogue) and not is_instance_valid(system_menu) and not is_instance_valid(_workspace) and not is_instance_valid(_qualifier_modal) and not is_instance_valid(_companion_modal):
 			_travel("map")
 			get_viewport().set_input_as_handled()
 		return
@@ -479,6 +694,10 @@ func _input(event: InputEvent) -> void:
 	if is_instance_valid(dialogue): return
 	if is_instance_valid(system_menu):
 		system_menu.go_back()
+		get_viewport().set_input_as_handled()
+		return
+	if is_instance_valid(_companion_modal):
+		_close_companion_switcher()
 		get_viewport().set_input_as_handled()
 		return
 	if is_instance_valid(_qualifier_modal):
@@ -530,15 +749,20 @@ func _run_activity(run_fn: Callable) -> void:
 	var mat_after := int(GameState.exploration_materials.get("material_common", 0))
 	if mat_after > mat_before: parts.append("普通材料 +%d" % (mat_after - mat_before))
 	if parts.is_empty() or not is_instance_valid(presentation): return
+	_show_toast_message("收获：" + " · ".join(parts))
+
+func _show_toast_message(copy: String) -> void:
+	if copy == "" or not is_instance_valid(presentation): return
 	if is_instance_valid(_toast_tween): _toast_tween.kill()
 	if is_instance_valid(_reward_toast): _reward_toast.queue_free()
-	_reward_toast = SchoolObjectUI.slab(presentation, "RewardToast", Rect2(1372, 126, 498, 48), Color("#FBF6EA"))
-	var style := _reward_toast.get_theme_stylebox("panel") as StyleBoxFlat
-	style.border_color = Color("#C99B58")
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(12)
+	_reward_toast = SchoolObjectUI.slab(presentation, "RewardToast", Rect2(1372, 92, 512, 48), Color("#FBF6EA"))
+	if not DynamicUI.apply_nine_slice_panel(_reward_toast, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32)):
+		var style := _reward_toast.get_theme_stylebox("panel") as StyleBoxFlat
+		style.border_color = Color("#359686")
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(8)
 	_reward_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var lbl := SchoolObjectUI.text(_reward_toast, "Text", "收获：" + " · ".join(parts), Rect2(16, 4, 466, 40), 19, SchoolObjectUI.INK)
+	var lbl := SchoolObjectUI.text(_reward_toast, "Text", copy, Rect2(16, 4, 480, 40), 19, SchoolObjectUI.INK)
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	lbl.clip_text = true
 	_reward_toast.modulate.a = 1.0

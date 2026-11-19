@@ -103,19 +103,17 @@ func refresh(focus_name: String = "") -> void:
 			layer.set_meta("layer_role","registered_landmark_crop")
 	var dark_map := painted and concept == "indigo"
 	if painted:
-		var header_plate := MapPageUI.plate(self,"HeaderBacking",Rect2(64,34,496,122),Color("#1B263E",0.92) if dark_map else Color("#FFFDF8",0.96))
+		var header_plate := MapPageUI.plate(self,"HeaderBacking",Rect2(60,30,504,126),Color("#1B263E",0.92) if dark_map else Color("#FFFDF8",0.96))
 		header_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var hbox := header_plate.get_theme_stylebox("panel") as StyleBoxFlat
-		hbox.border_color = Color("#72A6FF",0.92) if dark_map else Color("#359686",0.92)
-		hbox.set_border_width_all(2)
-		hbox.border_width_left = 7
-		hbox.border_width_bottom = 5
-		hbox.set_corner_radius_all(16)
-		hbox.shadow_color = Color(0.08,0.12,0.22,0.22)
-		hbox.shadow_size = 6
-		hbox.shadow_offset = Vector2(0,4)
-	var heading := SchoolObjectUI.text(self,"MapTitle",str(RegionCatalog.REGIONS[region_id]["title"])+"地图",Rect2(88,40,850,66),44,ink)
-	var calendar := SchoolObjectUI.text(self,"DayTime",GameState.get_detailed_time_string(),Rect2(92,112,850,36),21,Color(ink,0.88))
+		var plate_mod := Color(0.24,0.29,0.40,0.96) if dark_map else Color(1.0,0.99,0.96,0.97)
+		if not DynamicUI.apply_nine_slice_panel(header_plate,DynamicUI.THEME_PAPER_MODAL,Vector4(72,56,44,44),plate_mod):
+			var hbox := header_plate.get_theme_stylebox("panel") as StyleBoxFlat
+			hbox.border_color = Color("#72A6FF",0.92) if dark_map else Color("#359686",0.92)
+			hbox.set_border_width_all(2)
+			hbox.set_corner_radius_all(10)
+	var plate_ink := (Color("#FFF7E5") if dark_map else Color("#1E314D")) if painted else ink
+	var heading := SchoolObjectUI.text(self,"MapTitle",str(RegionCatalog.REGIONS[region_id]["title"])+"地图",Rect2(96,36,520,62),44,plate_ink)
+	var calendar := SchoolObjectUI.text(self,"DayTime",GameState.get_detailed_time_string(),Rect2(98,104,520,34),21,Color(plate_ink,0.88))
 	for label in [heading,calendar]:
 		if not painted:
 			label.add_theme_color_override("font_shadow_color",Color(paper,0.9))
@@ -239,7 +237,7 @@ func refresh(focus_name: String = "") -> void:
 			var here_offset := Vector2(26, 62.0) if drop_below else Vector2(-144.0 if story_tag != "" else 26.0, badge_dy)
 			var here_rect := Rect2(label_rect.position + here_offset, Vector2(154, 30))
 			DynamicUI.create_pulse_ring(self, "HerePulse_"+id, here_rect.position + Vector2(22.0, here_rect.size.y * 0.5), 34.0, Color("#56C5D0") if dark_map else Color("#2F9B8E"))
-			_badge_pill(self, "HereBadge_"+id, "● 当前所在", here_rect, Color("#2E7D8B"), "here")
+			_badge_pill(self, "HereBadge_"+id, "当前所在", here_rect, Color("#367D6D"), "here")
 	if campus and not painted:
 		var extra_specs := [
 			{"id": "old_park", "title": "旧公园" if park_open else "旧公园（未开放）", "enabled": park_open},
@@ -257,24 +255,23 @@ func refresh(focus_name: String = "") -> void:
 	var hint_bg := Color(0.11,0.14,0.21,0.84) if painted else Color(0.97,0.94,0.87,0.92)
 	var hint_width := 940.0 if painted else 752.0
 	var hint_slab := SchoolObjectUI.slab(self,"MapHintBacking",Rect2(62,962,hint_width,90),hint_bg)
-	var hint_style := hint_slab.get_theme_stylebox("panel") as StyleBoxFlat
-	hint_style.set_corner_radius_all(16)
-	if painted:
-		hint_style.border_color = Color("#56C5D0", 0.72)
-		hint_style.set_border_width_all(2)
-		hint_style.border_width_left = 5
-		hint_style.shadow_color = Color(0.05, 0.08, 0.14, 0.25)
-		hint_style.shadow_size = 6
+	var has_ribbon := DynamicUI.apply_nine_slice_panel(hint_slab,DynamicUI.THEME_FABRIC_RIBBON,Vector4(56,26,56,26),Color(0.84,0.88,0.96,0.96) if dark_map else Color.WHITE)
+	if not has_ribbon:
+		var hint_style := hint_slab.get_theme_stylebox("panel") as StyleBoxFlat
+		hint_style.set_corner_radius_all(10)
+		if painted:
+			hint_style.border_color = Color("#56C5D0", 0.72)
+			hint_style.set_border_width_all(2)
 	hint_slab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var hint_ink := Color("#FFF7E5") if painted else ink
-	var preview := SchoolObjectUI.text(self,"MapPreviewLine",_default_map_preview(),Rect2(80,970,hint_width - 36.0,40),20,Color(hint_ink))
+	var hint_ink := Color("#FFF8EC") if (painted or has_ribbon) else ink
+	var preview := SchoolObjectUI.text(self,"MapPreviewLine",_default_map_preview(),Rect2(102,970,hint_width - 80.0,40),20,Color(hint_ink))
 	preview.add_theme_font_override("font", DaylightUI.bold_font())
 	preview.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	preview.clip_text = true
 	preview.add_theme_color_override("font_shadow_color",Color(0,0,0,0.45))
 	preview.add_theme_constant_override("shadow_offset_y",1)
 	refs["preview_label"] = preview
-	var hint := SchoolObjectUI.text(self,"MapHint","可安排 %d 次活动 · 悬停地点预览产出与人物 · Esc 返回" % DayCycle.remaining(),Rect2(80,1012,hint_width - 36.0,32),18,Color(hint_ink,0.88))
+	var hint := SchoolObjectUI.text(self,"MapHint","可安排 %d 次活动 · 悬停地点预览产出与人物 · Esc 返回" % DayCycle.remaining(),Rect2(102,1012,hint_width - 80.0,32),18,Color(hint_ink,0.88))
 	hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hint.add_theme_color_override("font_shadow_color",Color(0,0,0,0.45))
 	hint.add_theme_constant_override("shadow_offset_y",1)
@@ -325,7 +322,8 @@ func _location_preview(place_id: String) -> String:
 		"shop": return "%s校园商店 · 店务兼职(+100零用钱) · 选购刻印卡与补给（在场：唐小满）" % prefix
 		"gym": return "%s体育馆 · 模拟训练与校内代表选拔赛 3 轮挑战（在场：柳宇龙）" % prefix
 		"rooftop":
-			var roof_npc := "杨子英" if DayCycle.period() == "morning" else "柳宇龙"
+			var roof_cid := CampusLife.rooftop_active_npc()
+			var roof_npc := str(PhaseTwoContent.ACTORS.get(roof_cid, {}).get("name", "杨子英"))
 			return "%s教学楼天台 · 战术复盘(回40体力/+20练习点/+12好感 · 当前在场：%s)" % [prefix, roof_npc]
 		"dorm": return "%s学生宿舍 · 查看今日统计 · 过夜休息完全恢复体力并进入次日" % prefix
 		"old_park":
@@ -340,31 +338,27 @@ func _location_preview(place_id: String) -> String:
 func _story_tag_for(place_id: String) -> String:
 	if bool(GameState.story_flags.get("chapter_1_completed", false)):
 		if place_id == "gym" and not bool(GameState.story_flags.get("arete_qualifier_completed", false)):
-			return "✦ 代表选拔赛"
+			return "代表选拔赛"
 		return ""
 	var next_node := GameState.next_phase_two_node()
 	if place_id == "library" and next_node == "n_affairs" and PlayerJourney.act1_story_ready():
-		return "✦ 主线剧情"
+		return "主线剧情"
 	if place_id in ["old_park", "arete_coast_test"] and next_node == "n_dusk" and PlayerJourney.act2_combat_ready():
-		return "✦ 旧公园赴约"
+		return "旧公园赴约"
 	return ""
 
 func _badge_pill(parent: Control, node_name: String, copy: String, rect: Rect2, fill: Color, badge_kind: String = "") -> void:
 	var pill := SchoolObjectUI.slab(parent, node_name, rect, fill)
-	var pstyle := pill.get_theme_stylebox("panel") as StyleBoxFlat
-	pstyle.set_corner_radius_all(14)
-	pstyle.border_color = Color("#FFFDF7", 0.92)
-	pstyle.set_border_width_all(2)
-	pstyle.shadow_color = Color(0.08, 0.12, 0.22, 0.28)
-	pstyle.shadow_size = 5
-	pstyle.shadow_offset = Vector2(0, 2)
+	var tag_fill := Color("#C85242") if badge_kind == "story" else Color("#367D6D")
+	var tag_border := Color("#9E3B2E") if badge_kind == "story" else Color("#24594D")
+	pill.add_theme_stylebox_override("panel", DynamicUI.make_paper_tag(tag_fill, tag_border, 6, 8.0, 2.0))
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if badge_kind == "story":
-		DynamicUI.attach_sheen(pill, Color("#FFF7D6", 0.38), 14)
+		DynamicUI.attach_sheen(pill, Color("#FFF7D6", 0.38), 6)
 		DynamicUI.attach_float_bob(pill, 3.5, 2.8)
 	elif badge_kind == "here":
 		DynamicUI.attach_float_bob(pill, 2.5, 2.2)
-	var lbl := SchoolObjectUI.text(pill, "Copy", copy, Rect2(Vector2.ZERO, rect.size), 17, Color("#FFF9EE"), true)
+	var lbl := SchoolObjectUI.text(pill, "Copy", copy, Rect2(Vector2.ZERO, rect.size), 17, Color("#FFFBF2"), true)
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 

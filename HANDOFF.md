@@ -1,6 +1,66 @@
 > **2026-11-14 全案重构最新基线**：[世界观与全案重构设计书](docs/story/2026-11-14-世界观与全案重构设计书.md) 已确认作后续剧本、系统、UI 与素材需求的最高优先级总纲；以下旧 10-28 提示保留溯源。
 > **2026-10-28 序章历史说明**：黄秋枫（原暂称梧桐）序章原始脉络见[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)。
 
+## 2026-11-19 水彩纸绘社团文具风格 UI 统一、悬浮同形修复、零小图标清理与 HUD 交互梳理
+
+- **状态**：已将全游 `v14` 高光塑料按钮/胶囊/状态条/图标替换为与社团教室同源的水彩手绘纸品与文具 UI（`assets/ui_core/theme/`），消除按钮悬浮方形/尖角变形，清理 HUD 与按钮上所有小图标，并梳理主场景/地点 HUD 布局与弹窗交互逻辑；**`smoke` 回归及 `1600×900` / `1600×720` 双分辨率 OpenGL 实机截图全部通过并完成逐张目检**。
+- **核心改动**：
+  - [dynamic_ui.gd](scripts/ui/dynamic_ui.gd)：统一 `make_cel_button()` 六态纹理形状（仅调整纸面染色与明暗，不再切换纹理避免圆角/矩形跳变）；接入 `paper_modal_9slice.png`、`dialogue_choice_9slice.png`、`ui_tutorial_callout_9slice.png` 与 `ribbon_header_9slice.png`，新增 `make_paper_tag()` 哑光和纸标签、`apply_world_card_style()` 浅色便签卡片样式，并将 `V14_CAPSULE_KEYS` 清空、保持目标高度等比缩放缓存。
+  - [scene_hud_layout.gd](scripts/campus/scene_hud_layout.gd)：移除 `PipDot_0..2`、`HpIcon`、`PointsIcon`、`MoneyIcon`、`MapIcon`、`MenuIcon`、`ActionIcon`、`BubbleIcon` 与字符前缀；右上角统一为 `ResourceCapsule` + `OpenMap` + 最右侧 `OpenMenu`（右侧齐平至 `x=1884`）；`DockBacking` 使用水彩稿纸，`ConceptStatusBacking` 使用缝线布标缎带并内缩 `48px` 避开铜铆钉；`PeriodDial` 改为与 `StageLayers.force_sky_mode` 同步的纯水彩 `_draw()` 时段印章与 3 段墨迹活动弧；`RemainingActivities` 改用 `PipCount` 和纸计数条。
+  - [home_screen.gd](scripts/home/home_screen.gd)：主场景顶部右上栏同步去图标化并令 `MainMenuButton` 居最右侧；移除冗余 `QuickMapButton` 与 `QuickRestButton`，保留 `RooftopExit` 与透明布告栏热区叠加；`ActivityPipBadge` / `ClaimBadge` 改用 `make_paper_tag()`，`TalkHint` 改用纸质便签并移除 `BubbleIcon` 与前缀符号。
+  - [scene_object_view.gd](scripts/campus/scene_object_view.gd) & [campus_screen.gd](scripts/campus/campus_screen.gd)：移除地点气泡/天台条目多余字符前缀，修复天台对话按钮回调改为动态读取 `CampusLife.rooftop_active_npc()`，移除 `old_park` 与 `arete_beach_test` 与底部 `BackLocation` 重复的 `Action_go`；修复 `_open_menu()` / `_open_companion_switcher()` / `_open_qualifier_modal()` 的交互锁定（禁用 HUD 按钮并保存/恢复焦点）并将弹窗切换为水彩纸质面板。
+  - [campus_shop_panel.gd](scripts/campus/campus_shop_panel.gd)、[region_map_view.gd](scripts/campus/region_map_view.gd)、[region_atlas_view.gd](scripts/campus/region_atlas_view.gd) & [player_workspace.gd](scripts/home/player_workspace.gd)：移除商店小图标并统一至和纸标签与便利贴卡面；校园图/地区总图改为水彩稿纸标题卡、缝线布标缎带底条（文本避让铜铆钉）与和纸定位标签；放映档案室委托栏位、领奖按钮及「社团已盖章」条幅统一为哑光纸绘风格。
+- **验收结果**：
+  - `python tools/run_godot_tests.py --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke`：**`1738` 项检查通过、`0` 失败（`14.14s`）**（涵盖主题水彩贴图加载、悬浮六态同形、零小图标、`MainMenuButton` 右侧对齐、无重复 `Action_go`、菜单开闭禁用/恢复 HUD 交互）。
+  - 顺序执行 OpenGL 实机截图：`1600×900`（**20 张，`19.41s`，0 失败**）与 `1600×720`（**20 张，`17.66s`，0 失败**）全部通过；目检 `02_home_club`、`03_projection_records`、`05_campus_map`、`06_world_atlas`、`07_library_npc`、`08_shop_npc`、`09_shop_counter`、`10_gym_qualifier`、`13_rooftop`、`17_rooftop_dusk`、`18_rooftop_redmoon` 及 `20:9` 宽屏多张画面，文字避让铜铆钉、水彩天象表盘三时段切换与 `20:9` 宽屏边距表现正常。
+
+## 2026-11-19 v14 UI 控件、九宫格面板、地图铭牌与手绘图标全量接入
+
+- **状态**：已将 `archive/IGA_Asset_Delivery_v14_UI_Controls_Buttons.zip` 中全部 **32 张** PNG 合入 `assets/ui_core/v14_ui/{dials,panels,buttons,maps,icons}/` 并完成 Godot 4.7.2 无头导入与全游戏 UI 控件接入；**所有界面已通过 `smoke` 回归及 `1600×900` / `1600×720` 双分辨率实机截图目检，下一步可继续按 [IGA_正式剧本编写范本](docs/story/IGA_正式剧本编写范本.md) 撰写正式剧本或接入后续章节内容**。
+- **素材与代码改动**：
+  - 合入 32 张 `v14` PNG 至 `assets/ui_core/v14_ui/`（`qa_check_v14_ui.py` 校验 **`32 passed, 0 failed, 0 missing / 32 total`**，Godot `--headless --import --quit` 零报错生成 32 个 `.png.import`）。
+  - [dynamic_ui.gd](scripts/ui/dynamic_ui.gd)：新增 `v14_texture()`、`nine_slice_box()`（内置按图实测外缘透明阴影 `V14_EXPAND_HALOS` 自动扩展 `expand_margin`，并新增按控件目标高度等比缩放缓存 `_scaled_tex_cache` 与半圆胶囊 `V14_CAPSULE_KEYS` 水平三宫格 `T=0, B=0` 整弧映射，彻底消除 `2×` 胶囊/按钮在 `1×` 控件高度下被纵向九宫格挤压成两头尖角的问题）、`apply_nine_slice_panel()` 与 `attach_leading_icon()`；全面升级 `make_cel_button()` 与 `apply_world_card_style()` 自动匹配朱砂/青绿/返回冷白/暖白九宫格胶囊按钮与六地区巡回卡片底板。
+  - [scene_hud_layout.gd](scripts/campus/scene_hud_layout.gd) & [scene_stage_layers.gd](scripts/campus/scene_stage_layers.gd)：`PeriodDial` 改以内部 `DialArt` `TextureRect` + `_PeriodArcOverlay` 叠加三段剩余活动弧，随早/午（黄昏）/夜/红月自动切换 4 枚金边天象圆盘并与 `StageLayers.force_sky_mode` 联动；升级 `DockBacking`、`ResourceCapsule`、`ConceptStatusBacking`、`HpIcon`、`PipDot_0..2`、`OpenMap`/`OpenMenu` 图标、`add_action_row()` 左侧手绘图标与 `CostBadge` 红/青徽章、`add_npc_bubble()` 气泡与聊天图标。
+  - [home_screen.gd](scripts/home/home_screen.gd)、[campus_shop_panel.gd](scripts/campus/campus_shop_panel.gd)、[campus_screen.gd](scripts/campus/campus_screen.gd)：接入主场景顶部胶囊、`MainMenuButton` 菜单图标、`ActivityPipBadge`/`ClaimBadge`、`TalkHint` 与 `PrimaryActivity`；接入商店 `ProductsBoard`、`DetailBoard`、选中/普通货架卡片 `Product_*`、`BalanceBacking`、`ClerkSpeechBubble`/`ClerkTag` 与 `Talk` 图标；接入 `CompanionSwitcherModal` / `QualifierModal` 条目九宫格底板。
+  - [region_map_view.gd](scripts/campus/region_map_view.gd)、[region_atlas_view.gd](scripts/campus/region_atlas_view.gd) & [player_workspace.gd](scripts/home/player_workspace.gd)：升级校园图与世界总图标题铭牌、深蓝描金边底部状态条与红/青定位徽章；在放映档案室成就页接入 `Goal_*` 九宫格底板、`Claim_*` 领奖按钮与已领奖 `SealBadge_*` 火漆印鉴。
+- **验收结果**：
+  - [core_smoke.gd](tools/tests/core_smoke.gd) 新增全量 32 张 `v14` 贴图加载及各界面 `StyleBoxTexture` / `TextureRect` 断言；`python tools/run_godot_tests.py --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke` **`1627` 项检查通过、`0` 失败（`13.21s`）**。
+  - 顺序运行 OpenGL 实机截图 **`1600×900`（20 张，`18.04s`，`0` 失败）** 与 **`1600×720`（20 张，`16.54s`，`0` 失败）** 全通过，并目检 `02_home_club`、`03_projection_records`、`05_campus_map`、`06_world_atlas`、`07_library_npc`、`08_shop_npc`、`09_shop_counter`、`10_gym_qualifier`、`13_rooftop`、`17_rooftop_dusk`、`18_rooftop_redmoon` 确认所有胶囊与圆角按钮两端圆润饱满、无任何尖角变形。
+
+## 2026-11-19 Step 3 v13 分层美术素材合入与 7 场景双分辨率实机验收
+
+- **状态**：已合入 `archive/IGA_v13_Scene_Reset_Layered_Delivery.zip` 中全部 **17 张** `2340×1080` 分层 PNG 至 `assets/ui/scene_reset/staged/`，并完成真机双分辨率逐张目检与 `20:9` 宽屏外缘无缝延展修复；**下一步可按 [IGA_正式剧本编写范本](docs/story/IGA_正式剧本编写范本.md) 推进正式剧本，或继续替换其他未重置地区背景**。
+- **改动与验收指标**：
+  - 合入 `assets/ui/scene_reset/staged/{shared,rooftop,shop,gym,library,coast,old_park,beach}/*.png`（17 张 PNG + 17 个 `.png.import`）：`qa_check_v13_layers.py` 清单校验 **`17 passed, 0 failed, 0 missing / 17 total`**；Godot `--headless --import --quit` 零报错导入 17 项 `Texture2D`。
+  - `scripts/campus/scene_stage_layers.gd`：新增 `WIDE_EXTEND_PAD = 180.0` 外缘镜像延展着色器（蓝图导出模式下自动停用），彻底消除 `1600×720`（`20:9`）最右 `20px` 截断接缝，同时保持 `[210..2130]` 安全区与立绘槽位像素对齐不变。
+  - `tools/tests/core_smoke.gd` & `tools/tests/capture_scenes.gd`：新增 7 处地点真实 `SkyTexture`/`MidgroundTexture`/`ForegroundTexture` 加载与晴昼/黄昏/红月切换断言，补充 `17_rooftop_dusk` 与 `18_rooftop_redmoon` 实机截图。
+  - 最终代码后全量回归：`smoke` **1261 项通过**（`12.46s`，`0` 失败）；`captures` **`1600×900`（18 张，`16.63s`，0 失败）**与 **`1600×720`（18 张，`15.35s`，0 失败）**全过并完成全部场景/商店分栏/手帐对话/晴昼黄昏红月/宽屏边缘目检。
+  - **星座图鉴左卡右文对开典籍详情与 `v15` 美术合入验收**：
+    - `scripts/home/zodiac_album_panel.gd` 重构为「6×2 十二星座总览墙 + 对开皮质典籍详情双页」，已合入 `v15` 交付包全部 **3 张 RGBA 成品图**至 `assets/ui_core/v14_ui/zodiac/{ui_zodiac_book_spread,ui_zodiac_ribbon_sage,ui_zodiac_ribbon_rose}.png`（`qa_check_v15_zodiac_book.py` **`3/3 PASS`**，Godot 4.7.2 `--import` 零报错导入）。
+    - 移除真实书本画框内多余的程序 `CardNiche` 深框，精准贴合 `Rect2(193, 120, 424, 640)` 内凹阴影盒与 `412×618` 卡面；最终代码后全量回归通过：`smoke` **1446 项通过**（`12.84s`，`0` 失败），**`1600×900`（`17.37s`，20 张）与 `1600×720`（`15.88s`，20 张）OpenGL 截图全过并目检**。
+    - 本地增量/通用需求包记录（不入库，见 `archive/`）：
+      - `archive/IGA_Asset_Pack_Brief_v14_UI_Controls_Buttons.zip`（`tools/build_v14_ui_pack.py`，`27` 个条目 / `22,008,899` 字节，保持原 **32 项** UI/按钮/怀表/手绘图标清单，待交付合入）。
+      - `archive/IGA_Asset_Pack_Brief_v15_Zodiac_Book_Spread.zip`（`tools/build_v15_zodiac_book_pack.py`，**3 项**对开典籍素材需求包 — 已按交付物合入完毕）。
+
+## 2026-11-19 Step 2 五层舞台、统一场景 HUD/对话/商店/选拔赛实装与 v13 分层素材需求包
+
+- **状态**：主创审定 `docs/design/2026-11-19-场景重置与UI画风统一方案.md` 六项决策后，完成 Step 2 引擎端全面重构与 Step 3 `v13` 分层素材需求压缩包导出；**下一步可继续完成正式剧本撰写，并按 v13 清单分批生成透明分层美术并由 `res://assets/ui/scene_reset/staged/` 自动接入**。
+- **主要代码改动**：
+  - `scripts/campus/scene_stage_layers.gd`（新建）：`SceneStageLayers` 五层拼装底座（`Layer0_Sky` / `Layer1_Midground` / `Layer2_Actors` Slot A & Slot B / `Layer3_Foreground` / `BlueprintGuideOverlay`），`2340×1080` 宽屏舞台、`1920×1080` 安全中心、7 处场景实时青透蓝灰赛璐璐占位于一体与 `staged/` 资源自动接管、昼/黄昏/红月夜实时调光。
+  - `scripts/campus/scene_hud_layout.gd`（新建）：`03` 风格统一 HUD（`PeriodDial` 时段表盘、左侧垂直停靠栏与宽屏左出血、右上资源胶囊、防裁剪浮动 `StageBubbles`）。
+  - `scripts/campus/scene_object_view.gd`、`scripts/campus/campus_places.gd`、`scripts/campus/campus_life.gd`、`scripts/campus/region_map_view.gd`、`scripts/campus/scene_design_catalog.gd`：统一 7 处待重置场景 + `dorm` 到新 HUD；补齐天台饮料贩卖机、随行同伴切换与分时段常驻 NPC（早杨子英 / 午柳宇龙 / 夜姜梓）。
+  - `scripts/campus/campus_shop_panel.gd`、`scripts/campus/campus_dialogue_ui.gd`、`scripts/campus/campus_screen.gd`、`scripts/home/home_screen.gd`：实装 `03/01` 商店左货架右店员实时交互分栏、`CampusDialogueUI` 恢复 `256×256` 头像并统一并入 `story_chrome.png`、`03/03` 体育馆双栏三轮选拔赛弹窗、`HomeScreen` `05` 式主场景表盘与快捷入口。
+  - `tools/export_v13_blueprints.tscn/.gd`、`tools/build_v13_asset_pack.py`、`tools/tests/core_smoke.gd`、`tools/tests/capture_scenes.gd`：新增 7 张 `2340×1080` 蓝图导出场景与 v13 素材包构建工具及冒烟/截图断言。
+- **本地验收与产物**：
+  - 最终代码后全量回归通过：`python tools/run_godot_tests.py --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke`（**1239 项通过**，`11.72s`，`0` 失败）；`1600×900`（`12.22s`，16 张，0 失败）与 `1600×720`（`11.56s`，16 张，0 失败）OpenGL 实机截图全过并目检选拔赛左栏折行、商店分栏、暖纸手帐对话、天台/海滩/图书馆/体育馆五层舞台。
+  - 本地交付包（不入库，见 `archive/`）：`archive/IGA_Asset_Pack_Brief_v13_Scene_Reset_Layered.zip`（`31` 个文件 / `13,685,535` 字节，含 `7` 张实机导出 `2340×1080` 线框蓝图、`17` 项分层美术清单及零依赖校验脚本 `06_Tools/qa_check_v13_layers.py`）。
+
+## 2026-11-19 正式剧本范本、五场景重置与四大画风统一方案（待主创审核）
+
+- **正式剧本编写范本**：新增 [IGA_正式剧本编写范本.md](docs/story/IGA_正式剧本编写范本.md)，提供可直接转入引擎的极简 Markdown 剧本语法、序章主线与驻场 NPC 完整示范样本、空白填空模板及全量现行角色/表情/背景/过场/BGM/SFX/敌人 ID 速查表。
+- **场景重置与四大画风统一设计方案**：新增 [2026-11-19-场景重置与UI画风统一方案.md](docs/design/2026-11-19-场景重置与UI画风统一方案.md)，明确由「直出整图抠热区」升级为「布局先导 + 5 层模块化拼装（独立天空层 + 中景地坪与 Slot A/B 槽位 + NPC 角色层 + 前景遮挡层 + 统一四角落 HUD 与右侧交互停靠栏）」，补齐天台定位、体育馆选拔赛视觉中心、图书馆/沿海公路主线 NPC 槽位与 `CampusDialogueUI` 隐藏头像等隐性漏洞。
+- **互联网精选参考图归档（23 张逐张目检）**：下载并按 4 大类归档至 `docs/references/2026-11-19-scene-ui-redesign/`（`01_场景画风与空间构图`、`02_UI控件与HUD布局`、`03_交互窗口与商店选拔赛`、`04_地图画风与导航`），本轮未修改游戏运行代码，待主创审定 6 项决策点后进入代码骨架与分层素材阶段。
+
 ## 2026-11-18 进度盘点、弃用批处理需求包与冗余旧素材清理（保留世界地图背景）
 
 - **主创审定与素材清理结论（释放 911.46 MB，移除 53 项旧/无引用资源）**：

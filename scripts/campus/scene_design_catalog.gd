@@ -1592,7 +1592,9 @@ static func map_path(region_id: String) -> String:
  return ROOT+"maps/"+str(MAPS[region_id]["image"])+".png" if MAPS.has(region_id) else ""
 
 static func place_config(id: String) -> Dictionary:
- if id in ["club","dorm"]: return {}
+ if id == "club": return {}
+ if id == "dorm":
+  return {"image":"dorm","custom_bg":"res://assets/ui/campus_life/dorm_bg.png","title":"自己的宿舍","objects":[],"use_unified_hud":true}
  if PLACES.has(id): return PLACES[id].duplicate(true)
  if id in ["study","stockroom"]:
   var base: Dictionary = PLACES["library" if id == "study" else "shop"].duplicate(true)

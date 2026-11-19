@@ -160,7 +160,7 @@ func _record_activity(key: String) -> int:
  GameState.profile_changed.emit()
  return next
 
-func _active_walk_companion() -> String:
+func active_walk_companion() -> String:
  var cid := GameState.get_active_companion_id()
  if cid != "" and bool(GameState.companions.get(cid, {}).get("unlocked", false)):
   return cid
@@ -168,6 +168,9 @@ func _active_walk_companion() -> String:
   if bool(GameState.companions.get(candidate, {}).get("unlocked", false)):
    return candidate
  return "yang_zi_ying"
+
+func _active_walk_companion() -> String:
+ return active_walk_companion()
 
 func study_in_library() -> Array:
  if SceneManager.is_transitioning: return []
@@ -221,12 +224,24 @@ func work_in_shop() -> Array:
   drink_bonus = "，唐小满还多塞了一瓶「饮品补给」给你"
  return [["唐小满","货架和快递单都核对得整整齐齐！辛苦啦——这是今天的兼职零用钱 +100%s！" % drink_bonus]]
 
+func rooftop_active_npc() -> String:
+ var period := DayCycle.period()
+ if period == "morning":
+  return "yang_zi_ying"
+ if period == "afternoon":
+  if bool(GameState.companions.get("liu_yu_long", {}).get("unlocked", false)) or SaveManager.test_session:
+   return "liu_yu_long"
+  return "yang_zi_ying"
+ if bool(GameState.companions.get("jiang_zi", {}).get("unlocked", false)) or SaveManager.test_session:
+  return "jiang_zi"
+ return "yang_zi_ying"
+
 func rooftop_review() -> Array:
  if SceneManager.is_transitioning: return []
  if not DayCycle.can_act(): return [["我",DayCycle.block_reason()]]
  if not DayCycle.spend_action("rooftop"): return [["我",DayCycle.block_reason()]]
  _record_activity("rooftop_count")
- var cid := "yang_zi_ying" if DayCycle.period() == "morning" else ("liu_yu_long" if bool(GameState.companions.get("liu_yu_long", {}).get("unlocked", false)) else "yang_zi_ying")
+ var cid := rooftop_active_npc()
  var cname := str(PhaseTwoContent.ACTORS.get(cid, {}).get("name", "同伴"))
  GameState.heal_player(40)
  GameState.add_scrap(20, false)

@@ -608,16 +608,32 @@ func _render_growth() -> void:
   var y := i*167
   var claimed: bool = bool(goal["claimed"])
   var ready: bool = bool(goal["ready"])
-  _surface(list,"Goal_"+goal["id"],Rect2(0,y,815,151),Color("#F0E4CE") if claimed else Color("#F4EBDC"),CORAL if (ready and not claimed) else Color("#D6C6AB"))
-  _text(list,"Title",goal["title"],Rect2(18,y+8,565,40),28)
-  _text(list,"Condition",goal["condition"]+" · "+goal["progress"],Rect2(18,y+50,565,46),21,MUTED)
-  _text(list,"Reward","奖励："+goal["reward"],Rect2(18,y+102,565,38),22,CORAL)
+  var goal_card := _surface(list,"Goal_"+goal["id"],Rect2(0,y,815,151),Color("#F0E4CE") if claimed else Color("#F4EBDC"),CORAL if (ready and not claimed) else Color("#D6C6AB"))
+  DynamicUI.apply_nine_slice_panel(goal_card,DynamicUI.THEME_PAPER_CARD,Vector4(44,36,32,32),Color(0.95,0.92,0.86,0.98) if claimed else (Color(1.0,0.96,0.92,1.0) if (ready and not claimed) else Color(1.0,0.99,0.97,1.0)))
+  var copy_w := 502 if claimed else 565
+  _text(list,"Title",goal["title"],Rect2(18,y+8,copy_w,40),28)
+  _text(list,"Condition",goal["condition"]+" · "+goal["progress"],Rect2(18,y+50,copy_w,46),21,MUTED)
+  _text(list,"Reward","奖励："+goal["reward"],Rect2(18,y+102,copy_w,38),22,CORAL)
   if claimed:
-   _pill(list,"StampPill_"+goal["id"],Rect2(604,y+14,192,30),Color("#C95645"),8)
-   _text(list,"StampCopy_"+goal["id"],"★ 社团已盖章",Rect2(604,y+14,192,30),17,Color.WHITE,true)
+   var seal := _art(list,"SealBadge_"+goal["id"],"res://assets/ui_core/v14_ui/buttons/ui_seal_claimed_badge.png",Rect2(516,y+36,76,76))
+   seal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+   seal.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+   var stamp_pill := _pill(list,"StampPill_"+goal["id"],Rect2(604,y+14,192,30),Color("#C85242"),6)
+   stamp_pill.add_theme_stylebox_override("panel",DynamicUI.make_paper_tag(Color("#C85242"),Color("#9E3B2E"),6,8.0,2.0))
+   _text(list,"StampCopy_"+goal["id"],"社团已盖章",Rect2(604,y+14,192,30),17,Color.WHITE,true)
   var btn_y := y+54 if claimed else y+44
   var btn_h := 56 if claimed else 65
   var claim := _button(list,"Claim_"+goal["id"],"已领奖" if claimed else ("盖章领奖" if ready else "未达成"),Rect2(604,btn_y,192,btn_h),ready and not claimed)
+  var stamp_norm := DynamicUI.nine_slice_box(DynamicUI.THEME_PAPER_CARD,Vector4(44,36,32,32),Vector4(10,4,10,4),Color(0.84,0.40,0.33,1.0) if (ready and not claimed) else Color(0.90,0.87,0.82,0.86),Vector4(-1,-1,-1,-1),btn_h)
+  var stamp_dis := DynamicUI.nine_slice_box(DynamicUI.THEME_PAPER_CARD,Vector4(44,36,32,32),Vector4(10,4,10,4),Color(0.88,0.85,0.80,0.82),Vector4(-1,-1,-1,-1),btn_h)
+  if stamp_norm != null:
+   var stamp_hover := DynamicUI.nine_slice_box(DynamicUI.THEME_PAPER_CARD,Vector4(44,36,32,32),Vector4(10,4,10,4),Color(0.90,0.45,0.37,1.0),Vector4(-1,-1,-1,-1),btn_h)
+   var stamp_press := DynamicUI.nine_slice_box(DynamicUI.THEME_PAPER_CARD,Vector4(44,36,32,32),Vector4(10,4,10,4),Color(0.74,0.33,0.27,1.0),Vector4(-1,-1,-1,-1),btn_h)
+   claim.add_theme_stylebox_override("normal",stamp_norm)
+   claim.add_theme_stylebox_override("hover",stamp_hover if stamp_hover != null else stamp_norm)
+   claim.add_theme_stylebox_override("pressed",stamp_press if stamp_press != null else stamp_norm)
+   claim.add_theme_stylebox_override("hover_pressed",stamp_press if stamp_press != null else stamp_norm)
+   claim.add_theme_stylebox_override("disabled",stamp_dis if stamp_dis != null else stamp_norm)
   claim.disabled = claimed or not ready
   claim.pressed.connect(func(): action_requested.emit("claim_milestone",{"id":goal["id"]}))
   refs["milestone_buttons"][goal["id"]] = claim

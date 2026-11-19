@@ -85,19 +85,15 @@ func _ready() -> void:
 	refs["route_layer"] = route_layer
 	if not route_layer.points.is_empty():
 		DynamicUI.create_pulse_ring(self, "StationPulse_0", route_layer.points[0], 34.0, Color("#4BB8E8"))
-	var atlas_header := SchoolObjectUI.slab(self, "HeaderBacking", Rect2(54, 32, 470, 122), Color("#FFFDF8", 0.96))
-	var ahbox := atlas_header.get_theme_stylebox("panel") as StyleBoxFlat
-	ahbox.border_color = Color("#368BD2", 0.92)
-	ahbox.set_border_width_all(2)
-	ahbox.border_width_left = 7
-	ahbox.border_width_bottom = 5
-	ahbox.set_corner_radius_all(16)
-	ahbox.shadow_color = Color(0.08, 0.12, 0.22, 0.22)
-	ahbox.shadow_size = 6
-	ahbox.shadow_offset = Vector2(0, 4)
+	var atlas_header := SchoolObjectUI.slab(self, "HeaderBacking", Rect2(54, 32, 476, 124), Color("#FFFDF8", 0.96))
+	if not DynamicUI.apply_nine_slice_panel(atlas_header, DynamicUI.THEME_PAPER_MODAL, Vector4(72, 56, 44, 44), Color(1.0, 0.99, 0.96, 0.97)):
+		var ahbox := atlas_header.get_theme_stylebox("panel") as StyleBoxFlat
+		ahbox.border_color = Color("#368BD2", 0.92)
+		ahbox.set_border_width_all(2)
+		ahbox.set_corner_radius_all(10)
 	atlas_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	SchoolObjectUI.text(self, "LocationTitle", "六地区巡回总图", Rect2(80, 38, 430, 64), 42, Color("#15253D"))
-	SchoolObjectUI.text(self, "DayTime", GameState.get_detailed_time_string(), Rect2(82, 108, 430, 36), 21, Color("#2A3D58"))
+	SchoolObjectUI.text(self, "LocationTitle", "六地区巡回总图", Rect2(90, 36, 430, 62), 42, Color("#15253D"))
+	SchoolObjectUI.text(self, "DayTime", GameState.get_detailed_time_string(), Rect2(92, 102, 430, 34), 21, Color("#2A3D58"))
 	var back := SchoolObjectUI.hit(self,"BackToLocal",Rect2(1570,42,280,74),"返回地区地图 ×",24)
 	DynamicUI.make_cel_button(back, Color("#FFFDF8", 0.94), Color("#21324B"), Color("#CA5443"), 25, 14)
 	DynamicUI.slide_in(back, Vector2(0, -10), 0.18, 0.04)
@@ -163,27 +159,25 @@ func _ready() -> void:
 			landmark._refresh()
 			_show_region_preview("")
 		)
-	var legend_slab := SchoolObjectUI.slab(self,"LegendBacking",Rect2(54,179,690,46),Color(0.10,0.14,0.22,0.80))
-	var legend_box := legend_slab.get_theme_stylebox("panel") as StyleBoxFlat
-	legend_box.set_corner_radius_all(14)
-	legend_box.border_color = Color("#56C5D0", 0.72)
-	legend_box.set_border_width_all(2)
-	legend_box.border_width_left = 5
+	var legend_slab := SchoolObjectUI.slab(self,"LegendBacking",Rect2(54,179,690,46),Color(0.18,0.24,0.37,0.90))
+	if not DynamicUI.apply_nine_slice_panel(legend_slab,DynamicUI.THEME_FABRIC_RIBBON,Vector4(56,26,56,26)):
+		var legend_box := legend_slab.get_theme_stylebox("panel") as StyleBoxFlat
+		legend_box.set_corner_radius_all(8)
+		legend_box.border_color = Color("#56C5D0", 0.72)
+		legend_box.set_border_width_all(2)
 	legend_slab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var legend := SchoolObjectUI.text(self,"Legend","阿瑞忒学园篇开放中 · 其余巡回学园与灰区随正式章节推进解锁",Rect2(72,184,654,36),20,Color("#FFF7E5"))
+	var legend := SchoolObjectUI.text(self,"Legend","阿瑞忒学园篇开放中 · 其余巡回学园与灰区随正式章节推进解锁",Rect2(92,184,614,36),20,Color("#FFF8EC"))
 	legend.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	legend.add_theme_color_override("font_shadow_color",Color(0,0,0,0.8))
 	legend.add_theme_constant_override("shadow_offset_y",1)
-	var preview_slab := SchoolObjectUI.slab(self,"AtlasPreviewBacking",Rect2(54,978,1812,72),Color(0.08,0.12,0.20,0.86))
-	var preview_box := preview_slab.get_theme_stylebox("panel") as StyleBoxFlat
-	preview_box.set_corner_radius_all(16)
-	preview_box.border_color = Color("#56C5D0", 0.75)
-	preview_box.set_border_width_all(2)
-	preview_box.border_width_left = 6
-	preview_box.shadow_color = Color(0.05, 0.08, 0.14, 0.28)
-	preview_box.shadow_size = 6
+	var preview_slab := SchoolObjectUI.slab(self,"AtlasPreviewBacking",Rect2(54,978,1812,72),Color(0.18,0.24,0.37,0.90))
+	if not DynamicUI.apply_nine_slice_panel(preview_slab,DynamicUI.THEME_FABRIC_RIBBON,Vector4(56,26,56,26)):
+		var preview_box := preview_slab.get_theme_stylebox("panel") as StyleBoxFlat
+		preview_box.set_corner_radius_all(10)
+		preview_box.border_color = Color("#56C5D0", 0.75)
+		preview_box.set_border_width_all(2)
 	preview_slab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var preview_lbl := SchoolObjectUI.text(self,"AtlasPreviewText",_default_atlas_preview(),Rect2(78,986,1764,56),22,Color("#FFF7E5"))
+	var preview_lbl := SchoolObjectUI.text(self,"AtlasPreviewText",_default_atlas_preview(),Rect2(102,986,1716,56),22,Color("#FFF8EC"))
 	preview_lbl.add_theme_font_override("font", DaylightUI.bold_font())
 	preview_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	preview_lbl.clip_text = true

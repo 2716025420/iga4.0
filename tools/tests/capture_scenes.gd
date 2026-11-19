@@ -76,6 +76,17 @@ func _run() -> void:
 	await _capture("04_workshop")
 	home._hide_all_modals()
 
+	home._open_panel("zodiac")
+	await get_tree().process_frame
+	await _capture("19_zodiac_overview")
+	var zodiac_panel := home._active_modal as ZodiacAlbumPanel
+	if is_instance_valid(zodiac_panel):
+		zodiac_panel._select_badge("hero")
+		await get_tree().process_frame
+		await get_tree().process_frame
+		await _capture("20_zodiac_book_detail")
+	home._hide_all_modals()
+
 	# 3. Local Map (with Qualifier badge) & World Atlas
 	life.open_map()
 	await _settled()
@@ -88,6 +99,16 @@ func _run() -> void:
 	life.travel_to("library", "university_arete")
 	await _settled()
 	await _capture("07_library_npc")
+	var lib_screen: CampusScreen = get_tree().current_scene
+	lib_screen._action({"id": "talk", "npc": "lin_zhi_xia"})
+	await get_tree().process_frame
+	if is_instance_valid(lib_screen.dialogue):
+		lib_screen.dialogue.advance()
+		await get_tree().process_frame
+	await _capture("15_campus_dialogue")
+	if is_instance_valid(lib_screen.dialogue):
+		lib_screen.dialogue._close()
+		await get_tree().process_frame
 
 	life.travel_to("shop", "university_arete")
 	await _settled()
@@ -100,6 +121,7 @@ func _run() -> void:
 
 	life.travel_to("gym", "university_arete")
 	await _settled()
+	await _capture("16_gym_stage")
 	var gym_screen: CampusScreen = get_tree().current_scene
 	gym_screen._open_qualifier_modal()
 	await get_tree().process_frame
@@ -113,6 +135,27 @@ func _run() -> void:
 	life.travel_to("arete_coast_test", "university_arete")
 	await _settled()
 	await _capture("12_coast")
+
+	life.travel_to("rooftop", "university_arete")
+	await _settled()
+	await _capture("13_rooftop")
+	var roof_screen: CampusScreen = get_tree().current_scene
+	if is_instance_valid(roof_screen.scene_objects) and is_instance_valid(roof_screen.scene_objects.stage_layers):
+		var sl: SceneStageLayers = roof_screen.scene_objects.stage_layers
+		sl.force_sky_mode = "dusk"
+		sl.apply_period_lighting("afternoon", false)
+		await get_tree().process_frame
+		await _capture("17_rooftop_dusk")
+		sl.force_sky_mode = "redmoon"
+		sl.apply_period_lighting("night", true)
+		await get_tree().process_frame
+		await _capture("18_rooftop_redmoon")
+		sl.force_sky_mode = ""
+		sl.apply_period_lighting()
+
+	life.travel_to("arete_beach_test", "university_arete")
+	await _settled()
+	await _capture("14_beach")
 
 	print("CAPTURE_SCENES_RESULT " + JSON.stringify({"captures": captured_count, "failures": failures, "renderer": DisplayServer.get_name()}))
 	get_tree().quit(0 if failures.is_empty() else 1)

@@ -187,17 +187,77 @@ func _test_progression_state_machine() -> void:
 
 func _test_ui_cleanliness() -> void:
 	check(saves.load_test_save(), "load test save for UI inspection")
+	var theme_paths := [
+		DynamicUI.THEME_PAPER_MODAL,
+		DynamicUI.THEME_PAPER_CHOICE,
+		DynamicUI.THEME_PAPER_CARD,
+		DynamicUI.THEME_FABRIC_RIBBON,
+	]
+	for theme_path in theme_paths:
+		check(ResourceLoader.exists(theme_path) and load(theme_path) is Texture2D, "watercolor paper asset loads: " + theme_path)
+	for v14_rel in ["panels/ui_clerk_speech_bubble_9slice.png", "buttons/ui_seal_claimed_badge.png"]:
+		check(DynamicUI.v14_texture(v14_rel) != null, "kept paper v14 asset loads: " + v14_rel)
 	flow.change_scene(flow.TargetScene.HOME)
 	await _settled()
 	_scan_clean_ui(get_tree().current_scene, "HomeScreen")
 	var home: HomeScreen = get_tree().current_scene
+	check(home.find_child("HomePeriodDial", true, false) != null, "home mounts PeriodDial")
+	check(home.find_child("RooftopExit", true, false) != null, "home mounts RooftopExit")
+	check(home.find_child("QuickMapButton", true, false) == null, "home removes redundant QuickMapButton")
+	check(home.find_child("QuickRestButton", true, false) == null, "home removes redundant QuickRestButton")
+	for small_icon in ["HealthIcon", "MenuIcon", "BtnIcon", "BubbleIcon"]:
+		check(home.find_child(small_icon, true, false) == null, "home has no small HUD icon: " + small_icon)
+	var home_menu := home.find_child("MainMenuButton", true, false) as Button
+	check(home_menu != null and home_menu.position.x >= 1700.0, "home MainMenuButton aligns rightmost")
+	if home_menu != null:
+		var menu_norm := home_menu.get_theme_stylebox("normal") as StyleBoxTexture
+		var menu_hov := home_menu.get_theme_stylebox("hover") as StyleBoxTexture
+		check(menu_norm != null and menu_hov != null and menu_norm.texture == menu_hov.texture, "home MainMenuButton keeps identical texture shape on hover")
+	var home_capsule := home.find_child("StatusCapsule", true, false) as Control
+	check(home_capsule != null and home_capsule.get_theme_stylebox("panel") is StyleBoxTexture, "home mounts watercolor StatusCapsule StyleBoxTexture")
 	home._open_panel("records")
 	await get_tree().process_frame
 	_scan_clean_ui(home._active_modal, "ProjectionRecords")
+	var records_panel := home._active_modal as PlayerWorkspace
+	if is_instance_valid(records_panel):
+		records_panel.current_tab = "growth"
+		records_panel.refresh()
+		await get_tree().process_frame
+		_scan_clean_ui(records_panel, "ProjectionRecordsGrowth")
+		var goal_cards := records_panel.find_children("Goal_*", "Panel", true, false)
+		check(not goal_cards.is_empty() and (goal_cards[0] as Control).get_theme_stylebox("panel") is StyleBoxTexture, "growth goals mount v14 StyleBoxTexture")
+		var claim_btns := records_panel.find_children("Claim_*", "Button", true, false)
+		check(not claim_btns.is_empty() and (claim_btns[0] as Button).get_theme_stylebox("normal") is StyleBoxTexture, "growth claim button mounts v14 StyleBoxTexture")
 	home._hide_all_modals()
 	home._open_workshop()
 	await get_tree().process_frame
 	_scan_clean_ui(home._active_modal, "Workshop")
+	home._hide_all_modals()
+	home._open_panel("zodiac")
+	await get_tree().process_frame
+	_scan_clean_ui(home._active_modal, "ZodiacOverview")
+	var zodiac_panel := home._active_modal as ZodiacAlbumPanel
+	check(is_instance_valid(zodiac_panel) and zodiac_panel.view_mode == "overview", "zodiac opens in overview mode")
+	if is_instance_valid(zodiac_panel):
+		check(zodiac_panel.find_children("Badge_*", "", true, false).size() == 12, "zodiac overview shows all 12 cards")
+		zodiac_panel._select_badge("hero")
+		await get_tree().process_frame
+		_scan_clean_ui(zodiac_panel, "ZodiacBookDetail")
+		check(zodiac_panel.view_mode == "book_detail", "clicking zodiac badge opens book_detail spread")
+		check(zodiac_panel.find_child("BookSpread", true, false) != null, "zodiac detail mounts BookSpread")
+		check(zodiac_panel.find_child("CardNiche", true, false) != null, "zodiac detail mounts Left CardNiche")
+		check(zodiac_panel.find_child("DetailCardFace", true, false) != null, "zodiac detail mounts Left DetailCardFace")
+		check(zodiac_panel.find_child("ResonateButton", true, false) != null, "zodiac detail mounts Right ResonateButton")
+		check(zodiac_panel.find_child("ZodiacAbility", true, false) != null, "zodiac detail mounts Right ZodiacAbility")
+		var spread_art := zodiac_panel.find_child("BookSpreadArtwork", true, false) as TextureRect
+		check(spread_art != null and spread_art.texture != null, "zodiac detail loads real BookSpreadArtwork")
+		var ribbon_art := zodiac_panel.find_child("RibbonTexture", true, false) as TextureRect
+		check(ribbon_art != null and ribbon_art.texture != null, "zodiac detail loads real RibbonTexture")
+		zodiac_panel._turn_page(1)
+		await get_tree().process_frame
+		check(zodiac_panel.selected_zodiac == "everyperson", "zodiac book turns page to next constellation")
+		check(zodiac_panel.cancel_pending(), "zodiac cancel_pending returns true from book_detail")
+		check(zodiac_panel.view_mode == "overview", "zodiac cancel_pending restores overview mode")
 	home._hide_all_modals()
 
 	life.open_map()
@@ -229,15 +289,116 @@ func _test_ui_cleanliness() -> void:
 	for loc in ["library", "shop", "gym", "rooftop", "old_park", "arete_coast_test", "arete_beach_test", "dorm"]:
 		check(life.travel_to(loc, "university_arete"), "travel to " + loc)
 		await _settled()
-		_scan_clean_ui(get_tree().current_scene, "Place_" + loc)
-		if loc == "arete_coast_test":
-			var coast_root := get_tree().current_scene
-			check(coast_root.find_child("Action_enter_old_park", true, false) != null, "coast hub contains old_park entrance")
-			check(coast_root.find_child("Action_go", true, false) != null, "coast hub contains beach entrance")
+		var place_root := get_tree().current_scene
+		_scan_clean_ui(place_root, "Place_" + loc)
+		check(place_root.find_child("SceneHUD", true, false) != null, loc + " mounts unified SceneHUD")
+		check(place_root.find_child("LeftActionDock", true, false) != null, loc + " mounts LeftActionDock")
+		check(place_root.find_child("TopRightHud", true, false) != null, loc + " mounts TopRightHud")
+		check(place_root.find_child("PeriodDial", true, false) != null, loc + " mounts PeriodDial")
+		check(place_root.find_child("PipCount", true, false) != null, loc + " mounts watercolor PipCount note")
+		for small_icon in ["HpIcon", "PipDot_0", "ActionIcon", "MenuIcon", "MapIcon"]:
+			check(place_root.find_child(small_icon, true, false) == null, loc + " has no small HUD icon: " + small_icon)
+		var dock_back := place_root.find_child("DockBacking", true, false) as Control
+		check(dock_back != null and dock_back.get_theme_stylebox("panel") is StyleBoxTexture, loc + " mounts watercolor DockBacking StyleBoxTexture")
+		for nav_name in ["OpenMap", "OpenMenu", "BackLocation"]:
+			var nav_btn := place_root.find_child(nav_name, true, false) as Button
+			if nav_name != "BackLocation":
+				check(nav_btn != null, loc + " mounts HUD button: " + nav_name)
+			if nav_btn != null:
+				var sb_norm := nav_btn.get_theme_stylebox("normal") as StyleBoxTexture
+				var sb_hov := nav_btn.get_theme_stylebox("hover") as StyleBoxTexture
+				check(sb_norm != null and sb_hov != null and sb_norm.texture == sb_hov.texture, loc + " " + nav_name + " keeps identical texture shape on hover")
+		if loc in ["old_park", "arete_beach_test"]:
+			check(place_root.find_child("Action_go", true, false) == null, loc + " has no duplicate Action_go return action")
+		if loc != "dorm":
+			check(place_root.find_child("StageLayers", true, false) != null, loc + " mounts 5-layer StageLayers")
+			check(place_root.find_child("Layer0_Sky", true, false) != null, loc + " mounts Layer0_Sky")
+			check(place_root.find_child("Layer1_Midground", true, false) != null, loc + " mounts Layer1_Midground")
+			check(place_root.find_child("Layer2_Actors", true, false) != null, loc + " mounts Layer2_Actors")
+			check(place_root.find_child("Layer3_Foreground", true, false) != null, loc + " mounts Layer3_Foreground")
+			var sky_tr := place_root.find_child("SkyTexture", true, false) as TextureRect
+			var mid_tr := place_root.find_child("MidgroundTexture", true, false) as TextureRect
+			var fg_tr := place_root.find_child("ForegroundTexture", true, false) as TextureRect
+			check(sky_tr != null and sky_tr.visible and sky_tr.texture != null, loc + " loads real SkyTexture")
+			check(mid_tr != null and mid_tr.texture != null, loc + " loads real MidgroundTexture")
+			check(fg_tr != null and fg_tr.texture != null, loc + " loads real ForegroundTexture")
+		if loc == "library":
+			check(place_root.find_child("Bubble_lin_zhi_xia", true, false) != null, "library has Lin Zhixia bubble")
+			var lib_screen: CampusScreen = place_root
+			lib_screen._action({"id": "talk", "npc": "lin_zhi_xia"})
+			await get_tree().process_frame
+			check(is_instance_valid(lib_screen.dialogue), "library dialogue opened")
+			if is_instance_valid(lib_screen.dialogue):
+				check(lib_screen.dialogue.portrait.visible and lib_screen.dialogue.portrait.texture != null, "CampusDialogueUI displays speaker portrait")
+				check(lib_screen.dialogue.find_child("StoryChrome", true, false) != null, "CampusDialogueUI matches StoryChrome style")
+				lib_screen.dialogue._close()
+				await get_tree().process_frame
+		elif loc == "rooftop":
+			check(place_root.find_child("Bubble_rooftop_npc", true, false) != null, "rooftop has NPC bubble")
+			var roof_screen: CampusScreen = place_root
+			var sl := roof_screen.scene_objects.stage_layers if is_instance_valid(roof_screen.scene_objects) else null
+			var sky_tex_node := roof_screen.find_child("SkyTexture", true, false) as TextureRect
+			if is_instance_valid(sl) and sky_tex_node != null:
+				sl.force_sky_mode = "day"
+				sl.apply_period_lighting("morning", false)
+				var day_path := sky_tex_node.texture.resource_path if sky_tex_node.texture != null else ""
+				sl.force_sky_mode = "dusk"
+				sl.apply_period_lighting("afternoon", false)
+				var dusk_path := sky_tex_node.texture.resource_path if sky_tex_node.texture != null else ""
+				sl.force_sky_mode = "redmoon"
+				sl.apply_period_lighting("night", true)
+				var moon_path := sky_tex_node.texture.resource_path if sky_tex_node.texture != null else ""
+				check(day_path != "" and dusk_path != "" and moon_path != "" and day_path != dusk_path and dusk_path != moon_path and day_path != moon_path, "rooftop switches distinct day/dusk/redmoon sky textures")
+				sl.force_sky_mode = ""
+				sl.apply_period_lighting()
+			roof_screen._action({"id": "switch_companion"})
+			await get_tree().process_frame
+			check(roof_screen.find_child("CompanionSwitcherModal", true, false) != null, "rooftop opens companion switcher modal")
+			roof_screen._close_companion_switcher()
+			await get_tree().process_frame
+		elif loc == "gym":
+			check(place_root.find_child("Bubble_liu_yu_long", true, false) != null, "gym has Liu Yulong bubble")
+			var gym_screen: CampusScreen = place_root
+			gym_screen._open_qualifier_modal()
+			await get_tree().process_frame
+			check(gym_screen.find_child("QualifierLeftCol", true, false) != null, "qualifier opens left status col")
+			check(gym_screen.find_child("RoundRow_1", true, false) != null and gym_screen.find_child("RoundRow_3", true, false) != null, "qualifier renders 3 round cards")
+			check(gym_screen.find_child("GotoWorkshopBtn", true, false) != null, "qualifier provides workshop shortcut")
+			gym_screen._close_qualifier_modal()
+			await get_tree().process_frame
+		elif loc == "arete_coast_test":
+			check(place_root.find_child("Action_enter_old_park", true, false) != null, "coast hub contains old_park entrance")
+			check(place_root.find_child("Action_go", true, false) != null, "coast hub contains beach entrance")
 	check(life.travel_to("shop", "university_arete"), "return to shop for counter check")
 	await _settled()
 	var screen: CampusScreen = get_tree().current_scene
+	check(screen.find_child("Bubble_tang_xiao_man", true, false) != null, "shop mounts Tang Xiaoman bubble")
 	screen._open_workspace("shop")
 	await get_tree().process_frame
 	_scan_clean_ui(screen._workspace, "ShopPanel")
+	check(screen._workspace.find_child("ClerkSpeechBubble", true, false) != null, "shop split view renders ClerkSpeechBubble")
+	check(screen._workspace.find_child("BalanceIcon", true, false) == null, "shop removes small BalanceIcon")
+	check(screen._workspace.find_child("TalkIcon", true, false) == null, "shop removes small TalkIcon")
+	var shop_close := screen._workspace.find_child("CloseButton", true, false) as Button
+	if shop_close != null:
+		var close_norm := shop_close.get_theme_stylebox("normal") as StyleBoxTexture
+		var close_hov := shop_close.get_theme_stylebox("hover") as StyleBoxTexture
+		check(close_norm != null and close_hov != null and close_norm.texture == close_hov.texture, "shop CloseButton keeps identical texture shape on hover")
+	var shop_board := screen._workspace.find_child("ProductsBoard", true, false) as Control
+	check(shop_board != null and shop_board.get_theme_stylebox("panel") is StyleBoxTexture, "shop ProductsBoard uses StyleBoxTexture")
+	var shop_speech := screen._workspace.find_child("ClerkSpeechBubble", true, false) as Control
+	check(shop_speech != null and shop_speech.get_theme_stylebox("panel") is StyleBoxTexture, "shop ClerkSpeechBubble uses StyleBoxTexture")
+	var product_tiles := screen._workspace.find_children("Product_*", "Button", true, false)
+	check(not product_tiles.is_empty() and (product_tiles[0] as Button).get_theme_stylebox("normal") is StyleBoxTexture, "shop product tiles mount watercolor paper StyleBoxTexture")
+	check(screen._workspace.find_child("ConfirmTrade", true, false) != null, "shop split view renders ConfirmTrade")
+	check(screen._workspace.find_child("LocalShopBackground", true, false) == null, "shop split view keeps right stage transparent")
+	check(not screen.scene_objects.hud_layout.dock_panel.visible, "shop split view hides left action dock")
 	screen._close_workspace()
+	await get_tree().process_frame
+	check(screen.scene_objects.hud_layout.dock_panel.visible, "closing shop restores left action dock")
+	screen._open_menu()
+	await get_tree().process_frame
+	check(screen.scene_objects.hud_layout.menu_button.disabled, "opening system menu disables HUD OpenMenu button")
+	screen.system_menu.go_back()
+	await get_tree().process_frame
+	check(not screen.scene_objects.hud_layout.menu_button.disabled, "closing system menu re-enables HUD OpenMenu button")
