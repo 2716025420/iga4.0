@@ -451,12 +451,18 @@ func _open_qualifier_modal() -> void:
 	)
 	presentation.add_child(_qualifier_backdrop)
 	DaylightUI.place(_qualifier_backdrop, -600, -300, 3120, 1680)
+	var gym_ink := Color("#162C46")
+	var gym_muted := Color("#4B6480")
+	var gym_coral := Color("#C94A35")
+	var gym_teal := Color("#237E6E")
+	var gym_gold_ink := Color("#785218")
+
 	_qualifier_modal = Panel.new()
 	_qualifier_modal.name = "QualifierModal"
-	if not DynamicUI.apply_nine_slice_panel(_qualifier_modal, DynamicUI.THEME_PAPER_MODAL, Vector4(72, 56, 44, 44)):
+	if not DynamicUI.apply_v18_panel(_qualifier_modal, DynamicUI.V18_GYM_DIR + "ui_gym_modal_board_9slice.png", Vector4(56, 62, 56, 56)):
 		var qstyle := StyleBoxFlat.new()
-		qstyle.bg_color = Color("#FAF5E8")
-		qstyle.border_color = Color("#C9B89B")
+		qstyle.bg_color = Color("#F2F7FC")
+		qstyle.border_color = Color("#368BD2")
 		qstyle.set_border_width_all(2)
 		qstyle.border_width_bottom = 5
 		qstyle.set_corner_radius_all(12)
@@ -466,18 +472,19 @@ func _open_qualifier_modal() -> void:
 	presentation.add_child(_qualifier_modal)
 	DaylightUI.place(_qualifier_modal, 240, 130, 1440, 820)
 
-	var title_lbl := SchoolObjectUI.text(_qualifier_modal, "QualifierTitle", "阿瑞忒巡回代表选拔赛", Rect2(44, 28, 720, 50), 38, Color("#1E314D"))
+	var title_lbl := SchoolObjectUI.text(_qualifier_modal, "QualifierTitle", "阿瑞忒巡回代表选拔赛", Rect2(50, 28, 720, 46), 36, gym_ink)
 	title_lbl.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
 	var done_all := bool(GameState.story_flags.get("arete_qualifier_completed", false))
 	var subtitle_copy := "★ 已全胜赢得「阿瑞忒代表通行章」，可随时重温挑战或前往巡回总图预览诺莫斯。" if done_all else "按顺序赢得 3 轮非致命学园护盾裁决，赢取「阿瑞忒代表通行章」前往第二站诺莫斯。"
-	SchoolObjectUI.text(_qualifier_modal, "QualifierSub", subtitle_copy, Rect2(44, 80, 960, 32), 20, Color("#5A687D"))
+	SchoolObjectUI.text(_qualifier_modal, "QualifierSub", subtitle_copy, Rect2(52, 76, 940, 30), 19, gym_muted)
 	if done_all:
 		var atlas_btn := Button.new()
 		atlas_btn.name = "AtlasPreviewButton"
 		atlas_btn.text = "巡回总图 →"
 		_qualifier_modal.add_child(atlas_btn)
-		DaylightUI.place(atlas_btn, 1044, 30, 194, 56)
-		DynamicUI.make_cel_button(atlas_btn, Color("#D48A30"), Color("#FFFDF8"), Color("#B8701E"), 20, 12)
+		DaylightUI.place(atlas_btn, 1038, 34, 194, 52)
+		if not DynamicUI.apply_v18_button(atlas_btn, DynamicUI.V18_GYM_DIR + "ui_gym_badge_pass_ribbon.png", Vector4(18, 10, 18, 10), gym_gold_ink, 20, Vector4(14, 4, 14, 4)):
+			DynamicUI.make_cel_button(atlas_btn, Color("#D48A30"), Color("#FFFDF8"), Color("#B8701E"), 20, 12)
 		DaylightUI.bind_button_audio(atlas_btn)
 		atlas_btn.pressed.connect(func():
 			_close_qualifier_modal()
@@ -487,16 +494,17 @@ func _open_qualifier_modal() -> void:
 	close_btn.name = "CloseButton"
 	close_btn.text = "返回 ×"
 	_qualifier_modal.add_child(close_btn)
-	DaylightUI.place(close_btn, 1254, 30, 148, 56)
-	DynamicUI.make_cel_button(close_btn, Color("#FFFDF8"), Color("#1E314D"), Color("#4C75A6"), 20, 12)
+	DaylightUI.place(close_btn, 1246, 34, 148, 52)
+	if not DynamicUI.apply_v18_button(close_btn, DynamicUI.V18_GYM_DIR + "ui_gym_btn_secondary_9slice.png", Vector4(24, 16, 24, 16), gym_ink, 20, Vector4(12, 4, 12, 4)):
+		DynamicUI.make_cel_button(close_btn, Color("#FFFDF8"), gym_ink, Color("#4C75A6"), 20, 12)
 	DaylightUI.bind_button_audio(close_btn)
 	close_btn.pressed.connect(_close_qualifier_modal)
 
-	# Left Arena Status Column (watercolor index card)
-	var left_col := SchoolObjectUI.slab(_qualifier_modal, "QualifierLeftCol", Rect2(40, 126, 404, 656), Color("#FFFDF8"))
-	if not DynamicUI.apply_nine_slice_panel(left_col, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), Color(1.0, 0.99, 0.97, 1.0)):
+	# Left Arena Status Column (Gym Set C tactical data sheet)
+	var left_col := SchoolObjectUI.slab(_qualifier_modal, "QualifierLeftCol", Rect2(44, 122, 404, 658), Color("#EAF6FD"))
+	if not DynamicUI.apply_v18_panel(left_col, DynamicUI.V18_GYM_DIR + "ui_gym_left_col_9slice.png", Vector4(36, 36, 36, 36)):
 		var lc_style := left_col.get_theme_stylebox("panel") as StyleBoxFlat
-		lc_style.border_color = Color("#D2C5AF")
+		lc_style.border_color = Color("#8EC0E8")
 		lc_style.set_border_width_all(2)
 		lc_style.set_corner_radius_all(10)
 
@@ -506,28 +514,36 @@ func _open_qualifier_modal() -> void:
 	for spec_chk in PlayerJourney.QUALIFIER_ROUNDS:
 		if bool(GameState.story_flags.get(str(spec_chk["flag"]), false)):
 			wins += 1
-	SchoolObjectUI.text(left_col, "RepName", "叶舟", Rect2(150, 26, 230, 38), 28, Color("#1E314D"))
-	SchoolObjectUI.text(left_col, "RepRank", "★ 阿瑞忒首席代表" if done_all else "代表资格进度 %d / 3 胜" % wins, Rect2(150, 68, 236, 30), 19, Color("#D45B49") if not done_all else Color("#359686"))
-	SchoolObjectUI.text(left_col, "RepRule", "护盾裁决规则 · 非致命切磋", Rect2(150, 98, 236, 28), 17, Color("#5A687D"))
-	SchoolObjectUI.rule(left_col, "LeftDiv1", Rect2(24, 152, 356, 2))
+	SchoolObjectUI.text(left_col, "RepName", "叶舟", Rect2(150, 24, 230, 36), 28, gym_ink)
+	if done_all:
+		var champ_ribbon := SchoolObjectUI.slab(left_col, "ChampionRibbon", Rect2(146, 64, 232, 34), Color("#F8EED7"))
+		DynamicUI.apply_v18_panel(champ_ribbon, DynamicUI.V18_GYM_DIR + "ui_gym_badge_pass_ribbon.png", Vector4(18, 10, 18, 10))
+		var rep_rank := SchoolObjectUI.text(left_col, "RepRank", "★ 阿瑞忒首席代表", Rect2(146, 64, 232, 34), 18, gym_gold_ink, true)
+		rep_rank.add_theme_font_override("font", DaylightUI.bold_font())
+		rep_rank.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	else:
+		SchoolObjectUI.text(left_col, "RepRank", "代表资格进度 %d / 3 胜" % wins, Rect2(150, 68, 236, 30), 19, gym_coral)
+	SchoolObjectUI.text(left_col, "RepRule", "护盾裁决规则 · 非致命切磋", Rect2(150, 100, 236, 28), 17, gym_muted)
+	var left_div := SchoolObjectUI.rule(left_col, "LeftDiv1", Rect2(24, 152, 356, 2))
+	left_div.color = Color("#8EC0E8", 0.65)
 
 	var deck_info := PlayerJourney.deck_summary()
 	var deck_ok := bool(deck_info["ready"])
-	SchoolObjectUI.text(left_col, "DeckCap", "当前出战卡匣（%d / 5）" % int(deck_info["count"]), Rect2(26, 170, 352, 32), 21, Color("#1E314D"))
-	SchoolObjectUI.text(left_col, "DeckText", str(deck_info["text"]), Rect2(26, 206, 352, 30), 18, Color("#359686") if deck_ok else Color("#D45B49"))
+	SchoolObjectUI.text(left_col, "DeckCap", "当前出战卡匣（%d / 5）" % int(deck_info["count"]), Rect2(26, 170, 352, 32), 21, gym_ink)
+	SchoolObjectUI.text(left_col, "DeckText", str(deck_info["text"]), Rect2(26, 206, 352, 30), 18, gym_teal if deck_ok else gym_coral)
 
 	var comp_id := CampusLife.active_walk_companion()
 	var comp_name := str(PhaseTwoContent.ACTORS.get(comp_id, {}).get("name", "杨子英"))
 	var comp_spec: Dictionary = PlayerJourney.companion_assist_spec(comp_id)
-	SchoolObjectUI.text(left_col, "AssistCap", "随行协战：%s" % comp_name, Rect2(26, 258, 352, 30), 20, Color("#1E314D"))
-	var assist_lbl := SchoolObjectUI.text(left_col, "AssistDesc", str(comp_spec.get("summary", "")), Rect2(26, 290, 352, 62), 17, Color("#5A687D"))
+	SchoolObjectUI.text(left_col, "AssistCap", "随行协战：%s" % comp_name, Rect2(26, 258, 352, 30), 20, gym_ink)
+	var assist_lbl := SchoolObjectUI.text(left_col, "AssistDesc", str(comp_spec.get("summary", "")), Rect2(26, 290, 352, 62), 17, gym_muted)
 	assist_lbl.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
 	DaylightUI.place(assist_lbl, 26, 290, 352, 62)
 
 	var z_id := GameState.get_active_zodiac_id()
 	var z_spec: Dictionary = PlayerJourney.zodiac_resonance_spec(z_id)
-	SchoolObjectUI.text(left_col, "ZodiacCap", "星座共鸣：%s" % str(z_spec.get("title", "尚未激活共鸣")), Rect2(26, 370, 352, 30), 20, Color("#1E314D"))
-	var z_lbl := SchoolObjectUI.text(left_col, "ZodiacDesc", str(z_spec.get("summary", "可在社团星座图鉴切换白羊座共鸣。")), Rect2(26, 402, 352, 62), 17, Color("#5A687D"))
+	SchoolObjectUI.text(left_col, "ZodiacCap", "星座共鸣：%s" % str(z_spec.get("title", "尚未激活共鸣")), Rect2(26, 370, 352, 30), 20, gym_ink)
+	var z_lbl := SchoolObjectUI.text(left_col, "ZodiacDesc", str(z_spec.get("summary", "可在社团星座图鉴切换白羊座共鸣。")), Rect2(26, 402, 352, 62), 17, gym_muted)
 	z_lbl.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
 	DaylightUI.place(z_lbl, 26, 402, 352, 62)
 
@@ -535,56 +551,69 @@ func _open_qualifier_modal() -> void:
 	workshop_btn.name = "GotoWorkshopBtn"
 	workshop_btn.text = "整备行动卡匣 →"
 	left_col.add_child(workshop_btn)
-	DaylightUI.place(workshop_btn, 26, 566, 352, 62)
-	DynamicUI.make_cel_button(workshop_btn, Color("#F3F6FA"), Color("#1E314D"), Color("#359686"), 21, 14)
+	DaylightUI.place(workshop_btn, 26, 570, 352, 60)
+	if not DynamicUI.apply_v18_button(workshop_btn, DynamicUI.V18_GYM_DIR + "ui_gym_btn_secondary_9slice.png", Vector4(24, 16, 24, 16), gym_ink, 21, Vector4(16, 4, 16, 4)):
+		DynamicUI.make_cel_button(workshop_btn, Color("#F3F6FA"), gym_ink, Color("#359686"), 21, 14)
 	DaylightUI.bind_button_audio(workshop_btn)
 	workshop_btn.pressed.connect(func():
 		_close_qualifier_modal()
 		_open_workspace("workshop")
 	)
 
-	# Right Column: 3 Opponent Schedule Cards
+	# Right Column: 3 Opponent Schedule Cards (Gym Set C tactical cards)
 	for i in PlayerJourney.QUALIFIER_ROUNDS.size():
 		var spec: Dictionary = PlayerJourney.QUALIFIER_ROUNDS[i]
 		var r_idx := int(spec["round"])
 		var won := bool(GameState.story_flags.get(str(spec["flag"]), false))
 		var prev_won := r_idx == 1 or bool(GameState.story_flags.get("qualifier_r%d_won" % (r_idx - 1), false))
 		var unlocked := prev_won and deck_ok
-		var card_y := 126.0 + float(i) * 224.0
-		var row := SchoolObjectUI.slab(_qualifier_modal, "RoundRow_%d" % r_idx, Rect2(464, card_y, 936, 206), Color("#EFF7F5") if won else Color("#FFFDF8"))
-		var row_tint := Color(1.0, 0.95, 0.91, 1.0) if (prev_won and not won) else (Color(0.93, 0.97, 0.94, 1.0) if won else Color(1.0, 0.99, 0.97, 1.0))
-		if not DynamicUI.apply_nine_slice_panel(row, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), row_tint):
+		var card_y := 122.0 + float(i) * 224.0
+		var row := SchoolObjectUI.slab(_qualifier_modal, "RoundRow_%d" % r_idx, Rect2(468, card_y, 928, 206), Color("#ECF8F4") if won else (Color("#FFF7EF") if prev_won else Color("#EAF1F7")))
+		var row_asset := "ui_gym_round_row_won_9slice.png" if won else ("ui_gym_round_row_active_9slice.png" if prev_won else "ui_gym_round_row_locked_9slice.png")
+		if not DynamicUI.apply_v18_panel(row, DynamicUI.V18_GYM_DIR + row_asset, Vector4(30, 36, 46, 36)):
 			var row_style := row.get_theme_stylebox("panel") as StyleBoxFlat
-			row_style.border_color = Color("#D45B49") if (prev_won and not won) else (Color("#359686") if won else Color("#D0C3AD"))
+			row_style.border_color = gym_coral if (prev_won and not won) else (gym_teal if won else Color("#B5C8DC"))
 			row_style.set_border_width_all(2 if (prev_won and not won) else 1)
 			row_style.set_corner_radius_all(10)
 
 		var enemy_list: Array = spec.get("enemies", ["duel_student_ace"])
 		var lead_enemy := str(enemy_list[0])
 		var enemy_path := "res://assets/sprites/characters/phase_two/portraits/liu_yu_long.png" if lead_enemy == "arena_tactician" else CombatSkin.enemy_combat_path(lead_enemy)
-		var portrait_frame := SchoolObjectUI.slab(row, "EnemyFrame", Rect2(18, 18, 154, 170), Color("#F2ECE0"))
-		(portrait_frame.get_theme_stylebox("panel") as StyleBoxFlat).set_corner_radius_all(12)
-		var enemy_art := SchoolObjectUI.art(portrait_frame, "EnemyPortrait", enemy_path, Rect2(6, 6, 142, 158))
+		var portrait_frame := SchoolObjectUI.slab(row, "EnemyFrame", Rect2(24, 18, 154, 170), Color("#E2F0FB"))
+		if not DynamicUI.apply_v18_panel(portrait_frame, DynamicUI.V18_GYM_DIR + "ui_gym_enemy_frame_9slice.png", Vector4(24, 24, 24, 24)):
+			(portrait_frame.get_theme_stylebox("panel") as StyleBoxFlat).set_corner_radius_all(12)
+		var enemy_art := SchoolObjectUI.art(portrait_frame, "EnemyPortrait", enemy_path, Rect2(8, 8, 138, 154))
 		enemy_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 
 		var state_tag := "已通关 · 可再战" if won else ("可登台" if unlocked else ("需要先胜第%d战" % (r_idx - 1) if not prev_won else GameState.DECK_RULE_MESSAGE))
-		var title_r := SchoolObjectUI.text(row, "Title", str(spec["title"]), Rect2(192, 20, 480, 40), 27, Color("#1E314D"))
+		var title_w := 318.0 if r_idx == 3 else 486.0
+		var title_r := SchoolObjectUI.text(row, "Title", str(spec["title"]), Rect2(196, 20, title_w, 40), 26, gym_ink)
 		title_r.add_theme_font_override("font", load("res://assets/fonts/NotoSerifSC-SemiBold.ttf"))
-		var sub_r := SchoolObjectUI.text(row, "Sub", str(spec["subtitle"]), Rect2(192, 66, 490, 56), 19, Color("#5A687D"))
+		if r_idx == 3:
+			var pass_badge := SchoolObjectUI.slab(row, "PassRibbonBadge", Rect2(522, 22, 162, 36), Color("#F8EED7"))
+			DynamicUI.apply_v18_panel(pass_badge, DynamicUI.V18_GYM_DIR + "ui_gym_badge_pass_ribbon.png", Vector4(18, 10, 18, 10))
+			var pass_txt := SchoolObjectUI.text(pass_badge, "PassRibbonLabel", "★ 代表通行章", Rect2(0, 0, 162, 36), 16, gym_gold_ink, true)
+			pass_txt.add_theme_font_override("font", DaylightUI.bold_font())
+			pass_txt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		var sub_r := SchoolObjectUI.text(row, "Sub", str(spec["subtitle"]), Rect2(196, 66, 486, 56), 19, gym_muted)
 		sub_r.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
-		DaylightUI.place(sub_r, 192, 66, 490, 56)
+		DaylightUI.place(sub_r, 196, 66, 486, 56)
 		var pass_note := " · 阿瑞忒代表通行章" if r_idx == 3 else ""
-		SchoolObjectUI.text(row, "Reward", "奖励：零用钱 %d · 练习点 %d%s   |   %s" % [int(spec["money"]), int(spec["points"]), pass_note, state_tag], Rect2(192, 138, 500, 44), 18, Color("#D45B49") if not won else Color("#359686"))
+		var reward_col := gym_teal if won else (gym_coral if prev_won else Color("#60758C"))
+		SchoolObjectUI.text(row, "Reward", "奖励：零用钱 %d · 练习点 %d%s   |   %s" % [int(spec["money"]), int(spec["points"]), pass_note, state_tag], Rect2(196, 138, 490, 44), 18, reward_col)
 
 		var challenge := Button.new()
 		challenge.name = "Challenge_%d" % r_idx
 		challenge.text = "再次切磋" if won else ("登台挑战" if unlocked else "待解锁")
 		challenge.disabled = not unlocked
 		row.add_child(challenge)
-		DaylightUI.place(challenge, 704, 68, 208, 70)
-		var c_fill := Color("#D45B49") if (prev_won and not won) else (Color("#359686") if won else Color("#DFDBD2"))
-		var c_ink := Color("#FFFDF8") if unlocked else Color("#6A7485")
-		DynamicUI.make_cel_button(challenge, c_fill, c_ink, c_fill, 21, 14)
+		DaylightUI.place(challenge, 698, 68, 208, 70)
+		var c_asset := "ui_gym_btn_challenge_won_9slice.png" if won else ("ui_gym_btn_challenge_active_9slice.png" if unlocked else "ui_gym_btn_challenge_locked_9slice.png")
+		var c_ink := Color("#FFFFFF") if unlocked else Color("#62778F")
+		if not DynamicUI.apply_v18_button(challenge, DynamicUI.V18_GYM_DIR + c_asset, Vector4(24, 16, 24, 16), c_ink, 21, Vector4(12, 4, 12, 4), DynamicUI.V18_GYM_DIR + "ui_gym_btn_challenge_locked_9slice.png", Color("#62778F")):
+			var c_fill := Color("#D45B49") if (prev_won and not won) else (Color("#359686") if won else Color("#DFDBD2"))
+			var fb_ink := Color("#FFFDF8") if unlocked else Color("#6A7485")
+			DynamicUI.make_cel_button(challenge, c_fill, fb_ink, c_fill, 21, 14)
 		DaylightUI.bind_button_audio(challenge)
 		challenge.pressed.connect(func():
 			_close_qualifier_modal()

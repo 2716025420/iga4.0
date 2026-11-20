@@ -12,6 +12,8 @@ const V17_RESOURCE_CAPSULE := V17_UI_A_DIR + "panels/ui_hud_resource_capsule_9sl
 const V17_ACTION_BTN := V17_UI_A_DIR + "buttons/ui_btn_cel_normal_9slice.png"
 const V17_NPC_BUBBLE := V17_UI_A_DIR + "panels/ui_npc_bubble_9slice.png"
 const V17_STORY_DIALOGUE := V17_UI_A_DIR + "panels/ui_story_dialogue_9slice.png"
+const V18_SHOP_DIR := "res://assets/ui_core/v18_windows/shop/"
+const V18_GYM_DIR := "res://assets/ui_core/v18_windows/gym/"
 const V17_INK := Color("#213D3A")
 const V17_MUTED := Color("#45645F")
 const V17_CORAL := Color("#C95543")
@@ -239,6 +241,64 @@ static func make_v17_button(button: Button, tint: Color = Color.WHITE, ink: Colo
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	SchoolObjectUI.borderless(button)
 	attach_hover_pop(button, 1.022)
+
+static func v18_box(full_path: String, margins: Vector4, content_pad: Vector4 = Vector4(-1, -1, -1, -1), modulate_col: Color = Color.WHITE) -> StyleBoxTexture:
+	if not ResourceLoader.exists(full_path):
+		return null
+	var tex := load(full_path) as Texture2D
+	if tex == null:
+		return null
+	var box := StyleBoxTexture.new()
+	box.texture = tex
+	box.texture_margin_left = margins.x
+	box.texture_margin_top = margins.y
+	box.texture_margin_right = margins.z
+	box.texture_margin_bottom = margins.w
+	box.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	box.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	box.modulate_color = modulate_col
+	if content_pad.x >= 0.0:
+		box.content_margin_left = content_pad.x
+		box.content_margin_top = content_pad.y
+		box.content_margin_right = content_pad.z
+		box.content_margin_bottom = content_pad.w
+	return box
+
+static func apply_v18_panel(panel: Control, full_path: String, margins: Vector4, modulate_col: Color = Color.WHITE, content_pad: Vector4 = Vector4(-1, -1, -1, -1)) -> bool:
+	if not is_instance_valid(panel):
+		return false
+	var box := v18_box(full_path, margins, content_pad, modulate_col)
+	if box == null:
+		return false
+	panel.add_theme_stylebox_override("panel", box)
+	return true
+
+static func apply_v18_button(button: Button, full_path: String, margins: Vector4, ink: Color, font_size: int = 20, content_pad: Vector4 = Vector4(12, 4, 12, 4), disabled_path: String = "", disabled_ink: Color = Color(-1, -1, -1, -1), normal_mod: Color = Color.WHITE) -> bool:
+	if not is_instance_valid(button):
+		return false
+	var nbox := v18_box(full_path, margins, content_pad, normal_mod)
+	if nbox == null:
+		return false
+	var hov_col := Color(minf(1.08, normal_mod.r * 1.05), minf(1.08, normal_mod.g * 1.04), minf(1.08, normal_mod.b * 1.02), normal_mod.a)
+	var prs_col := Color(normal_mod.r * 0.90, normal_mod.g * 0.89, normal_mod.b * 0.88, normal_mod.a)
+	var hbox := v18_box(full_path, margins, content_pad, hov_col)
+	var pbox := v18_box(full_path, margins, content_pad, prs_col)
+	var dbox := v18_box(disabled_path, margins, content_pad, Color(0.94, 0.92, 0.89, 0.92)) if disabled_path != "" else v18_box(full_path, margins, content_pad, Color(normal_mod.r * 0.86, normal_mod.g * 0.86, normal_mod.b * 0.86, normal_mod.a * 0.72))
+	button.add_theme_stylebox_override("normal", nbox)
+	button.add_theme_stylebox_override("focus", nbox)
+	button.add_theme_stylebox_override("hover", hbox if hbox != null else nbox)
+	button.add_theme_stylebox_override("pressed", pbox if pbox != null else nbox)
+	button.add_theme_stylebox_override("hover_pressed", pbox if pbox != null else nbox)
+	button.add_theme_stylebox_override("disabled", dbox if dbox != null else nbox)
+	button.add_theme_font_size_override("font_size", font_size)
+	button.add_theme_font_override("font", DaylightUI.bold_font())
+	for col_key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(col_key, ink)
+	button.add_theme_color_override("font_disabled_color", disabled_ink if disabled_ink.r >= 0.0 else Color(ink, 0.52))
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	SchoolObjectUI.borderless(button)
+	attach_hover_pop(button, 1.022)
+	return true
 
 class _BobDriver:
 	extends Node

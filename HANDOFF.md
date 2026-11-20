@@ -1,6 +1,18 @@
 > **2026-11-14 全案重构最新基线**：[世界观与全案重构设计书](docs/story/2026-11-14-世界观与全案重构设计书.md) 已确认作后续剧本、系统、UI 与素材需求的最高优先级总纲；以下旧 10-28 提示保留溯源。
 > **2026-10-28 序章历史说明**：黄秋枫（原暂称梧桐）序章原始脉络见[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)。
 
+## 2026-11-20 商店 Set B（木框便利贴）与体育馆大赛 Set C（战术终端电子看板）v18 分层资产实装
+
+- **状态**：已将主创选定的 `archive/IGA_v18_ShopB_GymC_Layers.zip` 中全部 **22 张透明分层 UI 组件（商店 Set B 11 件 + 体育馆选拔赛 Set C 11 件）** 提取至 `assets/ui_core/v18_windows/{shop,gym}/` 并完成 Godot 4.7.2 零报错导入与实机皮肤替换。**`smoke` 回归及 `1600×900` / `1600×720` 双分辨率实机 OpenGL 截图全通过并完成目检**。
+- **资产合入与代码接入**：
+  - [dynamic_ui.gd](scripts/ui/dynamic_ui.gd)：新增 `V18_SHOP_DIR`、`V18_GYM_DIR` 常量与 `v18_box()` / `apply_v18_panel()` / `apply_v18_button()` 九宫格实装助手（纯内缩边距，保留圆角/铆钉/折角/气泡尾/斜切边/点阵暗纹无拉伸）。
+  - [campus_shop_panel.gd](scripts/campus/campus_shop_panel.gd)：全量接入商店 Set B 11 张资产——木框四铆钉折角主账本板 `ProductsBoard`、图钉页签/返回按钮 `Mode_*`/`Category_*`/`CloseButton`、便利贴胶带商品卡（含选中态高亮与 `OwnedBadge` 已拥有角贴）、米白手账详情结算板 `DetailBoard`、`− / +` 数量步进钮、赤陶红结账主钮 `ConfirmTrade`、右上木框零用钱胶囊 `BalanceBacking` 及带黄铜回形针与左下尾标的店员对话气泡 `ClerkSpeechBubble`。
+  - [campus_screen.gd](scripts/campus/campus_screen.gd)：在 `_open_qualifier_modal()` 全量接入体育馆 Set C 11 张资产——电光蓝斜切外框 `QualifierModal`、左栏战术数据卡 `QualifierLeftCol`、三态赛程卡 `RoundRow_1..3`（可挑战/已通关/未解锁左指示条与点阵纹）、对手斜切画框 `EnemyFrame`、三态斜角挑战钮 `Challenge_1..3`、第 3 战金色「★ 代表通行章」徽带、全胜后 `ChampionRibbon` / `AtlasPreviewButton` 及次级按钮样式。
+  - [scene_object_view.gd](scripts/campus/scene_object_view.gd)：将 `shop` 场景初始 `stage_layers` 固定在 `SHOP_STAGE_OFFSET_X := 150.0`，并移除 `set_shop_split_mode()` 内的背景平移切换，保证进入商店及开关商品页期间背景与唐小满位置完全静止一致。
+- **验收结果**：
+  - [core_smoke.gd](tools/tests/core_smoke.gd)：新增 `_test_v18_window_assets()` 校验全 22 张 PNG 加载，并在商店检查中校验开启/关闭商品页前后 `stage_layers.position.x` 恒定 `150.0`；最终 `--suite smoke` 通过 **`1785` 项检查、`0` 失败**；
+  - 双分辨率 OpenGL 实机截图：`1600×900`（`21` 张，0 失败）与 `1600×720`（`21` 张，0 失败）均通过，并已逐张目检 `08_shop_npc.png`、`09_shop_counter.png` 与 `10_gym_qualifier.png`，开关商店面板前后背景无位移缩放、边角九宫格、文字边距、气泡尾标与三态色彩表现干净准确。
+
 ## 2026-11-20 冗余代码/素材清理、免费商用 BGM/SFX 实装与商店/选拔赛窗口 v18 三套需求交付
 
 - **状态**：完成仓库冗余资产与死代码精简，实装 7 首免费商用背景音乐（PeriTune CC-BY 4.0）与 17 枚免费商用音效（Kenney CC0 1.0），并打包交付「商店柜台商品窗口 (`CampusShopPanel`) & 体育馆代表选拔赛窗口 (`QualifierModal`)」v18 三套整页概念图与二阶段拆层需求压缩包。**`smoke` 全量回归与双分辨率 OpenGL 实机截图全通过**。

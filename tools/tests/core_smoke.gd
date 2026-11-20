@@ -49,6 +49,7 @@ func _run() -> void:
 	await _test_progression_state_machine()
 	await _test_ui_cleanliness()
 	_test_audio_assets()
+	_test_v18_window_assets()
 
 	print("CORE_SMOKE_RESULT " + JSON.stringify({"checks": checks, "failures": failures, "renderer": DisplayServer.get_name()}))
 	get_tree().quit(0 if failures.is_empty() else 1)
@@ -393,8 +394,11 @@ func _test_ui_cleanliness() -> void:
 	await _settled()
 	var screen: CampusScreen = get_tree().current_scene
 	check(screen.find_children("Bubble_*", "", true, false).is_empty(), "shop has no overhead Tang Xiaoman bubble")
+	var shop_stage_x_before := screen.scene_objects.stage_layers.position.x
+	check(is_equal_approx(shop_stage_x_before, 150.0), "shop enters with split-aligned stage background")
 	screen._open_workspace("shop")
 	await get_tree().process_frame
+	check(is_equal_approx(screen.scene_objects.stage_layers.position.x, shop_stage_x_before), "opening shop keeps stage background static")
 	_scan_clean_ui(screen._workspace, "ShopPanel")
 	check(screen._workspace.find_child("ClerkSpeechBubble", true, false) != null, "shop split view renders ClerkSpeechBubble")
 	check(screen._workspace.find_child("BalanceIcon", true, false) == null, "shop removes small BalanceIcon")
@@ -415,6 +419,7 @@ func _test_ui_cleanliness() -> void:
 	check(not screen.scene_objects.hud_layout.dock_panel.visible, "shop split view hides left action dock")
 	screen._close_workspace()
 	await get_tree().process_frame
+	check(is_equal_approx(screen.scene_objects.stage_layers.position.x, shop_stage_x_before), "closing shop keeps stage background static")
 	check(screen.scene_objects.hud_layout.dock_panel.visible, "closing shop restores left action dock")
 	screen._open_menu()
 	await get_tree().process_frame
@@ -446,3 +451,32 @@ func _test_audio_assets() -> void:
 	for key in AudioManager.SFX_KEYS.keys():
 		var sfx: AudioStream = audio._sfx_stream(str(key))
 		check(sfx != null, "SFX stream loads: " + str(key))
+
+
+func _test_v18_window_assets() -> void:
+	for rel in [
+		"shop/ui_shop_ledger_board_9slice.png",
+		"shop/ui_shop_detail_board_9slice.png",
+		"shop/ui_shop_clerk_bubble_9slice.png",
+		"shop/ui_shop_balance_capsule_9slice.png",
+		"shop/ui_shop_card_normal_9slice.png",
+		"shop/ui_shop_card_selected_9slice.png",
+		"shop/ui_shop_tab_active_9slice.png",
+		"shop/ui_shop_tab_idle_9slice.png",
+		"shop/ui_shop_btn_confirm_9slice.png",
+		"shop/ui_shop_qty_pill_9slice.png",
+		"shop/ui_shop_badge_owned.png",
+		"gym/ui_gym_modal_board_9slice.png",
+		"gym/ui_gym_left_col_9slice.png",
+		"gym/ui_gym_round_row_active_9slice.png",
+		"gym/ui_gym_round_row_won_9slice.png",
+		"gym/ui_gym_round_row_locked_9slice.png",
+		"gym/ui_gym_enemy_frame_9slice.png",
+		"gym/ui_gym_btn_challenge_active_9slice.png",
+		"gym/ui_gym_btn_challenge_won_9slice.png",
+		"gym/ui_gym_btn_challenge_locked_9slice.png",
+		"gym/ui_gym_btn_secondary_9slice.png",
+		"gym/ui_gym_badge_pass_ribbon.png",
+	]:
+		var full := "res://assets/ui_core/v18_windows/" + str(rel)
+		check(ResourceLoader.exists(full) and load(full) is Texture2D, "v18 window asset loads: " + rel)

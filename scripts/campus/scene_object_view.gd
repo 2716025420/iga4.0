@@ -5,6 +5,8 @@ signal action_requested(item: Dictionary)
 signal map_requested
 signal menu_requested
 
+const SHOP_STAGE_OFFSET_X := 150.0
+
 var location_id := ""
 var stage_id := ""
 var config: Dictionary
@@ -36,7 +38,8 @@ func _build_unified_scene() -> void:
 		stage_layers.name = "StageLayers"
 		stage_layers.configure(stage_id, false)
 		add_child(stage_layers)
-		DaylightUI.place(stage_layers, 0.0, 0.0, 1920.0, 1080.0)
+		var stage_x := SHOP_STAGE_OFFSET_X if stage_id == "shop" else 0.0
+		DaylightUI.place(stage_layers, stage_x, 0.0, 1920.0, 1080.0)
 	else:
 		var place_file := SceneDesignCatalog.place_path(location_id)
 		var wide_place := place_file.replace(".png", "_wide.png")
@@ -292,8 +295,6 @@ func set_shop_split_mode(enabled: bool) -> void:
 		hud_layout.set_dock_visible(not enabled)
 	if is_instance_valid(stage_layers):
 		stage_layers.set_slot_hit_enabled(not enabled)
-		if location_id == "shop":
-			stage_layers.position.x = 150.0 if enabled else 0.0
 
 
 func _on_day_changed() -> void:
