@@ -138,9 +138,6 @@ static func character_path(character_id: String) -> String:
 	var halfbody := CHARACTER_ROOT + actual + ".png"
 	if ACTORS.has(actual) or ResourceLoader.exists(halfbody):
 		return halfbody
-	var file := ENEMY_ROOT + actual + ".png"
-	if ResourceLoader.exists(file):
-		return file
 	var phase3_enemy := "res://assets/sprites/enemies/phase_three/enemy_%s.png" % actual
 	return phase3_enemy if ResourceLoader.exists(phase3_enemy) else ""
 
@@ -175,8 +172,9 @@ static func dialogue_character_path(character_id: String, emotion: String = "neu
 static func background_key(dialogue_id: String) -> String:
 	match dialogue_id:
 		"school_gate": return "school_gate"
-		"club_welcome", "school_affairs", "chat_jiang", "chat_liu", "chat_yang": return "school_room"
-		"campus_morning", "prologue_intro", "chapter_1_intro": return "morning_road"
+		"club_welcome", "school_affairs", "chat_yang", "chat_liu", "chat_jiang": return "school_room"
+		"prologue_intro", "chapter_1_intro", "campus_morning": return "morning_road"
+		"principal_confrontation": return "battle_red_moon_lockdown"
 	return "dusk_road"
 
 static func step_for(node_id: String) -> Dictionary:
@@ -238,18 +236,6 @@ static func timeline_summary() -> String:
 	if GameState.story_flags.get("arete_qualifier_completed", false):
 		rows.append("选拔赛 · 全胜通关体育馆 3 轮代表战，赢得「阿瑞忒代表通行章」。")
 	return "\n".join(rows) if not rows.is_empty() else "今天的故事还没有开始。"
-
-static func quest_text() -> String:
-	return "[b]现在要做的事[/b]\n" + current_objective() + "\n\n[b]校园与旅途足迹[/b]\n" + timeline_summary()
-
-static func records_text() -> String:
-	var names: Array[String] = ["叶舟"]
-	if GameState.visited_node_ids.has("n0"):
-		names.append("黄秋枫")
-		names.append("杨子英")
-	if GameState.visited_node_ids.has("n_gate"): names.append("柳宇龙")
-	if GameState.visited_node_ids.has("n_club_intro") or GameState.visited_node_ids.has("n_affairs"): names.append("姜梓")
-	return "[b]已认识的同学[/b]\n" + " · ".join(names) + "\n\n[b]已经发生的事[/b]\n" + timeline_summary()
 
 static func apply_scene_labels(root: Control) -> void:
 	var replacements: Dictionary = {}

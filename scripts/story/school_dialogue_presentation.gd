@@ -9,6 +9,7 @@ var _cursor_tween: Tween
 var _chapter_banner: Control
 var _banner_tween: Tween
 var _active_cutscene_id: String = ""
+var _staged_bg: SceneStageLayers
 
 func build(owner_screen: Control) -> void:
 	screen = owner_screen
@@ -21,6 +22,11 @@ func build(owner_screen: Control) -> void:
 	DaylightUI.place(background, 0, 0, 1920, 1080)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_staged_bg = SceneStageLayers.new()
+	_staged_bg.name = "StagedDialogueBackdrop"
+	_staged_bg.visible = false
+	add_child(_staged_bg)
+	DaylightUI.place(_staged_bg, 0, 0, 1920, 1080)
 	cutscene_stage = ParallaxCutsceneStage.create("dusk_corridor", false)
 	cutscene_stage.visible = false
 	add_child(cutscene_stage)
@@ -116,8 +122,8 @@ func update_scene(override_cutscene_id: String = "") -> void:
 	if bool(screen.get("_exploration_mode")): key = "dusk_road"
 	var path := "res://assets/backgrounds/phase_two/%s_wide.png" % key
 	if not ResourceLoader.exists(path): path = "res://assets/backgrounds/phase_two/%s.png" % key
-	if id == "school_affairs" and ResourceLoader.exists("res://assets/ui/scene_reset/places/library_wide.png"):
-		path = "res://assets/ui/scene_reset/places/library_wide.png"
+	if id == "school_affairs" and ResourceLoader.exists("res://assets/ui/scene_reset/staged/library/library_midground_wide.png"):
+		path = "res://assets/ui/scene_reset/staged/library/library_midground_wide.png"
 	elif id == "club_welcome" and ResourceLoader.exists(str(HomeScreen.artwork_for_period("afternoon")["room"])):
 		path = str(HomeScreen.artwork_for_period("afternoon")["room"])
 	if ResourceLoader.exists(path): screen.get("bg_texture").texture = load(path)
@@ -147,12 +153,28 @@ func update_scene(override_cutscene_id: String = "") -> void:
 				cutscene_stage._apply_transforms()
 		else:
 			_active_cutscene_id = ""
+	var staged_place_id := ""
+	if id == "school_affairs":
+		staged_place_id = "library"
+	elif bool(screen.get("_calendar_mode")):
+		var cal_place := str(DayCycle.pending_event().get("location", "club"))
+		if SceneStageLayers.has_staged_blueprint(cal_place):
+			staged_place_id = cal_place
+	var use_staged := (not use_cutscene) and staged_place_id != "" and SceneStageLayers.has_staged_blueprint(staged_place_id)
+	if is_instance_valid(_staged_bg):
+		_staged_bg.visible = use_staged
+		if use_staged:
+			if _staged_bg.location_id != staged_place_id:
+				_staged_bg.configure(staged_place_id, false)
+			else:
+				_staged_bg.apply_period_lighting()
 	if is_instance_valid(bg_rect):
-		bg_rect.visible = not use_cutscene
+		bg_rect.visible = (not use_cutscene) and (not use_staged)
 	if bool(screen.get("_calendar_mode")):
 		var place_id := str(DayCycle.pending_event().get("location","club"))
 		var place: Dictionary = CampusPlaces.PLACES[place_id]
-		var place_path := CampusPlaces.ROOT+str(place.get("background",""))
+		var bg_file := str(place.get("background",""))
+		var place_path := ("res://assets/backgrounds/phase_two/" + bg_file) if bg_file != "" else ""
 		if place_id == "club": place_path = str(HomeScreen.artwork_for_period(DayCycle.period())["room"])
 		if SceneDesignCatalog.place_path(place_id) != "" and ResourceLoader.exists(SceneDesignCatalog.place_path(place_id)):
 			screen.get("bg_texture").texture = load(SceneDesignCatalog.place_path(place_id))

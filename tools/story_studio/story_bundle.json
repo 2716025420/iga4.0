@@ -1,0 +1,3661 @@
+{
+  "version": 1,
+  "exported_at": "2026-11-20 20:19:45",
+  "project": "IGA (Inorganic General Alien)",
+  "titles": {
+    "prologue_title": "序章 · 樱道初遇与第四名的呼吸",
+    "chapter_title": "第一章 · 红月下的旧公园与白羊星火"
+  },
+  "actors": {
+    "ye_zhou": {
+      "id": "ye_zhou",
+      "name": "叶舟",
+      "title": "阿瑞忒二年级生",
+      "bio": "观察细致、习惯冷静寻找破绽的战术刻印卡新手。与黄秋枫在旧公园约定后，踏上追寻真相与六地区巡回赛的旅程。",
+      "default_side": "left",
+      "builtin": true
+    },
+    "huang_qiufeng": {
+      "id": "huang_qiufeng",
+      "name": "黄秋枫",
+      "title": "转校插班生",
+      "bio": "温柔安静却总是慢半拍的转校少女，对校园里的日常与人类情感都充满笨拙而认真的好奇。",
+      "default_side": "right",
+      "builtin": true
+    },
+    "yang_zi_ying": {
+      "id": "yang_zi_ying",
+      "name": "杨子英",
+      "title": "摄影社热心社员",
+      "bio": "热心、行动快，喜欢用镜头记录校园夕阳与战术刻印卡切磋。每打出3张卡可发动「快门闪光支援」，兼顾续航与护盾。",
+      "default_side": "right",
+      "builtin": true
+    },
+    "liu_yu_long": {
+      "id": "liu_yu_long",
+      "name": "柳宇龙",
+      "title": "竞技对抗狂热者",
+      "bio": "爱开玩笑也很不服输，把非致命护盾裁决当成堂堂正正的决斗舞台。每打出3张卡可发动「热血追击重扣」，追加高额单体伤害。",
+      "default_side": "right",
+      "builtin": true
+    },
+    "jiang_zi": {
+      "id": "jiang_zi",
+      "name": "姜梓",
+      "title": "学生会事务干事",
+      "bio": "严谨干练，负责核对六地区巡回赛名录与校内安防日志。每打出3张卡可发动「战术统筹屏障」，提供高额护盾并干扰敌方。",
+      "default_side": "right",
+      "builtin": true
+    },
+    "lin_zhi_xia": {
+      "id": "lin_zhi_xia",
+      "name": "林知夏",
+      "title": "图书馆管理员",
+      "bio": "阿瑞忒图书馆温和细心的图书委员，常整理校史期刊与同学们留下的卡片批注。",
+      "default_side": "right",
+      "builtin": true
+    },
+    "tang_xiao_man": {
+      "id": "tang_xiao_man",
+      "name": "唐小满",
+      "title": "校园商店值班员",
+      "bio": "精力充沛的校园小店店员，熟知阿瑞忒新上架的刻印卡组与补给趣闻。",
+      "default_side": "right",
+      "builtin": true
+    },
+    "rebel_operative_masked": {
+      "id": "rebel_operative_masked",
+      "name": "灰区女特工",
+      "title": "灰区反叛组织特工",
+      "bio": "早期核心研究者决裂后的极端清除派行动人员。",
+      "default_side": "right",
+      "builtin": true
+    },
+    "security_guard": {
+      "id": "security_guard",
+      "name": "校园门岗",
+      "title": "受控门岗卫兵",
+      "bio": "安全限幅器遭劫持的校外通道守卫。",
+      "default_side": "right",
+      "builtin": true
+    }
+  },
+  "categories": {
+    "main_active": [
+      {
+        "id": "campus_morning",
+        "node": "n0",
+        "category": "main_active",
+        "target_type": "phase_two_flow",
+        "phase": "序章",
+        "phase_key": "prologue",
+        "title": "樱林解围",
+        "location": "",
+        "enemy": "",
+        "briefing_flag": "",
+        "bg": "morning_road",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "主线节点 n0",
+        "lines": [
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "只要在早读前把随身卡匣的年度登记交上去，放学后还能顺路去老街买面包。"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "happy",
+            "text": "早呀叶舟！快看樱树那边——有几个高年级生好像在围着新来的转校生！"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "拿着高阶刻印卡炫耀、还想强行拿走别人的基础卡组吗……真是老套的欺负人方式。"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "angry",
+            "text": "照校规，卡组切磋必须在双方同意的「学园护盾裁决」下进行！我拍下来当凭证，叶舟，我们上！"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "喂，那边的学长。欺负刚转来的同学算什么本事？想比划两张刻印卡，我用护盾裁决陪你们打一局。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "surprised",
+            "text": "唔……看到你的相机和护盾卡，那些人收起卡匣走掉了。谢谢你替我解围，同学。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "happy",
+            "text": "我叫叶舟，二年级B班的。你是今天刚转来的黄秋枫同学吧？别太在意那些家伙。",
+            "choices": [
+              {
+                "text": "把卡片登记编号互相记一下吧，以后有事随时找我。",
+                "favor_char": "yang_zi_ying",
+                "favor_add": 5
+              },
+              {
+                "text": "先熟悉下校园的护盾裁决规矩，自己的初始卡可不能随便让出去。",
+                "favor_char": "yang_zi_ying",
+                "favor_add": 10
+              }
+            ]
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "shy",
+            "text": "叶、舟……嗯，我记住这个名字了。那……明天校园运动会结束后，还能再说说话吗？"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "happy",
+            "text": "早读铃响啦！先去教室点名，明天运动会再把社团钥匙交给你！"
+          }
+        ]
+      },
+      {
+        "id": "school_gate",
+        "node": "n_gate",
+        "category": "main_active",
+        "target_type": "phase_two_flow",
+        "phase": "序章",
+        "phase_key": "prologue",
+        "title": "运动会与初战",
+        "location": "",
+        "enemy": "liu_yu_long_duel",
+        "briefing_flag": "school_gate_duel_briefed",
+        "bg": "school_gate",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "主线节点 n_gate · 完成后接战斗 liu_yu_long_duel",
+        "lines": [
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "happy",
+            "text": "第二天清晨的田径场可真热闹！不过叶舟，你刚注意到黄秋枫跑完四百米接力的样子了吗？"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "看到了……明明冲到了第四名，下场的时候却一滴汗都没有，呼吸稳得像根本没参加过比赛一样。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "嗯？名次停在第四名左右，呼吸频率也不超过常人平均线，应该是最不容易引起注意的标准表现吧……叶舟同学怎么这样看着我？"
+          },
+          {
+            "speaker": "柳宇龙",
+            "char": "liu_yu_long",
+            "side": "right",
+            "emotion": "happy",
+            "text": "哈哈！先别发呆了叶舟！听说你昨天早上只靠三张基础刻印卡就逼退了高年级的家伙？正巧比赛间隙，来决斗台切磋一局！"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "只是他们心虚走开而已。不过既然你手痒，热身一局我随时奉陪，希望你今天记得看清敌方意图再出牌。"
+          },
+          {
+            "speaker": "柳宇龙",
+            "char": "liu_yu_long",
+            "side": "right",
+            "emotion": "happy",
+            "text": "少看不起人！诺莫斯和阿戈拉今年的新生都卷得厉害，咱阿瑞忒这回「六地区巡回赛」可不能掉链子！展开学园护盾裁决，叶舟——接招！"
+          }
+        ]
+      },
+      {
+        "id": "club_welcome",
+        "node": "n_club_intro",
+        "category": "main_active",
+        "target_type": "phase_two_flow",
+        "phase": "序章",
+        "phase_key": "prologue",
+        "title": "入驻社团室",
+        "location": "",
+        "enemy": "",
+        "briefing_flag": "",
+        "bg": "club",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "主线节点 n_club_intro",
+        "lines": [
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "运动会热身辛苦了，叶舟。从今天下午开始，这间「阿瑞忒社团教室」就正式归我们活动组使用了。"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "happy",
+            "text": "桌上那只旧铁盒我已经收拾成「卡牌整理台」啦！墙边还挂好了手绘校园地图，隔壁放映小间改成了咱们的「放映档案室」——达成委托还能去那里盖章领零用钱和材料呢！"
+          },
+          {
+            "speaker": "柳宇龙",
+            "char": "liu_yu_long",
+            "side": "right",
+            "emotion": "happy",
+            "text": "体育馆的模拟训练路线、校园商店的新上架卡组，还有图书馆里的藏书，阿瑞忒可好玩着呢！先把社团里的第 4 张储备卡装进卡匣试试手感吧！"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "shy",
+            "text": "大家看起来都很期待接下来的校园生活……我下午想去「图书馆」窗边借几本讲人类故事的书。等叶舟你在校园里逛一逛、熟悉了之后，能来图书馆找我吗？"
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "正好，我也去核对一下校内限幅器日志。去卡牌工坊整备好卡匣、到放映室领完入部补给，就可以放心出发了。"
+          }
+        ]
+      },
+      {
+        "id": "school_affairs",
+        "node": "n_affairs",
+        "category": "main_active",
+        "target_type": "phase_two_flow",
+        "phase": "第一章 · 日常与伏笔",
+        "phase_key": "act1",
+        "title": "书页与旧园之约",
+        "location": "library",
+        "enemy": "",
+        "briefing_flag": "",
+        "bg": "library",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "主线节点 n_affairs",
+        "lines": [
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "推开图书馆窗边的阅读区，阳光正好落在一摞摊开的旧小说上。秋枫果然还坐在这里。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "happy",
+            "text": "叶舟，你来找我了。前天早上的事……还有运动会那天我没反应过来的话，本来应该早点好好谢谢你的。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "shy",
+            "text": "谢什么，路见不平顺手搭把手而已。话说，你一直在读这些描写恋爱与日常的小说吗？"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "shy",
+            "text": "嗯……书上写着，如果一直想再见到一个人，想确认他对自己的感觉究竟是什么，那或许就是所谓的“喜欢”。叶舟……我也想试着站在人类这一侧，和你多待一会儿。"
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "worried",
+            "text": "抱歉打断一下你们的午后谈话——叶舟、秋枫，刚才学生会收到了紧急日志告警：校外偏僻街区的安全限幅器出现了外部高权限覆写。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "worried",
+            "text": "安全限幅器被覆写？意思是……原本只用于校园护盾裁决的街区防御设施，在特定状态下可能会切入超限实战模式？"
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "我已经留下备份存档。在问题查清前，去校外街区前务必把卡匣整备妥当——最好编满 5 张行动卡或将常用卡强化到 Lv.2。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "shy",
+            "text": "那……等傍晚日落的时候，我先在学校后面的「旧公园」长椅等你。记住一定要准备好再过来哦，叶舟。"
+          }
+        ]
+      },
+      {
+        "id": "after_school",
+        "node": "n_dusk",
+        "category": "main_active",
+        "target_type": "phase_two_flow",
+        "phase": "第一章 · 红月高潮",
+        "phase_key": "climax",
+        "title": "黄昏轻吻",
+        "location": "old_park",
+        "enemy": "",
+        "briefing_flag": "",
+        "bg": "old_park",
+        "bgm": "bgm_dusk_memory",
+        "default_cutscene": "dusk_corridor",
+        "note": "主线节点 n_dusk",
+        "lines": [
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "社团的值日与整备已经全部完成了。夕阳把旧公园的红枫和梧桐大道染成金色，秋枫果然站在走廊尽头的长椅边。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "happy",
+            "text": "叶舟，你按约过来了。今天只要待在你身边，周围原本喧闹的各种数值和杂音，好像全都一下子变得安静又清晰。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "shy",
+            "text": "怎么突然说得这么认真……刚转校过来，习惯这里本来就是应该的。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "shy",
+            "text": "我一直在观察，也把图书馆借来的故事一页页读完了。书上说，当面对不想失去的人时，单纯的语言有时候太慢——"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "shy",
+            "text": "（她忽然踮起脚尖，生涩却坚定地轻轻吻了一下叶舟的脸颊与唇角，呼吸仿佛停顿了半拍。）"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "surprised",
+            "text": "等、秋枫？！太突然了——"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "shy",
+            "text": "唔……我先去街角那个自动贩卖机买两瓶橘子汽水！你就在这里等我，很快回来！"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "worried",
+            "text": "喂，慢点跑……怎么回事？天空的颜色在一瞬间变成暗红了，警报声也在响！"
+          },
+          {
+            "speaker": "校园门岗",
+            "char": "security_guard",
+            "side": "right",
+            "text": "检测到外区超限指令覆盖，所有学生立即原地停步，禁止离开旧公园通道！",
+            "emotion": "neutral"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "angry",
+            "text": "秋枫刚才一个人往街角跑过去了！抱歉，这扇门我今天必须过去！"
+          }
+        ]
+      },
+      {
+        "id": "n_guard",
+        "node": "n_guard",
+        "category": "main_active",
+        "target_type": "phase_two_battle_only",
+        "phase": "第一章 · 红月高潮",
+        "phase_key": "climax",
+        "title": "门岗封锁（战斗节点）",
+        "location": "",
+        "enemy": "security_guard",
+        "briefing_flag": "",
+        "bg": "battle_red_moon_lockdown",
+        "bgm": "bgm_redmoon_overclock",
+        "default_cutscene": "",
+        "note": "纯战斗节点 n_guard（敌人: security_guard）。若需增加战前剧情台词，可直接转为「战前对话+战斗」。",
+        "lines": []
+      },
+      {
+        "id": "yang_rescue",
+        "node": "n_rescue",
+        "category": "main_active",
+        "target_type": "phase_two_flow",
+        "phase": "第一章 · 红月高潮",
+        "phase_key": "climax",
+        "title": "灰区奇袭",
+        "location": "",
+        "enemy": "",
+        "briefing_flag": "",
+        "bg": "dusk_road",
+        "bgm": "bgm_redmoon_overclock",
+        "default_cutscene": "rebel_warning",
+        "note": "主线节点 n_rescue",
+        "lines": [
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "worried",
+            "text": "门岗的护盾程序居然被锁死在超限输出档……秋枫就在前面的贩卖机拐角！"
+          },
+          {
+            "speaker": "灰区女特工",
+            "char": "alliance_operative",
+            "side": "right",
+            "text": "目标锁定。编号04——『黄秋枫』。月球算力网派入人类社区的高阶拟真伪人，到此为止了。",
+            "emotion": "neutral"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "left",
+            "emotion": "damaged_fiber",
+            "text": "抑制实弹……别过来，叶舟……不要看见这副样子……"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "surprised",
+            "text": "秋枫的肩口没有流血——创口里面闪烁着一束束蓝金色的光纤和晶体电路？！你难道不是……"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "worried",
+            "text": "叶舟！低头——护栏和超限榴弹扫过来了！"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "surprised",
+            "text": "子英？！你怎么赶到这里来了？"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "angry",
+            "text": "拍夕阳的时候看见整条街忽然切入红月警报，我就知道你要冲过来！那家伙带了实弹型拦截机，先撤到掩体后，把卡匣切入实战共鸣模式！"
+          }
+        ]
+      },
+      {
+        "id": "n_robot",
+        "node": "n_robot",
+        "category": "main_active",
+        "target_type": "phase_two_battle_only",
+        "phase": "第一章 · 红月高潮",
+        "phase_key": "climax",
+        "title": "拦截机械（战斗节点）",
+        "location": "",
+        "enemy": "campus_robot",
+        "briefing_flag": "",
+        "bg": "battle_red_moon_lockdown",
+        "bgm": "bgm_redmoon_overclock",
+        "default_cutscene": "",
+        "note": "纯战斗节点 n_robot（敌人: campus_robot）。若需增加战前剧情台词，可直接转为「战前对话+战斗」。",
+        "lines": []
+      },
+      {
+        "id": "principal_confrontation",
+        "node": "n5_boss",
+        "category": "main_active",
+        "target_type": "phase_two_flow",
+        "phase": "第一章 · 红月高潮",
+        "phase_key": "climax",
+        "title": "红月超限",
+        "location": "",
+        "enemy": "ch1_hunter_mech",
+        "briefing_flag": "principal_briefing_done",
+        "bg": "battle_red_moon_lockdown",
+        "bgm": "bgm_redmoon_overclock",
+        "default_cutscene": "red_moon_street",
+        "note": "主线节点 n5_boss · 完成后接战斗 ch1_hunter_mech",
+        "lines": [
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "angry",
+            "text": "我破译了异常日志的来源——不是校园保安暴走，是灰区反叛组织用盗取的早期母卡残钥劫持了街区限幅器！"
+          },
+          {
+            "speaker": "柳宇龙",
+            "char": "liu_yu_long",
+            "side": "right",
+            "emotion": "angry",
+            "text": "可恶！借着红月调度的空当在街角动用超限火力，还真把学生当成随便清理的目标了？"
+          },
+          {
+            "speaker": "灰区女特工",
+            "char": "alliance_operative",
+            "side": "right",
+            "text": "你们这些天真的学生根本不懂，没有真实情感与灵魂的仿制品正在替代人类决定生活本身！一旦发现Bug，就必须彻底清除！",
+            "emotion": "neutral"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "angry",
+            "text": "即便她是以高算力模拟出的存在……清晨她记下我名字的样子、刚才去买的两瓶汽水，全都实实在在发生过！"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "left",
+            "emotion": "crystal_stasis",
+            "text": "算力核心……过载结晶启动了……叶舟，快带大家走，这台猎杀机兵解除全部限制了……"
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "angry",
+            "text": "想都别想丢下任何一个人！叶舟，我把全员卡匣并入同一组战术共鸣网络了——我们的助阵协战卡随时响应！"
+          },
+          {
+            "speaker": "柳宇龙",
+            "char": "liu_yu_long",
+            "side": "right",
+            "emotion": "happy",
+            "text": "听见没有，三缺一可不行！把你的后背交给我们，一起打穿前面那个大家伙！"
+          }
+        ]
+      },
+      {
+        "id": "find_yang",
+        "node": "n_find_yang",
+        "category": "main_active",
+        "target_type": "phase_two_flow",
+        "phase": "第一章 · 红月高潮",
+        "phase_key": "climax",
+        "title": "白羊觉醒",
+        "location": "",
+        "enemy": "",
+        "briefing_flag": "",
+        "bg": "dusk_road",
+        "bgm": "bgm_dusk_memory",
+        "default_cutscene": "arena_spotlight",
+        "note": "主线节点 n_find_yang",
+        "lines": [
+          {
+            "speaker": "柳宇龙",
+            "char": "liu_yu_long",
+            "side": "right",
+            "emotion": "happy",
+            "cutscene": "qiufeng_crystal",
+            "text": "哈啊……超限猎杀机兵彻底停摆了！那名灰区女特工也趁着雾气撤走了。"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "worried",
+            "cutscene": "qiufeng_crystal",
+            "text": "秋枫她……受损的位置停止崩溃了，整个人被一层像琥珀又像蓝水晶一样的结构封住，变成了一枚休眠结晶核心。"
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "neutral",
+            "cutscene": "qiufeng_crystal",
+            "text": "我刚收到月球中枢的自动挂起回执。『编号04-秋枫』的深层社交数据切片被强行封存，阿瑞忒区本地没有权限唤醒她。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "worried",
+            "cutscene": "qiufeng_crystal",
+            "text": "难道就没有办法再见到她了吗？她刚才甚至还没来得及问清楚自己的感受究竟算什么……"
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "neutral",
+            "cutscene": "qiufeng_crystal",
+            "text": "回执附件里留下了一条协议条件：唯有集齐涵盖四大学在内的『六地区巡回锦标赛』高阶凭证，点亮十二星座母卡与『魔法师钥匙』，才能合法向月球总控申请调阅与重建特定个体的深层数据。"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "happy",
+            "cutscene": "red_moon_finale",
+            "text": "叶舟你看！你掌心里刚刚一直握着的那枚余温徽记……它正在和你的卡匣共鸣发光！"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "happy",
+            "cutscene": "red_moon_finale",
+            "text": "这是……十二星座母卡第一枚：『#01 白羊座·英雄』。哪怕那是程序演算出来的温柔，我也要亲口再问她一次。",
+            "choices": [
+              {
+                "text": "赢下阿瑞忒代表选拔赛，然后一起去诺莫斯与其余学园把她带回来！",
+                "favor_char": "yang_zi_ying",
+                "favor_add": 10
+              },
+              {
+                "text": "先在体育馆拿到阿瑞忒代表资格，十二枚母卡的秘密我们一张张去揭开。",
+                "favor_char": "liu_yu_long",
+                "favor_add": 10
+              }
+            ]
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "happy",
+            "cutscene": "red_moon_finale",
+            "text": "好——明早先回社团教室把「#01 白羊座·英雄」录入图鉴，再去体育馆赢下 3 轮《阿瑞忒代表选拔赛》，取得正式巡回代表通行章，我们就能向诺莫斯出发了！"
+          }
+        ]
+      }
+    ],
+    "prologue_oral_drafts": [
+      {
+        "id": "prologue_01_alley_rescue",
+        "node": "n_oral_01",
+        "category": "prologue_oral_drafts",
+        "target_type": "draft",
+        "phase": "口述序章 · A",
+        "title": "街角解围与退缩（范本示范稿）",
+        "location": "morning_road",
+        "bg": "morning_road",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "next_action": "推进至次日运动会 (prologue_02_sports_day)",
+        "unlock_flags": [
+          "prologue_rescue_done"
+        ],
+        "note": "源自 IGA_正式剧本编写范本.md（严格按 2026-10-28 口述 A 编写：叶舟未主动出头仅啧了一声被拽衣帽，黄秋枫叫停，小混混威胁叶舟附和，叶舟羞耻逃跑）。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "黑屏过渡",
+            "arg": "0.8秒"
+          },
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "清晨阳光穿过樱道，节奏轻松，随后突然收紧"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "阿瑞忒学院的清晨总带着淡淡的海风。离早读铃响还有二十分钟，我照常沿着教学楼外的小路走着。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "再拐过前面那个花坛，就能赶在点名前把卡匣登记表交上去了。"
+          },
+          {
+            "type": "directive",
+            "kind": "SFX",
+            "arg": "ui_click"
+          },
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "远处传来起哄声与推搡声"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "转角树荫下，几个高年级生正把一名瘦小的同学堵在墙边。路过的学生纷纷加快脚步，假装什么都没看见。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "……啧。"
+          },
+          {
+            "type": "directive",
+            "kind": "BGM",
+            "arg": "静音"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "我本来只是下意识皱了下眉，并不打算多管闲事。可刚走出三步，身后的笑闹声却突然停了。"
+          },
+          {
+            "type": "directive",
+            "kind": "镜头",
+            "arg": "轻震"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "一只手猛地揪住我的卫衣帽子，把我往后一拽。"
+          },
+          {
+            "speaker": "小混混",
+            "char": "",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "你刚才“啧”了一声吧？——你好像很想当好人啊。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "surprised",
+            "text": "我、我只是路过——"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "周围没人停下来。对方腰间的卡匣发出一声轻响，我喉咙发紧，连抬手都觉得僵硬。"
+          },
+          {
+            "type": "directive",
+            "kind": "BGM",
+            "arg": "bgm_campus_daily"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "咦？你们在做什么呢？"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "声音清清淡淡的，却让拽着我衣领的那只手瞬间松了力道。"
+          },
+          {
+            "speaker": "小混混",
+            "char": "",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "啊、是黄秋枫同学！哈哈，没什么，我们在跟学弟玩角色扮演游戏呢！大家都是好朋友，对吧？",
+            "choices": [
+              {
+                "text": "……嗯，是的。",
+                "flag": "bully_complied_quiet",
+                "follow_up": [
+                  {
+                    "speaker": "旁白",
+                    "char": "",
+                    "side": "left",
+                    "emotion": "neutral",
+                    "text": "话一出口，我只觉得耳根发烫。"
+                  }
+                ]
+              },
+              {
+                "text": "对、对，我们在排练。",
+                "flag": "bully_complied_nervous",
+                "follow_up": [
+                  {
+                    "speaker": "旁白",
+                    "char": "",
+                    "side": "left",
+                    "emotion": "neutral",
+                    "text": "连声音都在发抖，糟糕透了。"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "小混混勾住叶舟脖子，眼神发狠地暗示附和"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "happy",
+            "text": "原来如此，大家关系真好呀。不过不好意思，我刚好有事想找这位同学，能先借他一会儿吗？"
+          },
+          {
+            "type": "directive",
+            "kind": "立绘退场",
+            "arg": "右"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "几个高年级生顺着台阶打着哈哈散开了。转角很快安静下来，只剩下我和她。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "concerned",
+            "text": "刚才没有受伤吧？如果害怕的话，可以在这里先坐一会儿。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "shy",
+            "text": "没、没事！谢谢你……我还有事，先走了！"
+          },
+          {
+            "type": "directive",
+            "kind": "立绘退场",
+            "arg": "左"
+          },
+          {
+            "type": "directive",
+            "kind": "SFX",
+            "arg": "page_flip"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "我几乎是落荒而逃。跑出两条街后靠在墙边喘气，脑子里反复回放着刚才自己懦弱地附和“是”的样子。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "concerned",
+            "text": "……真是个笨蛋。"
+          }
+        ]
+      },
+      {
+        "id": "prologue_02_sports_day",
+        "node": "n_oral_02",
+        "category": "prologue_oral_drafts",
+        "target_type": "draft",
+        "phase": "口述序章 · B",
+        "title": "次日运动会与第四名的呼吸",
+        "location": "school_gate",
+        "bg": "school_gate",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "next_action": "推进至道歉与亲近 (prologue_03_apology_confession)",
+        "unlock_flags": [],
+        "note": "口述 B 要点：1) 霸凌解围后的第二天举行运动会，叶舟从此开始主动注意黄秋枫；2) 独立视角切换至专业体育生——后程加速却怎么也甩不开身后的黄秋枫，直到冲线夺冠才发现她只拿第4名、却神色平稳一滴汗都没流；3) 体育生视角与主角本人所知信息保持分离。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "次日校园运动会，先写体育生视角径赛暗线，再切回叶舟在看台注意黄秋枫"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "霸凌事件发生后的第二天，阿瑞忒学院迎来了秋季运动会。"
+          },
+          {
+            "speaker": "体育生",
+            "char": "",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "（内心）最后一百米冲刺——怎么回事，无论怎么拉大步幅，那个转校生的脚步声都稳稳贴在身后半步？"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "他咬牙撞线夺冠后回头，才惊觉第四名冲线的黄秋枫连呼吸都没有乱。"
+          }
+        ]
+      },
+      {
+        "id": "prologue_03_apology_confession",
+        "node": "n_oral_03",
+        "category": "prologue_oral_drafts",
+        "target_type": "draft",
+        "phase": "口述序章 · C1",
+        "title": "道歉、相处与未答复的表白",
+        "location": "club",
+        "bg": "club",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "next_action": "推进至旧公园约会 (prologue_04_old_park_kiss)",
+        "unlock_flags": [],
+        "note": "口述 C1 要点：1) 运动会后叶舟主动找黄秋枫道歉（为昨天逃跑的事）；2) 两人逐步亲近一起玩；3) 主角鼓起勇气表白，黄秋枫表示感谢并称「需要考虑一下」。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "补齐叶舟为逃跑道歉、一起相处以及表白后秋枫说『需要考虑一下』"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "shy",
+            "text": "那个……黄秋枫同学，前天在樱花路忽然跑掉的事，实在对不起。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "happy",
+            "text": "没关系的，叶舟同学。能再来和我说话，我就已经很开心了。"
+          }
+        ]
+      },
+      {
+        "id": "prologue_04_old_park_kiss",
+        "node": "n_oral_04",
+        "category": "prologue_oral_drafts",
+        "target_type": "draft",
+        "phase": "口述序章 · C2",
+        "title": "旧公园黄昏、突然亲吻与买水离场",
+        "location": "old_park",
+        "bg": "old_park",
+        "bgm": "bgm_dusk_memory",
+        "default_cutscene": "old_park_dusk",
+        "next_action": "推进至买水返回目击袭击 (prologue_05_ambush_water_rescue)",
+        "unlock_flags": [],
+        "note": "口述 C2 要点（极重要）：1) 黄秋枫不想让人议论而约在几乎无人的旧公园；2) 叶舟自我贬低时，她突然极快地亲吻主角并鼓励肯定他（注意：不是正式接受表白，她没有主观爱意）；3) 提到表白答复时她改口说口渴疲倦请叶舟去买水（『毕竟你是男孩子，体能比我好』），不擅自写成预见袭击或刻意支开。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "主角自我贬低 -> 秋枫极快亲吻并鼓励 -> 刚要回表白又改口请主角去买水"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "因为不想给叶舟带来多余的麻烦，所以选了这个几乎不会有人来的旧公园。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "worried",
+            "text": "其实我这种人……既胆小又没什么特别的长处，你根本没必要这么照顾我。"
+          },
+          {
+            "speaker": "黄秋枫",
+            "char": "huang_qiufeng",
+            "side": "right",
+            "emotion": "shy",
+            "text": "不对哦。叶舟很好——比你自己以为的还要好。"
+          }
+        ]
+      },
+      {
+        "id": "prologue_05_ambush_water_rescue",
+        "node": "n_oral_05",
+        "category": "prologue_oral_drafts",
+        "target_type": "draft",
+        "phase": "口述序章 · D/E",
+        "title": "半小时后返回、泼水砸瓶与救人失败",
+        "location": "old_park",
+        "bg": "dusk_road",
+        "bgm": "bgm_redmoon_overclock",
+        "default_cutscene": "rebel_warning",
+        "next_action": "推进至威胁与带走 (prologue_06_threat_abduction)",
+        "unlock_flags": [],
+        "note": "口述 D/E 要点（极重要）：1) 主角约半小时买水回来，仅目睹重武女性袭击者的最后一击（不可写成目睹全程）；2) 主角瞬间冷静：拧开一瓶水泼向对方眼睛 + 用手提塑料袋像投石一样把另一瓶水甩向眼睛 + 低头俯身铲抱起秋枫狼狈奔跑；3) 非正面战斗也非成功逃脱，不可借触感立即识破机械构造或赋予超人体能。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "拧水泼眼 -> 甩塑料袋投石掷第二瓶 -> 俯身铲抱秋枫踉跄逃跑"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "大约半小时后拎着两瓶水跑回旧公园时，林荫尽头落下了夸张重武器的最后一击。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "angry",
+            "text": "……！（拧开右手水瓶盖，算准最短直线冲过去泼向那名女袭击者的眼睛）"
+          }
+        ]
+      },
+      {
+        "id": "prologue_06_threat_abduction",
+        "node": "n_oral_06",
+        "category": "prologue_oral_drafts",
+        "target_type": "draft",
+        "phase": "口述序章 · F",
+        "title": "二选一威胁与被敲晕带走",
+        "location": "dusk_road",
+        "bg": "dusk_road",
+        "bgm": "bgm_dusk_memory",
+        "default_cutscene": "red_moon_street",
+        "next_action": "序章收束",
+        "unlock_flags": [],
+        "note": "口述 F 要点：主角最终跑不掉。女袭击者因目击现场给出二选一『跟她走，或者死』（目前只是威胁，不可认定必然杀害），最终叶舟被打晕带走；后续下落待定。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "未定：袭击者姓名/职务、为何不杀叶舟、醒来后安排均留白"
+          },
+          {
+            "speaker": "灰区女特工",
+            "char": "rebel_operative_masked",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "目击现场的普通学生……我给你两个选择：跟我走，或者现在死在这里。"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "后颈传来沉闷的一击，视野里的红月和旧公园一起沉入黑暗。"
+          }
+        ]
+      }
+    ],
+    "chapters_2_to_5": [
+      {
+        "id": "ch2_nomos_draft",
+        "node": "ch2_nomos",
+        "category": "chapters_2_to_5",
+        "target_type": "outline",
+        "phase": "第二章 · 诺莫斯",
+        "title": "巨树酒馆与主观天平（大纲与起稿区）",
+        "location": "nomos_home_test",
+        "bg": "nomos_home",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "next_action": "待定",
+        "unlock_flags": [],
+        "note": "世界观总纲：诺莫斯法典学园（巨树内部中性木质小酒馆 Home / 法典庭院）。天秤座『天真者』持卡人（法典首席裁判官）将同情或越级挑战者统一定性为违纪并当场施罚，揭示规则只是持卡人偏见的投影。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "待主创正式撰写第二章台词；不擅自补全未知持卡人姓名与外观"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "穿过包裹着诺莫斯议事厅的巨大古树根系，木质小酒馆暖黄的灯光正映出法典庭院的轮廓。"
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "诺莫斯的法典裁决以『主观确信』为尺——在庭院里发言和出牌，最好先摸清裁判官划下的边界。"
+          }
+        ]
+      },
+      {
+        "id": "ch3_techne_draft",
+        "node": "ch3_techne",
+        "category": "chapters_2_to_5",
+        "target_type": "outline",
+        "phase": "第三章 · 忒克捏",
+        "title": "黑白工坊与造物主的记忆切片（大纲与起稿区）",
+        "location": "techne_home_test",
+        "bg": "techne_home",
+        "bgm": "bgm_dusk_memory",
+        "default_cutscene": "",
+        "next_action": "待定",
+        "unlock_flags": [],
+        "note": "世界观总纲：忒克捏极简黑白研究室（Home / 分子重构车间）。探索反叛组织特工绕过终端护盾的武器来源，涉及处女座『创造者』、摩羯座『智者』与巨蟹座『照顾者』的研发团队分裂往事。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "待主创正式撰写第三章台词；保留早期研究者分裂因果的悬念边界"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "黑白强对比的忒克捏制造室里只有极少量的红绿标识灯在跳动，像一张尚未显影完的工程蓝图。"
+          }
+        ]
+      },
+      {
+        "id": "ch4_agora_draft",
+        "node": "ch4_agora",
+        "category": "chapters_2_to_5",
+        "target_type": "outline",
+        "phase": "第四章 · 阿戈拉",
+        "title": "不夜城、空头支票与强劳宿舍（大纲与起稿区）",
+        "location": "agora_home_test",
+        "bg": "agora_home",
+        "bgm": "bgm_dusk_memory",
+        "default_cutscene": "",
+        "next_action": "待定",
+        "unlock_flags": [],
+        "note": "世界观总纲：阿戈拉商业街与强制劳动集中营集体宿舍（Home）。涉及不对称契约与双子/凡人卡牌对抗破局，注意AGENTS约束：不实现劳动、博彩或自造未确认经济规则。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "待主创正式撰写第四章台词；遵守不自造未确认博彩/福利经济规则约束"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "阿戈拉的霓虹耀金招牌彻夜不熄，而一墙之隔的集体宿舍却只剩下冰冷的床沿与未签署完的契约单。"
+          }
+        ]
+      },
+      {
+        "id": "ch5_finale_draft",
+        "node": "ch5_finale",
+        "category": "chapters_2_to_5",
+        "target_type": "outline",
+        "phase": "第五章 · 灰区与红月圣堂",
+        "title": "伪人、人类与心之证明（终局大纲区）",
+        "location": "region_failed_alliance_gateway_test",
+        "bg": "battle_red_moon_lockdown",
+        "bgm": "bgm_redmoon_overclock",
+        "default_cutscene": "red_moon_finale",
+        "next_action": "全案终局",
+        "unlock_flags": [],
+        "note": "世界观总纲：失败者同盟前线与 IGA 信仰教团（无 Home，多难度剧情探索区）。携集齐的 11 枚母卡与水瓶座『魔法师钥匙』向月球总控发起交互请求。结局逻辑保留由主创亲笔定夺。",
+        "lines": [
+          {
+            "type": "directive",
+            "kind": "备注",
+            "arg": "终局保留全部未定抉择与结局走向，交由主创亲笔书写"
+          },
+          {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "十一枚星座母卡在掌心次第亮起，水瓶座的魔法师钥匙正指向夜空中央那轮无声运转的红月。"
+          }
+        ]
+      }
+    ],
+    "campus_npcs": [
+      {
+        "id": "chat_yang",
+        "node": "",
+        "category": "campus_npcs",
+        "target_type": "phase_two_script",
+        "phase": "社团闲聊",
+        "title": "社团闲聊 · 杨子英",
+        "location": "club",
+        "bg": "club",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "社团教室点击同伴「同学交流」触发（0 活动点消耗）。",
+        "lines": [
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "happy",
+            "text": "我把快门闪光的协战模板重新调了曝光参数！只要叶舟在场上连续打出三张卡，我的摄影支援肯定准时跟上。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "happy",
+            "text": "连照相机都能编进战术刻印卡共鸣里，不愧是你。熟悉度越高，我们的同步威力也会跟着提升呢。"
+          },
+          {
+            "speaker": "杨子英",
+            "char": "yang_zi_ying",
+            "side": "right",
+            "emotion": "happy",
+            "text": "哼哼，等把秋枫接回来，一定要重新替你们拍一张不带警报声的旧公园合影！"
+          }
+        ]
+      },
+      {
+        "id": "chat_liu",
+        "node": "",
+        "category": "campus_npcs",
+        "target_type": "phase_two_script",
+        "phase": "社团闲聊",
+        "title": "社团闲聊 · 柳宇龙",
+        "location": "club",
+        "bg": "club",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "社团教室点击同伴「同学交流」触发（0 活动点消耗）。",
+        "lines": [
+          {
+            "speaker": "柳宇龙",
+            "char": "liu_yu_long",
+            "side": "right",
+            "emotion": "happy",
+            "text": "巡回赛可是正大光明的硬碰硬！商店里会随主线进货全新刻印卡，工坊强化卡级还不占白天活动次数，记得勤加整备！"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "放心，节奏感我也一直在摸索。有你在后面追击重扣，很多防线都能直接打穿。"
+          },
+          {
+            "speaker": "柳宇龙",
+            "char": "liu_yu_long",
+            "side": "right",
+            "emotion": "happy",
+            "text": "哈哈，那下一场选拔赛协战扣杀可别眨眼！"
+          }
+        ]
+      },
+      {
+        "id": "chat_jiang",
+        "node": "",
+        "category": "campus_npcs",
+        "target_type": "phase_two_script",
+        "phase": "社团闲聊",
+        "title": "社团闲聊 · 姜梓",
+        "location": "club",
+        "bg": "club",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "社团教室点击同伴「同学交流」触发（0 活动点消耗）。",
+        "lines": [
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "neutral",
+            "text": "四所独立大学——诺莫斯、阿瑞忒、阿戈拉、忒克捏各自有着截然不同的裁决规矩。记得常来「放映档案室」核对委托并加盖巡回印章。"
+          },
+          {
+            "speaker": "叶舟",
+            "char": "ye_zhou",
+            "side": "left",
+            "emotion": "neutral",
+            "text": "辛苦你整理这么多情报了。白羊座母卡点亮之后，在星座图鉴里还能切换战斗共鸣被动。"
+          },
+          {
+            "speaker": "姜梓",
+            "char": "jiang_zi",
+            "side": "right",
+            "emotion": "happy",
+            "text": "去下一所学院前，先把你的卡匣、协战同伴和星座共鸣都检查一遍，赢下体育馆选拔赛的代表席位吧。"
+          }
+        ]
+      },
+      {
+        "id": "npc_lin_zhi_xia",
+        "npc_id": "lin_zhi_xia",
+        "target_type": "campus_life_npc",
+        "category": "campus_npcs",
+        "phase": "日常驻场",
+        "title": "图书馆 · 林知夏日常对话",
+        "location": "library",
+        "bg": "library",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "对应 scripts/campus/campus_life.gd 中 npc_lines()，支持首次/重复/通关条件分块。",
+        "conditions": [
+          {
+            "condition_key": "first_talk",
+            "condition_label": "首次交谈 (count == 0)",
+            "lines": [
+              {
+                "speaker": "林知夏",
+                "char": "lin_zhi_xia",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "你好，我是图书委员林知夏。窗边的座位很亮堂，适合静下心来研习战术牌理。"
+              },
+              {
+                "speaker": "林知夏",
+                "char": "lin_zhi_xia",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "桌上的《阿瑞忒风物纪要》都可以随时翻阅。常来研习的话，我会帮你把新抄录好的手记留在这里。"
+              }
+            ]
+          },
+          {
+            "condition_key": "repeat_talk",
+            "condition_label": "日常重复交谈",
+            "lines": [
+              {
+                "speaker": "林知夏",
+                "char": "lin_zhi_xia",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "欢迎回来。刚才又整理出几页关于四大学院规约的剪报，有空一起看看吧？"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "npc_tang_xiao_man",
+        "npc_id": "tang_xiao_man",
+        "target_type": "campus_life_npc",
+        "category": "campus_npcs",
+        "phase": "日常驻场",
+        "title": "校园商店 · 唐小满日常对话",
+        "location": "shop",
+        "bg": "shop",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "对应 scripts/campus/campus_life.gd 中 npc_lines()，支持首次/重复/通关条件分块。",
+        "conditions": [
+          {
+            "condition_key": "first_talk",
+            "condition_label": "首次交谈 (count == 0)",
+            "lines": [
+              {
+                "speaker": "唐小满",
+                "char": "tang_xiao_man",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "嗨！我是店员唐小满。随着校内赛事推进，柜台会陆续进货一共 16 张各色刻印卡哦！"
+              },
+              {
+                "speaker": "唐小满",
+                "char": "tang_xiao_man",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "要是零用钱紧了，随时接一次店务盘点兼职，一次稳拿 100 零用钱呢！"
+              }
+            ]
+          },
+          {
+            "condition_key": "repeat_talk",
+            "condition_label": "日常重复交谈",
+            "lines": [
+              {
+                "speaker": "唐小满",
+                "char": "tang_xiao_man",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "今天货架刚补充完新卡与补给。逛累了记得顺便喝瓶汽水！"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "npc_liu_yu_long",
+        "npc_id": "liu_yu_long",
+        "target_type": "campus_life_npc",
+        "category": "campus_npcs",
+        "phase": "日常驻场",
+        "title": "天台 / 体育馆 · 柳宇龙日常对话",
+        "location": "gym",
+        "bg": "gym",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "对应 scripts/campus/campus_life.gd 中 npc_lines()，支持首次/重复/通关条件分块。",
+        "conditions": [
+          {
+            "condition_key": "post_qualifier",
+            "condition_label": "选拔赛全胜通关后 (arete_qualifier_completed)",
+            "lines": [
+              {
+                "speaker": "柳宇龙",
+                "char": "liu_yu_long",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "阿瑞忒代表选拔赛三连胜真解气！以后也别忘了每天保持卡匣手感和默契配合！"
+              }
+            ]
+          },
+          {
+            "condition_key": "default",
+            "condition_label": "常规对话",
+            "lines": [
+              {
+                "speaker": "柳宇龙",
+                "char": "liu_yu_long",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "天台或者体育馆的风都很适合活动筋骨！想试验新配的 5 卡卡序，随时去擂台找我！"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "npc_yang_zi_ying",
+        "npc_id": "yang_zi_ying",
+        "target_type": "campus_life_npc",
+        "category": "campus_npcs",
+        "phase": "日常驻场",
+        "title": "天台 · 杨子英日常对话",
+        "location": "rooftop",
+        "bg": "rooftop",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "对应 scripts/campus/campus_life.gd 中 npc_lines()，支持首次/重复/通关条件分块。",
+        "conditions": [
+          {
+            "condition_key": "default",
+            "condition_label": "常规对话",
+            "lines": [
+              {
+                "speaker": "杨子英",
+                "char": "yang_zi_ying",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "清晨天台的海风真舒服，取景框里连远处的白色灯塔都看得一清二楚！"
+              },
+              {
+                "speaker": "杨子英",
+                "char": "yang_zi_ying",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "要在这里一起做一次战术复盘吗？平时去图书馆、商店、海边转转也很不错哦。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "npc_jiang_zi",
+        "npc_id": "jiang_zi",
+        "target_type": "campus_life_npc",
+        "category": "campus_npcs",
+        "phase": "日常驻场",
+        "title": "社团教室 / 天台 · 姜梓日常对话",
+        "location": "club",
+        "bg": "club",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "对应 scripts/campus/campus_life.gd 中 npc_lines()，支持首次/重复/通关条件分块。",
+        "conditions": [
+          {
+            "condition_key": "default",
+            "condition_label": "常规对话",
+            "lines": [
+              {
+                "speaker": "姜梓",
+                "char": "jiang_zi",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "今天想去哪里走走？手绘校园地图就在旁边，放映档案室也能随时加盖委托印章。"
+              },
+              {
+                "speaker": "姜梓",
+                "char": "jiang_zi",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "强化行动卡与找同伴交流都不占白天活动次数，先把节奏理顺再出门吧。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "npc_huang_qiufeng",
+        "npc_id": "huang_qiufeng",
+        "target_type": "campus_life_npc",
+        "category": "campus_npcs",
+        "phase": "日常驻场",
+        "title": "huang_qiufeng",
+        "location": "",
+        "bg": "school_room",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "对应 scripts/campus/campus_life.gd 中 npc_lines()，支持首次/重复/通关条件分块。",
+        "conditions": [
+          {
+            "condition_key": "default",
+            "condition_label": "常规对话",
+            "lines": [
+              {
+                "speaker": "黄秋枫",
+                "char": "huang_qiufeng",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "汽水买回来啦。你喜欢橘子味吗？"
+              },
+              {
+                "speaker": "黄秋枫",
+                "char": "huang_qiufeng",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "旧公园的枫叶一到午后就显得特别安静，坐一会儿再回去吧。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "campus_snippets",
+        "target_type": "campus_snippets",
+        "category": "campus_npcs",
+        "phase": "场景调查",
+        "title": "各场景物件调查短句 (11处)",
+        "location": "campus",
+        "bg": "library",
+        "bgm": "bgm_campus_daily",
+        "default_cutscene": "",
+        "note": "对应 CampusPlaces.SNIPPETS，玩家点击便笺、自动贩卖机、纸箱、海面等热点时弹出。",
+        "snippets": [
+          {
+            "id": "read",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "随手翻开一本校园随笔，页边留着一行小字：把没说出口的话，留给下一次见面。"
+              },
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "合上书之前，我把这句话记在了心里。"
+              }
+            ]
+          },
+          {
+            "id": "study_note",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "桌边的便笺上写着：这里的台灯偶尔接触不良，轻轻转一下就好。落款只有一个“夏”字。"
+              }
+            ]
+          },
+          {
+            "id": "delivery",
+            "lines": [
+              {
+                "speaker": "唐小满",
+                "char": "tang_xiao_man",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "今天送来的是社团用的纸和饮品补给。需要赚点零用钱买新卡的话，随时来柜台帮我盘点哦！"
+              }
+            ]
+          },
+          {
+            "id": "boxes",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "纸箱上的图案标着纸张、文具和饮水。每一箱都已清点好，暂时没有需要带走的东西。"
+              }
+            ]
+          },
+          {
+            "id": "stock_note",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "便笺写着：把多出来的空纸箱留给社团。旁边画了一个有点歪的小笑脸。"
+              }
+            ]
+          },
+          {
+            "id": "rooftop_note",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "长椅旁压着半张手写谱。风把边角吹得轻轻作响，背面写着“放学以后再试一次”。"
+              }
+            ]
+          },
+          {
+            "id": "dorm_note",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "门边的信笺上只有一句话：明天也别忘记，放学后到社团教室来。"
+              },
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "我把信笺夹进书里。这个小房间安静下来，窗外的风声显得格外清楚。"
+              }
+            ]
+          },
+          {
+            "id": "rooftop_vending",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "天台角落的校内饮料贩卖机嗡嗡作响。投币口旁边贴着社团留下的便利贴：『橘子汽水冰度刚好』。"
+              }
+            ]
+          },
+          {
+            "id": "park_vending",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "街角的自动贩卖机还亮着温暖的橙色灯箱。玻璃橱窗里依然摆着那款熟悉的冰镇橘子汽水。"
+              }
+            ]
+          },
+          {
+            "id": "coast_observe",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "沿着沿海公路的石阶向下望去，阳光碎在湛蓝的海面上，远处的白色灯塔正迎着海风旋转。"
+              }
+            ]
+          },
+          {
+            "id": "beach_observe",
+            "lines": [
+              {
+                "speaker": "我",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "细软的沙岸边拍打着透明的海浪。把脚步放慢下来，整个人都轻松了许多。"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "notes_and_routes": [
+      {
+        "id": "library_notes",
+        "target_type": "library_notes",
+        "category": "notes_and_routes",
+        "phase": "图书馆收集",
+        "title": "《阿瑞忒与红月风物纪要》(8篇)",
+        "location": "library",
+        "bg": "library",
+        "bgm": "bgm_campus_daily",
+        "note": "图书馆研习逐篇解锁，并在《放映档案室》可重读。",
+        "articles": [
+          {
+            "id": "note_arbitration",
+            "title": "纪要 01 · 学园护盾裁决公约",
+            "body": "四所独立大学之间通行「非致命护盾裁决」规约：日常切磋以投影偏折盾消减作为胜负判定，不得伤及学生实体。"
+          },
+          {
+            "id": "note_four_academies",
+            "title": "纪要 02 · 四大大学巡回概览",
+            "body": "诺莫斯崇尚自然松弛与公众议政，阿瑞忒留存盛夏海风与青春社团，阿戈拉以高度自由的商贸闻名，忒克捏则追求极致技艺。"
+          },
+          {
+            "id": "note_red_moon",
+            "title": "纪要 03 · 红月预警与超限模式",
+            "body": "每当城市上空出现异常红月频段或街区限幅器遭外部覆写时，护盾投影保护将失效并强行切入实战模式，务必保持卡匣满编。"
+          },
+          {
+            "id": "note_card_case",
+            "title": "纪要 04 · 战术刻印卡匣的演进",
+            "body": "早期的笨重运算装置已被学生们改造成随身折叠卡匣；平时可存放于社团整理台或商店柜台随时添置强化，不消耗日常活动次数。"
+          },
+          {
+            "id": "note_coast_tram",
+            "title": "纪要 05 · 沿海公路与电车旧闻",
+            "body": "阿瑞忒东侧临海，沿着长堤与沙滩一直走到尽头，就是全区最受欢迎的放学散步道——不少巡回赛选手习惯在海风里复盘卡序。"
+          },
+          {
+            "id": "note_zodiac_myth",
+            "title": "纪要 06 · 十二星座母卡传闻",
+            "body": "不同于商店流通的普通战术刻印卡，传说中唯有极少数人持有的十二星座母卡各自铭刻着无可复制的法则，也是开启月球档案库的钥匙。"
+          },
+          {
+            "id": "note_nomos_tree",
+            "title": "纪要 07 · 诺莫斯的巨树聚落",
+            "body": "校刊上记载，第二站诺莫斯学园的核心据点建在一棵环绕全城的巨大古木中空腔室内，旅人们常在树根下的小酒馆交换情报。"
+          },
+          {
+            "id": "note_borrowed_novel",
+            "title": "纪要 08 · 折角借书卡背面的字迹",
+            "body": "林知夏在窗边旧小说里发现了一张被人反复借阅却工整誊写着批注的借书卡：『人类在分别时会先买两瓶汽水——或许因为那样，下次见面就有了理由。』"
+          }
+        ]
+      },
+      {
+        "id": "exploration_notes",
+        "target_type": "exploration_routes",
+        "category": "notes_and_routes",
+        "phase": "体育馆训练",
+        "title": "模拟训练「拾到的留言」微故事 (8组)",
+        "location": "gym",
+        "bg": "gym",
+        "bgm": "bgm_campus_daily",
+        "note": "第 0 层固定为第 1 组路牌指引，第 1 层起随机轮换其余 7 组校园微故事。",
+        "variants": [
+          {
+            "index": 0,
+            "title": "第 0 层固定指引",
+            "lines": [
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "路牌下面压着一张纸条。字写得很大：别着急，先看看周围。"
+              },
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "背面画着通往校门的小箭头，还标出了附近的补给。像是先走过的同学留下的。"
+              },
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "happy",
+                "text": "把纸条放回去吧。下一位路过的人，也许会用得上。"
+              }
+            ]
+          },
+          {
+            "index": 1,
+            "title": "随机校园微故事 #1",
+            "lines": [
+              {
+                "speaker": "杨子英",
+                "char": "yang_zi_ying",
+                "side": "right",
+                "emotion": "happy",
+                "text": "咦，长椅缝里夹着一张拍立得废片——构图还挺稳的嘛！"
+              },
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "背面写着「红月升起前记得留足冷却 1 的轻型手牌」，是三年级摄影社前辈的笔记。"
+              },
+              {
+                "speaker": "杨子英",
+                "char": "yang_zi_ying",
+                "side": "right",
+                "emotion": "happy",
+                "text": "我也把今天拍到的晴天樱枝塞一张在旁边，算作交换留念吧！"
+              }
+            ]
+          },
+          {
+            "index": 2,
+            "title": "随机校园微故事 #2",
+            "lines": [
+              {
+                "speaker": "柳宇龙",
+                "char": "liu_yu_long",
+                "side": "right",
+                "emotion": "happy",
+                "text": "看这栏杆上的划痕编号——去年校内淘汰赛我也在这拐角卡过一次卡组！"
+              },
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "下面贴了张终端便利贴：「别把两张重冷却牌在同一回合砸空」。"
+              },
+              {
+                "speaker": "柳宇龙",
+                "char": "liu_yu_long",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "哈哈，说得挺对。稳住防线再打反击才是最痛快的赢法！"
+              }
+            ]
+          },
+          {
+            "index": 3,
+            "title": "随机校园微故事 #3",
+            "lines": [
+              {
+                "speaker": "姜梓",
+                "char": "jiang_zi",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "巡逻终端留下了一页纸质巡检备忘，纸角压着半截蓝墨印章。"
+              },
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "worried",
+                "text": "上面写着「旧园南侧信号时有盲区，经过时务必保持个人终端处于护盾待机」。"
+              },
+              {
+                "speaker": "姜梓",
+                "char": "jiang_zi",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "看来早在这次事件前，校内就已经有人察觉到了外部频率的异常。"
+              }
+            ]
+          },
+          {
+            "index": 4,
+            "title": "随机校园微故事 #4",
+            "lines": [
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "自动售货机侧面贴着一张橘子味糖纸折的小星星，底下有一行铅笔字。"
+              },
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "happy",
+                "text": "「给路过的二年级同学：紧张的时候记得深呼吸，冷却回合总会转回来的。」"
+              }
+            ]
+          },
+          {
+            "index": 5,
+            "title": "随机校园微故事 #5",
+            "lines": [
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "旧公园秋千旁的告示栏角上，订着一份褪色的「六地区交流赛」旧赛程单。"
+              },
+              {
+                "speaker": "杨子英",
+                "char": "yang_zi_ying",
+                "side": "right",
+                "emotion": "happy",
+                "text": "听说诺莫斯那边的赛场整棵包在巨树树冠里，以后真能去看看就好了。"
+              }
+            ]
+          },
+          {
+            "index": 6,
+            "title": "随机校园微故事 #6",
+            "lines": [
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "石阶缝里吹来半张撕碎的草稿纸，画着十二星座符号旁边的一个小太阳。"
+              },
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "neutral",
+                "text": "旁注写着：「真正难模拟的从来不是算法参数，而是犹豫之后的决定。」"
+              }
+            ]
+          },
+          {
+            "index": 7,
+            "title": "随机校园微故事 #7",
+            "lines": [
+              {
+                "speaker": "柳宇龙",
+                "char": "liu_yu_long",
+                "side": "right",
+                "emotion": "neutral",
+                "text": "看墙根那罐喝空的苏打水拉环，旁边用粉笔写着：今天护盾测试满分！"
+              },
+              {
+                "speaker": "叶舟",
+                "char": "ye_zhou",
+                "side": "left",
+                "emotion": "happy",
+                "text": "把易拉罐顺手投进分类桶里，感觉呼吸也跟着轻松了些。"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "world_reference": {
+    "zodiac_cards": [
+      {
+        "id": "hero",
+        "zodiac": "aries",
+        "name": "白羊座",
+        "archetype": "英雄",
+        "power": "肉体融合",
+        "color": "#E87563",
+        "motto": "以身体承担力量",
+        "ability": "卡牌与使用者肉体融合，身体本身成为卡牌，获得远超常人的体质。",
+        "limits": "力量不附带经验与心智成熟度，需训练掌控；普通日常动作也可能伤害他人。",
+        "number": 1,
+        "interactions": "英雄身体免疫弄臣的身体交换；在反叛者的作用范围内会变得无力。"
+      },
+      {
+        "id": "everyperson",
+        "zodiac": "taurus",
+        "name": "金牛座",
+        "archetype": "凡人",
+        "power": "此刻读心",
+        "color": "#D9AD64",
+        "motto": "与他人站在一起",
+        "ability": "读取他人此刻正在思考的内容。",
+        "limits": "不读取完整历史记忆，不自动正确解释人格或预测未来行为。",
+        "number": 2,
+        "interactions": "只涉及对方此刻的想法，不自动正确解释他人的真实意图。"
+      },
+      {
+        "id": "jester",
+        "zodiac": "gemini",
+        "name": "双子座",
+        "archetype": "弄臣",
+        "power": "交换身体",
+        "color": "#91ADD7",
+        "motto": "另一种生活",
+        "ability": "与另一人交换身体，体验对方的生活。",
+        "limits": "每名使用者一生最多发动一次；英雄融合后的身体免疫交换。",
+        "number": 3,
+        "interactions": "可通过身体交换绕过智者、照顾者、统治者的资格限制；如何换回和持续时间待定。"
+      },
+      {
+        "id": "caregiver",
+        "zodiac": "cancer",
+        "name": "巨蟹座",
+        "archetype": "照顾者",
+        "power": "身体修复",
+        "color": "#89B9AD",
+        "motto": "庇护与主观理想",
+        "ability": "对另一名仍存活的人进行彻底肉体修复，使身体达到使用者期待的模样。",
+        "limits": "每位使用者一生一次；不能复活已死者；理想身体来自使用者的主观期待。",
+        "number": 4,
+        "interactions": "已经完成的肉体修复和基因改变不会被反叛者回滚。"
+      },
+      {
+        "id": "ruler",
+        "zodiac": "leo",
+        "name": "狮子座",
+        "archetype": "统治者",
+        "power": "绝对控制",
+        "color": "#D9B465",
+        "motto": "权力与责任",
+        "ability": "对一人施加无法违抗的绝对控制，造成其大脑不可逆改变。",
+        "limits": "每名使用者一生只能控制一人；已完成的改变不因能力压制消失。",
+        "number": 5,
+        "interactions": "受控者认可施控者原来的身体，不追随交换走的意识。"
+      },
+      {
+        "id": "creator",
+        "zodiac": "virgo",
+        "name": "处女座",
+        "archetype": "创造者",
+        "power": "解析复刻",
+        "color": "#9FB09C",
+        "motto": "不断完善作品",
+        "ability": "先解析并记录现实存在的物体，再收集现实分子、替代组合过程复刻同材质物品。",
+        "limits": "不能凭空造物，不能复制生命，也不能创造或复制特殊卡牌。",
+        "number": 6,
+        "interactions": "已制造物品是真实物质，不因反叛者而消失。"
+      },
+      {
+        "id": "innocent",
+        "zodiac": "libra",
+        "name": "天秤座",
+        "archetype": "天真者",
+        "power": "主观断罪",
+        "color": "#A4ACC8",
+        "motto": "规则与确信",
+        "ability": "判决自己认为邪恶、违规或不好的对象，并使其遭受本人认为对等的处罚。",
+        "limits": "最大作用范围为一所学院；善恶和对等来自持卡人，不是客观法律或真理。",
+        "number": 7,
+        "interactions": "具体判决与处罚演出待主创设计，不补造范围数值、冷却或代价。"
+      },
+      {
+        "id": "rebel",
+        "zodiac": "scorpio",
+        "name": "天蝎座",
+        "archetype": "反叛者",
+        "power": "能力压制",
+        "color": "#A18FB4",
+        "motto": "拒绝被规定",
+        "ability": "发动时使作用范围内的其他普通卡和特殊卡无法发动。",
+        "limits": "不倒转已经造成的现实变化；具体范围值与时长待定；魔法师钥匙例外。",
+        "number": 8,
+        "interactions": "英雄会无力、爱人分身停下、探索者恢复原年龄；其他未确认交互不推定。"
+      },
+      {
+        "id": "explorer",
+        "zodiac": "sagittarius",
+        "name": "射手座",
+        "archetype": "探索者",
+        "power": "生理年龄调节",
+        "color": "#6FAFB8",
+        "motto": "探索仍未结束",
+        "ability": "自由调节自身生理年龄，停止生长或衰老，选择适合探索的身体状态。",
+        "limits": "不改变心智、记忆或个体极限寿命，不能永生。",
+        "number": 9,
+        "interactions": "能力被压制时恢复原始生理年龄；具体触发机制与影响待后续剧情展开。"
+      },
+      {
+        "id": "sage",
+        "zodiac": "capricorn",
+        "name": "摩羯座",
+        "archetype": "智者",
+        "power": "历史重现",
+        "color": "#879EA8",
+        "motto": "经验留下的形状",
+        "ability": "指定过去发生的事件或时间，以客观画面呈现真实发生之事。",
+        "limits": "每名使用者一生一次；不预言，不以问答直接给结论，也不作主观价值判断。",
+        "number": 10,
+        "interactions": "次数资格与身体个体信息有关，不能统一绑定意识；具体识别机制待定。"
+      },
+      {
+        "id": "magician",
+        "zodiac": "aquarius",
+        "name": "水瓶座",
+        "archetype": "魔法师",
+        "power": "最终许愿钥匙",
+        "color": "#7DA8C9",
+        "motto": "为改变保留可能",
+        "ability": "在其他全部11张卡已收齐时整合卡片，作为前往IGA许愿的钥匙。",
+        "limits": "单独持有或未集齐时完全无效；不创造奇迹，不改变成功概率或现实。",
+        "number": 11,
+        "interactions": "钥匙不受反叛者否决。需收集其他全部11张，单独没有作用。"
+      },
+      {
+        "id": "lover",
+        "zodiac": "pisces",
+        "name": "双鱼座",
+        "archetype": "爱人",
+        "power": "理想伴侣分身",
+        "color": "#D3A4B8",
+        "motto": "期待与真实自我",
+        "ability": "卡本身化作理想伴侣分身，外貌与模拟性格随使用者期待适应。",
+        "limits": "分身没有真正独立人格；过往形象与记忆相关故事仍待主创编写。",
+        "number": 12,
+        "interactions": "分身是卡牌本体；在反叛者范围内会停止行动。"
+      }
+    ]
+  },
+  "catalogs": {
+    "backgrounds": [
+      {
+        "id": "morning_road",
+        "label": "上学樱道",
+        "phase2_key": "morning_road"
+      },
+      {
+        "id": "school_gate",
+        "label": "运动会 / 校门",
+        "phase2_key": "school_gate"
+      },
+      {
+        "id": "school_room",
+        "label": "社团教室（白）",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "club",
+        "label": "社团教室 Home（午后）",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "club_morning",
+        "label": "社团教室 Home（清晨）",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "club_night",
+        "label": "社团教室 Home（夜晚）",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "library",
+        "label": "阿瑞忒图书馆",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "shop",
+        "label": "校园商店",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "gym",
+        "label": "体育馆",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "rooftop",
+        "label": "教学楼天台",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "dorm",
+        "label": "学生宿舍",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "coast",
+        "label": "沿海公路",
+        "phase2_key": "dusk_road"
+      },
+      {
+        "id": "beach",
+        "label": "阿瑞忒海滩",
+        "phase2_key": "dusk_road"
+      },
+      {
+        "id": "old_park",
+        "label": "旧公园（黄昏分层）",
+        "phase2_key": "dusk_road"
+      },
+      {
+        "id": "dusk_road",
+        "label": "黄昏街道",
+        "phase2_key": "dusk_road"
+      },
+      {
+        "id": "battle_campus",
+        "label": "校园对决舞台",
+        "phase2_key": "battle_campus"
+      },
+      {
+        "id": "battle_red_moon_lockdown",
+        "label": "红月封锁夜战",
+        "phase2_key": "battle_red_moon_lockdown"
+      },
+      {
+        "id": "nomos_home",
+        "label": "诺莫斯 · 巨树酒馆",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "techne_home",
+        "label": "忒克捏 · 黑白研究室",
+        "phase2_key": "school_room"
+      },
+      {
+        "id": "agora_home",
+        "label": "阿戈拉 · 强劳宿舍",
+        "phase2_key": "dusk_road"
+      }
+    ],
+    "bgm": [
+      {
+        "id": "bgm_title_serene",
+        "label": "清晨舒缓 (bgm_title_serene)"
+      },
+      {
+        "id": "bgm_campus_daily",
+        "label": "校园日常 (bgm_campus_daily)"
+      },
+      {
+        "id": "bgm_shop_breeze",
+        "label": "海风商店 (bgm_shop_breeze)"
+      },
+      {
+        "id": "bgm_dusk_memory",
+        "label": "黄昏回忆 (bgm_dusk_memory)"
+      },
+      {
+        "id": "bgm_duel_practice",
+        "label": "阳光切磋 (bgm_duel_practice)"
+      },
+      {
+        "id": "bgm_redmoon_overclock",
+        "label": "红月超限 (bgm_redmoon_overclock)"
+      },
+      {
+        "id": "bgm_victory_stinger",
+        "label": "胜利觉醒 (bgm_victory_stinger)"
+      }
+    ],
+    "sfx": [
+      {
+        "id": "ui_click",
+        "file": "assets/audio/sfx/sfx_ui_click.wav"
+      },
+      {
+        "id": "ui_hover",
+        "file": "assets/audio/sfx/sfx_ui_hover.wav"
+      },
+      {
+        "id": "page_flip",
+        "file": "assets/audio/sfx/sfx_page_flip.ogg"
+      },
+      {
+        "id": "modal_open",
+        "file": "assets/audio/sfx/sfx_modal_open.ogg"
+      },
+      {
+        "id": "save_chime",
+        "file": "assets/audio/sfx/sfx_save_chime.wav"
+      },
+      {
+        "id": "shop_coin",
+        "file": "assets/audio/sfx/sfx_shop_coin.ogg"
+      },
+      {
+        "id": "card_play",
+        "file": "assets/audio/sfx/sfx_card_play.ogg"
+      },
+      {
+        "id": "shield_up",
+        "file": "assets/audio/sfx/sfx_shield_up.ogg"
+      },
+      {
+        "id": "heal",
+        "file": "assets/audio/sfx/sfx_heal.ogg"
+      },
+      {
+        "id": "debuff_glitch",
+        "file": "assets/audio/sfx/sfx_debuff_glitch.wav"
+      },
+      {
+        "id": "counter_reflect",
+        "file": "assets/audio/sfx/sfx_counter_reflect.wav"
+      },
+      {
+        "id": "hit_normal",
+        "file": "assets/audio/sfx/sfx_hit_normal.ogg"
+      },
+      {
+        "id": "hit_overclock",
+        "file": "assets/audio/sfx/sfx_hit_overclock.ogg"
+      },
+      {
+        "id": "cutin_slash",
+        "file": "assets/audio/sfx/sfx_cutin_slash.ogg"
+      },
+      {
+        "id": "pack_tear",
+        "file": "assets/audio/sfx/sfx_pack_tear.ogg"
+      },
+      {
+        "id": "zodiac_resonate",
+        "file": "assets/audio/sfx/sfx_zodiac_resonate.ogg"
+      },
+      {
+        "id": "victory",
+        "file": "assets/audio/sfx/sfx_victory.ogg"
+      }
+    ],
+    "cutscenes": [
+      {
+        "id": "",
+        "label": "无视差过场"
+      },
+      {
+        "id": "dusk_corridor",
+        "label": "黄昏走廊 (dusk_corridor)"
+      },
+      {
+        "id": "old_park_dusk",
+        "label": "旧公园长椅黄昏 (old_park_dusk)"
+      },
+      {
+        "id": "rebel_warning",
+        "label": "废街反叛者奇袭 (rebel_warning)"
+      },
+      {
+        "id": "red_moon_street",
+        "label": "红月封锁街区 (red_moon_street)"
+      },
+      {
+        "id": "qiufeng_crystal",
+        "label": "秋枫结晶封印 (qiufeng_crystal)"
+      },
+      {
+        "id": "red_moon_finale",
+        "label": "红月夜誓言 (red_moon_finale)"
+      },
+      {
+        "id": "arena_spotlight",
+        "label": "选拔赛舞台聚光灯 (arena_spotlight)"
+      }
+    ],
+    "enemies": [
+      {
+        "id": "liu_yu_long_duel",
+        "aliases": [],
+        "name": "柳宇龙（护盾热身）",
+        "max_hp": 60,
+        "rank": "NORMAL",
+        "sprite": "assets/sprites/characters/phase_three/combat/combat_liu_yu_long_idle.png"
+      },
+      {
+        "id": "arena_tactician",
+        "aliases": [],
+        "name": "竞技社战术搭档",
+        "max_hp": 110,
+        "rank": "NORMAL",
+        "sprite": ""
+      },
+      {
+        "id": "security_guard",
+        "aliases": [
+          "drone"
+        ],
+        "name": "被劫持的门岗卫兵",
+        "max_hp": 95,
+        "rank": "NORMAL",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_security_guard.png"
+      },
+      {
+        "id": "campus_robot",
+        "aliases": [
+          "preacher"
+        ],
+        "name": "灰区重装拦截机",
+        "max_hp": 135,
+        "rank": "NORMAL",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_campus_robot.png"
+      },
+      {
+        "id": "ch1_hunter_mech",
+        "aliases": [
+          "principal",
+          "boss_frank"
+        ],
+        "name": "灰区超限猎杀机兵",
+        "max_hp": 260,
+        "rank": "BOSS",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png"
+      },
+      {
+        "id": "duel_student_ace",
+        "aliases": [],
+        "name": "学园预选代表",
+        "max_hp": 115,
+        "rank": "NORMAL",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_duel_student_ace.png"
+      },
+      {
+        "id": "national_finalist",
+        "aliases": [],
+        "name": "巡回赛种子代表",
+        "max_hp": 195,
+        "rank": "ELITE",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_national_finalist.png"
+      },
+      {
+        "id": "alliance_operative",
+        "aliases": [],
+        "name": "灰区反叛者特工",
+        "max_hp": 155,
+        "rank": "ELITE",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_alliance_operative.png"
+      },
+      {
+        "id": "church_guardian",
+        "aliases": [],
+        "name": "红月圣堂守卫",
+        "max_hp": 210,
+        "rank": "BOSS",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_church_guardian.png"
+      }
+    ],
+    "emotions": [
+      {
+        "id": "neutral",
+        "label": "平静"
+      },
+      {
+        "id": "happy",
+        "label": "微笑"
+      },
+      {
+        "id": "shy",
+        "label": "害羞"
+      },
+      {
+        "id": "surprised",
+        "label": "惊讶"
+      },
+      {
+        "id": "angry",
+        "label": "愤怒"
+      },
+      {
+        "id": "worried",
+        "label": "担忧"
+      },
+      {
+        "id": "damaged_fiber",
+        "label": "光纤受损"
+      },
+      {
+        "id": "crystal_stasis",
+        "label": "结晶休眠"
+      },
+      {
+        "id": "unmasked",
+        "label": "摘面具"
+      }
+    ]
+  },
+  "assets": {
+    "characters": {
+      "ye_zhou": {
+        "emotions": {
+          "angry": "assets/sprites/characters/phase_two/emotions/ye_zhou/angry.png",
+          "happy": "assets/sprites/characters/phase_two/emotions/ye_zhou/happy.png",
+          "neutral": "assets/sprites/characters/phase_two/emotions/ye_zhou/neutral.png",
+          "shy": "assets/sprites/characters/phase_two/emotions/ye_zhou/shy.png",
+          "surprised": "assets/sprites/characters/phase_two/emotions/ye_zhou/surprised.png",
+          "worried": "assets/sprites/characters/phase_two/emotions/ye_zhou/worried.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_happy.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_neutral.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_worried.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/ye_zhou_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "huang_qiufeng": {
+        "emotions": {
+          "angry": "assets/sprites/characters/phase_two/emotions/huang_qiufeng/angry.png",
+          "crystal_stasis": "assets/sprites/characters/phase_two/emotions/huang_qiufeng/crystal_stasis.png",
+          "damaged_fiber": "assets/sprites/characters/phase_two/emotions/huang_qiufeng/damaged_fiber.png",
+          "happy": "assets/sprites/characters/phase_two/emotions/huang_qiufeng/happy.png",
+          "neutral": "assets/sprites/characters/phase_two/emotions/huang_qiufeng/neutral.png",
+          "shy": "assets/sprites/characters/phase_two/emotions/huang_qiufeng/shy.png",
+          "surprised": "assets/sprites/characters/phase_two/emotions/huang_qiufeng/surprised.png",
+          "worried": "assets/sprites/characters/phase_two/emotions/huang_qiufeng/worried.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_happy.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_shy.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_surprised.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_angry.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_worried.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_damaged_fiber.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_crystal_stasis.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/huang_qiufeng_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "yang_zi_ying": {
+        "emotions": {
+          "angry": "assets/sprites/characters/phase_two/emotions/yang_zi_ying/angry.png",
+          "happy": "assets/sprites/characters/phase_two/emotions/yang_zi_ying/happy.png",
+          "neutral": "assets/sprites/characters/phase_two/emotions/yang_zi_ying/neutral.png",
+          "shy": "assets/sprites/characters/phase_two/emotions/yang_zi_ying/shy.png",
+          "surprised": "assets/sprites/characters/phase_two/emotions/yang_zi_ying/surprised.png",
+          "worried": "assets/sprites/characters/phase_two/emotions/yang_zi_ying/worried.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_happy.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_neutral.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_worried.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/yang_zi_ying_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "liu_yu_long": {
+        "emotions": {
+          "angry": "assets/sprites/characters/phase_two/emotions/liu_yu_long/angry.png",
+          "happy": "assets/sprites/characters/phase_two/emotions/liu_yu_long/happy.png",
+          "neutral": "assets/sprites/characters/phase_two/emotions/liu_yu_long/neutral.png",
+          "shy": "assets/sprites/characters/phase_two/emotions/liu_yu_long/shy.png",
+          "surprised": "assets/sprites/characters/phase_two/emotions/liu_yu_long/surprised.png",
+          "worried": "assets/sprites/characters/phase_two/emotions/liu_yu_long/worried.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_happy.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_angry.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_neutral.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/liu_yu_long_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "jiang_zi": {
+        "emotions": {
+          "angry": "assets/sprites/characters/phase_two/emotions/jiang_zi/angry.png",
+          "happy": "assets/sprites/characters/phase_two/emotions/jiang_zi/happy.png",
+          "neutral": "assets/sprites/characters/phase_two/emotions/jiang_zi/neutral.png",
+          "shy": "assets/sprites/characters/phase_two/emotions/jiang_zi/shy.png",
+          "surprised": "assets/sprites/characters/phase_two/emotions/jiang_zi/surprised.png",
+          "worried": "assets/sprites/characters/phase_two/emotions/jiang_zi/worried.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_happy.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_neutral.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_worried.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/jiang_zi_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "lin_zhi_xia": {
+        "emotions": {
+          "neutral": "assets/sprites/characters/phase_two/halfbody/lin_zhi_xia_neutral.png",
+          "happy": "assets/sprites/characters/phase_two/halfbody/lin_zhi_xia_happy.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/lin_zhi_xia_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "tang_xiao_man": {
+        "emotions": {
+          "neutral": "assets/sprites/characters/phase_two/halfbody/tang_xiao_man_neutral.png",
+          "happy": "assets/sprites/characters/phase_two/halfbody/tang_xiao_man_happy.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/tang_xiao_man_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "rebel_operative_masked": {
+        "emotions": {
+          "neutral": "assets/sprites/characters/phase_two/halfbody/rebel_operative_masked.png",
+          "unmasked": "assets/sprites/characters/phase_two/halfbody/rebel_operative_unmasked.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "security_guard": {
+        "emotions": {
+          "neutral": "assets/sprites/enemies/phase_two/portraits/security_guard.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          },
+          "happy": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          },
+          "shy": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          },
+          "surprised": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          },
+          "angry": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          },
+          "worried": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          },
+          "unmasked": {
+            "path": "assets/sprites/enemies/phase_two/portraits/security_guard.png",
+            "crop": true
+          }
+        }
+      },
+      "rebel_operative_unmasked": {
+        "emotions": {
+          "neutral": "assets/sprites/characters/phase_two/halfbody/rebel_operative_unmasked.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "alliance_operative": {
+        "emotions": {
+          "neutral": "assets/sprites/characters/phase_two/halfbody/rebel_operative_masked.png",
+          "unmasked": "assets/sprites/characters/phase_two/halfbody/rebel_operative_unmasked.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_masked_neutral.png",
+            "crop": false
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/avatars/rebel_operative_unmasked_neutral.png",
+            "crop": false
+          }
+        }
+      },
+      "agora_broker": {
+        "emotions": {
+          "neutral": "assets/sprites/characters/phase_two/halfbody/agora_broker.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/halfbody/agora_broker.png",
+            "crop": true
+          }
+        }
+      },
+      "nomos_arbiter": {
+        "emotions": {
+          "neutral": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/halfbody/nomos_arbiter.png",
+            "crop": true
+          }
+        }
+      },
+      "techne_researcher": {
+        "emotions": {
+          "neutral": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          },
+          "happy": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          },
+          "shy": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          },
+          "surprised": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          },
+          "angry": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          },
+          "worried": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          },
+          "unmasked": {
+            "path": "assets/sprites/characters/phase_two/halfbody/techne_researcher.png",
+            "crop": true
+          }
+        }
+      },
+      "campus_robot": {
+        "emotions": {
+          "neutral": "assets/sprites/enemies/phase_two/portraits/campus_robot.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          },
+          "happy": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          },
+          "shy": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          },
+          "surprised": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          },
+          "angry": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          },
+          "worried": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          },
+          "unmasked": {
+            "path": "assets/sprites/enemies/phase_two/portraits/campus_robot.png",
+            "crop": true
+          }
+        }
+      },
+      "ch1_hunter_mech": {
+        "emotions": {
+          "neutral": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png"
+        },
+        "avatars": {
+          "neutral": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          },
+          "happy": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          },
+          "shy": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          },
+          "surprised": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          },
+          "angry": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          },
+          "worried": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          },
+          "damaged_fiber": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          },
+          "crystal_stasis": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          },
+          "unmasked": {
+            "path": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png",
+            "crop": true
+          }
+        }
+      }
+    },
+    "backgrounds": {
+      "morning_road": {
+        "layers": [
+          "assets/backgrounds/phase_two/morning_road_wide.png"
+        ]
+      },
+      "school_gate": {
+        "layers": [
+          "assets/backgrounds/phase_two/school_gate_wide.png"
+        ]
+      },
+      "school_room": {
+        "layers": [
+          "assets/backgrounds/phase_two/school_room_wide.png"
+        ]
+      },
+      "dusk_road": {
+        "layers": [
+          "assets/backgrounds/phase_two/dusk_road_wide.png"
+        ]
+      },
+      "battle_campus": {
+        "layers": [
+          "assets/backgrounds/phase_two/battle_campus_wide.png"
+        ]
+      },
+      "battle_red_moon_lockdown": {
+        "layers": [
+          "assets/backgrounds/phase_two/battle_red_moon_lockdown_wide.png"
+        ]
+      },
+      "club": {
+        "layers": [
+          "assets/ui/player_experience/home_room_v3.png"
+        ]
+      },
+      "club_morning": {
+        "layers": [
+          "assets/ui/player_experience/home_room_morning_v1.png"
+        ]
+      },
+      "club_night": {
+        "layers": [
+          "assets/ui/player_experience/home_room_night_v1.png"
+        ]
+      },
+      "dorm": {
+        "layers": [
+          "assets/ui/campus_life/dorm_bg_wide.png"
+        ]
+      },
+      "old_park": {
+        "layers": [
+          "assets/ui/scene_reset/staged/shared/sky_arete_dusk_wide.png",
+          "assets/ui/scene_reset/staged/old_park/old_park_midground_wide.png",
+          "assets/ui/scene_reset/staged/old_park/old_park_foreground_wide.png"
+        ]
+      },
+      "nomos_home": {
+        "layers": [
+          "assets/ui/scene_reset/homes/nomos_clean_wide.png"
+        ]
+      },
+      "agora_home": {
+        "layers": [
+          "assets/ui/scene_reset/homes/agora_clean_wide.png"
+        ]
+      },
+      "techne_home": {
+        "layers": [
+          "assets/ui/scene_reset/homes/techne_clean_wide.png"
+        ]
+      }
+    },
+    "cutscenes": {
+      "dusk_corridor": {
+        "id": "dusk_corridor",
+        "label": "黄昏走廊 (dusk_corridor)",
+        "status": "integration_candidate",
+        "bg_path": "assets/backgrounds/cutscenes/cutscene_pilot_bg.png",
+        "fg_path": "assets/backgrounds/cutscenes/cutscene_pilot_fg_char.png",
+        "duration": 3.6,
+        "bg_start": [
+          -180.0,
+          0.0
+        ],
+        "bg_end": [
+          -252.0,
+          0.0
+        ],
+        "bg_scale": [
+          1.0,
+          1.04
+        ],
+        "fg_start": [
+          0.0,
+          0.0
+        ],
+        "fg_end": [
+          0.0,
+          0.0
+        ],
+        "fg_scale": [
+          1.0,
+          1.24
+        ]
+      },
+      "red_moon_street": {
+        "id": "red_moon_street",
+        "label": "红月封锁街区 (red_moon_street)",
+        "status": "integration_candidate",
+        "bg_path": "assets/backgrounds/cutscenes/cutscene_red_moon_street_bg.png",
+        "fg_path": "assets/backgrounds/cutscenes/cutscene_red_moon_street_fg.png",
+        "duration": 3.4,
+        "bg_start": [
+          -210.0,
+          0.0
+        ],
+        "bg_end": [
+          -234.0,
+          0.0
+        ],
+        "bg_scale": [
+          1.0,
+          1.036
+        ],
+        "fg_start": [
+          0.0,
+          0.0
+        ],
+        "fg_end": [
+          -42.0,
+          0.0
+        ],
+        "fg_scale": [
+          1.0,
+          1.12
+        ]
+      },
+      "arena_spotlight": {
+        "id": "arena_spotlight",
+        "label": "选拔赛舞台聚光灯 (arena_spotlight)",
+        "status": "integration_candidate",
+        "bg_path": "assets/backgrounds/cutscenes/cutscene_arena_spotlight_bg.png",
+        "fg_path": "assets/backgrounds/cutscenes/cutscene_arena_spotlight_fg.png",
+        "duration": 3.2,
+        "bg_start": [
+          -210.0,
+          0.0
+        ],
+        "bg_end": [
+          -195.0,
+          0.0
+        ],
+        "bg_scale": [
+          1.0,
+          1.049
+        ],
+        "fg_start": [
+          0.0,
+          0.0
+        ],
+        "fg_end": [
+          42.0,
+          -9.0
+        ],
+        "fg_scale": [
+          1.0,
+          1.08
+        ]
+      },
+      "old_park_dusk": {
+        "id": "old_park_dusk",
+        "label": "旧公园长椅黄昏 (old_park_dusk)",
+        "status": "story_concept_review",
+        "bg_path": "assets/backgrounds/cutscenes/cutscene_old_park_dusk_bg.png",
+        "fg_path": "assets/backgrounds/cutscenes/cutscene_old_park_dusk_fg.png",
+        "duration": 3.8,
+        "bg_start": [
+          -210.0,
+          0.0
+        ],
+        "bg_end": [
+          -186.0,
+          0.0
+        ],
+        "bg_scale": [
+          1.0,
+          1.045
+        ],
+        "fg_start": [
+          0.0,
+          0.0
+        ],
+        "fg_end": [
+          58.0,
+          -1.0
+        ],
+        "fg_scale": [
+          1.0,
+          1.078
+        ]
+      },
+      "rebel_warning": {
+        "id": "rebel_warning",
+        "label": "废街反叛者奇袭 (rebel_warning)",
+        "status": "story_concept_review",
+        "bg_path": "assets/backgrounds/cutscenes/cutscene_rebel_warning_bg.png",
+        "fg_path": "assets/backgrounds/cutscenes/cutscene_rebel_warning_fg.png",
+        "duration": 2.7,
+        "bg_start": [
+          -210.0,
+          0.0
+        ],
+        "bg_end": [
+          -233.0,
+          0.0
+        ],
+        "bg_scale": [
+          1.0,
+          1.037
+        ],
+        "fg_start": [
+          0.0,
+          0.0
+        ],
+        "fg_end": [
+          -67.0,
+          -13.0
+        ],
+        "fg_scale": [
+          1.0,
+          1.059
+        ]
+      },
+      "qiufeng_crystal": {
+        "id": "qiufeng_crystal",
+        "label": "秋枫结晶封印 (qiufeng_crystal)",
+        "status": "integration_candidate",
+        "bg_path": "assets/backgrounds/cutscenes/cutscene_qiufeng_crystal_bg.png",
+        "fg_path": "assets/backgrounds/cutscenes/cutscene_qiufeng_crystal_fg.png",
+        "duration": 3.6,
+        "bg_start": [
+          -210.0,
+          0.0
+        ],
+        "bg_end": [
+          -228.0,
+          0.0
+        ],
+        "bg_scale": [
+          1.0,
+          1.04
+        ],
+        "fg_start": [
+          0.0,
+          0.0
+        ],
+        "fg_end": [
+          -18.0,
+          -6.0
+        ],
+        "fg_scale": [
+          1.0,
+          1.07
+        ]
+      },
+      "red_moon_finale": {
+        "id": "red_moon_finale",
+        "label": "红月夜誓言 (red_moon_finale)",
+        "status": "integration_candidate",
+        "bg_path": "assets/backgrounds/cutscenes/cutscene_red_moon_finale_bg.png",
+        "fg_path": "assets/backgrounds/cutscenes/cutscene_red_moon_finale_fg.png",
+        "duration": 3.6,
+        "bg_start": [
+          -210.0,
+          0.0
+        ],
+        "bg_end": [
+          -192.0,
+          0.0
+        ],
+        "bg_scale": [
+          1.0,
+          1.045
+        ],
+        "fg_start": [
+          0.0,
+          0.0
+        ],
+        "fg_end": [
+          16.0,
+          -4.0
+        ],
+        "fg_scale": [
+          1.0,
+          1.06
+        ]
+      }
+    },
+    "ui": {
+      "story_chrome": "assets/ui/school_objects/story_chrome.png",
+      "choice_9slice": "assets/ui_core/theme/dialogue_choice_9slice.png",
+      "chapter_banner": "assets/ui_core/animations/ui_chapter_banner.png",
+      "paper_modal": "assets/ui_core/theme/paper_modal_9slice.png"
+    },
+    "enemies": [
+      {
+        "id": "liu_yu_long_duel",
+        "aliases": [],
+        "name": "柳宇龙（护盾热身）",
+        "max_hp": 60,
+        "rank": "NORMAL",
+        "sprite": "assets/sprites/characters/phase_three/combat/combat_liu_yu_long_idle.png"
+      },
+      {
+        "id": "arena_tactician",
+        "aliases": [],
+        "name": "竞技社战术搭档",
+        "max_hp": 110,
+        "rank": "NORMAL",
+        "sprite": ""
+      },
+      {
+        "id": "security_guard",
+        "aliases": [
+          "drone"
+        ],
+        "name": "被劫持的门岗卫兵",
+        "max_hp": 95,
+        "rank": "NORMAL",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_security_guard.png"
+      },
+      {
+        "id": "campus_robot",
+        "aliases": [
+          "preacher"
+        ],
+        "name": "灰区重装拦截机",
+        "max_hp": 135,
+        "rank": "NORMAL",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_campus_robot.png"
+      },
+      {
+        "id": "ch1_hunter_mech",
+        "aliases": [
+          "principal",
+          "boss_frank"
+        ],
+        "name": "灰区超限猎杀机兵",
+        "max_hp": 260,
+        "rank": "BOSS",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_ch1_hunter_mech.png"
+      },
+      {
+        "id": "duel_student_ace",
+        "aliases": [],
+        "name": "学园预选代表",
+        "max_hp": 115,
+        "rank": "NORMAL",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_duel_student_ace.png"
+      },
+      {
+        "id": "national_finalist",
+        "aliases": [],
+        "name": "巡回赛种子代表",
+        "max_hp": 195,
+        "rank": "ELITE",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_national_finalist.png"
+      },
+      {
+        "id": "alliance_operative",
+        "aliases": [],
+        "name": "灰区反叛者特工",
+        "max_hp": 155,
+        "rank": "ELITE",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_alliance_operative.png"
+      },
+      {
+        "id": "church_guardian",
+        "aliases": [],
+        "name": "红月圣堂守卫",
+        "max_hp": 210,
+        "rank": "BOSS",
+        "sprite": "assets/sprites/enemies/phase_three/enemy_church_guardian.png"
+      }
+    ]
+  }
+}

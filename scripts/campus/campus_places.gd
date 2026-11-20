@@ -1,7 +1,6 @@
 class_name CampusPlaces
 extends RefCounted
 
-const ROOT := "res://assets/ui/campus_life/"
 const LEGACY_PLACES := {
  "club": {
   "title": "社团教室",
@@ -106,11 +105,10 @@ const LEGACY_PLACES := {
   ]
  },
  "dorm": {
-  "title": "自己的宿舍",
+  "title": "学生宿舍",
   "parent": "map",
   "npc": "",
   "description": "一个人的小房间。关上门，整理今日见闻，也可以安心休息推进时段。",
-  "background": "dorm_bg.png",
   "actions": [
    {
     "id": "sleep",
@@ -361,8 +359,8 @@ const LEGACY_PLACES := {
 static var PLACES: Dictionary = LEGACY_PLACES.merged(WorldRegionContent.PLACES)
 
 const NPCS := {
- "lin_zhi_xia":{"name":"林知夏","role":"图书委员","texture":"library_actor.png","halfbody":"res://assets/sprites/characters/phase_two/halfbody/lin_zhi_xia_neutral.png","region":[1170,55,315,886]},
- "tang_xiao_man":{"name":"唐小满","role":"商店值班同学","texture":"shop_actor.png","halfbody":"res://assets/sprites/characters/phase_two/halfbody/tang_xiao_man_neutral.png","region":[1095,52,290,866]},
+ "lin_zhi_xia":{"name":"林知夏","role":"图书委员","path":"res://assets/sprites/characters/phase_two/halfbody/lin_zhi_xia_neutral.png","halfbody":"res://assets/sprites/characters/phase_two/halfbody/lin_zhi_xia_neutral.png"},
+ "tang_xiao_man":{"name":"唐小满","role":"商店值班同学","path":"res://assets/sprites/characters/phase_two/halfbody/tang_xiao_man_neutral.png","halfbody":"res://assets/sprites/characters/phase_two/halfbody/tang_xiao_man_neutral.png"},
  "liu_yu_long":{"name":"柳宇龙","role":"竞技社同学","path":"res://assets/sprites/characters/phase_two/fullbody/liu_yu_long.png"},
  "jiang_zi":{"name":"姜梓","role":"社团教室干事","path":"res://assets/sprites/characters/phase_two/fullbody/jiang_zi.png"},
  "yang_zi_ying":{"name":"杨子英","role":"摄影社同伴","path":"res://assets/sprites/characters/phase_two/fullbody/yang_zi_ying.png"},

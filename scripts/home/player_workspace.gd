@@ -566,9 +566,7 @@ func _render_journey() -> void:
    _text(note_list,"NoteBody%d" % i,str(note["body"]) if unlocked else "阿瑞忒图书馆藏有许多学园史话与卡片手记，完成图书馆牌理研习即可逐步收录。",Rect2(18,ny+52,802,72),20,INK if unlocked else MUTED)
   return
  var list := _scroll(stage,"JourneyScroll",Rect2(420,357,875,500))
- var source := HomePanels.new()
- var entries := source._known_records()
- source.free()
+ var entries := HomePanels.known_records()
  list.custom_minimum_size = Vector2(850,maxi(480,entries.size()*171))
  var memories := {}
  for entry in PlayerJourney.memories(): memories[entry["node"]] = entry["dialogue_id"]

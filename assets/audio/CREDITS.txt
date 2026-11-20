@@ -1,0 +1,114 @@
+IGA (Inorganic General Alien) Audio Credits
+==========================================
+
+All audio files below were downloaded from open-licensed free game audio sources via `tools/audio/fetch_free_audio.py`.
+
+------------------------------------------------------------
+1. Background Music (BGM) — CC-BY 4.0
+Author / Composer: PeriTune (Sei Muro)
+Website: https://peritune.com/
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+Required Credit: Include "Music: PeriTune (https://peritune.com/)" in game credits / release notes.
+------------------------------------------------------------
+
+- assets/audio/bgm/bgm_title_serene.mp3
+  Original Track: Harbor Morning (467)
+  URL: https://peritune.com/music/PeriTune_Harbor_Morning.mp3
+
+- assets/audio/bgm/bgm_campus_daily.mp3
+  Original Track: Sunlit Café (441)
+  URL: https://peritune.com/music/Peritune_Sunlit_Cafe.mp3
+
+- assets/audio/bgm/bgm_shop_breeze.mp3
+  Original Track: Cafe Seaside (401)
+  URL: https://peritune.com/music/PerituneMaterial_Cafe_Seaside.mp3
+
+- assets/audio/bgm/bgm_dusk_memory.mp3
+  Original Track: Rainwalk (471)
+  URL: https://peritune.com/music/PeriTune_Rainwalk.mp3
+
+- assets/audio/bgm/bgm_duel_practice.mp3
+  Original Track: Swift Strike (439)
+  URL: https://peritune.com/music/Peritune_Swift_Strike.mp3
+
+- assets/audio/bgm/bgm_redmoon_overclock.mp3
+  Original Track: Relentless (469)
+  URL: https://peritune.com/music/PeriTune_Relentless.mp3
+
+- assets/audio/bgm/bgm_victory_stinger.mp3
+  Original Track: Jingle Anime (361)
+  URL: https://peritune.com/music/PerituneMaterial_Jingle_Anime.mp3
+
+------------------------------------------------------------
+2. Sound Effects (SFX) — CC0 1.0 Public Domain
+Author: Kenney (https://kenney.nl/assets)
+License: CC0 1.0 Universal (Public Domain Dedication — no attribution required, included for clarity)
+------------------------------------------------------------
+
+- assets/audio/sfx/sfx_ui_click.wav
+  Source: Kenney Interface Sounds / click_002.wav
+  URL: https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/click_002.wav
+
+- assets/audio/sfx/sfx_ui_hover.wav
+  Source: Kenney Interface Sounds / tick_001.wav
+  URL: https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/tick_001.wav
+
+- assets/audio/sfx/sfx_page_flip.ogg
+  Source: Kenney RPG Audio / bookFlip2.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/RPG%20sounds%20(50%20sounds)/bookFlip2.ogg
+
+- assets/audio/sfx/sfx_modal_open.ogg
+  Source: Kenney RPG Audio / bookOpen.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/RPG%20sounds%20(50%20sounds)/bookOpen.ogg
+
+- assets/audio/sfx/sfx_save_chime.wav
+  Source: Kenney Interface Sounds / confirmation_002.wav
+  URL: https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/confirmation_002.wav
+
+- assets/audio/sfx/sfx_shop_coin.ogg
+  Source: Kenney RPG Audio / handleCoins.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/RPG%20sounds%20(50%20sounds)/handleCoins.ogg
+
+- assets/audio/sfx/sfx_card_play.ogg
+  Source: Kenney Casino Audio / cardShove2.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/Casino%20sounds%20(50%20sounds)/cardShove2.ogg
+
+- assets/audio/sfx/sfx_shield_up.ogg
+  Source: Kenney Digital Audio / powerUp7.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/Digital%20sounds%20(60%20sounds)/powerUp7.ogg
+
+- assets/audio/sfx/sfx_heal.ogg
+  Source: Kenney Digital Audio / powerUp11.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/Digital%20sounds%20(60%20sounds)/powerUp11.ogg
+
+- assets/audio/sfx/sfx_debuff_glitch.wav
+  Source: Kenney Interface Sounds / glitch_002.wav
+  URL: https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/glitch_002.wav
+
+- assets/audio/sfx/sfx_counter_reflect.wav
+  Source: Kenney Interface Sounds / glass_004.wav
+  URL: https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/glass_004.wav
+
+- assets/audio/sfx/sfx_hit_normal.ogg
+  Source: Kenney RPG Audio / chop.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/RPG%20sounds%20(50%20sounds)/chop.ogg
+
+- assets/audio/sfx/sfx_hit_overclock.ogg
+  Source: Kenney Digital Audio / laser4.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/Digital%20sounds%20(60%20sounds)/laser4.ogg
+
+- assets/audio/sfx/sfx_cutin_slash.ogg
+  Source: Kenney RPG Audio / knifeSlice2.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/RPG%20sounds%20(50%20sounds)/knifeSlice2.ogg
+
+- assets/audio/sfx/sfx_pack_tear.ogg
+  Source: Kenney Casino Audio / cardOpenPackage1.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/Casino%20sounds%20(50%20sounds)/cardOpenPackage1.ogg
+
+- assets/audio/sfx/sfx_zodiac_resonate.ogg
+  Source: Kenney Digital Audio / threeTone2.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/Digital%20sounds%20(60%20sounds)/threeTone2.ogg
+
+- assets/audio/sfx/sfx_victory.ogg
+  Source: Kenney Jingle Audio (Steel) / jingles_STEEL10.ogg
+  URL: https://raw.githubusercontent.com/iwenzhou/kenney/master/Audio%20(295%20files)/Jingle%20sounds%20(85%20sounds)/jingles_STEEL/jingles_STEEL10.ogg

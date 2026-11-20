@@ -6,28 +6,23 @@ signal map_requested
 signal menu_requested
 
 var location_id := ""
+var stage_id := ""
 var config: Dictionary
 var refs: Dictionary = {"actions": {}}
-var objects: Dictionary = {}
 var selected_id := ""
 var clock: Label
 var stage_layers: SceneStageLayers
 var hud_layout: SceneHUDLayout
 
-var _actor_layer: Control
-var _use_unified := false
 var _rooftop_npc_id := ""
 
 
 func _ready() -> void:
 	size = Vector2(1920, 1080)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage_id = "library" if location_id == "study" else ("shop" if location_id == "stockroom" else location_id)
 	config = SceneDesignCatalog.place_config(location_id)
-	_use_unified = SceneStageLayers.has_staged_blueprint(location_id) or bool(config.get("use_unified_hud", false))
-	if _use_unified:
-		_build_unified_scene()
-	else:
-		_build_legacy_scene()
+	_build_unified_scene()
 
 
 func _exit_tree() -> void:
@@ -36,10 +31,10 @@ func _exit_tree() -> void:
 
 
 func _build_unified_scene() -> void:
-	if SceneStageLayers.has_staged_blueprint(location_id):
+	if SceneStageLayers.has_staged_blueprint(stage_id):
 		stage_layers = SceneStageLayers.new()
 		stage_layers.name = "StageLayers"
-		stage_layers.configure(location_id, false)
+		stage_layers.configure(stage_id, false)
 		add_child(stage_layers)
 		DaylightUI.place(stage_layers, 0.0, 0.0, 1920.0, 1080.0)
 	else:
@@ -98,108 +93,100 @@ func _add_dock_action(item: Dictionary, kind: String, badge: String) -> void:
 	refs["actions"][action_id] = btn
 
 
+func _rooftop_variant_for(npc_id: String) -> String:
+	match npc_id:
+		"liu_yu_long":
+			return "b"
+		"jiang_zi":
+			return "c"
+		_:
+			return "a"
+
+
+func _beach_variant_for(npc_id: String) -> String:
+	match npc_id:
+		"yang_zi_ying":
+			return "a"
+		"liu_yu_long":
+			return "b"
+		_:
+			return "c"
+
+
 func _populate_unified_actions_and_actors() -> void:
 	var walk_cid := CampusLife.active_walk_companion()
 	var walk_name := str(PhaseTwoContent.ACTORS.get(walk_cid, {}).get("name", "同伴"))
 	var walk_unlocked := bool(GameState.companions.get(walk_cid, {}).get("unlocked", false)) or SaveManager.test_session
 
-	match location_id:
+	match stage_id:
 		"shop":
 			var talk_item := {"id": "talk", "label": "和唐小满聊聊", "npc": "tang_xiao_man"}
 			if is_instance_valid(stage_layers):
-				stage_layers.set_slot_actor(
+				stage_layers.set_staged_variant(
 					"slot_a",
-					"res://assets/sprites/characters/phase_two/halfbody/tang_xiao_man_neutral.png",
+					"a",
 					"和唐小满聊聊",
 					func(): action_requested.emit(talk_item)
 				)
 			_add_dock_action({"id": "shop", "label": "查看商品采购"}, "free", "免费")
 			_add_dock_action({"id": "shop_work", "label": "店务兼职"}, "activity", "1活动")
 			_add_dock_action(talk_item, "free", "免费")
-			hud_layout.add_npc_bubble(
-				"Bubble_tang_xiao_man",
-				SceneStageLayers.bubble_anchor("shop", "slot_a"),
-				"唐小满",
-				false,
-				_action_preview_text("talk"),
-				func(): action_requested.emit(talk_item)
-			)
 
 		"library":
 			var act1_ready := not GameState.visited_node_ids.has("n_affairs") and PlayerJourney.act1_story_ready()
+			var lin_variant := "c" if act1_ready else "a"
 			var talk_lin := {"id": "talk", "label": "和林知夏聊聊", "npc": "lin_zhi_xia"}
 			if is_instance_valid(stage_layers):
-				stage_layers.set_slot_actor(
+				stage_layers.set_staged_variant(
 					"slot_a",
-					"res://assets/sprites/characters/phase_two/halfbody/lin_zhi_xia_neutral.png",
+					lin_variant,
 					"和林知夏聊聊",
 					func(): action_requested.emit(talk_lin)
 				)
 				if act1_ready:
 					var story_item := {"id": "story_act1", "label": "与黄秋枫交谈（主线）"}
-					stage_layers.set_slot_actor(
+					stage_layers.set_staged_variant(
 						"slot_b",
-						"res://assets/sprites/characters/phase_two/halfbody/huang_qiufeng.png",
+						"b",
 						"开启主线剧情",
 						func(): action_requested.emit(story_item)
 					)
 			if act1_ready:
 				var story_row := {"id": "story_act1", "label": "与黄秋枫交谈"}
 				_add_dock_action(story_row, "story", "主线")
-				hud_layout.add_npc_bubble(
-					"Bubble_huang_qiufeng",
-					SceneStageLayers.bubble_anchor("library", "slot_b"),
-					"黄秋枫",
-					true,
-					_action_preview_text("story_act1"),
-					func(): action_requested.emit(story_row)
-				)
 			_add_dock_action({"id": "library_study", "label": "牌理研习"}, "activity", "1活动")
 			_add_dock_action({"id": "read_notes", "label": "翻阅风物纪要"}, "free", "免费")
 			_add_dock_action(talk_lin, "free", "免费")
-			hud_layout.add_npc_bubble(
-				"Bubble_lin_zhi_xia",
-				SceneStageLayers.bubble_anchor("library", "slot_a"),
-				"林知夏",
-				false,
-				_action_preview_text("talk"),
-				func(): action_requested.emit(talk_lin)
-			)
 
 		"gym":
 			var liu_unlocked := bool(GameState.companions.get("liu_yu_long", {}).get("unlocked", false)) or SaveManager.test_session
 			var ch1_done := bool(GameState.story_flags.get("chapter_1_completed", false))
 			var qual_done := bool(GameState.story_flags.get("arete_qualifier_completed", false))
-			var qual_kind := "story" if (ch1_done and not qual_done) else "free"
-			_add_dock_action({"id": "qualifier", "label": "阿瑞忒代表选拔赛"}, qual_kind, "赛事")
+			var qual_active := ch1_done and not qual_done
+			var qual_kind := "story" if qual_active else "free"
+			var liu_variant := "b" if qual_active else "c"
+			_add_dock_action({"id": "qualifier", "label": "代表选拔赛"}, qual_kind, "赛事")
 			_add_dock_action({"id": "training", "label": "模拟训练"}, "free", "免费")
 			_add_dock_action({"id": "workshop", "label": "整理行动卡"}, "free", "免费")
 			if liu_unlocked:
 				var talk_liu := {"id": "talk", "label": "和柳宇龙聊聊", "npc": "liu_yu_long"}
 				if is_instance_valid(stage_layers):
-					stage_layers.set_slot_actor(
+					stage_layers.set_staged_variant(
 						"slot_a",
-						"res://assets/sprites/characters/phase_two/fullbody/liu_yu_long.png",
+						liu_variant,
 						"和柳宇龙聊聊",
 						func(): action_requested.emit(talk_liu)
 					)
 				_add_dock_action(talk_liu, "free", "免费")
-				hud_layout.add_npc_bubble(
-					"Bubble_liu_yu_long",
-					SceneStageLayers.bubble_anchor("gym", "slot_a"),
-					"柳宇龙",
-					false,
-					_action_preview_text("talk"),
-					func(): action_requested.emit(talk_liu)
-				)
 
 		"rooftop":
 			_rooftop_npc_id = CampusLife.rooftop_active_npc()
 			var roof_name := str(PhaseTwoContent.ACTORS.get(_rooftop_npc_id, {}).get("name", "同伴"))
+			var roof_variant := _rooftop_variant_for(_rooftop_npc_id)
 			if is_instance_valid(stage_layers):
-				stage_layers.set_slot_actor(
+				stage_layers.set_staged_variant(
 					"slot_a",
-					"res://assets/sprites/characters/phase_two/fullbody/%s.png" % _rooftop_npc_id,
+					roof_variant,
 					"和%s聊聊" % roof_name,
 					func(): action_requested.emit({"id": "talk", "npc": CampusLife.rooftop_active_npc()})
 				)
@@ -214,33 +201,17 @@ func _populate_unified_actions_and_actors() -> void:
 			)
 			refs["actions"]["talk"] = roof_talk_btn
 			_add_dock_action({"id": "rooftop_vending", "label": "查看饮料贩卖机"}, "free", "免费")
-			hud_layout.add_npc_bubble(
-				"Bubble_rooftop_npc",
-				SceneStageLayers.bubble_anchor("rooftop", "slot_a"),
-				roof_name,
-				false,
-				_action_preview_text("talk"),
-				func(): action_requested.emit({"id": "talk", "npc": CampusLife.rooftop_active_npc()})
-			)
 
 		"arete_coast_test":
 			var park_open := bool(GameState.story_flags.get("school_affairs_done", false)) or GameState.visited_node_ids.has("n_affairs") or bool(GameState.story_flags.get("chapter_1_completed", false)) or SaveManager.test_session
 			var park_story := not GameState.visited_node_ids.has("n_dusk") and not bool(GameState.story_flags.get("chapter_1_completed", false)) and PlayerJourney.act2_combat_ready()
-			if walk_unlocked and is_instance_valid(stage_layers):
-				var talk_walk := {"id": "talk", "label": "和%s聊聊" % walk_name, "npc": walk_cid}
-				stage_layers.set_slot_actor(
+			if is_instance_valid(stage_layers):
+				var talk_coast := {"id": "talk", "label": "和黄秋枫聊聊", "npc": "huang_qiufeng"}
+				stage_layers.set_staged_variant(
 					"slot_a",
-					"res://assets/sprites/characters/phase_two/fullbody/%s.png" % walk_cid,
-					"和%s聊聊" % walk_name,
-					func(): action_requested.emit(talk_walk)
-				)
-				hud_layout.add_npc_bubble(
-					"Bubble_coast_npc",
-					SceneStageLayers.bubble_anchor("arete_coast_test", "slot_a"),
-					walk_name,
-					false,
-					_action_preview_text("talk"),
-					func(): action_requested.emit(talk_walk)
+					"c",
+					"和黄秋枫聊聊",
+					func(): action_requested.emit(talk_coast)
 				)
 			var park_label := "旧公园（黄昏之约）" if park_story else ("拐进旧公园" if park_open else "旧公园（未开放）")
 			var park_item := {"id": "enter_old_park", "target": "old_park", "label": park_label}
@@ -254,67 +225,52 @@ func _populate_unified_actions_and_actors() -> void:
 
 		"old_park":
 			var act3_pending := not GameState.visited_node_ids.has("n_dusk") and not bool(GameState.story_flags.get("chapter_1_completed", false))
+			var park_action := {"id": "story_act3", "label": "与黄秋枫赴约"} if act3_pending else {"id": "talk", "label": "和黄秋枫聊聊", "npc": "huang_qiufeng"}
+			if is_instance_valid(stage_layers):
+				stage_layers.set_staged_variant(
+					"slot_b",
+					"c",
+					"赴黄昏之约" if act3_pending else "和黄秋枫聊聊",
+					func(): action_requested.emit(park_action)
+				)
 			if act3_pending:
-				var dusk_item := {"id": "story_act3", "label": "与黄秋枫赴约"}
-				if is_instance_valid(stage_layers):
-					stage_layers.set_slot_actor(
-						"slot_b",
-						"res://assets/sprites/characters/phase_two/halfbody/huang_qiufeng.png",
-						"赴黄昏之约",
-						func(): action_requested.emit(dusk_item)
-					)
-				_add_dock_action(dusk_item, "story", "主线")
-				hud_layout.add_npc_bubble(
-					"Bubble_huang_qiufeng",
-					SceneStageLayers.bubble_anchor("old_park", "slot_b"),
-					"黄秋枫",
-					true,
-					_action_preview_text("story_act3"),
-					func(): action_requested.emit(dusk_item)
-				)
-			elif walk_unlocked and is_instance_valid(stage_layers):
-				var talk_park := {"id": "talk", "label": "和%s聊聊" % walk_name, "npc": walk_cid}
-				stage_layers.set_slot_actor(
-					"slot_a",
-					"res://assets/sprites/characters/phase_two/fullbody/%s.png" % walk_cid,
-					"和%s聊聊" % walk_name,
-					func(): action_requested.emit(talk_park)
-				)
-				hud_layout.add_npc_bubble(
-					"Bubble_park_npc",
-					SceneStageLayers.bubble_anchor("old_park", "slot_a"),
-					walk_name,
-					false,
-					_action_preview_text("talk"),
-					func(): action_requested.emit(talk_park)
-				)
+				_add_dock_action(park_action, "story", "主线")
 			_add_dock_action({"id": "park_reflect", "label": "长椅追忆"}, "activity", "1活动")
 			_add_dock_action({"id": "park_vending", "label": "查看街角贩卖机"}, "free", "免费")
 
 		"arete_beach_test":
-			if walk_unlocked and is_instance_valid(stage_layers):
-				var talk_beach := {"id": "talk", "label": "和%s聊聊" % walk_name, "npc": walk_cid}
-				stage_layers.set_slot_actor(
+			var beach_cid := walk_cid if walk_unlocked else "jiang_zi"
+			var beach_variant := _beach_variant_for(beach_cid)
+			var beach_name := str(PhaseTwoContent.ACTORS.get(beach_cid, {}).get("name", "姜梓"))
+			if is_instance_valid(stage_layers):
+				var talk_beach := {"id": "talk", "label": "和%s聊聊" % beach_name, "npc": beach_cid}
+				stage_layers.set_staged_variant(
 					"slot_a",
-					"res://assets/sprites/characters/phase_two/fullbody/%s.png" % walk_cid,
-					"和%s聊聊" % walk_name,
-					func(): action_requested.emit(talk_beach)
-				)
-				hud_layout.add_npc_bubble(
-					"Bubble_beach_npc",
-					SceneStageLayers.bubble_anchor("arete_beach_test", "slot_a"),
-					walk_name,
-					false,
-					_action_preview_text("talk"),
+					beach_variant,
+					"和%s聊聊" % beach_name,
 					func(): action_requested.emit(talk_beach)
 				)
 			_add_dock_action({"id": "beach_rest", "label": "海边休整"}, "activity", "1活动")
 			_add_dock_action({"id": "beach_observe", "label": "远眺海平线"}, "free", "免费")
 
 		"dorm":
+			var dorm_note_item := {"id": "dorm_note", "label": "阅读门边信笺"}
+			if is_instance_valid(stage_layers):
+				stage_layers.set_staged_variant(
+					"slot_a",
+					"c",
+					"查看桌上的便签",
+					func(): action_requested.emit(dorm_note_item)
+				)
 			_add_dock_action({"id": "sleep", "label": DayCycle.rest_label()}, "activity", "时段")
 			_add_dock_action({"id": "dorm_desk", "label": "书桌整理 · 今日小结"}, "free", "免费")
-			_add_dock_action({"id": "dorm_note", "label": "阅读门边信笺"}, "free", "免费")
+			_add_dock_action(dorm_note_item, "free", "免费")
+
+		_:
+			for item in CampusPlaces.PLACES.get(location_id, {}).get("actions", []):
+				if str(item.get("id", "")) == "go" and str(item.get("target", "")) == "map":
+					continue
+				_add_dock_action(item, "free", "免费")
 
 
 func _wire_unified_focus() -> void:
@@ -336,6 +292,8 @@ func set_shop_split_mode(enabled: bool) -> void:
 		hud_layout.set_dock_visible(not enabled)
 	if is_instance_valid(stage_layers):
 		stage_layers.set_slot_hit_enabled(not enabled)
+		if location_id == "shop":
+			stage_layers.position.x = 150.0 if enabled else 0.0
 
 
 func _on_day_changed() -> void:
@@ -346,123 +304,18 @@ func _on_day_changed() -> void:
 			if next_npc != _rooftop_npc_id:
 				_rooftop_npc_id = next_npc
 				var next_name := str(PhaseTwoContent.ACTORS.get(next_npc, {}).get("name", "同伴"))
-				stage_layers.set_slot_actor(
+				var next_variant := _rooftop_variant_for(next_npc)
+				stage_layers.set_staged_variant(
 					"slot_a",
-					"res://assets/sprites/characters/phase_two/fullbody/%s.png" % next_npc,
+					next_variant,
 					"和%s聊聊" % next_name,
 					func(): action_requested.emit({"id": "talk", "npc": CampusLife.rooftop_active_npc()})
 				)
 				var talk_btn := refs.get("actions", {}).get("talk") as Button
 				if is_instance_valid(talk_btn):
 					talk_btn.text = "和%s聊聊" % next_name
-				if is_instance_valid(hud_layout):
-					var bubble := hud_layout.find_child("Bubble_rooftop_npc", true, false) as Button
-					if is_instance_valid(bubble):
-						bubble.text = next_name
 	if is_instance_valid(hud_layout):
 		hud_layout.refresh_status()
-		return
-	if is_instance_valid(clock):
-		clock.text = GameState.get_detailed_time_string()
-	var status := get_node_or_null("ConceptStatus") as Label
-	if is_instance_valid(status):
-		status.text = _footer_hint_text()
-
-
-func _build_legacy_scene() -> void:
-	var place_file := SceneDesignCatalog.place_path(location_id)
-	var wide_place := place_file.replace(".png", "_wide.png")
-	if ResourceLoader.exists(wide_place):
-		var wide_bg := SchoolObjectUI.art(self, "WidePlaceBackground", wide_place, Rect2(-210, 0, 2340, 1080))
-		wide_bg.stretch_mode = TextureRect.STRETCH_SCALE
-		wide_bg.z_index = -3
-	var background := SchoolObjectUI.art(self, "PlaceBackground", place_file)
-	background.stretch_mode = TextureRect.STRETCH_SCALE
-	if ResourceLoader.exists(wide_place):
-		background.self_modulate = Color(1, 1, 1, 0)
-	elif background.texture != null and background.texture.get_width() > 2100:
-		var native_wide := SchoolObjectUI.art(self, "WidePlaceBackground", place_file, Rect2(-210, 0, 2340, 1080))
-		native_wide.stretch_mode = TextureRect.STRETCH_SCALE
-		native_wide.z_index = -3
-		background.self_modulate = Color(1, 1, 1, 0)
-	SceneSurfaceUI.heading(self, str(config["title"]))
-	clock = get_node("DayTime") as Label
-	DayCycle.changed.connect(_on_day_changed)
-	var map_button := SceneSurfaceUI.button(self, "OpenMap", "地区地图", Rect2(1470, 30, 250, 78), 28)
-	map_button.pressed.connect(func(): map_requested.emit())
-	DynamicUI.attach_hover_pop(map_button, 1.04)
-	refs["map_button"] = map_button
-	var menu := SceneSurfaceUI.button(self, "OpenMenu", "菜单", Rect2(1740, 30, 135, 78), 28)
-	menu.pressed.connect(func(): menu_requested.emit())
-	DynamicUI.attach_hover_pop(menu, 1.04)
-	refs["menu"] = menu
-	for item in config["objects"]:
-		var id := str(item["id"])
-		var label_text := str(item["label"])
-		var activate := func(): select_object(id); action_requested.emit(item)
-		var pair := SceneSurfaceUI.landmark(self, "Action_" + id, background.texture, item["polygon"], item["tag"], label_text, activate)
-		objects[id] = pair["image"]
-		refs["actions"][id] = pair["label"]
-		DynamicUI.attach_hover_pop(pair["label"], 1.045)
-		_wire_hover_preview(pair["label"], _action_preview_text(id))
-		_wire_hover_preview(pair["image"], _action_preview_text(id))
-	if config["objects"].is_empty():
-		_build_legacy_context()
-	var hint_slab := SchoolObjectUI.slab(self, "ConceptStatusBacking", Rect2(56, 1007, 940, 44), Color(0.11, 0.14, 0.21, 0.76))
-	(hint_slab.get_theme_stylebox("panel") as StyleBoxFlat).set_corner_radius_all(12)
-	hint_slab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var hint := SchoolObjectUI.text(self, "ConceptStatus", _footer_hint_text(), Rect2(72, 1011, 908, 36), 21, Color("#FFF7E7"))
-	hint.clip_text = true
-	hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	hint.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
-	hint.add_theme_constant_override("shadow_offset_y", 1)
-	SceneSurfaceUI.finish_layering(self, background)
-	_wire_focus()
-	map_button.grab_focus.call_deferred()
-
-
-func _footer_hint_text() -> String:
-	return "%s · 点击亮点与人物互动 · Esc 返回地图" % DayCycle.activity_hint()
-
-
-func _build_legacy_context() -> void:
-	var place: Dictionary = CampusPlaces.PLACES[location_id]
-	var actions: Array = place["actions"].filter(func(item): return item["id"] not in ["go", "preview"])
-	if actions.is_empty():
-		actions = place["actions"].duplicate(true)
-	var panel := Panel.new()
-	panel.name = "PlaceContext"
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", SceneSkin.style("dialogue_sheet", Vector4.ZERO))
-	add_child(panel)
-	DaylightUI.place(panel, 72, 707, 1140, 285)
-	var description := SchoolObjectUI.text(panel, "LocationDescription", str(place["description"]), Rect2(42, 30, 1055, 125), 29, SceneSkin.INK)
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.clip_text = true
-	for i in mini(3, actions.size()):
-		var item: Dictionary = actions[i]
-		var id := str(item["id"]) + str(i)
-		var button := SceneSurfaceUI.button(panel, "Action_" + id, str(item["label"]), Rect2(40 + i * 355, 184, 335, 71), 25)
-		button.pressed.connect(func(): action_requested.emit(item))
-		refs["actions"][id] = button
-		_wire_hover_preview(button, _action_preview_text(str(item["id"])))
-
-
-func _wire_hover_preview(control: Control, copy: String) -> void:
-	if control == null or copy == "":
-		return
-	var set_tip := func():
-		var status := get_node_or_null("ConceptStatus") as Label
-		if is_instance_valid(status):
-			status.text = copy
-	var reset_tip := func():
-		var status := get_node_or_null("ConceptStatus") as Label
-		if is_instance_valid(status):
-			status.text = _footer_hint_text()
-	control.mouse_entered.connect(set_tip)
-	control.focus_entered.connect(set_tip)
-	control.mouse_exited.connect(reset_tip)
-	control.focus_exited.connect(reset_tip)
 
 
 func _action_preview_text(action_id: String) -> String:
@@ -520,41 +373,15 @@ func _action_preview_text(action_id: String) -> String:
 			return "阅读门边信笺（0活动点）→ 翻看夹在书里的放学后便签"
 		"sleep":
 			return "回房休息 → 推进到下一时段并恢复体力"
-	return _footer_hint_text()
-
-
-func _wire_focus() -> void:
-	var order: Array = [refs["menu"], refs["map_button"]] + refs["actions"].values()
-	for i in order.size():
-		var button: BaseButton = order[i]
-		button.focus_previous = button.get_path_to(order[posmod(i - 1, order.size())])
-		button.focus_next = button.get_path_to(order[(i + 1) % order.size()])
-		button.focus_neighbor_left = button.focus_previous
-		button.focus_neighbor_top = button.focus_previous
-		button.focus_neighbor_right = button.focus_next
-		button.focus_neighbor_bottom = button.focus_next
+	return ""
 
 
 func select_object(id: String = "") -> void:
 	selected_id = id
-	for key in objects:
-		objects[key].set_selected(key == id)
 
 
 func set_interactions_enabled(enabled: bool) -> void:
-	if _use_unified and is_instance_valid(hud_layout):
+	if is_instance_valid(hud_layout):
 		hud_layout.set_interactions_enabled(enabled)
-		if is_instance_valid(stage_layers):
-			stage_layers.set_slot_hit_enabled(enabled)
-		return
-	get_node("ConceptStatus").visible = enabled
-	var status_backing := get_node_or_null("ConceptStatusBacking") as CanvasItem
-	if status_backing != null:
-		status_backing.visible = enabled
-	for image in objects.values():
-		image.disabled = not enabled
-	for button in refs["actions"].values():
-		button.disabled = not enabled
-		button.visible = enabled
-	refs["map_button"].disabled = not enabled
-	refs["menu"].disabled = not enabled
+	if is_instance_valid(stage_layers):
+		stage_layers.set_slot_hit_enabled(enabled)

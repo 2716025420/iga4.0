@@ -904,6 +904,7 @@ func _trigger_victory() -> void:
 		return
 	_combat_outcome = "victory"
 	AudioManager.play_sfx_victory()
+	AudioManager.play_bgm("bgm_victory_stinger", 0.25)
 	combat_finished.emit(true)
 	_lock_combat_underlying_ui()
 	result_modal.visible = true

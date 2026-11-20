@@ -48,6 +48,7 @@ func _run() -> void:
 	await _test_rules_and_economy()
 	await _test_progression_state_machine()
 	await _test_ui_cleanliness()
+	_test_audio_assets()
 
 	print("CORE_SMOKE_RESULT " + JSON.stringify({"checks": checks, "failures": failures, "renderer": DisplayServer.get_name()}))
 	get_tree().quit(0 if failures.is_empty() else 1)
@@ -195,8 +196,19 @@ func _test_ui_cleanliness() -> void:
 	]
 	for theme_path in theme_paths:
 		check(ResourceLoader.exists(theme_path) and load(theme_path) is Texture2D, "watercolor paper asset loads: " + theme_path)
-	for v14_rel in ["panels/ui_clerk_speech_bubble_9slice.png", "buttons/ui_seal_claimed_badge.png"]:
-		check(DynamicUI.v14_texture(v14_rel) != null, "kept paper v14 asset loads: " + v14_rel)
+	check(DynamicUI.v14_texture("buttons/ui_seal_claimed_badge.png") != null, "kept wax seal asset loads")
+	for v17_path in [
+		DynamicUI.V17_DIAL_MORNING,
+		DynamicUI.V17_DIAL_REDMOON,
+		DynamicUI.V17_DOCK_STRIP,
+		DynamicUI.V17_RESOURCE_CAPSULE,
+		DynamicUI.V17_ACTION_BTN,
+		DynamicUI.V17_NPC_BUBBLE,
+		DynamicUI.V17_STORY_DIALOGUE,
+	]:
+		check(DynamicUI.v17_texture(v17_path) != null, "v17 Set A UI asset loads: " + v17_path.get_file())
+	for icon_key in ["arrow", "bag", "bolt", "book", "card", "chat", "coin", "gem", "map", "rest", "return", "spark", "waves"]:
+		check(DynamicUI.v17_icon(icon_key) != null, "v17 Set A icon loads: " + icon_key)
 	flow.change_scene(flow.TargetScene.HOME)
 	await _settled()
 	_scan_clean_ui(get_tree().current_scene, "HomeScreen")
@@ -214,7 +226,9 @@ func _test_ui_cleanliness() -> void:
 		var menu_hov := home_menu.get_theme_stylebox("hover") as StyleBoxTexture
 		check(menu_norm != null and menu_hov != null and menu_norm.texture == menu_hov.texture, "home MainMenuButton keeps identical texture shape on hover")
 	var home_capsule := home.find_child("StatusCapsule", true, false) as Control
-	check(home_capsule != null and home_capsule.get_theme_stylebox("panel") is StyleBoxTexture, "home mounts watercolor StatusCapsule StyleBoxTexture")
+	check(home_capsule != null and home_capsule.get_theme_stylebox("panel") is StyleBoxTexture, "home mounts v17 StatusCapsule StyleBoxTexture")
+	check(home_capsule != null and home_menu != null and is_equal_approx(home_capsule.size.y, home_menu.size.y), "home StatusCapsule and MainMenuButton share uniform height")
+	check(home.find_child("TalkHint", true, false) == null, "home removes overhead JiangZi bubble")
 	home._open_panel("records")
 	await get_tree().process_frame
 	_scan_clean_ui(home._active_modal, "ProjectionRecords")
@@ -293,13 +307,12 @@ func _test_ui_cleanliness() -> void:
 		_scan_clean_ui(place_root, "Place_" + loc)
 		check(place_root.find_child("SceneHUD", true, false) != null, loc + " mounts unified SceneHUD")
 		check(place_root.find_child("LeftActionDock", true, false) != null, loc + " mounts LeftActionDock")
+		check(place_root.find_child("LocationCapsule", true, false) != null, loc + " mounts v17 LocationCapsule")
 		check(place_root.find_child("TopRightHud", true, false) != null, loc + " mounts TopRightHud")
 		check(place_root.find_child("PeriodDial", true, false) != null, loc + " mounts PeriodDial")
-		check(place_root.find_child("PipCount", true, false) != null, loc + " mounts watercolor PipCount note")
-		for small_icon in ["HpIcon", "PipDot_0", "ActionIcon", "MenuIcon", "MapIcon"]:
-			check(place_root.find_child(small_icon, true, false) == null, loc + " has no small HUD icon: " + small_icon)
+		check(place_root.find_child("PipCount", true, false) != null, loc + " mounts PipCount")
 		var dock_back := place_root.find_child("DockBacking", true, false) as Control
-		check(dock_back != null and dock_back.get_theme_stylebox("panel") is StyleBoxTexture, loc + " mounts watercolor DockBacking StyleBoxTexture")
+		check(dock_back != null and dock_back.get_theme_stylebox("panel") is StyleBoxTexture, loc + " mounts v17 DockBacking StyleBoxTexture")
 		for nav_name in ["OpenMap", "OpenMenu", "BackLocation"]:
 			var nav_btn := place_root.find_child(nav_name, true, false) as Button
 			if nav_name != "BackLocation":
@@ -310,31 +323,39 @@ func _test_ui_cleanliness() -> void:
 				check(sb_norm != null and sb_hov != null and sb_norm.texture == sb_hov.texture, loc + " " + nav_name + " keeps identical texture shape on hover")
 		if loc in ["old_park", "arete_beach_test"]:
 			check(place_root.find_child("Action_go", true, false) == null, loc + " has no duplicate Action_go return action")
-		if loc != "dorm":
-			check(place_root.find_child("StageLayers", true, false) != null, loc + " mounts 5-layer StageLayers")
-			check(place_root.find_child("Layer0_Sky", true, false) != null, loc + " mounts Layer0_Sky")
-			check(place_root.find_child("Layer1_Midground", true, false) != null, loc + " mounts Layer1_Midground")
-			check(place_root.find_child("Layer2_Actors", true, false) != null, loc + " mounts Layer2_Actors")
-			check(place_root.find_child("Layer3_Foreground", true, false) != null, loc + " mounts Layer3_Foreground")
-			var sky_tr := place_root.find_child("SkyTexture", true, false) as TextureRect
-			var mid_tr := place_root.find_child("MidgroundTexture", true, false) as TextureRect
-			var fg_tr := place_root.find_child("ForegroundTexture", true, false) as TextureRect
-			check(sky_tr != null and sky_tr.visible and sky_tr.texture != null, loc + " loads real SkyTexture")
-			check(mid_tr != null and mid_tr.texture != null, loc + " loads real MidgroundTexture")
-			check(fg_tr != null and fg_tr.texture != null, loc + " loads real ForegroundTexture")
+		check(place_root.find_child("StageLayers", true, false) != null, loc + " mounts 5-layer StageLayers")
+		check(place_root.find_child("Layer0_Sky", true, false) != null, loc + " mounts Layer0_Sky")
+		check(place_root.find_child("Layer1_Midground", true, false) != null, loc + " mounts Layer1_Midground")
+		check(place_root.find_child("Layer2_Actors", true, false) != null, loc + " mounts Layer2_Actors")
+		check(place_root.find_child("Layer3_Foreground", true, false) != null, loc + " mounts Layer3_Foreground")
+		var sky_tr := place_root.find_child("SkyTexture", true, false) as TextureRect
+		var mid_tr := place_root.find_child("MidgroundTexture", true, false) as TextureRect
+		var fg_tr := place_root.find_child("ForegroundTexture", true, false) as TextureRect
+		check(sky_tr != null and sky_tr.visible and sky_tr.texture != null, loc + " loads real v17 SkyTexture")
+		check(mid_tr != null and mid_tr.texture != null, loc + " loads real v17 MidgroundTexture")
+		check(fg_tr != null and fg_tr.texture != null, loc + " loads real v17 ForegroundTexture")
+		var actor_slot_name := "ActorSprite_slot_b" if loc == "old_park" else "ActorSprite_slot_a"
+		var actor_tr := place_root.find_child(actor_slot_name, true, false) as TextureRect
+		check(actor_tr != null and actor_tr.texture != null, loc + " loads real v17 staged actor sprite")
+		check(place_root.find_children("Bubble_*", "", true, false).is_empty(), loc + " has no overhead NPC speech bubble")
+		var loc_cap := place_root.find_child("LocationCapsule", true, false) as Control
+		var res_cap := place_root.find_child("ResourceCapsule", true, false) as Control
+		var map_btn := place_root.find_child("OpenMap", true, false) as Control
+		var menu_btn := place_root.find_child("OpenMenu", true, false) as Control
+		if loc_cap != null and res_cap != null and map_btn != null and menu_btn != null:
+			check(is_equal_approx(loc_cap.size.y, 56.0) and is_equal_approx(res_cap.size.y, 56.0) and is_equal_approx(map_btn.size.y, 56.0) and is_equal_approx(menu_btn.size.y, 56.0), loc + " top bar controls share uniform 56px height")
 		if loc == "library":
-			check(place_root.find_child("Bubble_lin_zhi_xia", true, false) != null, "library has Lin Zhixia bubble")
 			var lib_screen: CampusScreen = place_root
 			lib_screen._action({"id": "talk", "npc": "lin_zhi_xia"})
 			await get_tree().process_frame
 			check(is_instance_valid(lib_screen.dialogue), "library dialogue opened")
 			if is_instance_valid(lib_screen.dialogue):
 				check(lib_screen.dialogue.portrait.visible and lib_screen.dialogue.portrait.texture != null, "CampusDialogueUI displays speaker portrait")
-				check(lib_screen.dialogue.find_child("StoryChrome", true, false) != null, "CampusDialogueUI matches StoryChrome style")
+				var chrome_tex := lib_screen.dialogue.find_child("StoryChrome", true, false) as TextureRect
+				check(chrome_tex != null and chrome_tex.texture != null, "CampusDialogueUI matches main-story StoryChrome artwork")
 				lib_screen.dialogue._close()
 				await get_tree().process_frame
 		elif loc == "rooftop":
-			check(place_root.find_child("Bubble_rooftop_npc", true, false) != null, "rooftop has NPC bubble")
 			var roof_screen: CampusScreen = place_root
 			var sl := roof_screen.scene_objects.stage_layers if is_instance_valid(roof_screen.scene_objects) else null
 			var sky_tex_node := roof_screen.find_child("SkyTexture", true, false) as TextureRect
@@ -357,7 +378,6 @@ func _test_ui_cleanliness() -> void:
 			roof_screen._close_companion_switcher()
 			await get_tree().process_frame
 		elif loc == "gym":
-			check(place_root.find_child("Bubble_liu_yu_long", true, false) != null, "gym has Liu Yulong bubble")
 			var gym_screen: CampusScreen = place_root
 			gym_screen._open_qualifier_modal()
 			await get_tree().process_frame
@@ -372,7 +392,7 @@ func _test_ui_cleanliness() -> void:
 	check(life.travel_to("shop", "university_arete"), "return to shop for counter check")
 	await _settled()
 	var screen: CampusScreen = get_tree().current_scene
-	check(screen.find_child("Bubble_tang_xiao_man", true, false) != null, "shop mounts Tang Xiaoman bubble")
+	check(screen.find_children("Bubble_*", "", true, false).is_empty(), "shop has no overhead Tang Xiaoman bubble")
 	screen._open_workspace("shop")
 	await get_tree().process_frame
 	_scan_clean_ui(screen._workspace, "ShopPanel")
@@ -402,3 +422,27 @@ func _test_ui_cleanliness() -> void:
 	screen.system_menu.go_back()
 	await get_tree().process_frame
 	check(not screen.scene_objects.hud_layout.menu_button.disabled, "closing system menu re-enables HUD OpenMenu button")
+
+
+func _test_audio_assets() -> void:
+	var audio := get_tree().root.get_node_or_null("AudioManager")
+	check(audio != null, "AudioManager autoload is available")
+	if audio == null:
+		return
+	var bgm_ids := [
+		"bgm_title_serene",
+		"bgm_campus_daily",
+		"bgm_shop_breeze",
+		"bgm_dusk_memory",
+		"bgm_duel_practice",
+		"bgm_redmoon_overclock",
+		"bgm_victory_stinger",
+	]
+	for track_id in bgm_ids:
+		var stream: AudioStream = audio._bgm_stream(track_id)
+		check(stream != null, "BGM stream loads: " + track_id)
+		if stream != null and "loop" in stream:
+			check(bool(stream.get("loop")) == (track_id != "bgm_victory_stinger"), "BGM loop policy matches: " + track_id)
+	for key in AudioManager.SFX_KEYS.keys():
+		var sfx: AudioStream = audio._sfx_stream(str(key))
+		check(sfx != null, "SFX stream loads: " + str(key))

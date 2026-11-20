@@ -37,6 +37,7 @@ func _ready() -> void:
 	if GameState.archive_return_tab != "" and RegionCatalog.is_home(location_id):
 		_restore_records.call_deferred()
 	GameState.game_time_changed.connect(_refresh_clock)
+	AudioManager.play_bgm_for_scene(SceneManager.TargetScene.CAMPUS_LIFE)
 	resized.connect(_layout)
 	_layout()
 
@@ -91,13 +92,14 @@ func _build_place() -> void:
 		return
 	if data.get("geometry",false): _build_geometry_place(data)
 	else:
-		var place_path := CampusPlaces.ROOT+str(data.get("background",""))
+		var place_path := "res://assets/backgrounds/phase_two/%s.png" % str(data.get("background",""))
 		var wide_path := place_path.replace(".png","_wide.png")
 		if ResourceLoader.exists(wide_path):
 			var wide_bg := SchoolObjectUI.art(presentation,"WidePlaceBackground",wide_path,Rect2(-210,0,2340,1080))
 			wide_bg.stretch_mode = TextureRect.STRETCH_SCALE
-		var place_bg := SchoolObjectUI.art(presentation,"PlaceBackground",place_path)
-		if ResourceLoader.exists(wide_path): place_bg.self_modulate = Color(1,1,1,0)
+		if ResourceLoader.exists(place_path):
+			var place_bg := SchoolObjectUI.art(presentation,"PlaceBackground",place_path)
+			if ResourceLoader.exists(wide_path): place_bg.self_modulate = Color(1,1,1,0)
 	var npc_id := str(data.get("npc",""))
 	if npc_id != "": _build_actor(npc_id)
 	var title := _button(presentation,"LocationTitle",str(data["title"]),Rect2(62,28,600,87))
@@ -207,6 +209,10 @@ func _open_workspace(kind: String, context: Dictionary = {}) -> void:
 func _on_shop_clerk_reacted(emotion: String, _line: String) -> void:
 	if not is_instance_valid(scene_objects) or not is_instance_valid(scene_objects.stage_layers) or location_id != "shop":
 		return
+	if scene_objects.stage_layers.is_slot_staged("slot_a"):
+		if emotion == "happy":
+			scene_objects.stage_layers.pulse_slot_actor("slot_a")
+		return
 	var tex_path := "res://assets/sprites/characters/phase_two/halfbody/tang_xiao_man_%s.png" % ("happy" if emotion == "happy" else "neutral")
 	scene_objects.stage_layers.set_slot_texture("slot_a", tex_path)
 
@@ -269,9 +275,9 @@ func _workspace_action(action: String, payload: Dictionary) -> void:
 func _build_actor(npc_id: String) -> void:
 	var spec: Dictionary = CampusPlaces.NPCS[npc_id]
 	var actor := SchoolObjectUI.art(presentation,"ResidentNPC","",Rect2(-30,70,1920,1000))
-	if spec.has("texture"): actor.texture = load(CampusPlaces.ROOT+str(spec["texture"]))
-	else:
-		actor.texture = load(str(spec["path"]))
+	var tex_path := str(spec.get("path", ""))
+	if tex_path != "" and ResourceLoader.exists(tex_path):
+		actor.texture = load(tex_path)
 		DaylightUI.place(actor,1130,130,620,880)
 	actor.set_meta("npc_id",npc_id)
 	refs["npc"] = actor
@@ -673,6 +679,7 @@ func _sleep() -> void:
 			presentation.remove_child(node)
 			node.queue_free()
 	_build_place()
+	AudioManager.play_bgm_for_scene(SceneManager.TargetScene.CAMPUS_LIFE)
 	presentation.move_child(_fade,-1)
 	tween = create_tween()
 	tween.tween_property(_fade,"modulate:a",0.0,SaveManager.motion_duration(0.5))

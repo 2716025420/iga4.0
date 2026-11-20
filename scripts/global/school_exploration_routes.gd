@@ -85,40 +85,40 @@ static func normalize_support_node(source: Dictionary) -> Dictionary:
 static func dialogue_lines(node: Dictionary) -> Array[Dictionary]:
 	var variants: Array[Array] = [
 		[
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "text": "路牌下面压着一张纸条。字写得很大：别着急，先看看周围。"},
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "text": "背面画着通往校门的小箭头，还标出了附近的补给。像是先走过的同学留下的。"},
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "text": "把纸条放回去吧。下一位路过的人，也许会用得上。", "emotion": "happy"}
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"neutral","text":"路牌下面压着一张纸条。字写得很大：别着急，先看看周围。"},
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"neutral","text":"背面画着通往校门的小箭头，还标出了附近的补给。像是先走过的同学留下的。"},
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"happy","text":"把纸条放回去吧。下一位路过的人，也许会用得上。"}
 		],
 		[
-			{"speaker": "杨子英", "char": "yang_zi_ying", "side": "right", "emotion": "happy", "text": "咦，长椅缝里夹着一张拍立得废片——构图还挺稳的嘛！"},
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "neutral", "text": "背面写着「红月升起前记得留足冷却 1 的轻型手牌」，是三年级摄影社前辈的笔记。"},
-			{"speaker": "杨子英", "char": "yang_zi_ying", "side": "right", "emotion": "happy", "text": "我也把今天拍到的晴天樱枝塞一张在旁边，算作交换留念吧！"}
+			{"speaker":"杨子英","char":"yang_zi_ying","side":"right","emotion":"happy","text":"咦，长椅缝里夹着一张拍立得废片——构图还挺稳的嘛！"},
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"neutral","text":"背面写着「红月升起前记得留足冷却 1 的轻型手牌」，是三年级摄影社前辈的笔记。"},
+			{"speaker":"杨子英","char":"yang_zi_ying","side":"right","emotion":"happy","text":"我也把今天拍到的晴天樱枝塞一张在旁边，算作交换留念吧！"}
 		],
 		[
-			{"speaker": "柳宇龙", "char": "liu_yu_long", "side": "right", "emotion": "happy", "text": "看这栏杆上的划痕编号——去年校内淘汰赛我也在这拐角卡过一次卡组！"},
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "neutral", "text": "下面贴了张终端便利贴：「别把两张重冷却牌在同一回合砸空」。"},
-			{"speaker": "柳宇龙", "char": "liu_yu_long", "side": "right", "emotion": "neutral", "text": "哈哈，说得挺对。稳住防线再打反击才是最痛快的赢法！"}
+			{"speaker":"柳宇龙","char":"liu_yu_long","side":"right","emotion":"happy","text":"看这栏杆上的划痕编号——去年校内淘汰赛我也在这拐角卡过一次卡组！"},
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"neutral","text":"下面贴了张终端便利贴：「别把两张重冷却牌在同一回合砸空」。"},
+			{"speaker":"柳宇龙","char":"liu_yu_long","side":"right","emotion":"neutral","text":"哈哈，说得挺对。稳住防线再打反击才是最痛快的赢法！"}
 		],
 		[
-			{"speaker": "姜梓", "char": "jiang_zi", "side": "right", "emotion": "neutral", "text": "巡逻终端留下了一页纸质巡检备忘，纸角压着半截蓝墨印章。"},
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "worried", "text": "上面写着「旧园南侧信号时有盲区，经过时务必保持个人终端处于护盾待机」。"},
-			{"speaker": "姜梓", "char": "jiang_zi", "side": "right", "emotion": "neutral", "text": "看来早在这次事件前，校内就已经有人察觉到了外部频率的异常。"}
+			{"speaker":"姜梓","char":"jiang_zi","side":"right","emotion":"neutral","text":"巡逻终端留下了一页纸质巡检备忘，纸角压着半截蓝墨印章。"},
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"worried","text":"上面写着「旧园南侧信号时有盲区，经过时务必保持个人终端处于护盾待机」。"},
+			{"speaker":"姜梓","char":"jiang_zi","side":"right","emotion":"neutral","text":"看来早在这次事件前，校内就已经有人察觉到了外部频率的异常。"}
 		],
 		[
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "neutral", "text": "自动售货机侧面贴着一张橘子味糖纸折的小星星，底下有一行铅笔字。"},
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "happy", "text": "「给路过的二年级同学：紧张的时候记得深呼吸，冷却回合总会转回来的。」"}
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"neutral","text":"自动售货机侧面贴着一张橘子味糖纸折的小星星，底下有一行铅笔字。"},
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"happy","text":"「给路过的二年级同学：紧张的时候记得深呼吸，冷却回合总会转回来的。」"}
 		],
 		[
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "neutral", "text": "旧公园秋千旁的告示栏角上，订着一份褪色的「六地区交流赛」旧赛程单。"},
-			{"speaker": "杨子英", "char": "yang_zi_ying", "side": "right", "emotion": "happy", "text": "听说诺莫斯那边的赛场整棵包在巨树树冠里，以后真能去看看就好了。"}
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"neutral","text":"旧公园秋千旁的告示栏角上，订着一份褪色的「六地区交流赛」旧赛程单。"},
+			{"speaker":"杨子英","char":"yang_zi_ying","side":"right","emotion":"happy","text":"听说诺莫斯那边的赛场整棵包在巨树树冠里，以后真能去看看就好了。"}
 		],
 		[
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "neutral", "text": "石阶缝里吹来半张撕碎的草稿纸，画着十二星座符号旁边的一个小太阳。"},
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "neutral", "text": "旁注写着：「真正难模拟的从来不是算法参数，而是犹豫之后的决定。」"}
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"neutral","text":"石阶缝里吹来半张撕碎的草稿纸，画着十二星座符号旁边的一个小太阳。"},
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"neutral","text":"旁注写着：「真正难模拟的从来不是算法参数，而是犹豫之后的决定。」"}
 		],
 		[
-			{"speaker": "柳宇龙", "char": "liu_yu_long", "side": "right", "emotion": "neutral", "text": "看墙根那罐喝空的苏打水拉环，旁边用粉笔写着：今天护盾测试满分！"},
-			{"speaker": "叶舟", "char": "ye_zhou", "side": "left", "emotion": "happy", "text": "把易拉罐顺手投进分类桶里，感觉呼吸也跟着轻松了些。"}
+			{"speaker":"柳宇龙","char":"liu_yu_long","side":"right","emotion":"neutral","text":"看墙根那罐喝空的苏打水拉环，旁边用粉笔写着：今天护盾测试满分！"},
+			{"speaker":"叶舟","char":"ye_zhou","side":"left","emotion":"happy","text":"把易拉罐顺手投进分类桶里，感觉呼吸也跟着轻松了些。"}
 		]
 	]
 	var raw_id: String = str(node.get("id", "note"))

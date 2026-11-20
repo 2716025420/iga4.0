@@ -192,7 +192,6 @@ func _refresh_speaker_avatar(data: Dictionary) -> void:
 	var emotion := _speaker_emotion(data)
 	if character_id == "rebel_operative_masked" and emotion == "unmasked":
 		character_id = "rebel_operative_unmasked"
-	var avatar_emotion: String = {"neutral": "neutral", "happy": "happy", "worried": "concerned"}.get(emotion, "neutral")
 	var path := ""
 	var v7_avatar := "res://assets/sprites/characters/phase_two/avatars/%s_%s.png" % [character_id, emotion]
 	var v7_neutral := "res://assets/sprites/characters/phase_two/avatars/%s_neutral.png" % character_id
@@ -200,10 +199,6 @@ func _refresh_speaker_avatar(data: Dictionary) -> void:
 		path = v7_avatar
 	elif ResourceLoader.exists(v7_neutral):
 		path = v7_neutral
-	elif character_id in ["ye_zhou", "jiang_zi", "yang_zi_ying", "liu_yu_long"]:
-		var expr_path := "res://assets/sprites/characters/phase_two/expressions/%s_%s.png" % [character_id, avatar_emotion]
-		if ResourceLoader.exists(expr_path):
-			path = expr_path
 	if path == "" and character_id != "":
 		var portrait_path := "res://assets/sprites/characters/phase_two/portraits/%s.png" % character_id
 		if ResourceLoader.exists(portrait_path):

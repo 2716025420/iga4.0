@@ -157,5 +157,9 @@ func _run() -> void:
 	await _settled()
 	await _capture("14_beach")
 
+	life.travel_to("dorm", "university_arete")
+	await _settled()
+	await _capture("21_dorm")
+
 	print("CAPTURE_SCENES_RESULT " + JSON.stringify({"captures": captured_count, "failures": failures, "renderer": DisplayServer.get_name()}))
 	get_tree().quit(0 if failures.is_empty() else 1)

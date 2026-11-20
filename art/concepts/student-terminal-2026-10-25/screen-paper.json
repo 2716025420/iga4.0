@@ -1,8 +1,0 @@
-{
-  "mode": "builtin image_gen",
-  "source": "art/concepts/student-terminal-2026-10-25/overview.png",
-  "generated": "exec-0ec1f9e1-7d0c-4fab-af1d-7812670e3791.png",
-  "target": "assets/ui/student_terminal/screen_paper.png",
-  "prompt": "Use-case precise-object-edit. Edit this COMPLETE IGA student-terminal concept into a reusable clean runtime UI backing layer. KEEP the exact original entire image canvas, same full-frontal tablet chassis, its ivory metallic thin rim, dark inner bezel, camera/indicator, outside warm blurred summer room/background and sunlight, same perspective and placement. INSIDE the screen only, REMOVE ALL TEXT, all numbers, all icons, all navigation, all panels, all tiles, illustrations, leaves, linework and buttons. Replace entire screen interior with one uniform very light matte cool ivory (#F2F6F5), very subtle soft reflected sunlight gradient allowed, excellent readability. Completely BLANK screen to receive live Godot text/interactive SVG panels. Absolutely no letters or pseudo-text. Preserve all device contours and outside environment unchanged. Full 16:9 image, opaque.",
-  "note": "Only the blank screen interior is clipped into the shared screen quad. This image's device and outside environment are never rendered. Overview remains the exact physical shell; page textures contribute only their UI plates."
-}

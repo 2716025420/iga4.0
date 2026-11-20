@@ -9,6 +9,7 @@ const SFX_KEYS := {
 	"page_flip": "sfx_page_flip",
 	"modal_open": "sfx_modal_open",
 	"save_chime": "sfx_save_chime",
+	"shop_coin": "sfx_shop_coin",
 	"card_play": "sfx_card_play",
 	"shield_up": "sfx_shield_up",
 	"heal": "sfx_heal",
@@ -58,12 +59,14 @@ func _sfx_stream(key: String) -> AudioStream:
 	var stem := str(SFX_KEYS.get(key, key))
 	if _sfx_cache.has(stem):
 		return _sfx_cache[stem] as AudioStream
-	var path := "%s%s.wav" % [SFX_ROOT, stem]
-	if not ResourceLoader.exists(path):
-		return null
-	var stream := load(path) as AudioStream
-	_sfx_cache[stem] = stream
-	return stream
+	for ext in [".ogg", ".wav", ".mp3"]:
+		var path := "%s%s%s" % [SFX_ROOT, stem, ext]
+		if ResourceLoader.exists(path):
+			var stream := load(path) as AudioStream
+			if stream != null:
+				_sfx_cache[stem] = stream
+				return stream
+	return null
 
 
 func _bgm_stream(track_id: String) -> AudioStream:
@@ -73,8 +76,11 @@ func _bgm_stream(track_id: String) -> AudioStream:
 		var path := "%s%s%s" % [BGM_ROOT, track_id, ext]
 		if ResourceLoader.exists(path):
 			var stream := load(path) as AudioStream
-			_bgm_cache[track_id] = stream
-			return stream
+			if stream != null:
+				if "loop" in stream:
+					stream.set("loop", track_id != "bgm_victory_stinger")
+				_bgm_cache[track_id] = stream
+				return stream
 	return null
 
 
@@ -146,10 +152,21 @@ func play_bgm_for_scene(scene_type: int, overclock: bool = false, dialogue_id: S
 		SceneManager.TargetScene.COMBAT:
 			play_bgm("bgm_redmoon_overclock" if overclock else "bgm_duel_practice", 0.45)
 		SceneManager.TargetScene.STORY:
-			if dialogue_id in ["after_school", "yang_rescue", "principal_confrontation", "find_yang"] or GameState.archive_dialogue_id != "":
+			if dialogue_id in ["yang_rescue", "principal_confrontation"]:
+				play_bgm("bgm_redmoon_overclock", 0.55)
+			elif dialogue_id in ["after_school", "find_yang"] or GameState.archive_dialogue_id != "":
 				play_bgm("bgm_dusk_memory", 0.55)
 			else:
 				play_bgm("bgm_campus_daily", 0.55)
+		SceneManager.TargetScene.CAMPUS_LIFE:
+			var loc := CampusLife.current_location
+			var redmoon := bool(GameState.story_flags.get("prologue_redmoon", false)) or (DayCycle.period() == "night" and GameState.next_phase_two_node() in ["n_dusk", "n_guard", "n_rescue", "n_robot", "n5_boss"])
+			if loc == "shop":
+				play_bgm("bgm_shop_breeze", 0.55)
+			elif loc == "old_park" or redmoon:
+				play_bgm("bgm_dusk_memory", 0.55)
+			else:
+				play_bgm("bgm_campus_daily", 0.65)
 		_:
 			play_bgm("bgm_campus_daily", 0.65)
 
@@ -176,6 +193,10 @@ func play_sfx_modal_open() -> void:
 
 func play_sfx_save() -> void:
 	play_sfx("save_chime", 0.0)
+
+
+func play_sfx_shop_coin() -> void:
+	play_sfx("shop_coin", 0.03)
 
 
 func play_sfx_card_play() -> void:

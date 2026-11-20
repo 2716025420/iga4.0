@@ -1,6 +1,71 @@
 > **2026-11-14 全案重构最新基线**：[世界观与全案重构设计书](docs/story/2026-11-14-世界观与全案重构设计书.md) 已确认作后续剧本、系统、UI 与素材需求的最高优先级总纲；以下旧 10-28 提示保留溯源。
 > **2026-10-28 序章历史说明**：黄秋枫（原暂称梧桐）序章原始脉络见[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)。
 
+## 2026-11-20 冗余代码/素材清理、免费商用 BGM/SFX 实装与商店/选拔赛窗口 v18 三套需求交付
+
+- **状态**：完成仓库冗余资产与死代码精简，实装 7 首免费商用背景音乐（PeriTune CC-BY 4.0）与 17 枚免费商用音效（Kenney CC0 1.0），并打包交付「商店柜台商品窗口 (`CampusShopPanel`) & 体育馆代表选拔赛窗口 (`QualifierModal`)」v18 三套整页概念图与二阶段拆层需求压缩包。**`smoke` 全量回归与双分辨率 OpenGL 实机截图全通过**。
+- **冗余素材与代码清理**：
+  - 删除 `193` 个废止与冗余文件（释放 `85.28 MB`）：含 `art/`、原尺寸冗余 `assets/sprites/characters/v17_scene/`、`phase_two/expressions/`、旧双线联盟/教团地图（`map_legacy_*`）、`battle_paper.png`/`paper_panel.png`、未引用相机/HUD/VFX JSON、过时脚本 `export_v13_*`/`build_v13~16_*`/`audit_scene_assets.py` 及 `docs/2026-10-24`/`25` 历史稿；在 `docs/references/`、`docs/concepts/`、`test_artifacts/` 建立 `.gdignore` 并清除误导入 `.import` 缓存。
+  - 精简 [home_panels.gd](scripts/home/home_panels.gd)（清理约 660 行死 UI 构建逻辑并改用 `RefCounted` + `known_records()`）、[home_screen.gd](scripts/home/home_screen.gd)、[scene_stage_layers.gd](scripts/campus/scene_stage_layers.gd)（移除 v13 蓝图 Canvas 与冒泡锚点）、[scene_hud_layout.gd](scripts/campus/scene_hud_layout.gd)、[scene_object_view.gd](scripts/campus/scene_object_view.gd)（全量并入 `_build_unified_scene()` 并消除传统模式分支）、[scene_design_catalog.gd](scripts/campus/scene_design_catalog.gd)、[campus_places.gd](scripts/campus/campus_places.gd)、[campus_screen.gd](scripts/campus/campus_screen.gd)、[school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd)、[dynamic_ui.gd](scripts/ui/dynamic_ui.gd)、[combat_skin.gd](scripts/global/combat_skin.gd)、[scene_skin.gd](scripts/global/scene_skin.gd)、[exploration_content.gd](scripts/global/exploration_content.gd)、[phase_two_content.gd](scripts/global/phase_two_content.gd)、[dialogue_screen.gd](scripts/story/dialogue_screen.gd) 与 [sync_story.py](tools/story_studio/sync_story.py)。
+- **BGM 与 SFX 推荐下载及实装**：
+  - 新增下载脚本 [fetch_free_audio.py](tools/audio/fetch_free_audio.py) 并完成抓取校验：`7` 首 `.mp3` BGM（`bgm_title_serene`、`bgm_campus_daily`、`bgm_shop_breeze`、`bgm_dusk_memory`、`bgm_duel_practice`、`bgm_redmoon_overclock`、`bgm_victory_stinger`）+ `17` 枚 `.ogg/.wav` SFX（替换旧程序合成 `.wav` 占位音），署名清单见 [CREDITS.txt](assets/audio/CREDITS.txt)，混音与扩展曲库指南见 [2026-11-20-背景音乐与音效推荐及实装清单.md](docs/design/2026-11-20-背景音乐与音效推荐及实装清单.md)。
+  - 完善 [audio_manager.gd](scripts/global/audio_manager.gd)（新增 `shop_coin`、`.ogg/.wav/.mp3` 多扩展名支持、除 `bgm_victory_stinger` 外 BGM 默认循环、细分商店/旧公园/红月追击音乐路由），并在 [campus_screen.gd](scripts/campus/campus_screen.gd)、[campus_shop_panel.gd](scripts/campus/campus_shop_panel.gd)、[combat_screen.gd](scripts/combat/combat_screen.gd) 接入商店币响、结算短奏与进出/休整切曲同步；[sync_story.py](tools/story_studio/sync_story.py) 同步补充 `bgm_shop_breeze` 与 `.ogg/.wav/.mp3` 识别并完成 `--export`。
+- **v18 商店与体育馆窗口三套概念需求包**：
+  - 方案文档：[2026-11-20-商店柜台商品窗口与体育馆大赛窗口三套概念需求方案_v18.md](docs/design/2026-11-20-商店柜台商品窗口与体育馆大赛窗口三套概念需求方案_v18.md)
+  - 打包器：[build_v18_shop_gym_modal_pack.py](tools/build_v18_shop_gym_modal_pack.py)
+  - 交付包（位于本地 `archive/`）：`archive/IGA_Asset_Pack_Brief_v18_Shop_Gym_Windows_3Sets.zip`（`51` 个条目 / `29,528,148` 字节，通过 `zipfile.testzip()` 完整性验证）：含阶段一 `1920×1080` **商店柜台（A 晴空手账 / B Potionomics 木框 / C Blue Archive 终端）** 与 **体育馆选拔赛（A 晴空竞技 / B 金红荣誉册 / C 电子看板）** 共 6 套整页概念提示词与精确控件坐标、阶段二 `layers_shop`（11 件）/`layers_gym`（11 件）透明九宫格清单、`42` 份现行截图/舞台/UI/立绘/卡图/经济图标参考、`4` 份外部参考与 `06_Tools/qa_check_v18_windows.py`。
+- **验收结果**：
+  - Godot 4.7.2 `--headless --import --quit` 零报错完成 24 份新音频导入；[core_smoke.gd](tools/tests/core_smoke.gd) 新增 `_test_audio_assets()` 校验全 7 首 BGM 与全 17 枚 SFX；
+  - `python tools/run_godot_tests.py ... --suite smoke`：**`1760` 项检查通过、`0` 失败**；
+  - 双分辨率 OpenGL 实机截图：`1600×900`（`21` 张，0 失败）与 `1600×720`（`21` 张，0 失败）均通过，并已目检社团教室、校园商店与选拔赛弹窗。
+
+## 2026-11-20 v17 八场景定稿分层素材、UI Set A 实装、旧失败素材清理与全界面顶栏统一
+
+- **状态**：已将主创审定交付包 `archive/IGA_v17_Selected_Scene_Layers.zip` 中全部 **8 场景分层底图（天空/窗景、中景、前景）+ 15 套定位人物立绘与接触阴影 + 15 张原尺寸透明人物立绘 + UI Set A（7 组件 + 13 枚平面青绿图标）** 全量合入工程并完成实装；同时删除 `assets/` 下全部历史失败的 `v14` 塑料 UI、`scene_reset/places/` 平面底图与 `campus_life/` 旧场景素材（共清理 **101 个文件 / 51.15 MB**），按主创最新指令将人物剧情对话框统一回主线 `StoryChrome` 手帐样式、统一社团教室与 8 场景顶栏为 **单行 56px 等高 v17 UI**，并移除所有人物头顶冒泡对话提示。**`smoke` 回归及 `1600×900` / `1600×720` 双分辨率实机 OpenGL 截图（各 21 张）全过并逐张目检确认**。
+- **素材合入与清理**：
+  - 合入 88 张 v17 定稿 PNG 并完成 Godot 4.7.2 `--headless --import --quit` 零报错导入：
+    - `assets/ui/scene_reset/staged/{dorm,shop,rooftop,coast,old_park,beach,library,gym}/`（53 张：`*_sky_wide`、`*_midground_wide`、`*_foreground_wide` 与 `actors/*_{sprite,contact_shadow}.png` + `v17_scene_layers.json`）；
+    - `assets/ui_core/v17_ui_a/`（7 张 Set A 组件 + 13 枚 `icons/*.png` + `scene_hud_layout.json`）；
+    - `assets/sprites/characters/v17_scene/`（15 张 `1024×1536` 透明原图）。
+  - 彻底删除旧失败素材：`assets/ui/scene_reset/places/`（12 张旧平面场景）、`assets/ui/campus_life/`（7 张旧宿舍/商店/人物）、`assets/ui_core/v14_ui/{dials,icons,maps,panels}/` 与 `v14_ui/buttons/` 下旧塑料按钮（保留 v15 审定的 `v14_ui/zodiac/` 对开典籍与 `ui_seal_claimed_badge.png` 火漆印章），以及零引用遗留脚本 `scripts/campus/shop_counter_theme.gd`。
+- **代码实装与界面精修**：
+  - [scene_stage_layers.gd](scripts/campus/scene_stage_layers.gd)：将 `dorm`（学生宿舍）正式纳入五层舞台体系；新增 `STAGED_VARIANTS` 全 15 姿态像素级坐标表、`set_staged_variant()` 与 `pulse_slot_actor()`；`apply_period_lighting()` 改为室内 4 场景恒用专属窗景 `*_sky_wide.png` 并随昼/昏/夜/红月调色，室外 4 场景晴昼使用专属天空、黄昏与红月切换共享 `sky_arete_{dusk,redmoon}_wide.png`。
+  - [dynamic_ui.gd](scripts/ui/dynamic_ui.gd) & [scene_hud_layout.gd](scripts/campus/scene_hud_layout.gd)：新增 `v17_capsule_box()`、`v17_panel_box()`、`make_v17_button()` 与 `v17_icon()`；将 `SceneHUDLayout` 升级为 v17 Set A 浮动和纸行动卡片与真表盘 `PeriodDial`，顶栏 `LocationCapsule` / `ResourceCapsule`（单行体力·练习点·零用钱）/ `OpenMap` / `OpenMenu` 统一为 **56px 等高对齐**；保持 `BackLocation` 在对话框开启时仅禁用不隐藏避免底板留空。
+  - [scene_object_view.gd](scripts/campus/scene_object_view.gd)、[campus_screen.gd](scripts/campus/campus_screen.gd)、[campus_shop_panel.gd](scripts/campus/campus_shop_panel.gd)、[campus_life.gd](scripts/campus/campus_life.gd)、[campus_dialogue_ui.gd](scripts/campus/campus_dialogue_ui.gd) & [school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd)：8 场景全部接入 v17 定位姿态（天台按时段轮切 3 人、海滩按随行同伴切 3 人、图书馆主线位林知夏递卡+黄秋枫窗边共框、体育馆选拔赛双态、商店分栏模式右移 `150px` 零遮挡唐小满并改用 v17 56px 零用钱胶囊与对话气泡底板）；移除所有 8 场景人物头顶冒泡提示；`CampusDialogueUI` 统一保持主线 `StoryChrome` 手帐对话框样式；主线图书馆剧情 `school_affairs` 切换至 v17 分层舞台背景。
+  - [home_screen.gd](scripts/home/home_screen.gd)：社团教室顶部 `StatusCapsule`（体力/练习点/零用钱）与 `MainMenuButton`、`RooftopExit` 统一为 **v17 单行 56px 等高胶囊**，`HomePeriodDial` 同步使用 v17 真表盘并移除姜梓头顶 `TalkHint` 冒泡提示。
+- **验收结果**：
+  - [core_smoke.gd](tools/tests/core_smoke.gd) & [capture_scenes.gd](tools/tests/capture_scenes.gd) 扩展至全 8 场景（含 `21_dorm`）、v17 资产加载、56px 顶栏等高及零头顶冒泡校验：
+  - `python tools/run_godot_tests.py --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke`：**`1728` 项检查通过、`0` 失败（`13.77s`）**。
+  - 顺序执行 OpenGL 实机截图：`1600×900`（**21 张，`20.79s`，0 失败**）与 `1600×720`（**21 张，`18.95s`，0 失败**）全通过，逐张目检社团教室、全 8 场景、商店分栏、主线风格人物对话框与天台黄昏/红月切换，画面饱满、顶栏单行等高对齐、无文字截断与宽屏接缝。
+
+## 2026-11-20 v17「场景 + 场景人物立绘 + UI 套件」三套组合需求包 & 故事工作台卡片流滚动修复
+
+- **状态**：针对“空场景缺乏视觉重心”问题，保留现行游戏场景交互结构与 HUD 布局不变，打包交付 v17 组合需求包（含主要人物 21 张官方设定/现行立绘、8 场景驻场人物立绘 × 3 套、场景 UI 套件 × 3 套、带驻场人物焦点的 8 场景整页概念图 × 3 套）；同时修复 Story Studio 气泡卡片流重绘跳顶问题。
+- **交付与工具**：
+  - 设计方案：[2026-11-20-场景人物立绘与UI三套组合需求方案_v17.md](docs/design/2026-11-20-场景人物立绘与UI三套组合需求方案_v17.md)
+  - 打包器：[build_v17_scene_char_ui_combo_pack.py](tools/build_v17_scene_char_ui_combo_pack.py)
+  - 本地需求包（不入库，位于 `archive/`）：`archive/IGA_Asset_Pack_Brief_v17_Scene_Char_UI_3Sets_Combo.zip`（`38` 个条目 / `36,955,528` 字节；含 `24` 项带环境光染的驻场人物立绘、`21` 项 3 套 UI 套件组件、`24` 项带人物焦点的整页概念图提示词、`21` 张主要人物参考图、`11` 张 UI 与人物融入构图参考图及 `07_Tools/qa_check_v17_combo.py`）。
+  - Story Studio 卡片流滚动修复：[app.js](tools/story_studio/app.js) 在 `renderEditor()` 与 `renderSidebar()` 重绘前后保存恢复 `scrollTop`，新增/移动/切换角色后通过 `scrollIntoView({ block: 'nearest' })` 与 `focus({ preventScroll: true })` 稳定停留在原位（`node --check` 通过）。
+
+## 2026-11-20 v16 八场景 × 三套整页概念母图参考需求包（纯画风参照、无元素/蓝图束缚）
+
+- **状态**：在保留现有游戏场景交互与 HUD 结构不变的前提下，完成阶段一「八场景（学生宿舍、校园商店、教学楼天台、沿海公路、旧公园、阿瑞忒海滩、图书馆、体育馆）× 三套差异化整体概念母图（Set A 清透日常纵深 / Set B 电影透视光影冲击 / Set C 海滨诗意叙事，共 24 项）」需求方案与本地素材参考包导出；待主创从 3 套中挑出定稿后，再进入阶段二元素拆层与实机替换。
+- **交付与工具**：
+  - 设计方案：[2026-11-20-八场景三套整页概念母图设计方案_v16.md](docs/design/2026-11-20-八场景三套整页概念母图设计方案_v16.md)
+  - 打包器：[build_v16_scene_concept_pack.py](tools/build_v16_scene_concept_pack.py)
+  - 本地需求包（不入库，位于 `archive/`）：`archive/IGA_Asset_Pack_Brief_v16_Scene_Concepts_3Sets.zip`（`14` 个条目 / `15,692,032` 字节；含总控规范、24 项宏观氛围中英文 Prompt、清单 JSON、`10` 张纯画风/光影/立绘笔触参照 `03_Pure_Style_References/` 及零依赖 PNG 质检器 `04_Tools/qa_check_v16_concepts.py`；刻意不附带任何线框蓝图与 UI 截图，不限制具体物件摆位与创作发挥）。
+
+## 2026-11-20 IGA 剧情流式创作工作台（Story Studio）导出与双向同步工具落地
+
+- **状态**：已将现行游戏主线剧情、主创口述序章原案草稿、第 2–5 章规划大纲、校园 NPC/场景互动、8 篇《风物纪要》、8 组训练路线留言及全量角色/星座/资源清单导出至独立 Web 工具工作台（[tools/story_studio/](tools/story_studio/index.html)）与 `docs/story/scripts/*.md`；支持免填表流式连写、气泡卡片双视图、1920×1080 实机画面实时预览试玩及一键双向写回 `.gd` 工程脚本。**`smoke` 回归及服务接口校验全部通过**。
+- **核心入口与功能**：
+  - [启动剧情工作台.bat](启动剧情工作台.bat) & [server.py](tools/story_studio/server.py)：双击启动本地零依赖 HTTP 服务（自动打开浏览器），提供 `/api/status`、`/api/bundle`、`/api/save`、`/api/apply_game`、`/api/reload_from_gd` 实现网页端修改直写工程 `.gd` 与 `.md`。直接双击 [index.html](tools/story_studio/index.html) 亦可通过内联 [story_data.js](tools/story_studio/story_data.js) 与相对 `assets/` 路径完整离线编辑、预览并导出。
+  - [sync_story.py](tools/story_studio/sync_story.py)：负责全量导出（`--export` 生成 `story_bundle.json`、`story_data.js` 与 `docs/story/scripts/01..05*.md`）及双向写回（`--apply` 更新 `phase_two_content.gd`、`campus_places.gd`、`school_exploration_routes.gd` 与 `campus_life.gd` 并严格保留各文件 Tab/单空格缩进与换行符）。
+  - [index.html](tools/story_studio/index.html) / [style.css](tools/story_studio/style.css) / [app.js](tools/story_studio/app.js)：免填表流式语法（`角色名: 台词`、`角色名(表情): 台词`、`? 选项 [+好感]`、`[指令: 参数]`）、同台角色「回车自动换人」与 `Tab`/`Alt+0..9` 切人、光标跟随表情与演出胶囊条、气泡卡片流、智能外部文本导入、1920×1080 实机舞台同步预览（含双层视差过场、256×256 头像、半身情绪立绘、`.wav` 音效试玩与 55 字舒适区提醒）。
+- **验收结果**：
+  - `python tools/story_studio/sync_story.py --export --fresh` & `--apply --verify` 退出码 `0`（缩进校验 `0` 错），`node --check tools/story_studio/app.js` 语法通过，`story_data.js` VM 加载校验通过，本地服务 API 自检（`/api/status`、`/api/bundle`、`/api/save`、`/api/apply_game` 与静态立绘/背景/音效资源）全通过。
+  - `python tools/run_godot_tests.py --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke`（在 `/api/apply_game` 写回 `.gd` 后运行）：**`1738` 项检查通过、`0` 失败（`16.11s`）**。
+
 ## 2026-11-19 水彩纸绘社团文具风格 UI 统一、悬浮同形修复、零小图标清理与 HUD 交互梳理
 
 - **状态**：已将全游 `v14` 高光塑料按钮/胶囊/状态条/图标替换为与社团教室同源的水彩手绘纸品与文具 UI（`assets/ui_core/theme/`），消除按钮悬浮方形/尖角变形，清理 HUD 与按钮上所有小图标，并梳理主场景/地点 HUD 布局与弹窗交互逻辑；**`smoke` 回归及 `1600×900` / `1600×720` 双分辨率 OpenGL 实机截图全部通过并完成逐张目检**。

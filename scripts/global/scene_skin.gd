@@ -22,7 +22,6 @@ static func asset_path(key: String) -> String:
   return MODAL_PAPER if ResourceLoader.exists(MODAL_PAPER) else ROOT+"paper_panel.svg"
  if key in PANEL_SHEETS:
   if ResourceLoader.exists(MODAL_PAPER): return MODAL_PAPER
-  if ResourceLoader.exists(DEDICATED+"paper_panel.png"): return DEDICATED+"paper_panel.png"
  if key in RETAINED and ResourceLoader.exists(DEDICATED+key+".png"):
   return DEDICATED+key+".png"
  return ROOT+"paper_panel.svg"
@@ -135,7 +134,3 @@ static func apply_theme(theme: Theme) -> void:
  theme.set_stylebox("fill","ProgressBar",fill)
  for type_name in ["LinkButton","CheckBox","CheckButton","OptionButton","MenuButton"]:
   theme.set_stylebox("focus",type_name,focus_style())
-
-static func clear_cache() -> void:
- _textures.clear()
- _illustrations.clear()

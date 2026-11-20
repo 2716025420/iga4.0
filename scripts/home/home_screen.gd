@@ -8,8 +8,6 @@ const ROOM_PATH := "res://assets/ui/player_experience/home_room_v3.png"
 const FOREGROUND_PATH := "res://assets/ui/player_experience/home_foreground_desk_v3.png"
 const GIRL_PATH := "res://assets/ui/player_experience/home_midground_seated_v3.png"
 const OBJECTS_PATH := "res://assets/ui/player_experience/home_objects_v3.png"
-const PANEL_FACTORY_PATH := "res://scripts/home/home_panels.gd"
-const ICON_ROOT := "res://assets/ui/scene_reset/icons/"
 const TITLE_INK := Color("#263059")
 const SUBTITLE_INK := Color("#3B466B")
 const ENTRY_ORDER := ["lounge", "workshop", "records", "quest", "explore", "zodiac"]
@@ -59,10 +57,7 @@ var activity_body: Label
 var story_button: Button
 var period_dial: SceneHUDLayout.PeriodDial
 var activity_pip_badge: Label
-var quick_map_button: Button
-var quick_rest_button: Button
 var rooftop_button: Button
-var jiang_bubble: Panel
 var _records_open_tab := ""
 var _panel_refresh_pending := false
 
@@ -181,23 +176,47 @@ func _build_top_bar() -> void:
 	top_bar.name = "TopBar"
 	top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	presentation.add_child(top_bar)
-	_place(top_bar, Vector2(1142, 28), Vector2(602, 54))
-	var rail := SchoolObjectUI.slab(top_bar,"StatusCapsule",Rect2(0,0,602,54),Color("#FFF9EE"))
-	if not DynamicUI.apply_nine_slice_panel(rail, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), Color(1.0, 0.99, 0.96, 0.98)):
-		var rail_style := rail.get_theme_stylebox("panel") as StyleBoxFlat
-		rail_style.set_corner_radius_all(8)
-		rail_style.border_color = Color("#9B8E7E", 0.55)
-		rail_style.set_border_width_all(1)
-	var specs := [["体力",16,26,50,76,108],["练习点",204,218,64,284,94],["零用钱",398,412,64,478,98]]
+	_place(top_bar, Vector2(1188, 26), Vector2(580, 56))
+	var rail := Panel.new()
+	rail.name = "StatusCapsule"
+	rail.mouse_filter = Control.MOUSE_FILTER_STOP
+	var rail_box := DynamicUI.v17_capsule_box(DynamicUI.V17_RESOURCE_CAPSULE, 56.0, Color(1.0, 1.0, 1.0, 0.96))
+	if rail_box != null:
+		rail.add_theme_stylebox_override("panel", rail_box)
+	else:
+		var fb := StyleBoxFlat.new()
+		fb.bg_color = Color("#FAF6EB", 0.96)
+		fb.border_color = Color("#6D9B8F")
+		fb.set_border_width_all(2)
+		fb.set_corner_radius_all(28)
+		rail.add_theme_stylebox_override("panel", fb)
+	top_bar.add_child(rail)
+	_place(rail, Vector2.ZERO, Vector2(580, 56))
+	var specs := [
+		["ResIconStamina", "bolt", "体力", 0.0, 22.0, 48.0, 40.0, 90.0, 114.0],
+		["ResIconPoints", "gem", "练习点", 208.0, 220.0, 246.0, 54.0, 302.0, 82.0],
+		["ResIconMoney", "coin", "零用钱", 390.0, 402.0, 428.0, 54.0, 484.0, 82.0]
+	]
 	var values: Array[Label] = []
 	for spec in specs:
-		var div_x := float(spec[1])
+		var div_x := float(spec[3])
 		if div_x > 20.0:
-			SchoolObjectUI.rule(top_bar, "Divider" + str(int(div_x)), Rect2(div_x, 13, 1, 28))
-		var cap := SchoolObjectUI.text(top_bar, "Caption" + str(int(div_x)), str(spec[0]), Rect2(float(spec[2]), 8, float(spec[3]), 38), 18, Color("#5A6B82"))
+			SchoolObjectUI.rule(rail, "Divider" + str(int(div_x)), Rect2(div_x, 15.0, 1.0, 26.0))
+		var icon_tex := DynamicUI.v17_icon(str(spec[1]))
+		if icon_tex != null:
+			var icon := TextureRect.new()
+			icon.name = str(spec[0])
+			icon.texture = icon_tex
+			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			rail.add_child(icon)
+			DaylightUI.place(icon, float(spec[4]), 17.0, 22.0, 22.0)
+		var cap := SchoolObjectUI.text(rail, "Caption" + str(int(div_x)), str(spec[2]), Rect2(float(spec[5]), 8.0, float(spec[6]), 40.0), 16, DynamicUI.V17_MUTED)
 		cap.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		var value := SchoolObjectUI.text(top_bar, "Value" + str(int(div_x)), "", Rect2(float(spec[4]), 7, float(spec[5]), 40), 22, TITLE_INK, true)
-		value.add_theme_font_override("font", _title_font)
+		var value := SchoolObjectUI.text(rail, "Value" + str(int(div_x)), "", Rect2(float(spec[7]), 8.0, float(spec[8]), 40.0), 21, DynamicUI.V17_INK)
+		value.add_theme_font_override("font", DaylightUI.bold_font())
 		value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		values.append(value)
 	hp_label = values[0]
@@ -208,8 +227,8 @@ func _build_top_bar() -> void:
 	menu_button.name = "MainMenuButton"
 	menu_button.text = "菜单"
 	presentation.add_child(menu_button)
-	_place(menu_button, Vector2(1758, 28), Vector2(126, 54))
-	DynamicUI.make_cel_button(menu_button, Color("#F3F6FA"), TITLE_INK, Color("#4C75A6"), 20, 8)
+	_place(menu_button, Vector2(1782, 26), Vector2(112, 56))
+	DynamicUI.make_v17_button(menu_button, Color(0.97, 0.99, 0.99, 0.98), DynamicUI.V17_INK, 20, 56.0, Vector4(16, 4, 16, 4))
 	menu_button.pressed.connect(_open_system_menu)
 
 func _build_navigation() -> void:
@@ -270,15 +289,6 @@ func _build_navigation() -> void:
 	rooftop_button.pressed.connect(func(): CampusLife.travel_to("rooftop"))
 	var talk := SchoolObjectUI.hit(hotspots_layer,"TalkJiangZi",Rect2(345,320,430,380))
 	for state in ["normal","hover","pressed","hover_pressed","focus"]: talk.add_theme_stylebox_override(state,StyleBoxEmpty.new())
-	jiang_bubble = SchoolObjectUI.slab(talk,"TalkHint",Rect2(314,4,108,42),Color("#FFFDF8",0.96))
-	if not DynamicUI.apply_nine_slice_panel(jiang_bubble, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32)):
-		var bstyle := jiang_bubble.get_theme_stylebox("panel") as StyleBoxFlat
-		bstyle.set_corner_radius_all(8)
-		bstyle.border_color = Color("#89AC9E")
-		bstyle.set_border_width_all(1)
-	var bubble_lbl := SchoolObjectUI.text(jiang_bubble,"Text","姜梓",Rect2(0,0,108,42),19,TITLE_INK,true)
-	bubble_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	DynamicUI.attach_float_bob(jiang_bubble, 2.8, 2.3)
 	DaylightUI.bind_button_audio(talk)
 	talk.pressed.connect(_talk_to_jiang)
 
@@ -346,18 +356,6 @@ func _label(node_name: String, text: String, font_size: int, font: Font, color: 
 	label.add_theme_constant_override("outline_size", 0)
 	return label
 
-func _icon(parent: Control, node_name: String, path: String, position: Vector2, extent: Vector2) -> TextureRect:
-	var icon := TextureRect.new()
-	icon.name = node_name
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	if ResourceLoader.exists(path):
-		icon.texture = load(path) as Texture2D
-	parent.add_child(icon)
-	_place(icon, position, extent)
-	return icon
-
 func _place(node: Control, position: Vector2, extent: Vector2) -> void:
 	node.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	node.position = position
@@ -379,20 +377,21 @@ func _refresh_artwork() -> void:
 		wash_style.border_color = Color(0.32, 0.37, 0.50, 0.65) if night else Color(0.84, 0.77, 0.68, 0.65)
 		wash_style.set_corner_radius_all(22)
 		title_wash.add_theme_stylebox_override("panel", wash_style)
-	var dock_fill := Color(0.14, 0.19, 0.30, 0.92) if night else Color("#FFFDF8", 0.94)
-	var dock_ink := Color("#EEF3FC") if night else TITLE_INK
 	if is_instance_valid(rooftop_button):
-		DynamicUI.make_cel_button(rooftop_button, dock_fill, dock_ink, Color("#359686"), 20, 8)
+		DynamicUI.make_v17_button(rooftop_button, Color(0.24, 0.30, 0.42, 0.96) if night else Color(1.0, 1.0, 1.0, 0.96), Color("#F1F6FC") if night else DynamicUI.V17_INK, 19, 50.0, Vector4(18, 4, 18, 4))
 	var rail := top_bar.get_node_or_null("StatusCapsule") as Control if is_instance_valid(top_bar) else null
 	if is_instance_valid(rail):
-		DynamicUI.apply_nine_slice_panel(rail, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32), Color(0.24, 0.29, 0.40, 0.96) if night else Color(1.0, 0.99, 0.96, 0.98))
-	if is_instance_valid(top_bar):
-		var cap_col := Color("#A6B7D4") if night else Color("#5A6B82")
-		var val_col := Color("#F2F6FD") if night else TITLE_INK
-		for child in top_bar.get_children():
+		var rail_box := DynamicUI.v17_capsule_box(DynamicUI.V17_RESOURCE_CAPSULE, 56.0, Color(0.24, 0.30, 0.42, 0.96) if night else Color(1.0, 1.0, 1.0, 0.96))
+		if rail_box != null:
+			rail.add_theme_stylebox_override("panel", rail_box)
+		var cap_col := Color("#B8CAE4") if night else DynamicUI.V17_MUTED
+		var val_col := Color("#F1F6FC") if night else DynamicUI.V17_INK
+		for child in rail.get_children():
 			if child is Label:
 				var lbl := child as Label
 				lbl.add_theme_color_override("font_color", cap_col if lbl.name.begins_with("Caption") else val_col)
+			elif child is TextureRect:
+				(child as TextureRect).modulate = Color(0.84, 0.93, 1.0, 0.95) if night else Color.WHITE
 	if is_instance_valid(period_dial):
 		period_dial.sync_dial()
 	room_art.texture = load(art["room"])
@@ -417,8 +416,6 @@ func _update_top_bar() -> void:
 	subtitle_label.text = GameState.get_formatted_time()+"\n在这里歇一会，再一起出发。"
 	if is_instance_valid(activity_pip_badge):
 		activity_pip_badge.text = "活动 %d/%d" % [DayCycle.remaining(), DayCycleService.ACTIONS_PER_PERIOD]
-	if is_instance_valid(quick_rest_button):
-		quick_rest_button.text = DayCycle.rest_label()
 	if is_instance_valid(period_dial):
 		period_dial.sync_dial()
 	var activity := PlayerJourney.home_snapshot()
@@ -436,9 +433,6 @@ func _update_top_bar() -> void:
 func _panel_context() -> Dictionary:
 	return {"selected_card_id": selected_card_id_for_upgrade, "message": _feedback}
 
-func _open_lounge() -> void:
-	_open_panel("lounge")
-
 func _open_workshop() -> void:
 	_open_panel("workshop")
 
@@ -452,9 +446,6 @@ func _open_quest() -> void:
 func _open_training() -> void:
 	_open_quest()
 
-func _open_explore() -> void:
-	_open_panel("explore")
-
 func _open_panel(kind: String) -> void:
 	if kind == "training":
 		_open_training()
@@ -464,18 +455,14 @@ func _open_panel(kind: String) -> void:
 		return
 	if SceneManager.is_transitioning or not _entries.has(kind):
 		return
-	if not ResourceLoader.exists(PANEL_FACTORY_PATH):
-		push_warning("新的入口弹窗工厂尚未接入：" + kind)
-		return
+	var factory_path := ""
+	match kind:
+		"lounge": factory_path = "res://scripts/home/school_object_panels.gd"
+		"workshop", "records": factory_path = "res://scripts/home/player_workspace.gd"
+		"zodiac": factory_path = "res://scripts/home/zodiac_album_panel.gd"
+		_: return
 	if selected_card_id_for_upgrade == "" and not GameState.unlocked_card_ids.is_empty():
 		selected_card_id_for_upgrade = GameState.unlocked_card_ids[0]
-	var factory_path: String = {"lounge": "res://scripts/home/school_object_panels.gd"}.get(kind, PANEL_FACTORY_PATH)
-	if kind == "workshop":
-		factory_path = "res://scripts/home/player_workspace.gd"
-	elif kind == "records":
-		factory_path = "res://scripts/home/player_workspace.gd"
-	elif kind == "zodiac":
-		factory_path = "res://scripts/home/zodiac_album_panel.gd"
 	var factory: Variant = load(factory_path)
 	_set_feedback("")
 	var panel_context := _panel_context()
@@ -585,9 +572,6 @@ func _set_hotspots_enabled(enabled: bool) -> void:
 	if is_instance_valid(menu_button): menu_button.visible = enabled
 	if is_instance_valid(top_bar): top_bar.visible = enabled
 	if is_instance_valid(rooftop_button): rooftop_button.visible = enabled
-	if is_instance_valid(quick_map_button): quick_map_button.visible = enabled
-	if is_instance_valid(quick_rest_button): quick_rest_button.visible = enabled
-	if is_instance_valid(jiang_bubble): jiang_bubble.visible = enabled
 	if is_instance_valid(story_button): story_button.disabled = not enabled
 	for button in hotspots_layer.find_children("*","Button",true,false):
 		button.disabled = not enabled
@@ -681,12 +665,6 @@ func _on_equip_toggle_pressed() -> void:
 			return
 		var slot := GameState.equipped_card_ids.size()
 		_set_feedback("已装备行动卡" if GameState.equip_card(card_id, slot) else GameState.DECK_RULE_MESSAGE)
-	_refresh_workshop_ui()
-
-func _on_upgrade_card_pressed() -> void:
-	if selected_card_id_for_upgrade == "":
-		return
-	_set_feedback("练习完成，行动卡已经提升" if GameState.upgrade_card(selected_card_id_for_upgrade) else "练习点不足，或已达到最高等级")
 	_refresh_workshop_ui()
 
 func _on_panel_action(action: String, payload: Dictionary) -> void:
@@ -784,9 +762,6 @@ func _start_chapter(restart: bool = false) -> void:
 	if GameState.story_flags.get("chapter_1_completed", false):
 		_set_feedback("关键故事会随日期自动到来，今天可以自由安排。")
 		return
-	_legacy_start_chapter(restart)
-
-func _legacy_start_chapter(restart: bool = false) -> void:
 	if GameState.phase_two_combat_checkpoint.is_empty() and not PlayerJourney.deck_summary()["ready"]:
 		_set_feedback(PlayerJourney.deck_summary()["reason"])
 		_open_workshop()

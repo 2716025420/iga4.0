@@ -243,14 +243,34 @@ func refresh(context: Dictionary = {}) -> void:
 	var rules := SchoolObjectUI.text(_canvas, "Rules", "交易不消耗活动次数 · 已上架行动卡 %d / 16 款（随主线推进到货）" % CampusShopCatalog.unlocked_card_stock_count(), Rect2(56.0, 1018.0, 920.0, 28.0), 18, MUTED, true)
 	rules.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
-	# 2. Top-Right Allowance Note (matte paper index card, zero small icons)
-	var bal_panel := SchoolObjectUI.slab(_canvas, "BalanceBacking", Rect2(1612.0, 24.0, 272.0, 54.0), Color(CARD_PAPER, 0.96))
-	if not DynamicUI.apply_nine_slice_panel(bal_panel, DynamicUI.THEME_PAPER_CARD, Vector4(44, 36, 32, 32)):
-		var bstyle := bal_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	# 2. Top-Right Allowance Capsule (v17 Set A single-line, uniform 56px height)
+	var bal_panel := Panel.new()
+	bal_panel.name = "BalanceBacking"
+	bal_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var bal_box := DynamicUI.v17_capsule_box(DynamicUI.V17_RESOURCE_CAPSULE, 56.0, Color(1.0, 1.0, 1.0, 0.96))
+	if bal_box != null:
+		bal_panel.add_theme_stylebox_override("panel", bal_box)
+	else:
+		var bstyle := StyleBoxFlat.new()
+		bstyle.bg_color = Color(CARD_PAPER, 0.96)
 		bstyle.border_color = TEAL
 		bstyle.set_border_width_all(1)
-		bstyle.set_corner_radius_all(8)
-	var bal_lbl := SchoolObjectUI.text(_canvas, "Balance", "零用钱  %d" % GameState.energy_crystals, Rect2(1624.0, 31.0, 248.0, 40.0), 22, INK, true)
+		bstyle.set_corner_radius_all(28)
+		bal_panel.add_theme_stylebox_override("panel", bstyle)
+	_canvas.add_child(bal_panel)
+	DaylightUI.place(bal_panel, 1622.0, 26.0, 272.0, 56.0)
+	var coin_tex := DynamicUI.v17_icon("coin")
+	if coin_tex != null:
+		var coin_icon := TextureRect.new()
+		coin_icon.name = "ResIconMoney"
+		coin_icon.texture = coin_tex
+		coin_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		coin_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		coin_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bal_panel.add_child(coin_icon)
+		DaylightUI.place(coin_icon, 28.0, 17.0, 22.0, 22.0)
+	var bal_lbl := SchoolObjectUI.text(bal_panel, "Balance", "零用钱  %d" % GameState.energy_crystals, Rect2(58.0, 8.0, 196.0, 40.0), 21, DynamicUI.V17_INK)
+	bal_lbl.add_theme_font_override("font", DaylightUI.bold_font())
 	bal_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 	# 3. Right Half Live Clerk Speech Bubble + Direct Click Interaction over Tang Xiaoman
@@ -259,7 +279,10 @@ func refresh(context: Dictionary = {}) -> void:
 		speech.name = "ClerkSpeechBubble"
 		speech.mouse_filter = Control.MOUSE_FILTER_STOP
 		var speech_tint := Color(1.0, 0.96, 0.95, 1.0) if _clerk_emotion == "happy" else Color.WHITE
-		if not DynamicUI.apply_nine_slice_panel(speech, "panels/ui_clerk_speech_bubble_9slice.png", Vector4(48, 36, 48, 40), speech_tint):
+		var speech_box := DynamicUI.v17_panel_box(DynamicUI.V17_STORY_DIALOGUE, Vector4(352, 90, 144, 93), Vector4(75, 43, 75, 43), 0.50, speech_tint)
+		if speech_box != null:
+			speech.add_theme_stylebox_override("panel", speech_box)
+		else:
 			var spstyle := StyleBoxFlat.new()
 			spstyle.bg_color = Color(CARD_PAPER, 0.96)
 			spstyle.border_color = CORAL if _clerk_emotion == "happy" else TEAL
@@ -293,7 +316,7 @@ func refresh(context: Dictionary = {}) -> void:
 			for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
 				actor_hit.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 			_canvas.add_child(actor_hit)
-			DaylightUI.place(actor_hit, 1180.0, 225.0, 440.0, 430.0)
+			DaylightUI.place(actor_hit, 1040.0, 240.0, 300.0, 440.0)
 			actor_hit.pressed.connect(func(): action_requested.emit("shop_talk", {}))
 
 	clerk_reacted.emit(_clerk_emotion, _clerk_line)
@@ -367,7 +390,7 @@ func _trade(ticket: String, id: String, amount: int, operation: String) -> void:
 	_ticket = ""
 	var result := GameState.execute_shop_trade(id, amount, operation, ticket)
 	if bool(result.get("ok", false)):
-		AudioManager.play_sfx_save()
+		AudioManager.play_sfx_shop_coin()
 		var prod := CampusShopCatalog.definition(id)
 		var pname := str(prod.get("name", "商品"))
 		if operation == "buy":

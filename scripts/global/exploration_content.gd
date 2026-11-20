@@ -68,44 +68,6 @@ static func node_reward(dungeon_id: String, node_type: int) -> Dictionary:
 	if amount > 0: materials[quality] = amount
 	return {"scrap_metal": points, "materials": materials}
 
-static func generate_nodes(dungeon_id: String, run_seed: int, run_id: int) -> Array[Dictionary]:
-	var definition := dungeon_definition(dungeon_id)
-	if definition.is_empty(): return []
-	var random := RandomNumberGenerator.new()
-	random.seed = run_seed
-	var tier: int = int(definition["tier"])
-	var patterns: Array = [
-		[MapNodeData.NodeType.BATTLE, MapNodeData.NodeType.CHEST],
-		[MapNodeData.NodeType.REST, MapNodeData.NodeType.BATTLE],
-		[MapNodeData.NodeType.EVENT, MapNodeData.NodeType.ELITE],
-		[MapNodeData.NodeType.BATTLE, MapNodeData.NodeType.CHEST],
-		[MapNodeData.NodeType.ELITE, MapNodeData.NodeType.REST]
-	]
-	var nodes: Array[Dictionary] = []
-	for layer in range(6):
-		var types: Array = [MapNodeData.NodeType.BOSS] if layer == 5 else patterns[layer].duplicate()
-		if layer < 5 and random.randi_range(0, 1) == 1: types.reverse()
-		for branch in range(types.size()):
-			var node_type: int = int(types[branch])
-			var next_ids: Array[String] = []
-			if layer < 5:
-				for next_branch in range(1 if layer == 4 else 2):
-					next_ids.append("x_%d_%d_%d" % [run_id, layer + 1, next_branch])
-			var enemy_keys: Array[String] = []
-			if node_type == MapNodeData.NodeType.BATTLE:
-				enemy_keys.append("practice_guard" if random.randi_range(0, 1) == 0 else "practice_robot")
-			elif node_type == MapNodeData.NodeType.ELITE:
-				enemy_keys.append("practice_robot")
-				if tier == 3: enemy_keys.append("practice_guard")
-			elif node_type == MapNodeData.NodeType.BOSS:
-				enemy_keys.append("practice_core")
-			var reward := node_reward(dungeon_id, node_type)
-			var choices: Array[Dictionary] = []
-			if node_type == MapNodeData.NodeType.EVENT:
-				choices = [{"id": "organize", "title": "整理物资", "description": "带走一份材料，也积累少量练习点。", "reward": reward.duplicate(true), "heal": 0}, {"id": "rest", "title": "喝水歇会儿", "description": "恢复 24 点体力，再慢慢出发。", "reward": {"scrap_metal": 4 * tier, "materials": {}}, "heal": 24}]
-			nodes.append({"id": "x_%d_%d_%d" % [run_id, layer, branch], "layer": layer, "branch": branch, "type": node_type, "title": node_title(node_type), "description": node_description(node_type), "next": next_ids, "enemy_keys": enemy_keys, "reward": reward, "heal": 35 if node_type == MapNodeData.NodeType.REST else 0, "choices": choices})
-	return nodes
-
 static func enemy_specs(dungeon_id: String, node: Dictionary) -> Array[Dictionary]:
 	var definition := dungeon_definition(dungeon_id)
 	if definition.is_empty(): return []
@@ -123,7 +85,7 @@ static func enemy_specs(dungeon_id: String, node: Dictionary) -> Array[Dictionar
 		var hp: int = 42 + 18 * tier + (30 if is_elite else 0)
 		if key != "practice_guard": hp += 12
 		if is_boss: hp = 90 + 40 * tier; attack = 12 + 3 * tier
-		var spec := {"id": "%s_%d" % [key, index], "name": name, "title": "校园练习", "rank": EnemyData.EnemyRank.BOSS if is_boss else (EnemyData.EnemyRank.ELITE if is_elite else EnemyData.EnemyRank.NORMAL), "max_hp": hp, "base_atk": attack, "visual_id": visual_id, "sprite_path": "res://assets/sprites/enemies/phase_two/%s.png" % visual_id, "skills": [{"name": "稳步拦截", "type": "attack", "damage": attack}, {"name": "防守姿态", "type": "defend", "shield": 6 + 4 * tier}], "actions_per_turn": 2 if is_boss else 1, "has_phase_two": is_boss, "phase_two_hp_threshold": 0.5, "phase_two_skill": {"name": "连续拦截", "type": "attack", "damage": attack + 4 + tier}}
+		var spec := {"id": "%s_%d" % [key, index], "name": name, "title": "校园练习", "rank": EnemyData.EnemyRank.BOSS if is_boss else (EnemyData.EnemyRank.ELITE if is_elite else EnemyData.EnemyRank.NORMAL), "max_hp": hp, "base_atk": attack, "visual_id": visual_id, "sprite_path": CombatSkin.enemy_combat_path(visual_id), "skills": [{"name": "稳步拦截", "type": "attack", "damage": attack}, {"name": "防守姿态", "type": "defend", "shield": 6 + 4 * tier}], "actions_per_turn": 2 if is_boss else 1, "has_phase_two": is_boss, "phase_two_hp_threshold": 0.5, "phase_two_skill": {"name": "连续拦截", "type": "attack", "damage": attack + 4 + tier}}
 		output.append(spec)
 	return output
 

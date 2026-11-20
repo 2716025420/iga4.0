@@ -1069,7 +1069,7 @@ const MAPS := {
   }
  },
  "resistance": {
-  "image": "map_legacy_alliance",
+  "image": "map_failed",
   "locations": {
    "alliance_hq": {
     "label": "指挥所",
@@ -1237,7 +1237,7 @@ const MAPS := {
   }
  },
  "sanctuary": {
-  "image": "map_legacy_sanctuary",
+  "image": "map_church",
   "locations": {
    "sanctuary_hall": {
     "label": "会所",
@@ -1594,7 +1594,7 @@ static func map_path(region_id: String) -> String:
 static func place_config(id: String) -> Dictionary:
  if id == "club": return {}
  if id == "dorm":
-  return {"image":"dorm","custom_bg":"res://assets/ui/campus_life/dorm_bg.png","title":"自己的宿舍","objects":[],"use_unified_hud":true}
+  return {"image":"dorm","title":"学生宿舍","objects":[],"use_unified_hud":true}
  if PLACES.has(id): return PLACES[id].duplicate(true)
  if id in ["study","stockroom"]:
   var base: Dictionary = PLACES["library" if id == "study" else "shop"].duplicate(true)
@@ -1614,6 +1614,10 @@ static func place_config(id: String) -> Dictionary:
 static func place_path(id: String) -> String:
  var config := place_config(id)
  if config.is_empty(): return ""
+ if not config.get("map_image",false) and SceneStageLayers.has_staged_blueprint(id):
+  var stage_key := str(SceneStageLayers.blueprint_for(id).get("stage_key", id))
+  var staged_mid := "%s%s/%s_midground_wide.png" % [SceneStageLayers.STAGED_ROOT, stage_key, stage_key]
+  if ResourceLoader.exists(staged_mid): return staged_mid
  var std := ROOT+("maps/" if config.get("map_image",false) else "places/")+str(config["image"])+".png"
  if not ResourceLoader.exists(std) and config.has("custom_bg"):
   return str(config["custom_bg"])

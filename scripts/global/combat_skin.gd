@@ -2,7 +2,6 @@ class_name CombatSkin
 extends RefCounted
 
 const PAPER_PATH := "res://assets/ui_core/theme/paper_modal_9slice.png"
-const FALLBACK_PAPER_PATH := "res://assets/ui/phase_three/battle_paper.png"
 const CARD_BACK_DUEL_PATH := "res://assets/combat/card_back_duel.png"
 static var _paper: Texture2D
 static var _paper_is_modal_slice: bool = false
@@ -59,13 +58,9 @@ static func actor_texture(path: String) -> Texture2D:
 	return atlas
 
 static func paper(inset: Vector4 = Vector4(18, 16, 18, 16), tint: Color = Color.WHITE) -> StyleBox:
-	if _paper == null:
-		if ResourceLoader.exists(PAPER_PATH):
-			_paper = load(PAPER_PATH) as Texture2D
-			_paper_is_modal_slice = _paper != null
-		elif ResourceLoader.exists(FALLBACK_PAPER_PATH):
-			_paper = load(FALLBACK_PAPER_PATH) as Texture2D
-			_paper_is_modal_slice = false
+	if _paper == null and ResourceLoader.exists(PAPER_PATH):
+		_paper = load(PAPER_PATH) as Texture2D
+		_paper_is_modal_slice = _paper != null
 	if _paper:
 		var box := StyleBoxTexture.new()
 		box.texture = _paper

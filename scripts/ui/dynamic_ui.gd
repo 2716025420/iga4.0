@@ -4,6 +4,17 @@ extends RefCounted
 ## Shared lightweight UI styling and animation helpers (all respect reduced_motion & borderless focus).
 
 const V14_DIR := "res://assets/ui_core/v14_ui/"
+const V17_UI_A_DIR := "res://assets/ui_core/v17_ui_a/"
+const V17_DIAL_MORNING := V17_UI_A_DIR + "dials/ui_dial_morning.png"
+const V17_DIAL_REDMOON := V17_UI_A_DIR + "dials/ui_dial_redmoon.png"
+const V17_DOCK_STRIP := V17_UI_A_DIR + "panels/ui_hud_dock_strip_9slice.png"
+const V17_RESOURCE_CAPSULE := V17_UI_A_DIR + "panels/ui_hud_resource_capsule_9slice.png"
+const V17_ACTION_BTN := V17_UI_A_DIR + "buttons/ui_btn_cel_normal_9slice.png"
+const V17_NPC_BUBBLE := V17_UI_A_DIR + "panels/ui_npc_bubble_9slice.png"
+const V17_STORY_DIALOGUE := V17_UI_A_DIR + "panels/ui_story_dialogue_9slice.png"
+const V17_INK := Color("#213D3A")
+const V17_MUTED := Color("#45645F")
+const V17_CORAL := Color("#C95543")
 const THEME_PAPER_MODAL := "res://assets/ui_core/theme/paper_modal_9slice.png"
 const THEME_PAPER_CHOICE := "res://assets/ui_core/theme/dialogue_choice_9slice.png"
 const THEME_PAPER_CARD := "res://assets/ui_core/theme/ui_tutorial_callout_9slice.png"
@@ -14,16 +25,12 @@ const V14_EXPAND_HALOS := {
 	"paper_modal_9slice": Vector4(17, 18, 17, 17),
 	"ribbon_header_9slice": Vector4(15, 18, 16, 19),
 	"ui_tutorial_callout_9slice": Vector4(8, 14, 10, 17),
-	"ui_clerk_speech_bubble_9slice": Vector4(12, 14, 12, 17),
 }
-
-const V14_CAPSULE_KEYS: Array[String] = []
 
 const V14_DEFAULT_HEIGHTS := {
 	"dialogue_choice_9slice": 60.0,
 	"ribbon_header_9slice": 46.0,
 	"ui_tutorial_callout_9slice": 64.0,
-	"ui_clerk_speech_bubble_9slice": 114.0,
 }
 
 static var _scaled_tex_cache: Dictionary = {}
@@ -84,18 +91,10 @@ static func nine_slice_box(rel_path: String, margins: Vector4, content_pad: Vect
 			eff_scale = scale
 	var box := StyleBoxTexture.new()
 	box.texture = tex
-	if base_key in V14_CAPSULE_KEYS:
-		var cap_src := 32.0 if src_h <= 72.0 else 64.0
-		var cap_scaled := roundf(cap_src * eff_scale)
-		box.texture_margin_left = cap_scaled
-		box.texture_margin_right = cap_scaled
-		box.texture_margin_top = 0.0
-		box.texture_margin_bottom = 0.0
-	else:
-		box.texture_margin_left = roundf(margins.x * eff_scale)
-		box.texture_margin_top = roundf(margins.y * eff_scale)
-		box.texture_margin_right = roundf(margins.z * eff_scale)
-		box.texture_margin_bottom = roundf(margins.w * eff_scale)
+	box.texture_margin_left = roundf(margins.x * eff_scale)
+	box.texture_margin_top = roundf(margins.y * eff_scale)
+	box.texture_margin_right = roundf(margins.z * eff_scale)
+	box.texture_margin_bottom = roundf(margins.w * eff_scale)
 	box.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 	box.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 	box.modulate_color = modulate_col
@@ -121,24 +120,125 @@ static func apply_nine_slice_panel(panel: Control, rel_path: String, margins: Ve
 	panel.add_theme_stylebox_override("panel", box)
 	return true
 
-static func attach_leading_icon(host: Control, node_name: String, rel_path: String, rect: Rect2, modulate_col: Color = Color.WHITE) -> TextureRect:
-	if not is_instance_valid(host):
+static func v17_texture(rel_or_full: String) -> Texture2D:
+	var full_path := rel_or_full if rel_or_full.begins_with("res://") else (V17_UI_A_DIR + rel_or_full)
+	if not ResourceLoader.exists(full_path):
 		return null
-	var tex := v14_texture(rel_path)
+	return load(full_path) as Texture2D
+
+static func v17_icon(icon_key: String) -> Texture2D:
+	if icon_key == "":
+		return null
+	return v17_texture("icons/%s.png" % icon_key)
+
+static func _scaled_v17_texture(full_path: String, tex: Texture2D, scale: float) -> Texture2D:
+	if tex == null or scale >= 0.995:
+		return tex
+	var q_scale := maxf(0.18, roundf(scale * 100.0) / 100.0)
+	var cache_key := "v17:%s@%.2f" % [full_path.get_file().get_basename(), q_scale]
+	if not _scaled_tex_cache.has(cache_key):
+		var img := tex.get_image()
+		if img != null and not img.is_empty():
+			var copy_img := img.duplicate() as Image
+			if copy_img.is_compressed():
+				copy_img.decompress()
+			var new_w := maxi(16, int(round(float(tex.get_width()) * q_scale)))
+			var new_h := maxi(16, int(round(float(tex.get_height()) * q_scale)))
+			copy_img.resize(new_w, new_h, Image.INTERPOLATE_CUBIC)
+			_scaled_tex_cache[cache_key] = ImageTexture.create_from_image(copy_img)
+	return _scaled_tex_cache.get(cache_key, tex) as Texture2D
+
+static func v17_capsule_box(rel_or_full: String, target_h: float, modulate_col: Color = Color.WHITE, content_pad: Vector4 = Vector4(18, 4, 18, 4)) -> StyleBoxTexture:
+	var full_path := rel_or_full if rel_or_full.begins_with("res://") else (V17_UI_A_DIR + rel_or_full)
+	var tex := v17_texture(full_path)
 	if tex == null:
 		return null
-	var icon := host.get_node_or_null(node_name) as TextureRect
-	if icon == null:
-		icon = TextureRect.new()
-		icon.name = node_name
-		host.add_child(icon)
-	icon.texture = tex
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.modulate = modulate_col
-	DaylightUI.place(icon, rect.position.x, rect.position.y, rect.size.x, rect.size.y)
-	return icon
+	var base := full_path.get_file().get_basename()
+	var solid_pad := Vector4(25, 14, 24, 14)
+	var cap_px := 64.0
+	if base == "ui_hud_resource_capsule_9slice":
+		solid_pad = Vector4(38, 17, 37, 17)
+		cap_px = 86.0
+	var opaque_h := maxf(16.0, float(tex.get_height()) - solid_pad.y - solid_pad.w)
+	var eff_scale := clampf(target_h / opaque_h, 0.25, 1.0) if target_h > 8.0 else 1.0
+	var scaled_tex := _scaled_v17_texture(full_path, tex, eff_scale)
+	var actual_scale := float(scaled_tex.get_height()) / maxf(1.0, float(tex.get_height()))
+	var box := StyleBoxTexture.new()
+	box.texture = scaled_tex
+	box.texture_margin_left = roundf(cap_px * actual_scale)
+	box.texture_margin_right = roundf(cap_px * actual_scale)
+	box.texture_margin_top = 0.0
+	box.texture_margin_bottom = 0.0
+	box.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	box.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	box.expand_margin_left = roundf(solid_pad.x * actual_scale)
+	box.expand_margin_top = roundf(solid_pad.y * actual_scale)
+	box.expand_margin_right = roundf(solid_pad.z * actual_scale)
+	box.expand_margin_bottom = roundf(solid_pad.w * actual_scale)
+	box.modulate_color = modulate_col
+	if content_pad.x >= 0.0:
+		box.content_margin_left = content_pad.x
+		box.content_margin_top = content_pad.y
+		box.content_margin_right = content_pad.z
+		box.content_margin_bottom = content_pad.w
+	return box
+
+static func v17_panel_box(rel_or_full: String, caps: Vector4, solid_pad: Vector4, target_scale: float = 0.62, modulate_col: Color = Color.WHITE, content_pad: Vector4 = Vector4(-1, -1, -1, -1)) -> StyleBoxTexture:
+	var full_path := rel_or_full if rel_or_full.begins_with("res://") else (V17_UI_A_DIR + rel_or_full)
+	var tex := v17_texture(full_path)
+	if tex == null:
+		return null
+	var eff_scale := clampf(target_scale, 0.25, 1.0)
+	var scaled_tex := _scaled_v17_texture(full_path, tex, eff_scale)
+	var actual_scale := float(scaled_tex.get_height()) / maxf(1.0, float(tex.get_height()))
+	var box := StyleBoxTexture.new()
+	box.texture = scaled_tex
+	box.texture_margin_left = roundf(caps.x * actual_scale)
+	box.texture_margin_top = roundf(caps.y * actual_scale)
+	box.texture_margin_right = roundf(caps.z * actual_scale)
+	box.texture_margin_bottom = roundf(caps.w * actual_scale)
+	box.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	box.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	box.expand_margin_left = roundf(solid_pad.x * actual_scale)
+	box.expand_margin_top = roundf(solid_pad.y * actual_scale)
+	box.expand_margin_right = roundf(solid_pad.z * actual_scale)
+	box.expand_margin_bottom = roundf(solid_pad.w * actual_scale)
+	box.modulate_color = modulate_col
+	if content_pad.x >= 0.0:
+		box.content_margin_left = content_pad.x
+		box.content_margin_top = content_pad.y
+		box.content_margin_right = content_pad.z
+		box.content_margin_bottom = content_pad.w
+	return box
+
+static func make_v17_button(button: Button, tint: Color = Color.WHITE, ink: Color = V17_INK, font_size: int = 21, target_h: float = -1.0, content_pad: Vector4 = Vector4(18, 4, 18, 4)) -> void:
+	if not is_instance_valid(button):
+		return
+	button.add_theme_font_size_override("font_size", font_size)
+	button.add_theme_font_override("font", DaylightUI.bold_font())
+	var btn_h := target_h if target_h > 8.0 else maxf(button.size.y, button.custom_minimum_size.y)
+	if btn_h <= 8.0:
+		btn_h = 54.0
+	var hov_tint := Color(clampf(tint.r * 0.96, 0.0, 1.0), clampf(tint.g * 0.99, 0.0, 1.0), clampf(tint.b * 0.97, 0.0, 1.0), tint.a)
+	var prs_tint := Color(clampf(tint.r * 0.90, 0.0, 1.0), clampf(tint.g * 0.94, 0.0, 1.0), clampf(tint.b * 0.92, 0.0, 1.0), tint.a)
+	var dis_tint := Color(tint.r * 0.92, tint.g * 0.92, tint.b * 0.92, tint.a * 0.62)
+	var nbox := v17_capsule_box(V17_ACTION_BTN, btn_h, tint, content_pad)
+	if nbox != null:
+		var hbox := v17_capsule_box(V17_ACTION_BTN, btn_h, hov_tint, content_pad)
+		var pbox := v17_capsule_box(V17_ACTION_BTN, btn_h, prs_tint, content_pad)
+		var dbox := v17_capsule_box(V17_ACTION_BTN, btn_h, dis_tint, content_pad)
+		button.add_theme_stylebox_override("normal", nbox)
+		button.add_theme_stylebox_override("focus", nbox)
+		button.add_theme_stylebox_override("hover", hbox if hbox != null else nbox)
+		button.add_theme_stylebox_override("pressed", pbox if pbox != null else nbox)
+		button.add_theme_stylebox_override("hover_pressed", pbox if pbox != null else nbox)
+		button.add_theme_stylebox_override("disabled", dbox if dbox != null else nbox)
+	for col_key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(col_key, ink)
+	button.add_theme_color_override("font_disabled_color", Color(ink, 0.55))
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	SchoolObjectUI.borderless(button)
+	attach_hover_pop(button, 1.022)
 
 class _BobDriver:
 	extends Node
