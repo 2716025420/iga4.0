@@ -24,17 +24,10 @@ func _commit(data: Dictionary) -> void:
  GameState.profile_changed.emit()
 
 func map_concept() -> String:
- var preferred := str(snapshot().get("map_concept", ""))
- if preferred in ["vermilion", "indigo"]:
-  return preferred
  return "indigo" if DayCycle.period() == "night" else "vermilion"
 
 func toggle_map_concept() -> String:
- var next := "indigo" if map_concept() == "vermilion" else "vermilion"
- var data := snapshot()
- data["map_concept"] = next
- _commit(data)
- return next
+ return map_concept()
 
 func travel_to(location_id: String, region_id: String = "") -> bool:
  if not _can_travel() or (location_id != "map" and not CampusPlaces.PLACES.has(location_id)): return false

@@ -45,8 +45,12 @@ SIDE_TO_CN = {"left": "左", "right": "右"}
 CN_TO_SIDE = {"左": "left", "右": "right", "left": "left", "right": "right"}
 
 BG_CHOICES = [
-    {"id": "morning_road", "label": "上学樱道", "phase2_key": "morning_road"},
-    {"id": "school_gate", "label": "运动会 / 校门", "phase2_key": "school_gate"},
+    {"id": "prologue_sakura_road", "label": "序章 · 樱林上学路", "phase2_key": "prologue_sakura_road"},
+    {"id": "prologue_sports_field", "label": "序章 · 操场海选赛", "phase2_key": "prologue_sports_field"},
+    {"id": "battle_sports_field", "label": "序章 · 操场 2v2 对决战台", "phase2_key": "battle_sports_field"},
+    {"id": "prologue_club_meeting", "label": "序章 · 决斗社团首次会议", "phase2_key": "prologue_club_meeting"},
+    {"id": "morning_road", "label": "上学樱道（旧版底图）", "phase2_key": "morning_road"},
+    {"id": "school_gate", "label": "运动会 / 校门（旧版底图）", "phase2_key": "school_gate"},
     {"id": "school_room", "label": "社团教室（白）", "phase2_key": "school_room"},
     {"id": "club", "label": "社团教室 Home（午后）", "phase2_key": "school_room"},
     {"id": "club_morning", "label": "社团教室 Home（清晨）", "phase2_key": "school_room"},
@@ -89,6 +93,10 @@ CUTSCENE_LABELS = {
 }
 
 PHASE_2_VALID_BGS = {
+    "prologue_sakura_road",
+    "prologue_sports_field",
+    "battle_sports_field",
+    "prologue_club_meeting",
     "morning_road",
     "school_gate",
     "school_room",
@@ -344,6 +352,8 @@ def _build_assets_manifest(actors: dict[str, Any], enemies: list[dict[str, Any]]
     char_root = ROOT / "assets" / "sprites" / "characters" / "phase_two"
 
     all_char_ids = list(actors.keys()) + [
+        "thug_grunt",
+        "thug_boss",
         "rebel_operative_masked",
         "rebel_operative_unmasked",
         "alliance_operative",
@@ -416,12 +426,40 @@ def _build_assets_manifest(actors: dict[str, Any], enemies: list[dict[str, Any]]
     # Backgrounds map
     bg_assets: dict[str, dict[str, Any]] = {}
     phase2_bg_dir = ROOT / "assets" / "backgrounds" / "phase_two"
-    for name in ["morning_road", "school_gate", "school_room", "dusk_road", "battle_campus", "battle_red_moon_lockdown"]:
+    for name in [
+        "prologue_sakura_road",
+        "prologue_sports_field",
+        "battle_sports_field",
+        "prologue_club_meeting",
+        "morning_road",
+        "school_gate",
+        "school_room",
+        "dusk_road",
+        "battle_campus",
+        "battle_red_moon_lockdown",
+    ]:
         wide = phase2_bg_dir / f"{name}_wide.png"
         std = phase2_bg_dir / f"{name}.png"
         p = wide if wide.exists() else std
         if p.exists():
-            bg_assets[name] = {"layers": [f"assets/backgrounds/phase_two/{p.name}"]}
+            layers = [f"assets/backgrounds/phase_two/{p.name}"]
+            if name == "prologue_sports_field":
+                ov_wide = phase2_bg_dir / "overlays" / "prologue_sports_field_duel_crowd_wide.png"
+                ov_std = phase2_bg_dir / "overlays" / "prologue_sports_field_duel_crowd.png"
+                ov = ov_wide if ov_wide.exists() else ov_std
+                if ov.exists():
+                    layers.append(f"assets/backgrounds/phase_two/overlays/{ov.name}")
+            bg_assets[name] = {"layers": layers}
+
+    fallback_bgs = {
+        "prologue_sakura_road": "assets/backgrounds/phase_two/morning_road_wide.png",
+        "prologue_sports_field": "assets/backgrounds/phase_two/school_gate_wide.png",
+        "battle_sports_field": "assets/backgrounds/phase_two/battle_campus_wide.png",
+        "prologue_club_meeting": "assets/backgrounds/phase_two/school_room_wide.png",
+    }
+    for key, rel in fallback_bgs.items():
+        if key not in bg_assets and (ROOT / rel).exists():
+            bg_assets[key] = {"layers": [rel]}
 
     bg_assets["club"] = {"layers": ["assets/ui/player_experience/home_room_v3.png"]}
     bg_assets["club_morning"] = {"layers": ["assets/ui/player_experience/home_room_morning_v1.png"]}
@@ -523,6 +561,7 @@ def parse_stream_text(raw_text: str, actors: dict[str, Any]) -> list[dict[str, A
     lines_out: list[dict[str, Any]] = []
     active_cutscene = ""
     last_side_by_char: dict[str, str] = {}
+    stage_slots: dict[str, str] = {"left": "", "right": ""}
     last_dialogue_idx: int | None = None
     active_choice: dict[str, Any] | None = None
 
@@ -543,6 +582,29 @@ def parse_stream_text(raw_text: str, actors: dict[str, Any]) -> list[dict[str, A
             if kind in ["过场", "cutscene"]:
                 active_cutscene = "" if arg in ["关闭", "无", "none", "off", ""] else arg
                 continue
+            if kind in ["清场", "退场", "立绘退场", "clear", "exit"]:
+                if arg in ["左", "left"]:
+                    old_left = stage_slots.get("left", "")
+                    stage_slots["left"] = ""
+                    if old_left:
+                        last_side_by_char.pop(old_left, None)
+                elif arg in ["右", "right"]:
+                    old_right = stage_slots.get("right", "")
+                    stage_slots["right"] = ""
+                    if old_right:
+                        last_side_by_char.pop(old_right, None)
+                elif arg and arg not in ["全部", "all", "both"]:
+                    target_cid = name_to_id.get(arg, arg)
+                    if stage_slots.get("left") in [target_cid, arg]:
+                        stage_slots["left"] = ""
+                    if stage_slots.get("right") in [target_cid, arg]:
+                        stage_slots["right"] = ""
+                    last_side_by_char.pop(target_cid, None)
+                    last_side_by_char.pop(arg, None)
+                else:
+                    stage_slots["left"] = ""
+                    stage_slots["right"] = ""
+                    last_side_by_char.clear()
             lines_out.append({"type": "directive", "kind": kind, "arg": arg})
             active_choice = None
             continue
@@ -573,16 +635,32 @@ def parse_stream_text(raw_text: str, actors: dict[str, Any]) -> list[dict[str, A
 
         # Indented follow-up line under a choice
         if indent >= 2 and active_choice is not None:
-            parsed = _parse_dialogue_line(stripped, name_to_id, actors, last_side_by_char, active_cutscene)
+            parsed = _parse_dialogue_line(stripped, name_to_id, actors, last_side_by_char, stage_slots, active_cutscene)
             active_choice.setdefault("follow_up", []).append(parsed)
             continue
 
         active_choice = None
-        parsed = _parse_dialogue_line(stripped, name_to_id, actors, last_side_by_char, active_cutscene)
+        parsed = _parse_dialogue_line(stripped, name_to_id, actors, last_side_by_char, stage_slots, active_cutscene)
         lines_out.append(parsed)
         last_dialogue_idx = len(lines_out) - 1
 
     return lines_out
+
+
+def _auto_assign_stage_side(
+    char_key: str,
+    last_side_by_char: dict[str, str],
+    stage_slots: dict[str, str],
+) -> str:
+    if char_key and char_key in last_side_by_char:
+        return last_side_by_char[char_key]
+    if not stage_slots.get("left") and not stage_slots.get("right"):
+        return "left"
+    if stage_slots.get("left") and not stage_slots.get("right"):
+        return "right"
+    if not stage_slots.get("left") and stage_slots.get("right"):
+        return "left"
+    return "left" if char_key in ["ye_zhou", "叶舟"] else "right"
 
 
 def _parse_dialogue_line(
@@ -590,12 +668,16 @@ def _parse_dialogue_line(
     name_to_id: dict[str, str],
     actors: dict[str, Any],
     last_side_by_char: dict[str, str],
+    stage_slots: dict[str, str],
     active_cutscene: str,
 ) -> dict[str, Any]:
     # Match Speaker(emo, side): text  OR  Speaker: text
     m = re.match(r"^([^:：\n(（]{1,24})(?:[(（]([^)）]*)[)）])?\s*[:：]\s*(.*)$", line)
     if not m:
-        entry: dict[str, Any] = {"speaker": "旁白", "char": "", "side": "left", "emotion": "neutral", "text": line}
+        last_side_by_char.clear()
+        stage_slots["left"] = ""
+        stage_slots["right"] = ""
+        entry: dict[str, Any] = {"speaker": "旁白", "char": "", "side": "left", "emotion": "neutral", "clear_stage": True, "text": line}
         if active_cutscene:
             entry["cutscene"] = active_cutscene
         return entry
@@ -605,19 +687,31 @@ def _parse_dialogue_line(
     text = m.group(3).strip()
 
     if speaker in ["旁白", "叙述"]:
-        entry = {"speaker": "旁白", "char": "", "side": "left", "emotion": "neutral", "text": text}
+        last_side_by_char.clear()
+        stage_slots["left"] = ""
+        stage_slots["right"] = ""
+        entry = {"speaker": "旁白", "char": "", "side": "left", "emotion": "neutral", "clear_stage": True, "text": text}
         if active_cutscene:
             entry["cutscene"] = active_cutscene
         return entry
 
     char_id = name_to_id.get(speaker, "")
+    char_key = char_id or speaker
     emotion = "neutral"
     side = ""
+    clear_stage = False
+    clear_side = ""
     if meta_raw:
         parts = [p.strip() for p in re.split(r"[,，/|]", meta_raw) if p.strip()]
         for p in parts:
             if p in CN_TO_SIDE:
                 side = CN_TO_SIDE[p]
+            elif p in ["清场", "退场"]:
+                clear_stage = True
+            elif p in ["退左", "清左"]:
+                clear_side = "left"
+            elif p in ["退右", "清右"]:
+                clear_side = "right"
             elif p in ["内心", "独白"]:
                 speaker = f"{speaker}(内心)"
             elif p in CN_TO_EMOTION:
@@ -625,18 +719,31 @@ def _parse_dialogue_line(
             elif p in EMOTION_TO_CN:
                 emotion = p
 
-    if not side:
-        if char_id and char_id in last_side_by_char:
-            side = last_side_by_char[char_id]
-        elif char_id and char_id in actors:
-            side = actors[char_id].get("default_side", "right")
-        else:
-            side = "left" if speaker == "叶舟" else "right"
+    if clear_stage:
+        last_side_by_char.clear()
+        stage_slots["left"] = ""
+        stage_slots["right"] = ""
+    elif clear_side in ["left", "right"]:
+        old_key = stage_slots.get(clear_side, "")
+        stage_slots[clear_side] = ""
+        if old_key:
+            last_side_by_char.pop(old_key, None)
 
-    if char_id:
-        last_side_by_char[char_id] = side
+    if not side:
+        side = _auto_assign_stage_side(char_key, last_side_by_char, stage_slots)
+
+    prev_occupant = stage_slots.get(side, "")
+    if prev_occupant and prev_occupant != char_key:
+        last_side_by_char.pop(prev_occupant, None)
+    stage_slots[side] = char_key
+    if char_key:
+        last_side_by_char[char_key] = side
 
     entry = {"speaker": speaker, "char": char_id, "side": side, "emotion": emotion, "text": text}
+    if clear_stage:
+        entry["clear_stage"] = True
+    if clear_side:
+        entry["clear_side"] = clear_side
     if active_cutscene:
         entry["cutscene"] = active_cutscene
     return entry
@@ -646,10 +753,32 @@ def lines_to_stream_text(lines: list[dict[str, Any]], actors: dict[str, Any]) ->
     """Serialize structured lines back into compact, human-friendly stream syntax."""
     out: list[str] = []
     cur_cutscene = ""
+    last_side_by_char: dict[str, str] = {}
+    stage_slots: dict[str, str] = {"left": "", "right": ""}
     for line in lines:
         if line.get("type") == "directive":
             kind = line.get("kind", "备注")
             arg = line.get("arg", "")
+            if kind in ["清场", "退场", "立绘退场", "clear", "exit"]:
+                if arg in ["左", "left"]:
+                    old_left = stage_slots.get("left", "")
+                    stage_slots["left"] = ""
+                    if old_left:
+                        last_side_by_char.pop(old_left, None)
+                elif arg in ["右", "right"]:
+                    old_right = stage_slots.get("right", "")
+                    stage_slots["right"] = ""
+                    if old_right:
+                        last_side_by_char.pop(old_right, None)
+                elif arg and arg not in ["全部", "all", "both"]:
+                    last_side_by_char.pop(arg, None)
+                    for s_key in ["left", "right"]:
+                        if stage_slots.get(s_key) == arg:
+                            stage_slots[s_key] = ""
+                else:
+                    stage_slots["left"] = ""
+                    stage_slots["right"] = ""
+                    last_side_by_char.clear()
             out.append(f"[{kind}: {arg}]" if arg != "" else f"[{kind}]")
             continue
 
@@ -665,15 +794,41 @@ def lines_to_stream_text(lines: list[dict[str, Any]], actors: dict[str, Any]) ->
         text = str(line.get("text", ""))
 
         if speaker in ["旁白", "叙述"] and not char_id:
+            last_side_by_char.clear()
+            stage_slots["left"] = ""
+            stage_slots["right"] = ""
             out.append(f"旁白: {text}")
         else:
-            default_side = actors.get(char_id, {}).get("default_side", "left" if speaker == "叶舟" else "right")
+            char_key = char_id or speaker.replace("(内心)", "")
+            if line.get("clear_stage"):
+                last_side_by_char.clear()
+                stage_slots["left"] = ""
+                stage_slots["right"] = ""
+            elif line.get("clear_side") in ["left", "right"]:
+                c_side = str(line["clear_side"])
+                old_k = stage_slots.get(c_side, "")
+                stage_slots[c_side] = ""
+                if old_k:
+                    last_side_by_char.pop(old_k, None)
+            expected_side = _auto_assign_stage_side(char_key, last_side_by_char, stage_slots)
             emo_cn = EMOTION_TO_CN.get(emotion, emotion)
             meta_parts: list[str] = []
+            if line.get("clear_stage"):
+                meta_parts.append("清场")
+            elif line.get("clear_side") == "left":
+                meta_parts.append("退左")
+            elif line.get("clear_side") == "right":
+                meta_parts.append("退右")
             if emotion != "neutral":
                 meta_parts.append(emo_cn)
-            if side != default_side:
+            if side != expected_side:
                 meta_parts.append(SIDE_TO_CN.get(side, side))
+            prev_occ = stage_slots.get(side, "")
+            if prev_occ and prev_occ != char_key:
+                last_side_by_char.pop(prev_occ, None)
+            stage_slots[side] = char_key
+            if char_key:
+                last_side_by_char[char_key] = side
             meta = f"({', '.join(meta_parts)})" if meta_parts else ""
             out.append(f"{speaker}{meta}: {text}")
 
@@ -902,13 +1057,14 @@ def build_bundle(preserve_existing: bool = True) -> dict[str, Any]:
 
     # Background key mappings parsed from PhaseTwoContent.background_key
     bg_map: dict[str, str] = {
-        "school_gate": "school_gate",
-        "club_welcome": "club",
+        "school_gate": "prologue_sports_field",
+        "school_gate_after": "prologue_sports_field",
+        "club_welcome": "prologue_club_meeting",
         "school_affairs": "library",
         "chat_jiang": "club",
         "chat_liu": "school_room",
         "chat_yang": "school_room",
-        "campus_morning": "morning_road",
+        "campus_morning": "prologue_sakura_road",
         "after_school": "old_park",
         "yang_rescue": "dusk_road",
         "principal_confrontation": "battle_red_moon_lockdown",
@@ -932,7 +1088,11 @@ def build_bundle(preserve_existing: bool = True) -> dict[str, Any]:
     for step in flow_steps:
         node_id = str(step.get("node", ""))
         dlg_id = str(step.get("dialogue", ""))
+        post_dlg_id = str(step.get("post_dialogue", ""))
         enemy_id = str(step.get("enemy", ""))
+        enemies_list = step.get("enemies", [])
+        scripted_defeat = str(step.get("scripted_defeat", ""))
+        combat_done_flag = str(step.get("combat_done_flag", ""))
         title = str(step.get("title", node_id))
         phase = str(step.get("phase", "act1"))
         location = str(step.get("location", ""))
@@ -947,7 +1107,7 @@ def build_bundle(preserve_existing: bool = True) -> dict[str, Any]:
                 if "emotion" not in d or not d["emotion"]:
                     d["emotion"] = "neutral"
                 norm_lines.append(d)
-            main_scenes.append({
+            scene_obj: dict[str, Any] = {
                 "id": dlg_id,
                 "node": node_id,
                 "category": "main_active",
@@ -963,7 +1123,42 @@ def build_bundle(preserve_existing: bool = True) -> dict[str, Any]:
                 "default_cutscene": default_cutscene_map.get(dlg_id, ""),
                 "note": f"主线节点 {node_id}" + (f" · 完成后接战斗 {enemy_id}" if enemy_id else ""),
                 "lines": norm_lines,
-            })
+            }
+            if post_dlg_id:
+                scene_obj["post_dialogue"] = post_dlg_id
+            if enemies_list:
+                scene_obj["enemies"] = enemies_list
+            if scripted_defeat:
+                scene_obj["scripted_defeat"] = scripted_defeat
+            if combat_done_flag:
+                scene_obj["combat_done_flag"] = combat_done_flag
+            main_scenes.append(scene_obj)
+            if post_dlg_id:
+                used_script_ids.add(post_dlg_id)
+                post_raw = scripts.get(post_dlg_id, [])
+                post_norm = []
+                for entry in post_raw:
+                    d = dict(entry)
+                    if "emotion" not in d or not d["emotion"]:
+                        d["emotion"] = "neutral"
+                    post_norm.append(d)
+                main_scenes.append({
+                    "id": post_dlg_id,
+                    "node": node_id,
+                    "category": "main_active",
+                    "target_type": "phase_two_post_dialogue",
+                    "phase": {"prologue": "序章", "act1": "第一章 · 日常与伏笔", "climax": "第一章 · 红月高潮"}.get(phase, phase),
+                    "phase_key": phase,
+                    "title": f"{title} · 战后",
+                    "location": location,
+                    "enemy": "",
+                    "briefing_flag": "",
+                    "bg": bg_map.get(post_dlg_id, bg_map.get(dlg_id, "dusk_road")),
+                    "bgm": default_bgm_map.get(post_dlg_id, "bgm_campus_daily"),
+                    "default_cutscene": "",
+                    "note": f"主线节点 {node_id} 战后剧情",
+                    "lines": post_norm,
+                })
         else:
             main_scenes.append({
                 "id": node_id,
@@ -1299,8 +1494,12 @@ def _gd_line_dict(line: dict[str, Any]) -> str:
         "side": str(line.get("side", "left")),
     }
     emo = str(line.get("emotion", "neutral") or "neutral")
-    if emo != "neutral" or ordered["char"] in ["ye_zhou", "huang_qiufeng", "yang_zi_ying", "liu_yu_long", "jiang_zi", "lin_zhi_xia", "tang_xiao_man"]:
+    if emo != "neutral" or ordered["char"] in ["ye_zhou", "huang_qiufeng", "yang_zi_ying", "liu_yu_long", "jiang_zi", "lin_zhi_xia", "tang_xiao_man", "thug_grunt", "thug_boss"]:
         ordered["emotion"] = emo
+    if line.get("clear_stage") or ordered["char"] == "":
+        ordered["clear_stage"] = True
+    elif line.get("clear_side") in ["left", "right"]:
+        ordered["clear_side"] = str(line["clear_side"])
     if line.get("cutscene"):
         ordered["cutscene"] = str(line["cutscene"])
     ordered["text"] = str(line.get("text", ""))
@@ -1320,10 +1519,29 @@ def _gd_line_dict(line: dict[str, Any]) -> str:
 def _flatten_engine_dialogue(lines: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Filter out non-engine remark directives and flatten follow-up choices safely."""
     out: list[dict[str, Any]] = []
+    pending_clear_stage = False
+    pending_clear_side = ""
     for line in lines:
         if line.get("type") == "directive":
+            kind = str(line.get("kind", "")).strip()
+            arg = str(line.get("arg", "")).strip()
+            if kind in ["清场", "退场", "立绘退场", "clear", "exit"]:
+                if arg in ["左", "left"]:
+                    pending_clear_side = "left"
+                elif arg in ["右", "right"]:
+                    pending_clear_side = "right"
+                else:
+                    pending_clear_stage = True
+                    pending_clear_side = ""
             continue
         copy_line = {k: v for k, v in line.items() if k != "type"}
+        if pending_clear_stage:
+            copy_line["clear_stage"] = True
+            pending_clear_stage = False
+            pending_clear_side = ""
+        elif pending_clear_side:
+            copy_line["clear_side"] = pending_clear_side
+            pending_clear_side = ""
         follow_ups: list[dict[str, Any]] = []
         if copy_line.get("choices"):
             clean_choices = []
@@ -1391,14 +1609,30 @@ def apply_bundle_to_gdscript(bundle: dict[str, Any]) -> dict[str, Any]:
     p2_text = _replace_const_block(p2_text, "ACTORS", "\n".join(actors_lines))
 
     # Rebuild FLOW_STEPS & SCRIPTS
-    flow_lines = ["["]
     main_scenes = bundle["categories"]["main_active"]
     scripts_dict: dict[str, list[dict[str, Any]]] = {}
     bg_to_phase2 = {item["id"]: item["phase2_key"] for item in BG_CHOICES}
-    bg_groups: dict[str, list[str]] = {"morning_road": ["prologue_intro", "chapter_1_intro"], "school_gate": [], "school_room": [], "dusk_road": [], "battle_campus": [], "battle_red_moon_lockdown": []}
+    bg_groups: dict[str, list[str]] = {
+        "prologue_sakura_road": ["prologue_intro", "chapter_1_intro"],
+        "prologue_sports_field": [],
+        "battle_sports_field": [],
+        "prologue_club_meeting": [],
+        "morning_road": [],
+        "school_gate": [],
+        "school_room": [],
+        "dusk_road": [],
+        "battle_campus": [],
+        "battle_red_moon_lockdown": [],
+    }
 
-    for idx, sc in enumerate(main_scenes):
-        comma = "," if idx < len(main_scenes) - 1 else ""
+    flow_items: list[dict[str, Any]] = []
+    for sc in main_scenes:
+        if sc.get("target_type") == "phase_two_post_dialogue":
+            scripts_dict[sc["id"]] = _flatten_engine_dialogue(sc.get("lines", []))
+            bg_key = bg_to_phase2.get(sc.get("bg", "dusk_road"), "dusk_road")
+            if bg_key != "dusk_road" and sc["id"] not in bg_groups.get(bg_key, []):
+                bg_groups.setdefault(bg_key, []).append(sc["id"])
+            continue
         step_obj: dict[str, Any] = {"node": sc.get("node") or sc["id"]}
         if sc.get("target_type") != "phase_two_battle_only":
             step_obj["dialogue"] = sc["id"]
@@ -1406,14 +1640,27 @@ def apply_bundle_to_gdscript(bundle: dict[str, Any]) -> dict[str, Any]:
             bg_key = bg_to_phase2.get(sc.get("bg", "dusk_road"), "dusk_road")
             if bg_key != "dusk_road" and sc["id"] not in bg_groups.get(bg_key, []):
                 bg_groups.setdefault(bg_key, []).append(sc["id"])
+        if sc.get("post_dialogue"):
+            step_obj["post_dialogue"] = sc["post_dialogue"]
         if sc.get("enemy"):
             step_obj["enemy"] = sc["enemy"]
+        if sc.get("enemies"):
+            step_obj["enemies"] = sc["enemies"]
+        if sc.get("scripted_defeat"):
+            step_obj["scripted_defeat"] = sc["scripted_defeat"]
         if sc.get("briefing_flag"):
             step_obj["briefing_flag"] = sc["briefing_flag"]
+        if sc.get("combat_done_flag"):
+            step_obj["combat_done_flag"] = sc["combat_done_flag"]
         step_obj["title"] = sc.get("title", "").replace("（战斗节点）", "")
         step_obj["phase"] = sc.get("phase_key", "act1")
         if sc.get("location"):
             step_obj["location"] = sc["location"]
+        flow_items.append(step_obj)
+
+    flow_lines = ["["]
+    for idx, step_obj in enumerate(flow_items):
+        comma = "," if idx < len(flow_items) - 1 else ""
         flow_lines.append(f'\t{json.dumps(step_obj, ensure_ascii=False, separators=(",", ":"))}{comma}')
     flow_lines.append("]")
     p2_text = _replace_const_block(p2_text, "FLOW_STEPS", "\n".join(flow_lines))
@@ -1441,7 +1688,7 @@ def apply_bundle_to_gdscript(bundle: dict[str, Any]) -> dict[str, Any]:
 
     # Update background_key(dialogue_id) cleanly with Tab indent
     bg_fn_lines = ["static func background_key(dialogue_id: String) -> String:", "\tmatch dialogue_id:"]
-    for bg_key in ["school_gate", "school_room", "morning_road", "battle_campus", "battle_red_moon_lockdown"]:
+    for bg_key in ["prologue_sakura_road", "prologue_sports_field", "battle_sports_field", "prologue_club_meeting", "school_gate", "school_room", "morning_road", "battle_campus", "battle_red_moon_lockdown"]:
         ids = bg_groups.get(bg_key, [])
         if ids:
             joined = ", ".join(json.dumps(x, ensure_ascii=False) for x in ids)

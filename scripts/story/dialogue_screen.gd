@@ -82,7 +82,9 @@ func load_dialogue(dialogue_id: String) -> void:
 	else:
 		current_lines = _get_script_lines(dialogue_id)
 		var node_id: String = PhaseTwoContent.node_for_dialogue(dialogue_id)
-		if not _archive_mode and node_id != "" and GameState.phase_two_checkpoint.get("node_id", "") == node_id and GameState.phase_two_checkpoint.get("stage", "") == "dialogue":
+		var step: Dictionary = PhaseTwoContent.step_for(node_id) if node_id != "" else {}
+		var expected_stage := "post_dialogue" if str(step.get("post_dialogue", "")) == dialogue_id else "dialogue"
+		if not _archive_mode and node_id != "" and GameState.phase_two_checkpoint.get("node_id", "") == node_id and GameState.phase_two_checkpoint.get("stage", "") == expected_stage:
 			line_index = clampi(int(GameState.phase_two_checkpoint.get("line_index", 0)), 0, maxi(0, current_lines.size()-1))
 	if _calendar_mode:
 		line_index = clampi(int(DayCycle.pending_event().get("line_index",0)),0,maxi(0,current_lines.size()-1))
@@ -120,41 +122,60 @@ func _show_next_line() -> void:
 		story_presentation.update_scene(_current_cutscene_id)
 	nameplate.text = " " + data.get("speaker", "旁白") + " "
 	_refresh_speaker_avatar(data)
-	var speaker_char: String = str(data.get("char", "ye_zhou"))
+	var clear_stage := bool(data.get("clear_stage", false))
+	var clear_side := str(data.get("clear_side", "")).strip_edges().to_lower()
+	var speaker_char: String = str(data.get("char", ""))
 	var speaker_side: String = str(data.get("side", "left"))
 	var resolved_emotion := _speaker_emotion(data)
-	var sprite_path := PhaseTwoContent.dialogue_character_path(speaker_char, resolved_emotion)
+	var sprite_path := PhaseTwoContent.dialogue_character_path(speaker_char, resolved_emotion) if speaker_char != "" else ""
 	var speaking_sprite: TextureRect = left_char_sprite if speaker_side == "left" else right_char_sprite
 	var other_sprite: TextureRect = right_char_sprite if speaking_sprite == left_char_sprite else left_char_sprite
 	for sprite_node: TextureRect in [left_char_sprite, right_char_sprite]:
 		var old_shimmer: Node = sprite_node.get_node_or_null("LoopVFX_crystal_shimmer")
 		if old_shimmer != null:
 			old_shimmer.queue_free()
-	var speaker_key: String = "%s:%s" % [speaker_side, speaker_char] if sprite_path != "" else ""
-	var speaker_changed: bool = speaker_key != "" and (speaker_key != _last_speaking_key or not speaking_sprite.visible)
-	_last_speaking_key = speaker_key
 	if _char_motion_tween != null and is_instance_valid(_char_motion_tween):
 		_char_motion_tween.kill()
 		_char_motion_tween = null
-	other_sprite.scale = Vector2.ONE
-	other_sprite.modulate = Color(0.76, 0.74, 0.78)
-	speaking_sprite.visible = sprite_path != ""
-	if sprite_path != "":
-		speaking_sprite.texture = load(sprite_path)
-		if speaker_char == "huang_qiufeng" and resolved_emotion == "crystal_stasis":
-			CombatVFX.play_loop(speaking_sprite, "crystal_shimmer", Rect2(60.0, 120.0, 600.0, 600.0), 0.72, 2)
-		speaking_sprite.pivot_offset = Vector2(speaking_sprite.size.x * 0.5, speaking_sprite.size.y)
-		var motion_dur: float = SaveManager.motion_duration(0.18)
-		if speaker_changed and motion_dur > 0.0:
-			speaking_sprite.scale = Vector2(0.985, 0.985)
-			speaking_sprite.modulate = Color(1.0, 1.0, 1.0, 0.78)
-			_char_motion_tween = create_tween()
-			_char_motion_tween.set_parallel(true)
-			_char_motion_tween.tween_property(speaking_sprite, "scale", Vector2.ONE, motion_dur).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-			_char_motion_tween.tween_property(speaking_sprite, "modulate", Color.WHITE, motion_dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		else:
-			speaking_sprite.scale = Vector2.ONE
-			speaking_sprite.modulate = Color.WHITE
+	if clear_stage or clear_side in ["all", "both", "全部"]:
+		left_char_sprite.visible = false
+		right_char_sprite.visible = false
+		_last_speaking_key = ""
+	elif clear_side in ["left", "左"]:
+		left_char_sprite.visible = false
+		if _last_speaking_key.begins_with("left:"):
+			_last_speaking_key = ""
+	elif clear_side in ["right", "右"]:
+		right_char_sprite.visible = false
+		if _last_speaking_key.begins_with("right:"):
+			_last_speaking_key = ""
+	if speaker_char == "":
+		left_char_sprite.visible = false
+		right_char_sprite.visible = false
+		_last_speaking_key = ""
+	else:
+		var speaker_key: String = "%s:%s" % [speaker_side, speaker_char] if sprite_path != "" else ""
+		var speaker_changed: bool = speaker_key != "" and (speaker_key != _last_speaking_key or not speaking_sprite.visible)
+		_last_speaking_key = speaker_key
+		other_sprite.scale = Vector2.ONE
+		other_sprite.modulate = Color(0.76, 0.74, 0.78)
+		speaking_sprite.visible = sprite_path != ""
+		if sprite_path != "":
+			speaking_sprite.texture = load(sprite_path)
+			if speaker_char == "huang_qiufeng" and resolved_emotion == "crystal_stasis":
+				CombatVFX.play_loop(speaking_sprite, "crystal_shimmer", Rect2(60.0, 120.0, 600.0, 600.0), 0.72, 2)
+			speaking_sprite.pivot_offset = Vector2(speaking_sprite.size.x * 0.5, speaking_sprite.size.y)
+			var motion_dur: float = SaveManager.motion_duration(0.18)
+			if speaker_changed and motion_dur > 0.0:
+				speaking_sprite.scale = Vector2(0.985, 0.985)
+				speaking_sprite.modulate = Color(1.0, 1.0, 1.0, 0.78)
+				_char_motion_tween = create_tween()
+				_char_motion_tween.set_parallel(true)
+				_char_motion_tween.tween_property(speaking_sprite, "scale", Vector2.ONE, motion_dur).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+				_char_motion_tween.tween_property(speaking_sprite, "modulate", Color.WHITE, motion_dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+			else:
+				speaking_sprite.scale = Vector2.ONE
+				speaking_sprite.modulate = Color.WHITE
 	full_current_text = data.get("text", "")
 	text_label.text = full_current_text
 	text_label.visible_characters = 0
@@ -193,22 +214,27 @@ func _refresh_speaker_avatar(data: Dictionary) -> void:
 	if character_id == "rebel_operative_masked" and emotion == "unmasked":
 		character_id = "rebel_operative_unmasked"
 	var path := ""
+	var crop_halfbody := false
 	var v7_avatar := "res://assets/sprites/characters/phase_two/avatars/%s_%s.png" % [character_id, emotion]
 	var v7_neutral := "res://assets/sprites/characters/phase_two/avatars/%s_neutral.png" % character_id
-	if ResourceLoader.exists(v7_avatar):
-		path = v7_avatar
-	elif ResourceLoader.exists(v7_neutral):
-		path = v7_neutral
+	var emo_halfbody := "res://assets/sprites/characters/phase_two/emotions/%s/%s.png" % [character_id, emotion]
+	if character_id != "":
+		if ResourceLoader.exists(v7_avatar):
+			path = v7_avatar
+		elif emotion != "neutral" and ResourceLoader.exists(emo_halfbody):
+			path = emo_halfbody
+			crop_halfbody = true
+		elif ResourceLoader.exists(v7_neutral):
+			path = v7_neutral
+		else:
+			var portrait_path := "res://assets/sprites/characters/phase_two/portraits/%s.png" % character_id
+			if ResourceLoader.exists(portrait_path):
+				path = portrait_path
 	if path == "" and character_id != "":
-		var portrait_path := "res://assets/sprites/characters/phase_two/portraits/%s.png" % character_id
-		if ResourceLoader.exists(portrait_path):
-			path = portrait_path
-	var crop_halfbody := false
-	if path == "" and character_id in ["rebel_operative_masked", "rebel_operative_unmasked", "huang_qiufeng"]:
 		var fallback_path := PhaseTwoContent.dialogue_character_path(character_id, emotion)
 		if fallback_path != "" and ResourceLoader.exists(fallback_path):
 			path = fallback_path
-			crop_halfbody = fallback_path.contains("/halfbody/") or fallback_path.contains("/emotions/")
+			crop_halfbody = fallback_path.contains("/halfbody/") or fallback_path.contains("/emotions/") or fallback_path.contains("/combat/")
 	if path == "" or not ResourceLoader.exists(path):
 		portrait.visible = false
 		portrait.texture = null
@@ -219,7 +245,9 @@ func _refresh_speaker_avatar(data: Dictionary) -> void:
 		var atlas := AtlasTexture.new()
 		atlas.atlas = tex
 		var sz := tex.get_size()
-		atlas.region = Rect2(sz.x * 0.14, sz.y * 0.04, sz.x * 0.72, sz.y * 0.56)
+		var crop_w := sz.x * 0.84
+		var crop_y := sz.y * 0.01
+		atlas.region = Rect2(sz.x * 0.08, crop_y, crop_w, minf(crop_w, sz.y - crop_y))
 		atlas.filter_clip = true
 		portrait.texture = atlas
 	else:
@@ -349,12 +377,15 @@ func _finish_dialogue() -> void:
 	dialogue_completed.emit(current_dialogue_id)
 	match current_dialogue_id:
 		"school_gate":
-			GameState.companions["liu_yu_long"]["unlocked"] = true
-			GameState.set_story_flag("school_gate_done", true)
+			GameState.set_story_flag("school_gate_duel_briefed", true)
 			if GameState.game_day < 2:
 				GameState.set_game_time(2, 9, 20, DayCycleService.weekday_for_day(2))
 			else:
 				GameState.advance_story_time(9, 20)
+		"school_gate_after":
+			GameState.set_story_flag("school_gate_done", true)
+			var club_day: int = maxi(3, GameState.game_day + 1)
+			GameState.set_game_time(club_day, 8, 30, DayCycleService.weekday_for_day(club_day))
 		"club_welcome":
 			GameState.companions["jiang_zi"]["unlocked"] = true
 			GameState.set_story_flag("prologue_completed", true)
@@ -367,6 +398,8 @@ func _finish_dialogue() -> void:
 		"yang_rescue":
 			GameState.set_story_flag("yang_rescued_player", true)
 			GameState.advance_story_time(17, 40)
+		"principal_confrontation", "chapter_1_pre_boss":
+			GameState.companions["liu_yu_long"]["unlocked"] = true
 		"campus_morning", "chapter_1_intro", "prologue_intro":
 			GameState.advance_story_time(8, 0)
 	if current_dialogue_id.begins_with("chat_"):

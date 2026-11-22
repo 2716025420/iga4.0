@@ -3,6 +3,7 @@ extends Control
 
 signal unit_clicked(unit: EnemyUnitUI)
 signal unit_died(unit: EnemyUnitUI)
+signal hp_lock_triggered(unit: EnemyUnitUI)
 
 const PLAQUE_PATH := "res://assets/combat/status_plaque.png"
 const FALLBACK_PLAQUE_PATH := "res://assets/ui/combat_notebook/status_note.png"
@@ -25,6 +26,7 @@ var atk_down_turns: int = 0
 var is_dead: bool = false
 var is_selected: bool = false
 var is_phase_two: bool = false
+var hp_lock_min: int = 0
 
 # 下一回合将要执行的技能
 var next_intent: Dictionary = {}
@@ -90,17 +92,34 @@ func setup_enemy(data: EnemyData) -> void:
 	decide_next_intent()
 	_update_hp_display()
 
+func _split_display_name() -> Array[String]:
+	if enemy_data == null:
+		return ["", ""]
+	var raw := enemy_data.name
+	var idx := raw.find("（")
+	if idx > 0:
+		var sub := raw.substr(idx + 1).trim_suffix("）").strip_edges()
+		return [raw.substr(0, idx).strip_edges(), sub]
+	idx = raw.find("(")
+	if idx > 0:
+		var sub := raw.substr(idx + 1).trim_suffix(")").strip_edges()
+		return [raw.substr(0, idx).strip_edges(), sub]
+	var fallback_sub := "首领" if enemy_data.rank == EnemyData.EnemyRank.BOSS else ("强敌" if enemy_data.rank == EnemyData.EnemyRank.ELITE else "对手")
+	return [raw, fallback_sub]
+
 func _apply_rank_title() -> void:
 	if enemy_data == null:
 		return
+	var compact := custom_minimum_size.x > 0.0 and custom_minimum_size.x <= 240.0
+	var display_name := _split_display_name()[0] if compact else enemy_data.name
 	if enemy_data.rank == EnemyData.EnemyRank.BOSS:
-		name_label.text = enemy_data.name + " · 首领"
+		name_label.text = display_name if compact else (enemy_data.name + " · 首领")
 		name_label.add_theme_color_override("font_color", Color("#A83B40"))
 	elif enemy_data.rank == EnemyData.EnemyRank.ELITE:
-		name_label.text = enemy_data.name + " · 强敌"
+		name_label.text = display_name if compact else (enemy_data.name + " · 强敌")
 		name_label.add_theme_color_override("font_color", Color("#A66320"))
 	else:
-		name_label.text = enemy_data.name
+		name_label.text = display_name
 		name_label.add_theme_color_override("font_color", NotebookUI.INK)
 
 func layout_stage(frame: Vector2) -> void:
@@ -154,13 +173,17 @@ func layout_stage(frame: Vector2) -> void:
 	intent_badge.custom_minimum_size = Vector2(0, 28)
 
 	custom_minimum_size = frame
+	clip_contents = false
+	stage.clip_contents = false
+	var compact := frame.x <= 240.0
+	var is_solo := compact and frame.x >= 200.0
+	_apply_rank_title()
 	DaylightUI.place(stage, 0, 0, frame.x, frame.y)
 	intent_badge.visible = not is_dead and not intent_queue.is_empty()
 	intent_label.add_theme_font_size_override("font_size", 17)
 	var name_len := name_label.text.length()
-	var name_size := 21 if name_len <= 8 else (18 if name_len <= 12 else 16)
+	var name_size := (18 if name_len <= 4 else (16 if name_len <= 6 else 14)) if compact else (21 if name_len <= 8 else (18 if name_len <= 12 else 16))
 	name_label.add_theme_font_size_override("font_size", name_size)
-	hp_label.add_theme_font_size_override("font_size", 18)
 	status_label.visible = false
 
 	var badge_w := clampf(frame.x - 16.0, 280.0, 312.0)
@@ -188,18 +211,60 @@ func layout_stage(frame: Vector2) -> void:
 		_target_clip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		_target_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stage.add_child(_target_clip)
-	if is_instance_valid(_target_clip):
-		DaylightUI.place(_target_clip, badge_x + badge_w * 0.5 - 14.0, badge_y - 10.0, 28.0, 30.0)
 
-	var inner_x := badge_x + badge_w * 0.178
-	var inner_w := badge_w * 0.72
-	DaylightUI.place(name_label, inner_x, badge_y + 9.0, inner_w, 27.0)
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	DaylightUI.place(hp_bar, inner_x, badge_y + 39.0, inner_w, 13.0)
-	DaylightUI.place(hp_label, 0, 14, inner_w, 22)
-	hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var compact_box := stage.get_node_or_null("CompactIdentityBox") as Panel
+	var compact_sub := stage.get_node_or_null("CompactSubtitleLabel") as Label
+	var pad_x := 12.0 if is_solo else 10.0
+	var inner_w := (frame.x - pad_x * 2.0) if compact else badge_w * 0.72
+	if compact:
+		badge.visible = false
+		compact_box = CombatPresentation._ensure_compact_identity_box(stage, "CompactIdentityBox", is_selected)
+		compact_box.visible = true
+		DaylightUI.place(compact_box, 0.0, 12.0, frame.x, 76.0)
+		var sub_text := _split_display_name()[1]
+		if enemy_data != null and enemy_data.has_phase_two and sub_text == "首领":
+			sub_text = "首领 · 半血警戒"
+		if compact_sub == null:
+			compact_sub = NotebookUI.label(stage, "CompactSubtitleLabel", sub_text, Vector2(pad_x, 59), Vector2(inner_w, 22.0), 14, Color("#6F6A62"))
+		compact_sub.visible = true
+		compact_sub.text = sub_text
+		compact_sub.add_theme_font_size_override("font_size", 14)
+		compact_sub.add_theme_color_override("font_color", Color("#6F6A62"))
+		compact_sub.add_theme_constant_override("outline_size", 0)
+		compact_sub.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		compact_sub.autowrap_mode = TextServer.AUTOWRAP_OFF
+		compact_sub.clip_text = true
+		DaylightUI.place(compact_sub, pad_x, 59.0, inner_w, 22.0)
+		if is_instance_valid(_target_clip):
+			DaylightUI.place(_target_clip, frame.x * 0.5 - 10.0, -4.0, 20.0, 22.0)
+		var name_w := inner_w - (76.0 if is_solo else 68.0)
+		DaylightUI.place(name_label, pad_x - 2.0, 18.0, name_w, 24.0)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		DaylightUI.place(hp_bar, pad_x, 46.0, inner_w, 10.0 if is_solo else 9.0)
+		DaylightUI.place(hp_label, inner_w - 84.0, -28.0, 84.0, 22.0)
+		hp_label.add_theme_font_size_override("font_size", 14)
+		hp_label.add_theme_color_override("font_color", Color("#3B444E"))
+		hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	else:
+		badge.visible = true
+		if is_instance_valid(compact_box):
+			compact_box.visible = false
+		if is_instance_valid(compact_sub):
+			compact_sub.visible = false
+		if is_instance_valid(_target_clip):
+			DaylightUI.place(_target_clip, badge_x + badge_w * 0.5 - 14.0, badge_y - 10.0, 28.0, 30.0)
+		var inner_x := badge_x + badge_w * 0.178
+		DaylightUI.place(name_label, inner_x, badge_y + 9.0, inner_w, 27.0)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		DaylightUI.place(hp_bar, inner_x, badge_y + 39.0, inner_w, 13.0)
+		DaylightUI.place(hp_label, 0, 14, inner_w, 22)
+		hp_label.add_theme_font_size_override("font_size", 18)
+		hp_label.add_theme_color_override("font_color", Color("#232C36"))
+		hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 	if enemy_data != null and enemy_data.has_phase_two:
 		if not is_instance_valid(_phase_tick):
@@ -208,19 +273,22 @@ func layout_stage(frame: Vector2) -> void:
 			_phase_tick.color = Color("#D6A048")
 			_phase_tick.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			hp_bar.add_child(_phase_tick)
-		DaylightUI.place(_phase_tick, inner_w * enemy_data.phase_two_hp_threshold - 1.0, -2.0, 3.0, 17.0)
+		DaylightUI.place(_phase_tick, inner_w * enemy_data.phase_two_hp_threshold - 1.0, -2.0, 3.0, 14.0 if compact else 17.0)
 		_phase_tick.visible = true
 	elif is_instance_valid(_phase_tick):
 		_phase_tick.visible = false
 
 	# Dedicated status strip directly beneath IdentityPaper and clear above enemy head.
-	DaylightUI.place(_status_row, 2.0, 90.0, frame.x - 4.0, 32.0)
+	if compact:
+		DaylightUI.place(_status_row, -24.0, 94.0, frame.x + 48.0, 30.0)
+	else:
+		DaylightUI.place(_status_row, 2.0, 90.0, frame.x - 4.0, 32.0)
 	if is_instance_valid(_status_pill):
 		_status_pill.visible = false
 
 	# Unified battle platform baseline (local y = 554 -> screen y = 634), fixed sprite box across 1..3 enemies.
 	var foot_y := 554.0
-	var max_w := minf(frame.x - 24.0, 290.0)
+	var max_w := (280.0 if is_solo else 240.0) if compact else minf(frame.x - 24.0, 290.0)
 	var max_h := 400.0
 	var draw_size := Vector2(max_w, max_h)
 	if sprite.texture != null:
@@ -230,6 +298,7 @@ func layout_stage(frame: Vector2) -> void:
 			draw_size = tsize * sc
 	var center_x := frame.x * 0.5
 	var portrait_frame := stage.get_node("SpriteContainer") as CenterContainer
+	portrait_frame.clip_contents = false
 	DaylightUI.place(portrait_frame, center_x - draw_size.x * 0.5, foot_y - draw_size.y, draw_size.x, draw_size.y)
 	sprite.custom_minimum_size = draw_size
 	sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -239,9 +308,9 @@ func layout_stage(frame: Vector2) -> void:
 	if not is_instance_valid(_ground_shadow):
 		_ground_shadow = DaylightUI.soft_ground_shadow(stage, "GroundShadow", Vector2.ZERO, Vector2(220, 34))
 		stage.move_child(_ground_shadow, portrait_frame.get_index())
-	var shadow_w := clampf(draw_size.x * 0.78, 168.0, 260.0)
+	var shadow_w := clampf(draw_size.x * 0.78, 156.0 if compact else 168.0, 210.0 if compact else 260.0)
 	DaylightUI.place(_ground_shadow, center_x - shadow_w * 0.5, foot_y - 16.0, shadow_w, 30.0)
-	var reticle_size := Vector2(clampf(draw_size.x * 0.92, 220.0, 280.0), 190.0)
+	var reticle_size := Vector2(clampf(draw_size.x * (0.90 if compact else 0.92), 190.0 if compact else 220.0, 240.0 if compact else 280.0), 190.0)
 	var reticle_rect := Rect2(center_x - reticle_size.x * 0.5, foot_y - reticle_size.y * 0.56, reticle_size.x, reticle_size.y)
 	if not is_instance_valid(_target_reticle):
 		_target_reticle = CombatVFX.play_loop(stage, "target_reticle", reticle_rect, 0.92, 0)
@@ -443,7 +512,13 @@ func take_damage(amount: int, trigger_anim: bool = true) -> int:
 			actual_dmg -= shield
 			shield = 0
 	
-	current_hp = max(0, current_hp - actual_dmg)
+	var locked := false
+	if hp_lock_min > 0 and current_hp - actual_dmg < hp_lock_min:
+		actual_dmg = maxi(0, current_hp - hp_lock_min)
+		current_hp = hp_lock_min
+		locked = true
+	else:
+		current_hp = max(0, current_hp - actual_dmg)
 	_update_hp_display()
 	
 	if trigger_anim and not bool(SaveManager.settings["reduced_motion"]):
@@ -456,7 +531,9 @@ func take_damage(amount: int, trigger_anim: bool = true) -> int:
 			tween.tween_property(self, "position", orig_pos + Vector2(randf_range(-6, 6), randf_range(-4, 4)), 0.03)
 		tween.tween_property(self, "position", orig_pos, 0.03)
 	
-	if current_hp <= 0:
+	if locked:
+		hp_lock_triggered.emit(self)
+	elif current_hp <= 0:
 		die()
 	
 	return actual_dmg
@@ -500,6 +577,9 @@ func set_selected(val: bool) -> void:
 	var badge := get_node_or_null("VBox/IdentityPaper") as CanvasItem
 	if is_instance_valid(badge):
 		badge.modulate = Color(1.04, 1.02, 0.96) if val else Color(0.95, 0.94, 0.92)
+	var compact_box := get_node_or_null("VBox/CompactIdentityBox") as Panel
+	if is_instance_valid(compact_box) and compact_box.visible:
+		compact_box.add_theme_stylebox_override("panel", CombatPresentation._compact_plaque_style(val))
 
 func _gui_input(event: InputEvent) -> void:
 	if is_dead:

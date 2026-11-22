@@ -161,5 +161,99 @@ func _run() -> void:
 	await _settled()
 	await _capture("21_dorm")
 
+	# 5. New Prologue Scenes (Sakura Road, Sports Field Dialogue, 2v2 Duel, Club Meeting)
+	saves.test_session = false
+	saves.active_session = false
+	if not state.new_game():
+		_fail("new_game failed before prologue captures")
+	await _settled()
+	state.start_story_from_home()
+	await _settled()
+	var dlg := get_tree().current_scene as DialogueScreen
+	if is_instance_valid(dlg):
+		if is_instance_valid(dlg.story_presentation):
+			dlg.story_presentation.hide_chapter_banner()
+		dlg.line_index = 1
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		await _capture("22_prologue_sakura")
+		dlg.line_index = 17
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg.line_index = 18
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		await _capture("26_prologue_thugs")
+		dlg._finish_dialogue()
+		await _settled()
+
+	var gate_dlg := get_tree().current_scene as DialogueScreen
+	if is_instance_valid(gate_dlg):
+		gate_dlg.line_index = 25
+		gate_dlg._show_next_line()
+		if gate_dlg.tween_typing and gate_dlg.tween_typing.is_valid():
+			gate_dlg.tween_typing.kill()
+		gate_dlg.line_index = 26
+		gate_dlg._show_next_line()
+		if gate_dlg.tween_typing and gate_dlg.tween_typing.is_valid():
+			gate_dlg.tween_typing.kill()
+		gate_dlg._reveal_current_line()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		await _capture("23_prologue_sports_field")
+		gate_dlg._finish_dialogue()
+		await _settled()
+
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await _capture("24_prologue_duel_2v2")
+
+	state.complete_phase_two_step("n_gate")
+	await _settled()
+	var club_dlg := get_tree().current_scene as DialogueScreen
+	if is_instance_valid(club_dlg):
+		club_dlg.line_index = 0
+		club_dlg._show_next_line()
+		if club_dlg.tween_typing and club_dlg.tween_typing.is_valid():
+			club_dlg.tween_typing.kill()
+		club_dlg.line_index = 3
+		club_dlg._show_next_line()
+		if club_dlg.tween_typing and club_dlg.tween_typing.is_valid():
+			club_dlg.tween_typing.kill()
+		club_dlg._reveal_current_line()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		await _capture("25_prologue_club_meeting")
+
+	# 6. Nighttime Auto-Switched Campus Map & 1v1 Overclock Combat Symmetry
+	if not saves.load_test_save():
+		_fail("load_test_save failed before night map capture")
+	state.game_hour = 20
+	flow.change_scene(flow.TargetScene.HOME)
+	await _settled()
+	life.open_map()
+	await _settled()
+	await _capture("27_campus_map_night")
+
+	saves.test_session = false
+	saves.active_session = false
+	if not state.new_game():
+		_fail("new_game failed before 1v1 overclock capture")
+	await _settled()
+	state.current_node_id = "n_guard"
+	state.pending_combat_data = {"enemies": ["security_guard"], "overclock": true}
+	flow.change_scene(flow.TargetScene.COMBAT)
+	await _settled()
+	await _capture("28_combat_1v1_overclock")
+
 	print("CAPTURE_SCENES_RESULT " + JSON.stringify({"captures": captured_count, "failures": failures, "renderer": DisplayServer.get_name()}))
 	get_tree().quit(0 if failures.is_empty() else 1)

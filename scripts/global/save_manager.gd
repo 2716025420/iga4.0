@@ -232,6 +232,7 @@ static func build_test_progress() -> Dictionary:
 			"chapter_1_completed": true,
 			"school_gate_done": true,
 			"school_gate_duel_briefed": true,
+			"school_gate_combat_done": true,
 			"school_affairs_done": true,
 			"yang_rescued_player": true,
 			"principal_stopped": true,

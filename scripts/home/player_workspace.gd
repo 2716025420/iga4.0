@@ -569,14 +569,15 @@ func _render_journey() -> void:
  var entries := HomePanels.known_records()
  list.custom_minimum_size = Vector2(850,maxi(480,entries.size()*171))
  var memories := {}
- for entry in PlayerJourney.memories(): memories[entry["node"]] = entry["dialogue_id"]
+ for entry in PlayerJourney.memories():
+  if not memories.has(entry["node"]): memories[entry["node"]] = entry["dialogue_id"]
  refs["memory_buttons"] = {}
  for i in entries.size():
   var entry: Dictionary = entries[i]
   var y := i*171
   SchoolObjectUI.rule(list,"MemorySplice%d" % i,Rect2(0,y+158,848,1))
   _surface(list,"FilmWindow%d" % i,Rect2(0,y+6,282,142),Color("#A48B74"),Color("#B69B80"))
-  SchoolObjectUI.art(list,"Scene%d" % i,"res://assets/backgrounds/phase_two/%s.png" % entry["scene"],Rect2(16,y+12,250,130))
+  SchoolObjectUI.art(list,"Scene%d" % i,PhaseTwoContent.resolve_background_path(str(entry["scene"]), false),Rect2(16,y+12,250,130))
   for hole in 6:
    _surface(list,"PerforationL%d_%d" % [i,hole],Rect2(4,y+16+hole*21,7,11),IVORY,IVORY)
    _surface(list,"PerforationR%d_%d" % [i,hole],Rect2(271,y+16+hole*21,7,11),IVORY,IVORY)

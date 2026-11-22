@@ -64,8 +64,8 @@ func _update_ui() -> void:
 func _generate_chapter_1_nodes() -> void:
 	node_data_map.clear()
 	# 临时校园章节采用线性顺序，保证四位角色、援手与敌人顺序完整。
-	_add_node_def("n0", 0, MapNodeData.NodeType.STORY, "樱林解围", "在樱树上学路遇见杨子英与转校生黄秋枫。", ["n_gate"], "campus_morning", Vector2(120, 150))
-	_add_node_def("n_gate", 1, MapNodeData.NodeType.BATTLE, "赛前切磋", "与柳宇龙进行非致命终端护盾热身赛。", ["n_affairs"], "school_gate", Vector2(250, 370))
+	_add_node_def("n0", 0, MapNodeData.NodeType.STORY, "樱林解围", "在樱林上学路遇见杨子英、黄秋枫与堵路小混混。", ["n_gate"], "campus_morning", Vector2(120, 150))
+	_add_node_def("n_gate", 1, MapNodeData.NodeType.BATTLE, "海选赛与初战", "操场海选赛与杨子英组队迎战柳宇龙与姜梓。", ["n_affairs"], "school_gate", Vector2(250, 370))
 	_add_node_def("n_affairs", 2, MapNodeData.NodeType.STORY, "旧园名录", "协助姜梓核对巡回赛名录并察觉终端异常。", ["n_dusk"], "school_affairs", Vector2(380, 150))
 	_add_node_def("n_dusk", 3, MapNodeData.NodeType.STORY, "黄昏轻吻", "旧公园黄昏轻吻后，红月警报忽然封锁校门。", ["n_guard"], "after_school", Vector2(510, 370))
 	_add_node_def("n_guard", 4, MapNodeData.NodeType.BATTLE, "门岗封锁", "冲破被外部权限劫持的超限卫兵封锁。", ["n_rescue"], "security_guard", Vector2(640, 150))

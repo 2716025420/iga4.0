@@ -235,9 +235,11 @@ static func layout(root: Control) -> void:
 			combat_overclock = CombatPresentation.is_overclock_combat(root)
 			if combat_overclock:
 				key = "battle_red_moon_lockdown"
+			elif GameState.current_node_id == "n_gate":
+				key = "battle_sports_field"
 		var background := root.get_node("Background") as TextureRect
-		var path := "res://assets/backgrounds/phase_two/%s_wide.png" % key
-		if not ResourceLoader.exists(path):
+		var path := PhaseTwoContent.resolve_background_path(key, true) if str(root.name) in ["CombatScreen", "DialogueScreen"] else ("res://assets/backgrounds/phase_two/%s_wide.png" % key)
+		if path == "" or not ResourceLoader.exists(path):
 			path = "res://assets/backgrounds/phase_two/%s.png" % key
 		var exploration_background := ""
 		if str(root.name) == "NodeMap":
@@ -318,18 +320,18 @@ static func layout_combat(root: Control, extent: Vector2) -> void:
 	if hint:
 		var factor := minf(extent.x / 1920.0, extent.y / 1080.0)
 		var origin := (extent - Vector2(1920.0, 1080.0) * factor) / 2.0
-		var hint_design := Vector2(424.0, 72.0)
-		var hint_origin := Vector2(738.0, 90.0)
+		var hint_design := Vector2(380.0, 58.0)
+		var hint_origin := Vector2(770.0, 224.0)
 		for child in hint.get_children():
 			if child is Label:
 				if child.text.strip_edges().is_empty():
 					child.text = "先看对方行动，再出牌。护盾只保留到本轮结束。"
 				child.custom_minimum_size = Vector2(hint_design.x, hint_design.y - 4.0)
 				child.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				child.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+				child.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				child.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				child.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-				child.add_theme_font_size_override("font_size", 17)
+				child.add_theme_font_size_override("font_size", 16)
 				child.add_theme_color_override("font_color", INK)
 				child.add_theme_constant_override("outline_size", 0)
 			elif child is Button:

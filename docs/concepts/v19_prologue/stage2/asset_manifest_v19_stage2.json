@@ -1,0 +1,612 @@
+{
+  "pack_version": "IGA v19 Stage 2",
+  "items": [
+    {
+      "id": "char_thug_grunt_neutral",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "emotion": "neutral",
+      "label": "小混混（平静 / 得意堵路）半身立绘",
+      "zip_delivery_path": "characters/thug_grunt/emotions/neutral.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/emotions/thug_grunt/neutral.png",
+      "also_copy_if_neutral": "assets/sprites/characters/phase_two/halfbody/thug_grunt.png",
+      "width": 1054,
+      "height": 1581,
+      "flexible_portrait_ratio": true,
+      "min_width": 512,
+      "min_height": 800,
+      "ratio_range": [
+        0.48,
+        0.92
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.25,
+      "prompt_cn": "【小混混 · 平静 / 得意堵路（推荐参考设定）】17岁左右精瘦跟班男高中生，短刺微翘栗棕碎发（归纳为3-5个干净闭合大发束），机灵轻挑的棕褐色平眼；身穿略显随意的阿瑞忒男生深灰蓝西装校服（敞开外套、内搭浅灰白衬衫与松散酒红斜纹领带，手腕随意戴一只运动电子表），整体略带搞笑浮夸的校园小跟班神气。 表情与动作：单手插兜、嘴角挑起一点得意弧度斜眼看人，神态轻佻又带点虚张声势。 严格遵守男性去女性化（硬朗下颌折角、平直眉、禁用下眼影与湿润唇）与3-5组大块面闭合发丝法则，纯透明RGBA背景、胸腰近景、严禁不等比拉伸。",
+      "prompt_en": "Waist-up anime portrait of slim teenage high-school delinquent sidekick boy around 17, short spiky warm chestnut-brown hair grouped into 3-5 clean mega-clumps, sharp mischievous brown eyes, wearing slightly unbuttoned Arete slate-blue school blazer over off-white shirt with loosened burgundy tie and casual sport wristwatch, comical cocky sidekick vibe; expression & pose: standing three-quarter waist-up with one hand in pocket, slight smug smirk glancing sideways; matching IGA (Inorganic General Alien) official anime character art style: delicate crisp dark-brown linework, clean soft cel-shading with subtle warm sunlit rim highlights, 3-5 large cohesive hair mega-clumps with closed tips and zero stray floating dots, male masculinity rule (clean angular jaw and chin, horizontal slim eyes, flat low brows, NO pink/purple lower-eyelid blush or eyeshadow, NO dense lower eyelashes, NO glossy feminine lips), isolated single waist-up character on pure transparent RGBA background with generous breathing margin, zero background scenery, zero text, zero watermarks",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "char_thug_grunt_happy",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "emotion": "happy",
+      "label": "小混混（微笑 / 吹捧老大）半身立绘",
+      "zip_delivery_path": "characters/thug_grunt/emotions/happy.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/emotions/thug_grunt/happy.png",
+      "also_copy_if_neutral": "",
+      "width": 1054,
+      "height": 1581,
+      "flexible_portrait_ratio": true,
+      "min_width": 512,
+      "min_height": 800,
+      "ratio_range": [
+        0.48,
+        0.92
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.25,
+      "prompt_cn": "【小混混 · 微笑 / 吹捧老大（推荐参考设定）】17岁左右精瘦跟班男高中生，短刺微翘栗棕碎发（归纳为3-5个干净闭合大发束），机灵轻挑的棕褐色平眼；身穿略显随意的阿瑞忒男生深灰蓝西装校服（敞开外套、内搭浅灰白衬衫与松散酒红斜纹领带，手腕随意戴一只运动电子表），整体略带搞笑浮夸的校园小跟班神气。 表情与动作：满脸谄笑竖起大拇指或比出『稳了』手势，拍马屁时一副捡到大便宜的夸张得意样。 严格遵守男性去女性化（硬朗下颌折角、平直眉、禁用下眼影与湿润唇）与3-5组大块面闭合发丝法则，纯透明RGBA背景、胸腰近景、严禁不等比拉伸。",
+      "prompt_en": "Waist-up anime portrait of slim teenage high-school delinquent sidekick boy around 17, short spiky warm chestnut-brown hair grouped into 3-5 clean mega-clumps, sharp mischievous brown eyes, wearing slightly unbuttoned Arete slate-blue school blazer over off-white shirt with loosened burgundy tie and casual sport wristwatch, comical cocky sidekick vibe; expression & pose: grinning broadly while giving a cheeky thumbs-up gesture, flattering overconfident expression; matching IGA (Inorganic General Alien) official anime character art style: delicate crisp dark-brown linework, clean soft cel-shading with subtle warm sunlit rim highlights, 3-5 large cohesive hair mega-clumps with closed tips and zero stray floating dots, male masculinity rule (clean angular jaw and chin, horizontal slim eyes, flat low brows, NO pink/purple lower-eyelid blush or eyeshadow, NO dense lower eyelashes, NO glossy feminine lips), isolated single waist-up character on pure transparent RGBA background with generous breathing margin, zero background scenery, zero text, zero watermarks",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "char_thug_grunt_surprised",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "emotion": "surprised",
+      "label": "小混混（惊讶 / 见势不妙）半身立绘",
+      "zip_delivery_path": "characters/thug_grunt/emotions/surprised.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/emotions/thug_grunt/surprised.png",
+      "also_copy_if_neutral": "",
+      "width": 1054,
+      "height": 1581,
+      "flexible_portrait_ratio": true,
+      "min_width": 512,
+      "min_height": 800,
+      "ratio_range": [
+        0.48,
+        0.92
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.25,
+      "prompt_cn": "【小混混 · 惊讶 / 见势不妙（推荐参考设定）】17岁左右精瘦跟班男高中生，短刺微翘栗棕碎发（归纳为3-5个干净闭合大发束），机灵轻挑的棕褐色平眼；身穿略显随意的阿瑞忒男生深灰蓝西装校服（敞开外套、内搭浅灰白衬衫与松散酒红斜纹领带，手腕随意戴一只运动电子表），整体略带搞笑浮夸的校园小跟班神气。 表情与动作：听到叶舟中二宣言并看到对方人多时双眼圆睁、冷汗直冒、双手略微抬起准备随时开溜。 严格遵守男性去女性化（硬朗下颌折角、平直眉、禁用下眼影与湿润唇）与3-5组大块面闭合发丝法则，纯透明RGBA背景、胸腰近景、严禁不等比拉伸。",
+      "prompt_en": "Waist-up anime portrait of slim teenage high-school delinquent sidekick boy around 17, short spiky warm chestnut-brown hair grouped into 3-5 clean mega-clumps, sharp mischievous brown eyes, wearing slightly unbuttoned Arete slate-blue school blazer over off-white shirt with loosened burgundy tie and casual sport wristwatch, comical cocky sidekick vibe; expression & pose: wide-eyed panicked comedic shock with tiny sweat drop, shoulders raised ready to run away; matching IGA (Inorganic General Alien) official anime character art style: delicate crisp dark-brown linework, clean soft cel-shading with subtle warm sunlit rim highlights, 3-5 large cohesive hair mega-clumps with closed tips and zero stray floating dots, male masculinity rule (clean angular jaw and chin, horizontal slim eyes, flat low brows, NO pink/purple lower-eyelid blush or eyeshadow, NO dense lower eyelashes, NO glossy feminine lips), isolated single waist-up character on pure transparent RGBA background with generous breathing margin, zero background scenery, zero text, zero watermarks",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "char_thug_grunt_angry",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "emotion": "angry",
+      "label": "小混混（愤怒 / 虚张声势）半身立绘",
+      "zip_delivery_path": "characters/thug_grunt/emotions/angry.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/emotions/thug_grunt/angry.png",
+      "also_copy_if_neutral": "",
+      "width": 1054,
+      "height": 1581,
+      "flexible_portrait_ratio": true,
+      "min_width": 512,
+      "min_height": 800,
+      "ratio_range": [
+        0.48,
+        0.92
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.25,
+      "prompt_cn": "【小混混 · 愤怒 / 虚张声势（推荐参考设定）】17岁左右精瘦跟班男高中生，短刺微翘栗棕碎发（归纳为3-5个干净闭合大发束），机灵轻挑的棕褐色平眼；身穿略显随意的阿瑞忒男生深灰蓝西装校服（敞开外套、内搭浅灰白衬衫与松散酒红斜纹领带，手腕随意戴一只运动电子表），整体略带搞笑浮夸的校园小跟班神气。 表情与动作：咬牙皱眉、手指前方虚张声势放狠话，但站姿略微后仰显得底气不足。 严格遵守男性去女性化（硬朗下颌折角、平直眉、禁用下眼影与湿润唇）与3-5组大块面闭合发丝法则，纯透明RGBA背景、胸腰近景、严禁不等比拉伸。",
+      "prompt_en": "Waist-up anime portrait of slim teenage high-school delinquent sidekick boy around 17, short spiky warm chestnut-brown hair grouped into 3-5 clean mega-clumps, sharp mischievous brown eyes, wearing slightly unbuttoned Arete slate-blue school blazer over off-white shirt with loosened burgundy tie and casual sport wristwatch, comical cocky sidekick vibe; expression & pose: scowling fiercely while pointing ahead defensively, slightly leaning back lacking real courage; matching IGA (Inorganic General Alien) official anime character art style: delicate crisp dark-brown linework, clean soft cel-shading with subtle warm sunlit rim highlights, 3-5 large cohesive hair mega-clumps with closed tips and zero stray floating dots, male masculinity rule (clean angular jaw and chin, horizontal slim eyes, flat low brows, NO pink/purple lower-eyelid blush or eyeshadow, NO dense lower eyelashes, NO glossy feminine lips), isolated single waist-up character on pure transparent RGBA background with generous breathing margin, zero background scenery, zero text, zero watermarks",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "avatar_thug_grunt_neutral",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "emotion": "neutral",
+      "label": "小混混（平静 / 得意堵路）方形头像",
+      "zip_delivery_path": "characters/thug_grunt/avatars/thug_grunt_neutral.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/avatars/thug_grunt_neutral.png",
+      "width": 256,
+      "height": 256,
+      "allowed_sizes": [
+        [
+          256,
+          256
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.08,
+      "prompt_cn": "从定稿后的 `thug_grunt/neutral.png` 半身立绘胸上肩颈区【等比正方形裁切并缩至 256×256】RGBA 透明底头像（参考 `04_Character_And_Style_References/ye_zhou_avatar_neutral.png`），严禁将竖图压扁。",
+      "prompt_en": "Exact 1:1 square head-and-shoulders crop scaled to 256x256 RGBA from the approved thug_grunt neutral half-body sprite, maintaining pure transparent background and zero aspect distortion",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "avatar_thug_grunt_happy",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "emotion": "happy",
+      "label": "小混混（微笑 / 吹捧老大）方形头像",
+      "zip_delivery_path": "characters/thug_grunt/avatars/thug_grunt_happy.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/avatars/thug_grunt_happy.png",
+      "width": 256,
+      "height": 256,
+      "allowed_sizes": [
+        [
+          256,
+          256
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.08,
+      "prompt_cn": "从定稿后的 `thug_grunt/happy.png` 半身立绘胸上肩颈区【等比正方形裁切并缩至 256×256】RGBA 透明底头像（参考 `04_Character_And_Style_References/ye_zhou_avatar_neutral.png`），严禁将竖图压扁。",
+      "prompt_en": "Exact 1:1 square head-and-shoulders crop scaled to 256x256 RGBA from the approved thug_grunt happy half-body sprite, maintaining pure transparent background and zero aspect distortion",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "avatar_thug_grunt_surprised",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "emotion": "surprised",
+      "label": "小混混（惊讶 / 见势不妙）方形头像",
+      "zip_delivery_path": "characters/thug_grunt/avatars/thug_grunt_surprised.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/avatars/thug_grunt_surprised.png",
+      "width": 256,
+      "height": 256,
+      "allowed_sizes": [
+        [
+          256,
+          256
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.08,
+      "prompt_cn": "从定稿后的 `thug_grunt/surprised.png` 半身立绘胸上肩颈区【等比正方形裁切并缩至 256×256】RGBA 透明底头像（参考 `04_Character_And_Style_References/ye_zhou_avatar_neutral.png`），严禁将竖图压扁。",
+      "prompt_en": "Exact 1:1 square head-and-shoulders crop scaled to 256x256 RGBA from the approved thug_grunt surprised half-body sprite, maintaining pure transparent background and zero aspect distortion",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "avatar_thug_grunt_angry",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "emotion": "angry",
+      "label": "小混混（愤怒 / 虚张声势）方形头像",
+      "zip_delivery_path": "characters/thug_grunt/avatars/thug_grunt_angry.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/avatars/thug_grunt_angry.png",
+      "width": 256,
+      "height": 256,
+      "allowed_sizes": [
+        [
+          256,
+          256
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.08,
+      "prompt_cn": "从定稿后的 `thug_grunt/angry.png` 半身立绘胸上肩颈区【等比正方形裁切并缩至 256×256】RGBA 透明底头像（参考 `04_Character_And_Style_References/ye_zhou_avatar_neutral.png`），严禁将竖图压扁。",
+      "prompt_en": "Exact 1:1 square head-and-shoulders crop scaled to 256x256 RGBA from the approved thug_grunt angry half-body sprite, maintaining pure transparent background and zero aspect distortion",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "portrait_thug_grunt",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_grunt",
+      "character_name": "小混混",
+      "label": "小混混 档案方框肖像",
+      "zip_delivery_path": "characters/thug_grunt/portraits/thug_grunt.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/portraits/thug_grunt.png",
+      "width": 512,
+      "height": 512,
+      "allowed_sizes": [
+        [
+          512,
+          512
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.1,
+      "prompt_cn": "从定稿后的 `thug_grunt/neutral.png` 半身立绘胸上区域【等比正方形裁切并缩至 512×512】RGBA 透明底肖像，用于记录档案与对话兜底。",
+      "prompt_en": "Exact 1:1 square upper-torso portrait crop scaled to 512x512 RGBA from the approved thug_grunt neutral half-body sprite, pure transparent background",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "char_thug_boss_neutral",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "emotion": "neutral",
+      "label": "小混混老大（平静 / 抱臂耍帅）半身立绘",
+      "zip_delivery_path": "characters/thug_boss/emotions/neutral.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/emotions/thug_boss/neutral.png",
+      "also_copy_if_neutral": "assets/sprites/characters/phase_two/halfbody/thug_boss.png",
+      "width": 1054,
+      "height": 1581,
+      "flexible_portrait_ratio": true,
+      "min_width": 512,
+      "min_height": 800,
+      "ratio_range": [
+        0.48,
+        0.92
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.25,
+      "prompt_cn": "【小混混老大 · 平静 / 抱臂耍帅（推荐参考设定）】17-18岁身形稍宽厚结实的校园混混头目，微翘夸张的深红褐偏黑飞机感短背头（大块面闭合发束、干净利落），浓粗平直眉配琥珀深眼眸；将阿瑞忒男生校服外套披在肩上或袖口卷起半截、白衬衫领口微敞、内搭暗色T恤与暗金皮带扣，单手常夹着一张亮面刻印卡，自带喜感『原则型小反派』气场。 表情与动作：抱臂而立、抬下巴从容俯视，嘴角挂着自以为很有派头的哼笑。 严格遵守男性去女性化（硬朗下颌折角、平直眉、禁用下眼影与湿润唇）与3-5组大块面闭合发丝法则，纯透明RGBA背景、胸腰近景、严禁不等比拉伸。",
+      "prompt_en": "Waist-up anime portrait of broad-shouldered teenage delinquent boss boy around 18, stylish swept-back dark reddish-black pompadour hair in 3-5 clean solid clumps, thick flat brows, sharp amber eyes, wearing Arete slate-blue school blazer draped coolly over shoulders or sleeves rolled up over open-collar white shirt and dark undershirt, holding a tactical card casually between two fingers, comical 'principled bully' aura; expression & pose: standing with arms crossed and chin slightly raised in a pompous smug smirk; matching IGA (Inorganic General Alien) official anime character art style: delicate crisp dark-brown linework, clean soft cel-shading with subtle warm sunlit rim highlights, 3-5 large cohesive hair mega-clumps with closed tips and zero stray floating dots, male masculinity rule (clean angular jaw and chin, horizontal slim eyes, flat low brows, NO pink/purple lower-eyelid blush or eyeshadow, NO dense lower eyelashes, NO glossy feminine lips), isolated single waist-up character on pure transparent RGBA background with generous breathing margin, zero background scenery, zero text, zero watermarks",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "char_thug_boss_happy",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "emotion": "happy",
+      "label": "小混混老大（微笑 / 讲原则撤退）半身立绘",
+      "zip_delivery_path": "characters/thug_boss/emotions/happy.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/emotions/thug_boss/happy.png",
+      "also_copy_if_neutral": "",
+      "width": 1054,
+      "height": 1581,
+      "flexible_portrait_ratio": true,
+      "min_width": 512,
+      "min_height": 800,
+      "ratio_range": [
+        0.48,
+        0.92
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.25,
+      "prompt_cn": "【小混混老大 · 微笑 / 讲原则撤退（推荐参考设定）】17-18岁身形稍宽厚结实的校园混混头目，微翘夸张的深红褐偏黑飞机感短背头（大块面闭合发束、干净利落），浓粗平直眉配琥珀深眼眸；将阿瑞忒男生校服外套披在肩上或袖口卷起半截、白衬衫领口微敞、内搭暗色T恤与暗金皮带扣，单手常夹着一张亮面刻印卡，自带喜感『原则型小反派』气场。 表情与动作：一手叉腰另一手竖指比划『我们可是有原则的欧啦』，大笑得理直气壮又滑稽。 严格遵守男性去女性化（硬朗下颌折角、平直眉、禁用下眼影与湿润唇）与3-5组大块面闭合发丝法则，纯透明RGBA背景、胸腰近景、严禁不等比拉伸。",
+      "prompt_en": "Waist-up anime portrait of broad-shouldered teenage delinquent boss boy around 18, stylish swept-back dark reddish-black pompadour hair in 3-5 clean solid clumps, thick flat brows, sharp amber eyes, wearing Arete slate-blue school blazer draped coolly over shoulders or sleeves rolled up over open-collar white shirt and dark undershirt, holding a tactical card casually between two fingers, comical 'principled bully' aura; expression & pose: laughing proudly with one hand on hip and the other pointing upward in a dramatic comical 'rule of retreat' pose; matching IGA (Inorganic General Alien) official anime character art style: delicate crisp dark-brown linework, clean soft cel-shading with subtle warm sunlit rim highlights, 3-5 large cohesive hair mega-clumps with closed tips and zero stray floating dots, male masculinity rule (clean angular jaw and chin, horizontal slim eyes, flat low brows, NO pink/purple lower-eyelid blush or eyeshadow, NO dense lower eyelashes, NO glossy feminine lips), isolated single waist-up character on pure transparent RGBA background with generous breathing margin, zero background scenery, zero text, zero watermarks",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "char_thug_boss_surprised",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "emotion": "surprised",
+      "label": "小混混老大（惊讶 / 发现不对）半身立绘",
+      "zip_delivery_path": "characters/thug_boss/emotions/surprised.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/emotions/thug_boss/surprised.png",
+      "also_copy_if_neutral": "",
+      "width": 1054,
+      "height": 1581,
+      "flexible_portrait_ratio": true,
+      "min_width": 512,
+      "min_height": 800,
+      "ratio_range": [
+        0.48,
+        0.92
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.25,
+      "prompt_cn": "【小混混老大 · 惊讶 / 发现不对（推荐参考设定）】17-18岁身形稍宽厚结实的校园混混头目，微翘夸张的深红褐偏黑飞机感短背头（大块面闭合发束、干净利落），浓粗平直眉配琥珀深眼眸；将阿瑞忒男生校服外套披在肩上或袖口卷起半截、白衬衫领口微敞、内搭暗色T恤与暗金皮带扣，单手常夹着一张亮面刻印卡，自带喜感『原则型小反派』气场。 表情与动作：挑眉侧头、瞪大眼盯着突然冒出来的叶舟和杨子英，嘴角抽动『谁？什么声音』。 严格遵守男性去女性化（硬朗下颌折角、平直眉、禁用下眼影与湿润唇）与3-5组大块面闭合发丝法则，纯透明RGBA背景、胸腰近景、严禁不等比拉伸。",
+      "prompt_en": "Waist-up anime portrait of broad-shouldered teenage delinquent boss boy around 18, stylish swept-back dark reddish-black pompadour hair in 3-5 clean solid clumps, thick flat brows, sharp amber eyes, wearing Arete slate-blue school blazer draped coolly over shoulders or sleeves rolled up over open-collar white shirt and dark undershirt, holding a tactical card casually between two fingers, comical 'principled bully' aura; expression & pose: eyebrows shot up staring sideways in stunned disbelief at unexpected intruders; matching IGA (Inorganic General Alien) official anime character art style: delicate crisp dark-brown linework, clean soft cel-shading with subtle warm sunlit rim highlights, 3-5 large cohesive hair mega-clumps with closed tips and zero stray floating dots, male masculinity rule (clean angular jaw and chin, horizontal slim eyes, flat low brows, NO pink/purple lower-eyelid blush or eyeshadow, NO dense lower eyelashes, NO glossy feminine lips), isolated single waist-up character on pure transparent RGBA background with generous breathing margin, zero background scenery, zero text, zero watermarks",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "char_thug_boss_angry",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "emotion": "angry",
+      "label": "小混混老大（愤怒 / 放话施压）半身立绘",
+      "zip_delivery_path": "characters/thug_boss/emotions/angry.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/emotions/thug_boss/angry.png",
+      "also_copy_if_neutral": "",
+      "width": 1054,
+      "height": 1581,
+      "flexible_portrait_ratio": true,
+      "min_width": 512,
+      "min_height": 800,
+      "ratio_range": [
+        0.48,
+        0.92
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.25,
+      "prompt_cn": "【小混混老大 · 愤怒 / 放话施压（推荐参考设定）】17-18岁身形稍宽厚结实的校园混混头目，微翘夸张的深红褐偏黑飞机感短背头（大块面闭合发束、干净利落），浓粗平直眉配琥珀深眼眸；将阿瑞忒男生校服外套披在肩上或袖口卷起半截、白衬衫领口微敞、内搭暗色T恤与暗金皮带扣，单手常夹着一张亮面刻印卡，自带喜感『原则型小反派』气场。 表情与动作：压低眉毛双手握拳或亮出卡牌威吓，摆出恶人架势但保留轻喜剧动画质感。 严格遵守男性去女性化（硬朗下颌折角、平直眉、禁用下眼影与湿润唇）与3-5组大块面闭合发丝法则，纯透明RGBA背景、胸腰近景、严禁不等比拉伸。",
+      "prompt_en": "Waist-up anime portrait of broad-shouldered teenage delinquent boss boy around 18, stylish swept-back dark reddish-black pompadour hair in 3-5 clean solid clumps, thick flat brows, sharp amber eyes, wearing Arete slate-blue school blazer draped coolly over shoulders or sleeves rolled up over open-collar white shirt and dark undershirt, holding a tactical card casually between two fingers, comical 'principled bully' aura; expression & pose: furrowed heavy brows clenching fist forward while flashing a card to intimidate; matching IGA (Inorganic General Alien) official anime character art style: delicate crisp dark-brown linework, clean soft cel-shading with subtle warm sunlit rim highlights, 3-5 large cohesive hair mega-clumps with closed tips and zero stray floating dots, male masculinity rule (clean angular jaw and chin, horizontal slim eyes, flat low brows, NO pink/purple lower-eyelid blush or eyeshadow, NO dense lower eyelashes, NO glossy feminine lips), isolated single waist-up character on pure transparent RGBA background with generous breathing margin, zero background scenery, zero text, zero watermarks",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "avatar_thug_boss_neutral",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "emotion": "neutral",
+      "label": "小混混老大（平静 / 抱臂耍帅）方形头像",
+      "zip_delivery_path": "characters/thug_boss/avatars/thug_boss_neutral.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/avatars/thug_boss_neutral.png",
+      "width": 256,
+      "height": 256,
+      "allowed_sizes": [
+        [
+          256,
+          256
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.08,
+      "prompt_cn": "从定稿后的 `thug_boss/neutral.png` 半身立绘胸上肩颈区【等比正方形裁切并缩至 256×256】RGBA 透明底头像（参考 `04_Character_And_Style_References/ye_zhou_avatar_neutral.png`），严禁将竖图压扁。",
+      "prompt_en": "Exact 1:1 square head-and-shoulders crop scaled to 256x256 RGBA from the approved thug_boss neutral half-body sprite, maintaining pure transparent background and zero aspect distortion",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "avatar_thug_boss_happy",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "emotion": "happy",
+      "label": "小混混老大（微笑 / 讲原则撤退）方形头像",
+      "zip_delivery_path": "characters/thug_boss/avatars/thug_boss_happy.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/avatars/thug_boss_happy.png",
+      "width": 256,
+      "height": 256,
+      "allowed_sizes": [
+        [
+          256,
+          256
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.08,
+      "prompt_cn": "从定稿后的 `thug_boss/happy.png` 半身立绘胸上肩颈区【等比正方形裁切并缩至 256×256】RGBA 透明底头像（参考 `04_Character_And_Style_References/ye_zhou_avatar_neutral.png`），严禁将竖图压扁。",
+      "prompt_en": "Exact 1:1 square head-and-shoulders crop scaled to 256x256 RGBA from the approved thug_boss happy half-body sprite, maintaining pure transparent background and zero aspect distortion",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "avatar_thug_boss_surprised",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "emotion": "surprised",
+      "label": "小混混老大（惊讶 / 发现不对）方形头像",
+      "zip_delivery_path": "characters/thug_boss/avatars/thug_boss_surprised.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/avatars/thug_boss_surprised.png",
+      "width": 256,
+      "height": 256,
+      "allowed_sizes": [
+        [
+          256,
+          256
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.08,
+      "prompt_cn": "从定稿后的 `thug_boss/surprised.png` 半身立绘胸上肩颈区【等比正方形裁切并缩至 256×256】RGBA 透明底头像（参考 `04_Character_And_Style_References/ye_zhou_avatar_neutral.png`），严禁将竖图压扁。",
+      "prompt_en": "Exact 1:1 square head-and-shoulders crop scaled to 256x256 RGBA from the approved thug_boss surprised half-body sprite, maintaining pure transparent background and zero aspect distortion",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "avatar_thug_boss_angry",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "emotion": "angry",
+      "label": "小混混老大（愤怒 / 放话施压）方形头像",
+      "zip_delivery_path": "characters/thug_boss/avatars/thug_boss_angry.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/avatars/thug_boss_angry.png",
+      "width": 256,
+      "height": 256,
+      "allowed_sizes": [
+        [
+          256,
+          256
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.08,
+      "prompt_cn": "从定稿后的 `thug_boss/angry.png` 半身立绘胸上肩颈区【等比正方形裁切并缩至 256×256】RGBA 透明底头像（参考 `04_Character_And_Style_References/ye_zhou_avatar_neutral.png`），严禁将竖图压扁。",
+      "prompt_en": "Exact 1:1 square head-and-shoulders crop scaled to 256x256 RGBA from the approved thug_boss angry half-body sprite, maintaining pure transparent background and zero aspect distortion",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "portrait_thug_boss",
+      "group": "characters_p0",
+      "priority": "P0",
+      "character_id": "thug_boss",
+      "character_name": "小混混老大",
+      "label": "小混混老大 档案方框肖像",
+      "zip_delivery_path": "characters/thug_boss/portraits/thug_boss.png",
+      "godot_drop_in_path": "assets/sprites/characters/phase_two/portraits/thug_boss.png",
+      "width": 512,
+      "height": 512,
+      "allowed_sizes": [
+        [
+          512,
+          512
+        ]
+      ],
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.1,
+      "prompt_cn": "从定稿后的 `thug_boss/neutral.png` 半身立绘胸上区域【等比正方形裁切并缩至 512×512】RGBA 透明底肖像，用于记录档案与对话兜底。",
+      "prompt_en": "Exact 1:1 square upper-torso portrait crop scaled to 512x512 RGBA from the approved thug_boss neutral half-body sprite, pure transparent background",
+      "negative_prompt": "background scenery, solid white box, opaque background, multiple characters, text, letters, UI, feminine eyelashes, pink lower-eyelid blush, glossy lips, floating stray hair dots, extra fingers, distorted hands, stretched proportions, photorealistic, harsh muddy black shadows, watermark"
+    },
+    {
+      "id": "scene_prologue_sakura_road",
+      "group": "scenes_p0",
+      "priority": "P0",
+      "scene_key": "prologue_sakura_road",
+      "label": "第1幕 · 樱林上学路（清晨） · 16:9 标准全高清 1920×1080",
+      "zip_delivery_path": "backgrounds/prologue_sakura_road.png",
+      "godot_drop_in_path": "assets/backgrounds/phase_two/prologue_sakura_road.png",
+      "width": 1920,
+      "height": 1080,
+      "allowed_sizes": [
+        [
+          1920,
+          1080
+        ]
+      ],
+      "requires_alpha": false,
+      "min_transparent_ratio": 0.0,
+      "prompt_cn": "【Stage 2 洁净生产底图｜16:9 标准全高清 1920×1080】阿瑞忒学园樱花夹道通学路，清晨澄澈蔚蓝晴空、粉白樱树落英缤纷，阳光透过树冠在干净路面洒下温柔光斑，远处见浅色校门与教学楼；构图居中留白，左右边缘做柔和延展以便 20:9 宽屏适配。纯空镜无人物、无UI、无文字。 严禁出现人物、对话框、按钮或文字。",
+      "prompt_en": "Bright sunlit morning academy cherry-blossom avenue in Arete coastal campus, soft pink-white sakura trees lining clean paved walkway with dappled sunlight and drifting petals, school gate and light buildings in clear distance, gentle wide composition ready for 1920x1080 and 2340x1080 ultrawide framing, 1920x1080 clean background plate; matching IGA bright coastal anime campus background style (Blue Archive sunlit clarity blended with warm nostalgic anime film atmosphere), crisp architectural perspective, clean readable surfaces, zero characters, zero people, zero UI panels, zero dialogue boxes, zero text, zero watermarks",
+      "negative_prompt": "characters, people, students, anime girls, anime boys, UI buttons, dialogue box, HUD, speech bubble, text, readable letters, Chinese characters, watermarks, photorealistic photo noise, muddy grunge"
+    },
+    {
+      "id": "scene_prologue_sakura_road_wide",
+      "group": "scenes_p0",
+      "priority": "P0",
+      "scene_key": "prologue_sakura_road",
+      "label": "第1幕 · 樱林上学路（清晨） · 20:9 超宽延展 2340×1080（左右各 210px 自然延展）",
+      "zip_delivery_path": "backgrounds/prologue_sakura_road_wide.png",
+      "godot_drop_in_path": "assets/backgrounds/phase_two/prologue_sakura_road_wide.png",
+      "width": 2340,
+      "height": 1080,
+      "allowed_sizes": [
+        [
+          2340,
+          1080
+        ]
+      ],
+      "requires_alpha": false,
+      "min_transparent_ratio": 0.0,
+      "prompt_cn": "【Stage 2 洁净生产底图｜20:9 超宽延展 2340×1080（左右各 210px 自然延展）】阿瑞忒学园樱花夹道通学路，清晨澄澈蔚蓝晴空、粉白樱树落英缤纷，阳光透过树冠在干净路面洒下温柔光斑，远处见浅色校门与教学楼；构图居中留白，左右边缘做柔和延展以便 20:9 宽屏适配。纯空镜无人物、无UI、无文字。 严禁出现人物、对话框、按钮或文字。",
+      "prompt_en": "Bright sunlit morning academy cherry-blossom avenue in Arete coastal campus, soft pink-white sakura trees lining clean paved walkway with dappled sunlight and drifting petals, school gate and light buildings in clear distance, gentle wide composition ready for 1920x1080 and 2340x1080 ultrawide framing, 2340x1080 clean background plate; matching IGA bright coastal anime campus background style (Blue Archive sunlit clarity blended with warm nostalgic anime film atmosphere), crisp architectural perspective, clean readable surfaces, zero characters, zero people, zero UI panels, zero dialogue boxes, zero text, zero watermarks",
+      "negative_prompt": "characters, people, students, anime girls, anime boys, UI buttons, dialogue box, HUD, speech bubble, text, readable letters, Chinese characters, watermarks, photorealistic photo noise, muddy grunge"
+    },
+    {
+      "id": "scene_prologue_sports_field",
+      "group": "scenes_p0",
+      "priority": "P0",
+      "scene_key": "prologue_sports_field",
+      "label": "第2幕 · 操场自由决斗海选赛（昼景） · 16:9 标准全高清 1920×1080",
+      "zip_delivery_path": "backgrounds/prologue_sports_field.png",
+      "godot_drop_in_path": "assets/backgrounds/phase_two/prologue_sports_field.png",
+      "width": 1920,
+      "height": 1080,
+      "allowed_sizes": [
+        [
+          1920,
+          1080
+        ]
+      ],
+      "requires_alpha": false,
+      "min_transparent_ratio": 0.0,
+      "prompt_cn": "【Stage 2 洁净生产底图｜16:9 标准全高清 1920×1080】晴朗上午的阿瑞忒露天运动操场：红白/赤陶色标准田径跑道与翠绿草坪、侧面阶梯观众看台、远方校园立面与海岸线微风感，可含干净无字/极简几何装饰的电子晋级屏远景（严禁出现可读汉字或乱码英文）；地面与视平线开阔平稳适配左右立绘站位。纯空镜无人物、无UI。 严禁出现人物、对话框、按钮或文字。",
+      "prompt_en": "Crisp sunny daytime academy outdoor sports field and track-and-field arena, terracotta running track framing fresh green lawn, stepped bleachers, coastal school buildings under radiant blue sky with fluffy clouds, clean open middle horizon for VN character sprites, 1920x1080 clean background plate; matching IGA bright coastal anime campus background style (Blue Archive sunlit clarity blended with warm nostalgic anime film atmosphere), crisp architectural perspective, clean readable surfaces, zero characters, zero people, zero UI panels, zero dialogue boxes, zero text, zero watermarks",
+      "negative_prompt": "characters, people, students, anime girls, anime boys, UI buttons, dialogue box, HUD, speech bubble, text, readable letters, Chinese characters, watermarks, photorealistic photo noise, muddy grunge"
+    },
+    {
+      "id": "scene_prologue_sports_field_wide",
+      "group": "scenes_p0",
+      "priority": "P0",
+      "scene_key": "prologue_sports_field",
+      "label": "第2幕 · 操场自由决斗海选赛（昼景） · 20:9 超宽延展 2340×1080（左右各 210px 自然延展）",
+      "zip_delivery_path": "backgrounds/prologue_sports_field_wide.png",
+      "godot_drop_in_path": "assets/backgrounds/phase_two/prologue_sports_field_wide.png",
+      "width": 2340,
+      "height": 1080,
+      "allowed_sizes": [
+        [
+          2340,
+          1080
+        ]
+      ],
+      "requires_alpha": false,
+      "min_transparent_ratio": 0.0,
+      "prompt_cn": "【Stage 2 洁净生产底图｜20:9 超宽延展 2340×1080（左右各 210px 自然延展）】晴朗上午的阿瑞忒露天运动操场：红白/赤陶色标准田径跑道与翠绿草坪、侧面阶梯观众看台、远方校园立面与海岸线微风感，可含干净无字/极简几何装饰的电子晋级屏远景（严禁出现可读汉字或乱码英文）；地面与视平线开阔平稳适配左右立绘站位。纯空镜无人物、无UI。 严禁出现人物、对话框、按钮或文字。",
+      "prompt_en": "Crisp sunny daytime academy outdoor sports field and track-and-field arena, terracotta running track framing fresh green lawn, stepped bleachers, coastal school buildings under radiant blue sky with fluffy clouds, clean open middle horizon for VN character sprites, 2340x1080 clean background plate; matching IGA bright coastal anime campus background style (Blue Archive sunlit clarity blended with warm nostalgic anime film atmosphere), crisp architectural perspective, clean readable surfaces, zero characters, zero people, zero UI panels, zero dialogue boxes, zero text, zero watermarks",
+      "negative_prompt": "characters, people, students, anime girls, anime boys, UI buttons, dialogue box, HUD, speech bubble, text, readable letters, Chinese characters, watermarks, photorealistic photo noise, muddy grunge"
+    },
+    {
+      "id": "scene_battle_sports_field",
+      "group": "scenes_p0",
+      "priority": "P0",
+      "scene_key": "battle_sports_field",
+      "label": "第2幕战斗 · 操场 2v2 决斗战台 · 16:9 标准全高清 1920×1080",
+      "zip_delivery_path": "backgrounds/battle_sports_field.png",
+      "godot_drop_in_path": "assets/backgrounds/phase_two/battle_sports_field.png",
+      "width": 1920,
+      "height": 1080,
+      "allowed_sizes": [
+        [
+          1920,
+          1080
+        ]
+      ],
+      "requires_alpha": false,
+      "min_transparent_ratio": 0.0,
+      "prompt_cn": "【Stage 2 洁净生产底图｜16:9 标准全高清 1920×1080】专为回合制卡牌对战构图的操场绿茵战台：正对视角、地平线稳定落在画面中部偏下（配合 `y=566..658` 战台区与顶部 `0..206` HUD 留白），背景为日光下的看台、绿树与微泛浅青蓝光晕的学园非致命护盾裁决场边界标记；上方天空留出足够干净空间不抢血条可读性。纯空镜无人物、无UI。 严禁出现人物、对话框、按钮或文字。",
+      "prompt_en": "Front-facing symmetrical anime card-duel arena set on a bright academy sports field turf court; open clean upper sky for HP plaques and status chips, level horizontal turf foreground aligning cleanly with y=566..658 stage platform zone, subtle glowing cyan non-lethal duel court boundary lines, sunlit bleachers and campus trees behind, 1920x1080 clean background plate; matching IGA bright coastal anime campus background style (Blue Archive sunlit clarity blended with warm nostalgic anime film atmosphere), crisp architectural perspective, clean readable surfaces, zero characters, zero people, zero UI panels, zero dialogue boxes, zero text, zero watermarks",
+      "negative_prompt": "characters, people, students, anime girls, anime boys, UI buttons, dialogue box, HUD, speech bubble, text, readable letters, Chinese characters, watermarks, photorealistic photo noise, muddy grunge"
+    },
+    {
+      "id": "scene_battle_sports_field_wide",
+      "group": "scenes_p0",
+      "priority": "P0",
+      "scene_key": "battle_sports_field",
+      "label": "第2幕战斗 · 操场 2v2 决斗战台 · 20:9 超宽延展 2340×1080（左右各 210px 自然延展）",
+      "zip_delivery_path": "backgrounds/battle_sports_field_wide.png",
+      "godot_drop_in_path": "assets/backgrounds/phase_two/battle_sports_field_wide.png",
+      "width": 2340,
+      "height": 1080,
+      "allowed_sizes": [
+        [
+          2340,
+          1080
+        ]
+      ],
+      "requires_alpha": false,
+      "min_transparent_ratio": 0.0,
+      "prompt_cn": "【Stage 2 洁净生产底图｜20:9 超宽延展 2340×1080（左右各 210px 自然延展）】专为回合制卡牌对战构图的操场绿茵战台：正对视角、地平线稳定落在画面中部偏下（配合 `y=566..658` 战台区与顶部 `0..206` HUD 留白），背景为日光下的看台、绿树与微泛浅青蓝光晕的学园非致命护盾裁决场边界标记；上方天空留出足够干净空间不抢血条可读性。纯空镜无人物、无UI。 严禁出现人物、对话框、按钮或文字。",
+      "prompt_en": "Front-facing symmetrical anime card-duel arena set on a bright academy sports field turf court; open clean upper sky for HP plaques and status chips, level horizontal turf foreground aligning cleanly with y=566..658 stage platform zone, subtle glowing cyan non-lethal duel court boundary lines, sunlit bleachers and campus trees behind, 2340x1080 clean background plate; matching IGA bright coastal anime campus background style (Blue Archive sunlit clarity blended with warm nostalgic anime film atmosphere), crisp architectural perspective, clean readable surfaces, zero characters, zero people, zero UI panels, zero dialogue boxes, zero text, zero watermarks",
+      "negative_prompt": "characters, people, students, anime girls, anime boys, UI buttons, dialogue box, HUD, speech bubble, text, readable letters, Chinese characters, watermarks, photorealistic photo noise, muddy grunge"
+    },
+    {
+      "id": "layer_prologue_sports_field_duel_crowd",
+      "group": "overlays",
+      "priority": "P0",
+      "zip_delivery_path": "overlays/prologue_sports_field_duel_crowd.png",
+      "godot_drop_in_path": "assets/backgrounds/phase_two/overlays/prologue_sports_field_duel_crowd.png",
+      "width": 1920,
+      "height": 1080,
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.75,
+      "layering": "Place above prologue_sports_field and below VN sprites and the dialogue UI."
+    },
+    {
+      "id": "layer_prologue_sports_field_duel_crowd_wide",
+      "group": "overlays",
+      "priority": "P0",
+      "zip_delivery_path": "overlays/prologue_sports_field_duel_crowd_wide.png",
+      "godot_drop_in_path": "assets/backgrounds/phase_two/overlays/prologue_sports_field_duel_crowd_wide.png",
+      "width": 2340,
+      "height": 1080,
+      "requires_alpha": true,
+      "min_transparent_ratio": 0.75,
+      "layering": "Place above prologue_sports_field and below VN sprites and the dialogue UI."
+    }
+  ],
+  "reused_scene": {
+    "id": "prologue_club_meeting",
+    "reference": "capture_25_prologue_club_meeting.png",
+    "delivery": "Reuse the existing clubroom scene background."
+  }
+}

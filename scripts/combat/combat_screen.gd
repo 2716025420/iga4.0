@@ -63,6 +63,8 @@ var _cards_played_total: int = 0
 var _active_zodiac_spec: Dictionary = {}
 var _history_backdrop: ColorRect
 var _history_close_button: Button
+var _scripted_defeat_enemy_id: String = ""
+var _scripted_defeat_triggered: bool = false
 
 func _ready() -> void:
 	_exploration_mode = GameState.is_exploration_combat()
@@ -242,6 +244,8 @@ func _setup_combat_from_state() -> void:
 	var battle_data: Dictionary = _exploration_data if _exploration_mode else GameState.pending_combat_data
 	_companion_id = _resolve_companion_id(battle_data)
 	_cards_played_total = 0
+	_scripted_defeat_enemy_id = str(battle_data.get("scripted_defeat_enemy", ""))
+	_scripted_defeat_triggered = false
 	_active_zodiac_spec = PlayerJourney.zodiac_resonance_spec(GameState.get_active_zodiac_id())
 	_update_player_ui()
 	var raw_enemy_ids: Array = battle_data.get("enemies", ["security_guard"])
@@ -260,6 +264,9 @@ func _setup_combat_from_state() -> void:
 		var enemy_ui = enemy_ui_scene.instantiate()
 		enemies_container.add_child(enemy_ui)
 		enemy_ui.setup_enemy(edata)
+		if _scripted_defeat_enemy_id != "" and edata.id == _scripted_defeat_enemy_id:
+			enemy_ui.hp_lock_min = 1
+			enemy_ui.hp_lock_triggered.connect(_on_enemy_hp_lock_triggered)
 		enemy_ui.unit_clicked.connect(_on_enemy_clicked)
 		enemy_ui.unit_died.connect(_on_enemy_died)
 		enemy_nodes.append(enemy_ui)
@@ -309,11 +316,18 @@ func _create_enemy_data(eid: String) -> EnemyData:
 	match eid:
 		"liu_yu_long_duel":
 			visual_id = "liu_yu_long_duel"
-			e.name = "柳宇龙（护盾热身）"
-			e.max_hp = 60
-			e.base_atk = 10
+			e.name = "柳宇龙（天才决斗师）"
+			e.max_hp = 54
+			e.base_atk = 8
 			e.actions_per_turn = 1
-			e.skills = [{"name": "直拳试探", "type": "attack", "damage": 10}, {"name": "偏转护盾展开", "type": "defend", "shield": 8}, {"name": "热情连扣", "type": "attack", "damage": 14}]
+			e.skills = [{"name": "直拳试探", "type": "attack", "damage": 8}, {"name": "偏转护盾展开", "type": "defend", "shield": 8}, {"name": "热情连扣", "type": "attack", "damage": 10}]
+		"jiang_zi_duel":
+			visual_id = "jiang_zi_duel"
+			e.name = "姜梓（俯瞰的天眼）"
+			e.max_hp = 46
+			e.base_atk = 6
+			e.actions_per_turn = 1
+			e.skills = [{"name": "战术统筹壁垒", "type": "defend", "shield": 10}, {"name": "精准牵制", "type": "attack", "damage": 6}]
 		"arena_tactician":
 			visual_id = "liu_yu_long_duel"
 			e.name = "竞技社战术搭档"
@@ -591,6 +605,7 @@ func _execute_player_card(card: CardData) -> void:
 	
 	turn_banner.text = "叶舟行动"
 	_play_unit_lunge(player_sprite, Vector2(22.0, -4.0))
+	CombatPresentation.pulse_resonance_seal(self)
 	AudioManager.play_sfx_card_play()
 	var atk_bonus := int(_active_zodiac_spec.get("attack_bonus", 0))
 	var shd_bonus := int(_active_zodiac_spec.get("shield_bonus", 0))
@@ -654,12 +669,12 @@ func _execute_player_card(card: CardData) -> void:
 				_spawn_floating("默契掩护!", floating_text_scene.TextType.BUFF, player_sprite.global_position + Vector2(60, 60))
 				_log_combat("叶舟打出“%s”：与同伴默契掩护 (受击反弹 [color=#ff9955]%d点[/color] 伤害)" % [card.name, ref])
 	
-	if _companion_id != "" and _cards_played_total % 3 == 0:
+	if not _scripted_defeat_triggered and _companion_id != "" and _cards_played_total % 3 == 0:
 		_trigger_companion_assist()
 	_update_player_ui()
 	
 	await get_tree().create_timer(0.4).timeout
-	if _check_combat_end():
+	if _scripted_defeat_triggered or _check_combat_end():
 		return
 	
 	# 叶舟回合保持可操作状态，允许打出其他未在CD的卡牌
@@ -749,14 +764,16 @@ func _start_enemy_turn() -> void:
 	_log_combat("[b][color=#B65B63]━━━ 第 %d 回合 · 敌方行动 ━━━[/color][/b]" % current_round)
 	
 	await get_tree().create_timer(0.4).timeout
+	if _scripted_defeat_triggered or result_modal.visible:
+		return
 	
 	for enemy in enemy_nodes:
-		if enemy.is_dead or result_modal.visible:
+		if enemy.is_dead or result_modal.visible or _scripted_defeat_triggered:
 			continue
 		
 		if not enemy.begin_enemy_phase():
 			_log_combat("[%s] 受到持续压制，停止行动。" % enemy.enemy_data.name)
-			if _check_combat_end(): return
+			if _scripted_defeat_triggered or _check_combat_end(): return
 			continue
 
 		# 支持特殊怪物/首领每回合多次行动
@@ -829,6 +846,8 @@ func _start_enemy_turn() -> void:
 			# The remaining locked actions are never rerolled during this phase.
 			_update_player_ui()
 			await get_tree().create_timer(0.45).timeout
+			if _scripted_defeat_triggered or result_modal.visible:
+				return
 			
 			if GameState.player_current_hp <= 0:
 				_trigger_defeat()
@@ -837,7 +856,7 @@ func _start_enemy_turn() -> void:
 			if _check_combat_end():
 				return
 	
-	if result_modal.visible:
+	if _scripted_defeat_triggered or result_modal.visible:
 		return
 	
 	# 回合结束处理
@@ -968,8 +987,69 @@ func _trigger_victory() -> void:
 	DaylightUI.polish(result_modal)
 	result_button.grab_focus()
 
-func _trigger_defeat() -> void:
+func _on_enemy_hp_lock_triggered(enemy: EnemyUnitUI) -> void:
+	if _scripted_defeat_triggered or _combat_outcome != "" or result_modal.visible:
+		return
+	_scripted_defeat_triggered = true
+	_disarm_all_cards()
+	is_player_turn = false
+	is_animating = true
+	if is_instance_valid(end_turn_btn):
+		end_turn_btn.disabled = true
+	hand_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for c in card_ui_nodes:
+		c.is_available = false
+		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_spawn_floating("锁血反击!", floating_text_scene.TextType.BUFF, enemy.sprite.global_position + Vector2(30, 10))
+	_log_combat("[color=#B65B63][b]★ [%s] 触发『锁血反击』！最后一步反手终结了叶舟！[/b][/color]" % enemy.enemy_data.name)
+	AudioManager.play_sfx_cutin()
+	CombatVFX.play_burst(floating_anchor, "overclock_redmoon", _vfx_center(enemy.sprite), Vector2(300, 300), 46)
+	CombatPresentation.play_companion_cutin(self, "liu_yu_long", {
+		"name": "柳宇龙",
+		"skill": "天才决斗师 · 终结裁决",
+		"summary": "锁血反击！瞬息击穿叶舟的防线！"
+	})
+	await get_tree().create_timer(0.45 if bool(SaveManager.settings.get("reduced_motion", false)) else 0.72).timeout
+	if not is_inside_tree() or result_modal.visible:
+		return
+	_play_unit_lunge(enemy.sprite, Vector2(-28.0, 0.0))
+	player_shield = 0
+	GameState.damage_player(GameState.player_current_hp)
+	AudioManager.play_sfx_hit(true)
+	CombatVFX.play_burst(floating_anchor, "overclock_redmoon", _vfx_center(player_sprite), Vector2(300, 300), 46)
+	_spawn_floating("-999", floating_text_scene.TextType.DAMAGE, player_sprite.global_position + Vector2(70, 60))
+	_update_player_ui()
+	await get_tree().create_timer(0.28).timeout
+	if not is_inside_tree() or result_modal.visible:
+		return
+	_trigger_scripted_defeat()
+
+func _trigger_scripted_defeat() -> void:
 	if result_modal.visible or _combat_outcome != "":
+		return
+	_combat_outcome = "scripted_defeat"
+	AudioManager.play_sfx_victory()
+	combat_finished.emit(false)
+	_lock_combat_underlying_ui()
+	result_modal.visible = true
+	GameState.phase_two_combat_checkpoint.clear()
+	GameState.pending_combat_data.clear()
+	GameState.reset_player_hp()
+	var points_earned := 25
+	var materials_earned := 2
+	if not GameState.grant_inventory_reward("story_combat_materials_" + GameState.current_node_id, {"material_common": materials_earned}, false):
+		materials_earned = 0
+	GameState.add_scrap(points_earned, false)
+	_log_combat("海选赛虽败犹荣，获得练习点 +%d。" % points_earned)
+	result_title.text = "海选赛 · 剧情败北"
+	var mat_line := " · 普通材料 +%d" % materials_earned if materials_earned > 0 else ""
+	result_desc.text = "眼看就要击穿柳宇龙的防线，却在最后一步被他锁住残血反手终结。\n练习点 +%d%s。\n先听听柳宇龙与姜梓接下来怎么说吧。" % [points_earned, mat_line]
+	result_button.text = "继续剧情"
+	DaylightUI.polish(result_modal)
+	result_button.grab_focus()
+
+func _trigger_defeat() -> void:
+	if _scripted_defeat_triggered or result_modal.visible or _combat_outcome != "":
 		return
 	_combat_outcome = "defeat"
 	combat_finished.emit(false)
@@ -1047,6 +1127,17 @@ func _on_result_button_pressed() -> void:
 		GameState.reset_player_hp()
 		CampusLife.travel_to("club" if (won and q_round == 3) else "gym")
 		return
+	var step: Dictionary = PhaseTwoContent.step_for(GameState.current_node_id)
+	var post_dialogue_id: String = str(step.get("post_dialogue", ""))
+	var combat_done_flag: String = str(step.get("combat_done_flag", ""))
+	if (_combat_outcome == "scripted_defeat" or _combat_outcome == "victory") and post_dialogue_id != "":
+		if combat_done_flag != "":
+			GameState.set_story_flag(combat_done_flag, true)
+		GameState.reset_player_hp()
+		GameState.pending_combat_data.clear()
+		GameState.phase_two_checkpoint = {"node_id": GameState.current_node_id, "stage": "post_dialogue", "line_index": 0}
+		GameState._open_phase_two_node(GameState.current_node_id)
+		return
 	if _combat_outcome == "defeat" or GameState.player_current_hp <= 0:
 		GameState.reset_player_hp()
 		GameState.pending_combat_data.clear()
@@ -1070,11 +1161,11 @@ func _setup_pause_and_hint() -> void:
 	hint.name = "FirstBattleHint"
 	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var copy := Label.new()
-	copy.text = "红月超限警示：安全限幅已解除！请善用护盾与虚弱压制。" if GameState.current_node_id == "n_guard" else "热身教学：先看上方敌方意图；按 1-3 或点击出牌，Tab 切目标，Space 结束回合。"
+	copy.text = "红月超限警示：安全限幅已解除！\n请善用护盾与虚弱压制。" if GameState.current_node_id == "n_guard" else "海选赛教学 · 先看敌方意图\n1-3 出牌 / Tab 切换目标 / Space 结束回合"
 	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	copy.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
-	copy.custom_minimum_size = Vector2(424.0, 68.0)
-	copy.add_theme_font_size_override("font_size", 17)
+	copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.custom_minimum_size = Vector2(396.0, 64.0)
+	copy.add_theme_font_size_override("font_size", 16)
 	hint.add_child(copy)
 	add_child(hint)
 
@@ -1111,7 +1202,7 @@ func _restore_combat_checkpoint() -> void:
 		var enemy: EnemyUnitUI = enemy_nodes[index]
 		var saved: Dictionary = saved_enemies[index]
 		if saved.get("id","") != enemy.enemy_data.id: continue
-		enemy.current_hp = int(saved.get("hp",enemy.max_hp))
+		enemy.current_hp = maxi(enemy.hp_lock_min, int(saved.get("hp",enemy.max_hp))) if enemy.hp_lock_min > 0 else int(saved.get("hp",enemy.max_hp))
 		enemy.shield = int(saved.get("shield",0))
 		enemy.is_dead = bool(saved.get("dead",false))
 		enemy.burn_damage_per_turn = int(saved.get("burn_damage",0))

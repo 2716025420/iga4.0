@@ -8,6 +8,8 @@ var region_id := "campus"
 var refs: Dictionary = {}
 var _calendar_refresh_pending := false
 var _fade_on_style := false
+var _last_rendered_concept := ""
+var _last_rendered_period := ""
 
 func _ready() -> void:
 	size = Vector2(1920,1080)
@@ -49,18 +51,23 @@ func refresh(focus_name: String = "") -> void:
 	var spec: Dictionary = RegionCatalog.REGIONS["campus" if region_id == "university_arete" else region_id]
 	var campus := region_id in ["campus","university_arete"]
 	var concept := CampusLife.map_concept()
+	var cur_period := DayCycle.period()
 	var visual: Dictionary = RegionCatalog.CONCEPTS[concept] if campus else spec
 	var paper := Color(visual["paper"])
 	var ink := Color(visual["ink"])
 	var path := str(visual.get("path",""))
 	var painted := campus and ResourceLoader.exists(path)
 	var wide_path := path.replace(".png","_wide.png") if painted else ""
-	var did_style_fade := _fade_on_style
+	var period_tint := Color(1.0, 0.93, 0.84, 1.0) if (painted and concept == "vermilion" and cur_period == "afternoon") else Color.WHITE
+	var did_style_fade := _fade_on_style or (_last_rendered_concept != "" and (_last_rendered_concept != concept or _last_rendered_period != cur_period))
 	_fade_on_style = false
+	_last_rendered_concept = concept
+	_last_rendered_period = cur_period
 	if painted and ResourceLoader.exists(wide_path):
 		var wide_bg := SchoolObjectUI.art(self,"WideMapBackground",wide_path,Rect2(-210,0,2340,1080))
 		wide_bg.stretch_mode = TextureRect.STRETCH_SCALE
 		wide_bg.z_index = -3
+		wide_bg.modulate = period_tint
 		if did_style_fade and not bool(SaveManager.settings.get("reduced_motion", false)):
 			wide_bg.modulate.a = 0.42
 			var fade_tw := wide_bg.create_tween()
@@ -73,11 +80,13 @@ func refresh(focus_name: String = "") -> void:
 		mother.set_meta("layer_role","complete_unified_campus_composition")
 		if ResourceLoader.exists(wide_path):
 			mother.self_modulate = Color(1,1,1,0)
-		elif did_style_fade and not bool(SaveManager.settings.get("reduced_motion", false)):
-			mother.modulate.a = 0.42
-			var fade_tw := mother.create_tween()
-			fade_tw.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-			fade_tw.tween_property(mother, "modulate:a", 1.0, 0.26)
+		else:
+			mother.modulate = period_tint
+			if did_style_fade and not bool(SaveManager.settings.get("reduced_motion", false)):
+				mother.modulate.a = 0.42
+				var fade_tw := mother.create_tween()
+				fade_tw.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+				fade_tw.tween_property(mother, "modulate:a", 1.0, 0.26)
 	elif campus:
 		var geometry := MapPageGeometry.new()
 		add_child(geometry)
@@ -100,6 +109,7 @@ func refresh(focus_name: String = "") -> void:
 			var layer := SchoolObjectUI.art(self,"Landmark_"+id,"",rect)
 			layer.z_index = -1
 			layer.texture = crop
+			layer.modulate = period_tint
 			layer.set_meta("layer_role","registered_landmark_crop")
 	var dark_map := painted and concept == "indigo"
 	if painted:
@@ -123,27 +133,19 @@ func refresh(focus_name: String = "") -> void:
 	var period_copy := "进入下一时段" if can_advance else ("今夜宜回社团" if DayCycle.period() == "night" else "请先完成剧情")
 	var top_ink := Color("#F3F6FD") if dark_map else Color("#21324B")
 	var top_fill := Color("#23304C",0.92) if dark_map else Color("#FFFDF8",0.94)
-	var period_btn := MapPageUI.button(self,"QuickPeriod",period_copy,Rect2(755,55,230,70),top_ink,top_fill,23)
+	var period_btn := MapPageUI.button(self,"QuickPeriod",period_copy,Rect2(1014,55,236,70),top_ink,top_fill,23)
 	period_btn.disabled = not can_advance
 	period_btn.pressed.connect(func():
 		if DayCycle.rest():
 			refresh("QuickPeriod")
 	)
-	var style_copy := "切至夜课星图" if concept == "vermilion" else "切至晴昼水彩"
-	var style_btn := MapPageUI.button(self,"ToggleMapStyle",style_copy,Rect2(1010,55,230,70),top_ink,top_fill,23)
-	style_btn.pressed.connect(func():
-		_fade_on_style = true
-		CampusLife.toggle_map_concept()
-		refresh("ToggleMapStyle")
-	)
-	var atlas := MapPageUI.button(self,"OpenRegionAtlas","地区总图 →",Rect2(1270,55,265,70),top_ink,top_fill,24)
+	var atlas := MapPageUI.button(self,"OpenRegionAtlas","地区总图 →",Rect2(1278,55,264,70),top_ink,top_fill,24)
 	atlas.pressed.connect(func(): atlas_requested.emit())
 	var back := MapPageUI.button(self,"ReturnToPlace","返回地点 ×",Rect2(1570,55,270,70),top_ink,top_fill,24)
 	back.pressed.connect(func(): close_requested.emit())
 	if painted:
 		var top_specs := [
 			[period_btn, Color("#59C2B0") if dark_map else Color("#359686"), 23],
-			[style_btn, Color("#7BA4FF") if dark_map else Color("#4675C6"), 23],
 			[atlas, Color("#F0AB56") if dark_map else Color("#DB8930"), 24],
 			[back, Color("#EF7D6D") if dark_map else Color("#CA5443"), 24]
 		]
@@ -153,10 +155,11 @@ func refresh(focus_name: String = "") -> void:
 			var accent_col: Color = item[1]
 			var fsize: int = item[2]
 			DynamicUI.make_cel_button(btn, top_fill, top_ink, accent_col, fsize, 14)
+			if dark_map:
+				btn.add_theme_color_override("font_disabled_color", Color("#9EB4D8"))
 			if not did_style_fade:
 				DynamicUI.slide_in(btn, Vector2(0, -10), 0.18, float(idx) * 0.03)
 	refs["period"] = period_btn
-	refs["style"] = style_btn
 	refs["atlas"] = atlas
 	refs["back"] = back
 	refs["locations"] = {}
@@ -278,7 +281,6 @@ func refresh(focus_name: String = "") -> void:
 	for loc_id in refs["locations"]:
 		_bind_preview(refs["locations"][loc_id], _location_preview(str(loc_id)))
 	_bind_preview(period_btn, "在校园地图上直接推进至下一时段并小幅恢复体力" if can_advance else ("已至夜晚，返回社团教室或宿舍即可结束今日休息至次晨" if DayCycle.period() == "night" else "当前有待触发的主线剧情，请前往高亮标注地点"))
-	_bind_preview(style_btn, "切换手绘校园地图样式：放学暖阳 / 夜课星图")
 	_bind_preview(atlas, "打开六地区巡回总图 · 查看各学园与灰区解锁路线")
 	_bind_preview(back, "返回刚刚所在的地点（快捷键 Esc）")
 	_restore_focus.call_deferred(focus_name if focus_name != "" and has_node(focus_name) else "ReturnToPlace")

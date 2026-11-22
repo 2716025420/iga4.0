@@ -10,6 +10,7 @@ var _chapter_banner: Control
 var _banner_tween: Tween
 var _active_cutscene_id: String = ""
 var _staged_bg: SceneStageLayers
+var _bg_overlay: TextureRect
 
 func build(owner_screen: Control) -> void:
 	screen = owner_screen
@@ -22,6 +23,15 @@ func build(owner_screen: Control) -> void:
 	DaylightUI.place(background, 0, 0, 1920, 1080)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_bg_overlay = TextureRect.new()
+	_bg_overlay.name = "BackdropOverlay"
+	_bg_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_bg_overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_bg_overlay.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_bg_overlay.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_bg_overlay.visible = false
+	add_child(_bg_overlay)
+	DaylightUI.place(_bg_overlay, 0, 0, 1920, 1080)
 	_staged_bg = SceneStageLayers.new()
 	_staged_bg.name = "StagedDialogueBackdrop"
 	_staged_bg.visible = false
@@ -120,14 +130,19 @@ func update_scene(override_cutscene_id: String = "") -> void:
 	var id := str(screen.get("current_dialogue_id"))
 	var key := PhaseTwoContent.background_key(id)
 	if bool(screen.get("_exploration_mode")): key = "dusk_road"
-	var path := "res://assets/backgrounds/phase_two/%s_wide.png" % key
-	if not ResourceLoader.exists(path): path = "res://assets/backgrounds/phase_two/%s.png" % key
+	var path := PhaseTwoContent.resolve_background_path(key, true)
 	if id == "school_affairs" and ResourceLoader.exists("res://assets/ui/scene_reset/staged/library/library_midground_wide.png"):
 		path = "res://assets/ui/scene_reset/staged/library/library_midground_wide.png"
-	elif id == "club_welcome" and ResourceLoader.exists(str(HomeScreen.artwork_for_period("afternoon")["room"])):
-		path = str(HomeScreen.artwork_for_period("afternoon")["room"])
-	if ResourceLoader.exists(path): screen.get("bg_texture").texture = load(path)
-	var location: String = {"morning_road":"上学路", "school_gate":"运动会场边", "school_room":"社团教室", "dusk_road":"旧公园夕照"}.get(key, "校园片段")
+	if path != "" and ResourceLoader.exists(path): screen.get("bg_texture").texture = load(path)
+	var location: String = {
+		"prologue_sakura_road": "樱林上学路",
+		"prologue_sports_field": "操场海选赛",
+		"prologue_club_meeting": "阿瑞忒社团教室",
+		"morning_road": "上学路",
+		"school_gate": "运动会场边",
+		"school_room": "社团教室",
+		"dusk_road": "旧公园夕照"
+	}.get(key, "校园片段")
 	if id == "school_affairs": location = "阿瑞忒图书馆"
 	scene_caption.text = ("回忆片段" if bool(screen.get("_archive_mode")) else ("探索片段" if bool(screen.get("_exploration_mode")) else "剧情放映")) + "   /   " + location
 	var calendar_geometry := get_node_or_null("CalendarLocationGeometry")
@@ -197,6 +212,20 @@ func update_scene(override_cutscene_id: String = "") -> void:
 			DaylightUI.place(bg_rect, -210, 0, 2340, 1080)
 		else:
 			DaylightUI.place(bg_rect, 0, 0, 1920, 1080)
+	if is_instance_valid(_bg_overlay):
+		var allow_overlay := not bool(screen.get("_calendar_mode")) and not bool(screen.get("_exploration_mode")) and is_instance_valid(bg_rect) and bg_rect.visible
+		var bg_is_wide := is_instance_valid(bg_rect) and bg_rect.texture != null and bg_rect.texture.get_width() > 2100
+		var overlay_path := PhaseTwoContent.resolve_background_overlay_path(id, key, bg_is_wide) if allow_overlay else ""
+		if overlay_path != "" and ResourceLoader.exists(overlay_path):
+			_bg_overlay.texture = load(overlay_path) as Texture2D
+			_bg_overlay.visible = _bg_overlay.texture != null
+			if _bg_overlay.texture != null and _bg_overlay.texture.get_width() > 2100:
+				DaylightUI.place(_bg_overlay, -210, 0, 2340, 1080)
+			else:
+				DaylightUI.place(_bg_overlay, 0, 0, 1920, 1080)
+		else:
+			_bg_overlay.visible = false
+			_bg_overlay.texture = null
 	var bg_tex: Texture2D = cutscene_stage.background_texture() if use_cutscene and is_instance_valid(cutscene_stage) else (bg_rect.texture if is_instance_valid(bg_rect) and bg_rect.visible else null)
 	Platform.fit_stage(screen, self, Color("#242834"), bg_tex)
 	if use_cutscene and is_instance_valid(cutscene_stage):

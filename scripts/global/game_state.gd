@@ -48,9 +48,9 @@ var card_levels: Dictionary = {
 
 # 伙伴好感度与招募状态
 var companions: Dictionary = {
-	"yang_zi_ying": {"name":"杨子英","title":"摄影社热心社员","bio":"热心、行动快，喜欢用镜头记录校园夕阳与战术刻印卡切磋。每打出3张卡可发动「快门闪光支援」，兼顾续航与护盾。","unlocked":true,"favor":20,"avatar_key":"yang_zi_ying"},
-	"liu_yu_long": {"name":"柳宇龙","title":"竞技对抗狂热者","bio":"爱开玩笑也很不服输，把非致命护盾裁决当成堂堂正正的决斗舞台。每打出3张卡可发动「热血追击重扣」，追加高额单体伤害。","unlocked":false,"favor":0,"avatar_key":"liu_yu_long"},
-	"jiang_zi": {"name":"姜梓","title":"学生会事务干事","bio":"严谨干练，负责核对六地区巡回赛名录与校园安全日志。每打出3张卡可发动「战术统筹屏障」，提供高额护盾并干扰敌方。","unlocked":false,"favor":0,"avatar_key":"jiang_zi"}
+	"yang_zi_ying": {"name":"杨子英","title":"叶舟挚友 · 社团主力","bio":"嘴硬心软、总帮叶舟收拾麻烦的摄影社伙伴。每打出3张卡可发动「快门闪光支援」，兼顾续航与护盾。","unlocked":true,"favor":20,"avatar_key":"yang_zi_ying"},
+	"liu_yu_long": {"name":"柳宇龙","title":"校长之子 · 天才决斗师","bio":"本届学院所有挑战中未尝一败的强手，以维护学院名声为己任，认可叶舟的战术直觉并约定正赛一战。每打出3张卡可发动「热血追击重扣」，追加高额单体伤害。","unlocked":false,"favor":0,"avatar_key":"liu_yu_long"},
+	"jiang_zi": {"name":"姜梓","title":"决斗社社长 · 俯瞰的天眼","bio":"入学文化理论成绩榜首，观察力过人，为夺取星座卡与红月代理人资格创立最强决斗社团。每打出3张卡可发动「战术统筹屏障」，提供高额护盾并干扰敌方。","unlocked":false,"favor":0,"avatar_key":"jiang_zi"}
 }
 
 # 剧情标志位
@@ -61,6 +61,7 @@ var story_flags: Dictionary = {
 	"chapter_1_completed": false,
 	"school_gate_done": false,
 	"school_gate_duel_briefed": false,
+	"school_gate_combat_done": false,
 	"school_affairs_done": false,
 	"yang_rescued_player": false,
 	"principal_stopped": false,
@@ -288,6 +289,10 @@ func import_progress(progress: Dictionary) -> bool:
 	if (visited_node_ids.has("n_affairs") or bool(story_flags.get("chapter_1_completed", false))) and not visited_node_ids.has("n_club_intro"):
 		visited_node_ids.append("n_club_intro")
 		story_flags["prologue_completed"] = true
+	if visited_node_ids.has("n_gate") and not story_flags.has("school_gate_combat_done"):
+		story_flags["school_gate_combat_done"] = true
+	if bool(story_flags.get("chapter_1_completed", false)) or bool(story_flags.get("principal_stopped", false)):
+		companions["liu_yu_long"]["unlocked"] = true
 	if bool(story_flags.get("chapter_1_completed", false)) and not SpecialCardCollection.collected("hero"):
 		SpecialCardCollection.acquire_from_story("hero", "chapter_1_aries_awakening")
 	# Old saves did not record identity: choose the first matching preset once.
@@ -328,7 +333,7 @@ func begin_phase_two_chapter() -> void:
 	reset_exploration_progress()
 	pending_combat_data.clear()
 	pending_dialogue_id = ""
-	for flag in ["prologue_completed", "club_onboarding_done", "chapter_1_completed", "school_gate_done", "school_gate_duel_briefed", "school_affairs_done", "yang_rescued_player", "principal_stopped", "principal_briefing_done", "arete_qualifier_completed", "qualifier_r1_won", "qualifier_r2_won", "qualifier_r3_won"]:
+	for flag in ["prologue_completed", "club_onboarding_done", "chapter_1_completed", "school_gate_done", "school_gate_duel_briefed", "school_gate_combat_done", "school_affairs_done", "yang_rescued_player", "principal_stopped", "principal_briefing_done", "arete_qualifier_completed", "qualifier_r1_won", "qualifier_r2_won", "qualifier_r3_won"]:
 		set_story_flag(flag, false)
 	companions["liu_yu_long"]["unlocked"] = false
 	companions["jiang_zi"]["unlocked"] = false
@@ -681,14 +686,28 @@ func _open_phase_two_node(node_id: String) -> void:
 	current_chapter_id = "chapter_1"
 	current_node_id = node_id
 	var briefing_flag: String = str(step.get("briefing_flag", ""))
-	var combat_stage: bool = step.has("enemy") and (not step.has("dialogue") or (briefing_flag != "" and bool(story_flags.get(briefing_flag, false))))
+	var combat_done_flag: String = str(step.get("combat_done_flag", ""))
+	var post_dialogue_id: String = str(step.get("post_dialogue", ""))
+	var post_stage: bool = post_dialogue_id != "" and combat_done_flag != "" and bool(story_flags.get(combat_done_flag, false))
+	var combat_stage: bool = (not post_stage) and step.has("enemy") and (not step.has("dialogue") or (briefing_flag != "" and bool(story_flags.get(briefing_flag, false))))
 	if phase_two_checkpoint.get("node_id", "") != node_id:
 		phase_two_checkpoint.clear()
 		phase_two_combat_checkpoint.clear()
-	if combat_stage:
+	if post_stage:
+		if phase_two_checkpoint.get("stage", "") != "post_dialogue":
+			phase_two_checkpoint = {"node_id":node_id, "stage":"post_dialogue", "line_index":0}
+		pending_dialogue_id = post_dialogue_id
+		pending_combat_data.clear()
+		SceneManager.change_scene(SceneManager.TargetScene.STORY)
+	elif combat_stage:
 		phase_two_checkpoint = {"node_id":node_id, "stage":"combat"}
 		pending_dialogue_id = ""
-		pending_combat_data = {"enemies":[step["enemy"]], "is_boss":node_id == "n5_boss"}
+		var enemy_list: Array = step.get("enemies", [step["enemy"]]).duplicate()
+		pending_combat_data = {
+			"enemies": enemy_list,
+			"is_boss": node_id == "n5_boss",
+			"scripted_defeat_enemy": str(step.get("scripted_defeat", ""))
+		}
 		SceneManager.change_scene(SceneManager.TargetScene.COMBAT)
 	else:
 		if phase_two_checkpoint.get("stage", "") != "dialogue":
@@ -701,7 +720,9 @@ func checkpoint_phase_two_dialogue(dialogue_id: String, line_index: int) -> void
 	var node_id: String = PhaseTwoContent.node_for_dialogue(dialogue_id)
 	if node_id != "" and node_id == next_phase_two_node():
 		current_node_id = node_id
-		phase_two_checkpoint = {"node_id":node_id, "stage":"dialogue", "line_index":maxi(0,line_index)}
+		var step: Dictionary = PhaseTwoContent.step_for(node_id)
+		var stage_name := "post_dialogue" if str(step.get("post_dialogue", "")) == dialogue_id else "dialogue"
+		phase_two_checkpoint = {"node_id":node_id, "stage":stage_name, "line_index":maxi(0,line_index)}
 		_request_progress_save()
 
 func pause_phase_two_chapter() -> void:
@@ -719,6 +740,8 @@ func complete_phase_two_step(node_id: String) -> bool:
 	phase_two_combat_checkpoint.clear()
 	pending_dialogue_id = ""
 	pending_combat_data.clear()
+	if node_id == "n5_boss":
+		companions["liu_yu_long"]["unlocked"] = true
 	if node_id == "n_club_intro":
 		companions["jiang_zi"]["unlocked"] = true
 		set_story_flag("prologue_completed", true)

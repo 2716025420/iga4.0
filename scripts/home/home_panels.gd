@@ -3,9 +3,9 @@ extends RefCounted
 
 const CLASSMATE_IDS: Array[String] = ["yang_zi_ying", "liu_yu_long", "jiang_zi"]
 const ROUTE: Array[Dictionary] = [
-	{"id": "n0", "title": "樱林解围", "summary": "替转校生黄秋枫挡下高年级生的刁难。"},
-	{"id": "n_gate", "title": "运动会与初战", "summary": "留意秋枫异于常人的呼吸，与柳宇龙完成护盾热身切磋。"},
-	{"id": "n_club_intro", "title": "入驻社团室", "summary": "接手阿瑞忒社团教室，开启校园日常与巡回整备。"},
+	{"id": "n0", "title": "樱林解围", "summary": "在樱林上学路替黄秋枫解围，吓跑堵路的小混混。"},
+	{"id": "n_gate", "title": "海选赛与初战", "summary": "操场海选赛与杨子英组队迎战柳宇龙与姜梓，遭锁血反杀后受邀入社。"},
+	{"id": "n_club_intro", "title": "入驻社团室", "summary": "召开决斗社团首次会议，定下击败柳宇龙夺取白羊座的目标。"},
 	{"id": "n_affairs", "title": "书页与旧园之约", "summary": "图书馆约见黄秋枫与姜梓，察觉街区限幅异常记录。"},
 	{"id": "n_dusk", "title": "黄昏轻吻", "summary": "旧公园分别转瞬，天空骤然响起红月警报。"},
 	{"id": "n_guard", "title": "门岗封锁", "summary": "冲破被劫持的超限门禁，追向街角。"},
@@ -34,7 +34,7 @@ static func content_snapshot(kind: String, selected_id: String = "") -> Dictiona
 	for cid in CLASSMATE_IDS:
 		var companion: Dictionary = GameState.companions.get(cid, {})
 		var actor: Dictionary = PhaseTwoContent.ACTORS.get(cid, {})
-		var short_bios := {"yang_zi_ying": "喜欢摄影和橘子汽水。\n每打出3张卡可发动「快门闪光支援」。", "liu_yu_long": "竞技台热血选手，讲究正大光明的切磋。\n每打出3张卡可发动「热血追击重扣」。", "jiang_zi": "学生会干事，把校园安全与赛事名录理得一清二楚。\n每打出3张卡可发动「战术统筹屏障」。"}
+		var short_bios := {"yang_zi_ying": "叶舟的挚友，嘴硬心软。\n每打出3张卡可发动「快门闪光支援」。", "liu_yu_long": "校长之子 · 天才决斗师，未尝一败。\n每打出3张卡可发动「热血追击重扣」。", "jiang_zi": "决斗社社长 · 俯瞰的天眼。\n每打出3张卡可发动「战术统筹屏障」。"}
 		classmates.append({"id": cid, "name": actor.get("name", "同学"), "subtitle": actor.get("title", "同班同学"), "bio": short_bios.get(cid, ""), "favor": companion.get("favor", 0), "unlocked": companion.get("unlocked", false), "portrait": DaylightUI.character_path(cid, true), "dialogue_id": {"yang_zi_ying": "chat_yang", "liu_yu_long": "chat_liu", "jiang_zi": "chat_jiang"}.get(cid, "chat_yang")})
 	var cast: Array[Dictionary] = []
 	for cid in ["ye_zhou", "huang_qiufeng", "yang_zi_ying", "liu_yu_long", "jiang_zi", "lin_zhi_xia", "tang_xiao_man"]:
@@ -95,9 +95,9 @@ static func _upgrade_summary(card: CardData) -> String:
 
 static func known_records() -> Array[Dictionary]:
 	var source: Array[Dictionary] = [
-		{"node": "n0", "title": "樱林 · 战术刻印解围", "copy": "替转校生黄秋枫挡下高年级生的刁难，两人交换名字。", "scene": "morning_road"},
-		{"node": "n_gate", "title": "运动会 · 第四名的呼吸与初战", "copy": "秋枫跑完短跑仍呼吸平稳；与柳宇龙完成护盾裁决切磋。", "scene": "school_gate"},
-		{"node": "n_club_intro", "title": "社团室 · 入驻与放映整备", "copy": "姜梓移交社团教室与放映档案室，全员确立阿瑞忒据点。", "scene": "school_room"},
+		{"node": "n0", "title": "樱林 · 英雄初登场", "copy": "与杨子英一起替黄秋枫吓跑小混混，三人结伴去学校。", "scene": "prologue_sakura_road"},
+		{"node": "n_gate", "title": "操场 · 海选赛与2v2初战", "copy": "和杨子英组队迎战柳宇龙与姜梓，遭锁血反杀后受邀加入决斗社团。", "scene": "prologue_sports_field"},
+		{"node": "n_club_intro", "title": "社团室 · 首次社团会议", "copy": "姜梓定下夺取十二星座卡的目标，全员投票决定先击败柳宇龙。", "scene": "prologue_club_meeting"},
 		{"node": "n_affairs", "title": "图书馆 · 心意坦白与限幅异动", "copy": "窗边听见秋枫的心意并约下旧公园；姜梓示警街区限幅异常。", "scene": "school_room"},
 		{"node": "n_dusk", "title": "黄昏 · 旧公园轻吻与警报", "copy": "秋枫突发轻吻后转身买汽水，红月警报骤然封锁通道。", "scene": "dusk_road"},
 		{"node": "n_guard", "title": "门岗 · 突破超限封锁", "copy": "击退被超限指令锁死的门岗卫兵，抢通前往街角的路。", "scene": "school_gate"},

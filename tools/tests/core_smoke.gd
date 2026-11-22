@@ -50,6 +50,8 @@ func _run() -> void:
 	await _test_ui_cleanliness()
 	_test_audio_assets()
 	_test_v18_window_assets()
+	_test_v19_prologue_assets()
+	await _test_new_prologue_flow()
 
 	print("CORE_SMOKE_RESULT " + JSON.stringify({"checks": checks, "failures": failures, "renderer": DisplayServer.get_name()}))
 	get_tree().quit(0 if failures.is_empty() else 1)
@@ -279,7 +281,7 @@ func _test_ui_cleanliness() -> void:
 	await _settled()
 	_scan_clean_ui(get_tree().current_scene, "LocalMap")
 	var map_root := get_tree().current_scene
-	check(map_root.find_child("ToggleMapStyle", true, false) != null, "local map has ToggleMapStyle button")
+	check(map_root.find_child("ToggleMapStyle", true, false) == null, "manual ToggleMapStyle button removed")
 	check(map_root.find_child("QuickPeriod", true, false) != null, "local map has QuickPeriod button")
 	check(map_root.find_child("MapPreviewLine", true, false) != null, "local map has MapPreviewLine")
 	check(map_root.find_child("NameBacking_arete_coast_test", true, false) != null, "campus map renders arete_coast_test pill")
@@ -287,10 +289,23 @@ func _test_ui_cleanliness() -> void:
 	check(map_root.find_child("NameBacking_arete_beach_test", true, false) == null, "campus map delegates beach entrance into coast hub")
 	check(map_root.find_child("WideMapBackground", true, false) != null, "v11 map mounts 2340 wide bleed")
 	check(not map_root.find_children("HereBadge_*", "", true, false).is_empty(), "local map marks current location")
-	var style_before := life.map_concept()
-	check(life.toggle_map_concept() != style_before, "toggle_map_concept flips style cleanly")
-	check(CampusPlaces.valid_state(life.snapshot()), "campus_life with map_concept passes validator")
-	life.toggle_map_concept()
+	var prev_hour: int = state.game_hour
+	state.game_hour = 8
+	state.game_time_changed.emit(state.game_day, state.game_hour, state.game_minute, state.game_weekday)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(life.map_concept() == "vermilion", "daytime automatically uses sunlit campus map")
+	state.game_hour = 20
+	state.game_time_changed.emit(state.game_day, state.game_hour, state.game_minute, state.game_weekday)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(life.map_concept() == "indigo", "nighttime automatically switches campus map to indigo")
+	var night_bg := map_root.find_child("WideMapBackground", true, false) as TextureRect
+	check(night_bg != null and night_bg.texture != null and night_bg.texture.resource_path.ends_with("map_arete_night_wide.png"), "nighttime map automatically loads map_arete_night_wide.png")
+	check(CampusPlaces.valid_state(life.snapshot()), "campus_life passes validator without manual style flag")
+	state.game_hour = prev_hour
+	state.game_time_changed.emit(state.game_day, state.game_hour, state.game_minute, state.game_weekday)
+	await get_tree().process_frame
 
 	life.open_region_atlas()
 	await _settled()
@@ -480,3 +495,237 @@ func _test_v18_window_assets() -> void:
 	]:
 		var full := "res://assets/ui_core/v18_windows/" + str(rel)
 		check(ResourceLoader.exists(full) and load(full) is Texture2D, "v18 window asset loads: " + rel)
+
+
+func _test_v19_prologue_assets() -> void:
+	var v19_paths := [
+		"res://assets/sprites/characters/phase_two/emotions/thug_grunt/neutral.png",
+		"res://assets/sprites/characters/phase_two/emotions/thug_grunt/happy.png",
+		"res://assets/sprites/characters/phase_two/emotions/thug_grunt/surprised.png",
+		"res://assets/sprites/characters/phase_two/emotions/thug_grunt/angry.png",
+		"res://assets/sprites/characters/phase_two/halfbody/thug_grunt.png",
+		"res://assets/sprites/characters/phase_two/avatars/thug_grunt_neutral.png",
+		"res://assets/sprites/characters/phase_two/avatars/thug_grunt_happy.png",
+		"res://assets/sprites/characters/phase_two/avatars/thug_grunt_surprised.png",
+		"res://assets/sprites/characters/phase_two/avatars/thug_grunt_angry.png",
+		"res://assets/sprites/characters/phase_two/portraits/thug_grunt.png",
+		"res://assets/sprites/characters/phase_two/emotions/thug_boss/neutral.png",
+		"res://assets/sprites/characters/phase_two/emotions/thug_boss/happy.png",
+		"res://assets/sprites/characters/phase_two/emotions/thug_boss/surprised.png",
+		"res://assets/sprites/characters/phase_two/emotions/thug_boss/angry.png",
+		"res://assets/sprites/characters/phase_two/halfbody/thug_boss.png",
+		"res://assets/sprites/characters/phase_two/avatars/thug_boss_neutral.png",
+		"res://assets/sprites/characters/phase_two/avatars/thug_boss_happy.png",
+		"res://assets/sprites/characters/phase_two/avatars/thug_boss_surprised.png",
+		"res://assets/sprites/characters/phase_two/avatars/thug_boss_angry.png",
+		"res://assets/sprites/characters/phase_two/portraits/thug_boss.png",
+		"res://assets/backgrounds/phase_two/prologue_sakura_road.png",
+		"res://assets/backgrounds/phase_two/prologue_sakura_road_wide.png",
+		"res://assets/backgrounds/phase_two/prologue_sports_field.png",
+		"res://assets/backgrounds/phase_two/prologue_sports_field_wide.png",
+		"res://assets/backgrounds/phase_two/battle_sports_field.png",
+		"res://assets/backgrounds/phase_two/battle_sports_field_wide.png",
+		"res://assets/backgrounds/phase_two/overlays/prologue_sports_field_duel_crowd.png",
+		"res://assets/backgrounds/phase_two/overlays/prologue_sports_field_duel_crowd_wide.png",
+	]
+	for p in v19_paths:
+		check(ResourceLoader.exists(p) and load(p) is Texture2D, "v19 prologue asset loads: " + p.get_file())
+	check(PhaseTwoContent.resolve_background_path("prologue_sakura_road", true) == "res://assets/backgrounds/phase_two/prologue_sakura_road_wide.png", "sakura road resolves to v19 wide bg")
+	check(PhaseTwoContent.resolve_background_path("prologue_sports_field", true) == "res://assets/backgrounds/phase_two/prologue_sports_field_wide.png", "sports field resolves to v19 wide bg")
+	check(PhaseTwoContent.resolve_background_path("battle_sports_field", true) == "res://assets/backgrounds/phase_two/battle_sports_field_wide.png", "battle sports field resolves to v19 wide bg")
+	check(PhaseTwoContent.resolve_background_overlay_path("school_gate", "prologue_sports_field", true) == "res://assets/backgrounds/phase_two/overlays/prologue_sports_field_duel_crowd_wide.png", "school_gate mounts crowd overlay")
+	check(PhaseTwoContent.resolve_background_overlay_path("school_gate_after", "prologue_sports_field", true) == "", "school_gate_after omits crowd overlay")
+
+
+func _test_new_prologue_flow() -> void:
+	check(PhaseTwoContent.ACTORS.has("thug_grunt") and PhaseTwoContent.ACTORS.has("thug_boss"), "prologue registers thug actors")
+	for cid in ["thug_grunt", "thug_boss"]:
+		var sprite_p := PhaseTwoContent.dialogue_character_path(cid, "neutral")
+		check(sprite_p != "" and ResourceLoader.exists(sprite_p), "prologue thug neutral path exists: " + cid)
+	check(PhaseTwoContent.lines_for("campus_morning").size() == 28, "new campus_morning line count matches 序章.md")
+	check(PhaseTwoContent.lines_for("school_gate").size() == 33, "new school_gate line count matches 序章.md")
+	check(PhaseTwoContent.lines_for("school_gate_after").size() == 10, "new school_gate_after line count matches 序章.md")
+	check(PhaseTwoContent.lines_for("club_welcome").size() == 26, "new club_welcome line count matches 序章.md")
+	for bg_key in ["prologue_sakura_road", "prologue_sports_field", "battle_sports_field", "prologue_club_meeting"]:
+		var bg_p := PhaseTwoContent.resolve_background_path(bg_key, true)
+		check(bg_p != "" and ResourceLoader.exists(bg_p), "prologue background resolves with safe fallback: " + bg_key)
+
+	saves.test_session = false
+	saves.active_session = false
+	check(state.new_game(), "reset for interactive new prologue flow")
+	await _settled()
+	state.start_story_from_home()
+	await _settled()
+	var dlg := get_tree().current_scene as DialogueScreen
+	check(dlg != null and dlg.current_dialogue_id == "campus_morning", "prologue starts at campus_morning")
+	if dlg != null:
+		dlg.line_index = 9
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		check(dlg.nameplate.text.strip_edges() == "小混混", "thug_grunt speaker nameplate renders")
+		var thug_avatar := dlg.nameplate.get_node_or_null("SpeakerPortrait") as TextureRect
+		check(dlg.right_char_sprite.visible and dlg.right_char_sprite.texture != null and dlg.right_char_sprite.texture.resource_path.ends_with("emotions/thug_grunt/happy.png"), "thug_grunt happy sprite renders on right slot")
+		check(thug_avatar != null and thug_avatar.visible and thug_avatar.texture != null and not (thug_avatar.texture is AtlasTexture) and thug_avatar.texture.resource_path.ends_with("avatars/thug_grunt_happy.png"), "thug_grunt dedicated avatar renders")
+		dlg.line_index = 10
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		check(dlg.nameplate.text.strip_edges() == "小混混老大", "thug_boss speaker nameplate renders")
+		var boss_avatar := dlg.nameplate.get_node_or_null("SpeakerPortrait") as TextureRect
+		check(dlg.right_char_sprite.visible and dlg.right_char_sprite.texture != null and dlg.right_char_sprite.texture.resource_path.ends_with("emotions/thug_boss/neutral.png"), "thug_boss neutral sprite renders on right slot")
+		check(boss_avatar != null and boss_avatar.visible and boss_avatar.texture != null and not (boss_avatar.texture is AtlasTexture) and boss_avatar.texture.resource_path.ends_with("avatars/thug_boss_neutral.png"), "thug_boss dedicated avatar renders")
+		dlg.line_index = 14
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		var sp_avatar := dlg.nameplate.get_node_or_null("SpeakerPortrait") as TextureRect
+		check(dlg.left_char_sprite.visible and sp_avatar != null and sp_avatar.visible and sp_avatar.texture is AtlasTexture, "ye_zhou angry crops matching emotion expression as avatar")
+		dlg.line_index = 19
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		check(not dlg.left_char_sprite.visible and not dlg.right_char_sprite.visible, "clear_stage narrator clears both stage portraits")
+		dlg.line_index = 20
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		check(dlg.left_char_sprite.visible and not dlg.right_char_sprite.visible, "first speaker after narrator stands on left")
+		dlg.line_index = 21
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		check(dlg.left_char_sprite.visible and dlg.right_char_sprite.visible, "second speaker after narrator stands on right opposite first speaker")
+		dlg.line_index = 27
+		dlg._show_next_line()
+		if dlg.tween_typing and dlg.tween_typing.is_valid():
+			dlg.tween_typing.kill()
+		dlg._reveal_current_line()
+		check(not dlg.left_char_sprite.visible and not dlg.right_char_sprite.visible, "any narrator line automatically clears both stage portraits")
+		dlg._finish_dialogue()
+		await _settled()
+
+	var gate_dlg := get_tree().current_scene as DialogueScreen
+	check(gate_dlg != null and gate_dlg.current_dialogue_id == "school_gate", "n0 advances cleanly to school_gate")
+	if gate_dlg != null:
+		var gate_overlay := gate_dlg.story_presentation.get_node_or_null("BackdropOverlay") as TextureRect if is_instance_valid(gate_dlg.story_presentation) else null
+		check(gate_overlay != null and gate_overlay.visible and gate_overlay.texture != null and gate_overlay.texture.resource_path.ends_with("prologue_sports_field_duel_crowd_wide.png"), "school_gate renders duel crowd overlay")
+		gate_dlg.line_index = 22
+		gate_dlg._show_next_line()
+		if gate_dlg.tween_typing and gate_dlg.tween_typing.is_valid():
+			gate_dlg.tween_typing.kill()
+		gate_dlg._reveal_current_line()
+		gate_dlg.line_index = 23
+		gate_dlg._show_next_line()
+		if gate_dlg.tween_typing and gate_dlg.tween_typing.is_valid():
+			gate_dlg.tween_typing.kill()
+		gate_dlg._reveal_current_line()
+		check(gate_dlg.left_char_sprite.visible and gate_dlg.right_char_sprite.visible, "speakers before narrator stand on left and right")
+		gate_dlg.line_index = 24
+		gate_dlg._show_next_line()
+		if gate_dlg.tween_typing and gate_dlg.tween_typing.is_valid():
+			gate_dlg.tween_typing.kill()
+		gate_dlg._reveal_current_line()
+		check(not gate_dlg.left_char_sprite.visible and not gate_dlg.right_char_sprite.visible, "narrator line without explicit clear_stage flag still clears stage portraits")
+		gate_dlg.line_index = 25
+		gate_dlg._show_next_line()
+		if gate_dlg.tween_typing and gate_dlg.tween_typing.is_valid():
+			gate_dlg.tween_typing.kill()
+		gate_dlg._reveal_current_line()
+		check(gate_dlg.left_char_sprite.visible and not gate_dlg.right_char_sprite.visible, "first speaker after narrator takes left slot")
+		gate_dlg.line_index = 26
+		gate_dlg._show_next_line()
+		if gate_dlg.tween_typing and gate_dlg.tween_typing.is_valid():
+			gate_dlg.tween_typing.kill()
+		gate_dlg._reveal_current_line()
+		check(gate_dlg.left_char_sprite.visible and gate_dlg.right_char_sprite.visible, "second speaker after narrator takes right slot")
+		gate_dlg._finish_dialogue()
+		await _settled()
+
+	var combat := get_tree().current_scene as CombatScreen
+	check(combat != null, "school_gate transitions into n_gate 2v2 CombatScreen")
+	if combat != null:
+		check(combat.enemy_nodes.size() == 2, "n_gate spawns 2 enemies")
+		check(CombatPresentation.is_sports_field_arena(combat), "n_gate uses sports field arena mode")
+		check(CombatPresentation.is_mirrored_2v2(combat), "n_gate uses mirrored 2v2 layout")
+		var player_area := combat.get_node_or_null("PlayerArea") as Control
+		var enemy_area := combat.get_node_or_null("EnemyArea") as Control
+		var comp_box := player_area.get_node_or_null("CompanionIdentityBox") as Control if player_area != null else null
+		var player_box := player_area.get_node_or_null("PlayerCompactBox") as Control if player_area != null else null
+		var plat_art := combat.get_node_or_null("ArenaStageZones/CombatStagePlatformArt") as CanvasItem
+		check(comp_box != null and comp_box.visible and player_box != null and player_box.visible, "2v2 mounts compact companion and player plaques")
+		check(plat_art == null or not plat_art.visible, "sports field hides stone combat platform slab")
+		if comp_box != null and player_box != null and enemy_area != null:
+			check(is_equal_approx((player_box.position.x + player_box.size.x) - comp_box.position.x, 352.0), "left 2v2 plaque pair totals 352px")
+			check(is_equal_approx(enemy_area.size.x, 352.0), "right 2v2 plaque pair totals 352px")
+			var left_center_design := player_area.position.x + (comp_box.position.x + player_box.position.x + player_box.size.x) * 0.5 * player_area.scale.x
+			var right_center_design := enemy_area.position.x + enemy_area.size.x * 0.5 * enemy_area.scale.x
+			check(absf((left_center_design + right_center_design) - combat.size.x) <= 2.0, "2v2 teams are mirrored around horizontal screen center")
+		var seal_node := combat.get_node_or_null("HandArea/TacticalResonanceSeal") as Control
+		var cards_node := combat.get_node_or_null("HandArea/CardsContainer") as Control
+		check(seal_node != null and seal_node.visible, "handbook mounts animated TacticalResonanceSeal")
+		check(combat.get_node_or_null("HandArea/DuelDeckBack") == null, "retired DuelDeckBack card back removed")
+		check(cards_node != null and is_equal_approx(cards_node.position.y, 67.0), "handbook cards lifted cleanly to y=67 onto purple border")
+		if combat.enemy_nodes.size() >= 2:
+			check(combat.enemy_nodes[0].enemy_data.id == "liu_yu_long_duel" and combat.enemy_nodes[1].enemy_data.id == "jiang_zi_duel", "n_gate opponents are liu_yu_long_duel and jiang_zi_duel")
+			check(combat.enemy_nodes[0].hp_lock_min == 1, "liu_yu_long_duel locks HP at 1")
+			check(combat.enemy_nodes[0].sprite.flip_h and combat.enemy_nodes[1].sprite.flip_h, "both duelists face left toward player")
+		check(combat._companion_id == "yang_zi_ying", "yang_zi_ying assists during n_gate 2v2")
+		if not combat.enemy_nodes.is_empty():
+			combat.enemy_nodes[0].take_damage(999, false)
+			var wait_ms := 0
+			while not combat.result_modal.visible and wait_ms < 4000:
+				await get_tree().create_timer(0.05).timeout
+				wait_ms += 50
+			check(combat.enemy_nodes[0].current_hp == 1 and not combat.enemy_nodes[0].is_dead, "liu_yu_long_duel stays alive at 1 HP on lock")
+			check(combat._combat_outcome == "scripted_defeat" and combat.result_modal.visible, "scripted defeat triggers result modal")
+			combat.result_button.pressed.emit()
+			await _settled()
+
+	var after_dlg := get_tree().current_scene as DialogueScreen
+	check(after_dlg != null and after_dlg.current_dialogue_id == "school_gate_after", "scripted defeat proceeds seamlessly to school_gate_after")
+	if after_dlg != null and is_instance_valid(after_dlg.story_presentation):
+		var after_overlay := after_dlg.story_presentation.get_node_or_null("BackdropOverlay") as CanvasItem
+		check(after_overlay == null or not after_overlay.visible, "school_gate_after clears crowd overlay after everyone leaves")
+	check(bool(state.story_flags.get("school_gate_combat_done", false)), "school_gate_combat_done flag set")
+	if after_dlg != null:
+		after_dlg._finish_dialogue()
+		await _settled()
+
+	var club_dlg := get_tree().current_scene as DialogueScreen
+	check(club_dlg != null and club_dlg.current_dialogue_id == "club_welcome", "school_gate_after advances to club_welcome")
+	check(not bool(state.companions["liu_yu_long"]["unlocked"]), "liu_yu_long stays locked during prologue club meeting")
+	if club_dlg != null:
+		club_dlg._finish_dialogue()
+		await _settled()
+
+	check(bool(state.story_flags.get("prologue_completed", false)), "club_welcome completes prologue")
+	check(bool(state.companions["jiang_zi"]["unlocked"]), "jiang_zi unlocked after club_welcome")
+	check(get_tree().current_scene is HomeScreen, "prologue ends cleanly in HomeScreen")
+
+	# Verify 1v1 solo formation symmetry (500 vs 1420 center mirror + direct overhead plaques)
+	check(state.new_game(), "reset for 1v1 solo symmetry check")
+	await _settled()
+	state.current_node_id = "n_guard"
+	state.pending_combat_data = {"enemies": ["security_guard"], "overclock": true}
+	flow.change_scene(flow.TargetScene.COMBAT)
+	await _settled()
+	var solo_combat := get_tree().current_scene as CombatScreen
+	check(solo_combat != null, "enters 1v1 solo CombatScreen")
+	if solo_combat != null:
+		check(solo_combat.enemy_nodes.size() == 1 and solo_combat._companion_id == "", "solo fight has 1 protagonist and 1 enemy")
+		var s_p_area := solo_combat.get_node_or_null("PlayerArea") as Control
+		var s_e_area := solo_combat.get_node_or_null("EnemyArea") as Control
+		var s_p_box := s_p_area.get_node_or_null("PlayerCompactBox") as Control if s_p_area != null else null
+		check(s_p_box != null and s_p_box.visible and is_equal_approx(s_p_box.size.x, 224.0), "solo player uses direct overhead 224px plaque")
+		check(s_e_area != null and is_equal_approx(s_e_area.size.x, 224.0), "solo enemy uses symmetric 224px slot")
+		if s_p_box != null and s_e_area != null:
+			var sp_center := s_p_area.position.x + (s_p_box.position.x + s_p_box.size.x * 0.5) * s_p_area.scale.x
+			var se_center := s_e_area.position.x + s_e_area.size.x * 0.5 * s_e_area.scale.x
+			check(absf((sp_center + se_center) - solo_combat.size.x) <= 2.0, "1v1 fighters and overhead plaques mirror around screen center")

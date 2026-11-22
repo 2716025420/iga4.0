@@ -174,11 +174,42 @@
 
   // ==================== Stream Syntax Parser & Serializer ====================
 
+  function autoAssignStageSide(charKey, lastSideByChar, stageSlots) {
+    if (charKey && lastSideByChar[charKey]) return lastSideByChar[charKey];
+    if (!stageSlots.left && !stageSlots.right) return 'left';
+    if (stageSlots.left && !stageSlots.right) return 'right';
+    if (!stageSlots.left && stageSlots.right) return 'left';
+    return (charKey === 'ye_zhou' || charKey === '叶舟') ? 'left' : 'right';
+  }
+
+  function applyStageClearDirective(arg, lastSideByChar, stageSlots) {
+    if (arg === '左' || arg === 'left') {
+      const oldLeft = stageSlots.left;
+      stageSlots.left = '';
+      if (oldLeft) delete lastSideByChar[oldLeft];
+    } else if (arg === '右' || arg === 'right') {
+      const oldRight = stageSlots.right;
+      stageSlots.right = '';
+      if (oldRight) delete lastSideByChar[oldRight];
+    } else if (arg && !['全部', 'all', 'both'].includes(arg)) {
+      const cid = findActorIdByName(arg) || arg;
+      if (stageSlots.left === cid || stageSlots.left === arg) stageSlots.left = '';
+      if (stageSlots.right === cid || stageSlots.right === arg) stageSlots.right = '';
+      delete lastSideByChar[cid];
+      delete lastSideByChar[arg];
+    } else {
+      stageSlots.left = '';
+      stageSlots.right = '';
+      for (const k of Object.keys(lastSideByChar)) delete lastSideByChar[k];
+    }
+  }
+
   function parseStreamText(rawText) {
     const actors = actorLookup();
     const linesOut = [];
     let activeCutscene = '';
     const lastSideByChar = {};
+    const stageSlots = { left: '', right: '' };
     let lastDialogueIdx = null;
     let activeChoice = null;
 
@@ -201,6 +232,9 @@
         if (kind === '过场' || kind === 'cutscene') {
           activeCutscene = ['关闭', '无', 'none', 'off', ''].includes(arg) ? '' : arg;
           continue;
+        }
+        if (['清场', '退场', '立绘退场', 'clear', 'exit'].includes(kind)) {
+          applyStageClearDirective(arg, lastSideByChar, stageSlots);
         }
         linesOut.push({ type: 'directive', kind, arg });
         activeChoice = null;
@@ -235,14 +269,14 @@
 
       // Indented follow-up line under choice
       if (indent >= 2 && activeChoice) {
-        const sub = parseSingleDialogueLine(trimmed, actors, lastSideByChar, activeCutscene);
+        const sub = parseSingleDialogueLine(trimmed, actors, lastSideByChar, stageSlots, activeCutscene);
         if (!activeChoice.follow_up) activeChoice.follow_up = [];
         activeChoice.follow_up.push(sub);
         continue;
       }
 
       activeChoice = null;
-      const entry = parseSingleDialogueLine(trimmed, actors, lastSideByChar, activeCutscene);
+      const entry = parseSingleDialogueLine(trimmed, actors, lastSideByChar, stageSlots, activeCutscene);
       linesOut.push(entry);
       lastDialogueIdx = linesOut.length - 1;
     }
@@ -250,10 +284,11 @@
     return linesOut;
   }
 
-  function parseSingleDialogueLine(line, actors, lastSideByChar, activeCutscene) {
+  function parseSingleDialogueLine(line, actors, lastSideByChar, stageSlots, activeCutscene) {
     const m = line.match(/^([^:：\n(（]{1,24})(?:[(（]([^)）]*)[)）])?\s*[:：]\s*(.*)$/);
     if (!m) {
-      const res = { speaker: '旁白', char: '', side: 'left', emotion: 'neutral', text: line };
+      applyStageClearDirective('全部', lastSideByChar, stageSlots);
+      const res = { speaker: '旁白', char: '', side: 'left', emotion: 'neutral', clear_stage: true, text: line };
       if (activeCutscene) res.cutscene = activeCutscene;
       return res;
     }
@@ -263,20 +298,30 @@
     const text = m[3].trim();
 
     if (speaker === '旁白' || speaker === '叙述') {
-      const res = { speaker: '旁白', char: '', side: 'left', emotion: 'neutral', text };
+      applyStageClearDirective('全部', lastSideByChar, stageSlots);
+      const res = { speaker: '旁白', char: '', side: 'left', emotion: 'neutral', clear_stage: true, text };
       if (activeCutscene) res.cutscene = activeCutscene;
       return res;
     }
 
     const charId = findActorIdByName(speaker);
+    const charKey = charId || speaker;
     let emotion = 'neutral';
     let side = '';
+    let clearStage = false;
+    let clearSide = '';
 
     if (metaRaw) {
       const parts = metaRaw.split(/[,，/|]/).map((p) => p.trim()).filter(Boolean);
       for (const p of parts) {
         if (CN_TO_SIDE[p]) {
           side = CN_TO_SIDE[p];
+        } else if (p === '清场' || p === '退场') {
+          clearStage = true;
+        } else if (p === '退左' || p === '清左') {
+          clearSide = 'left';
+        } else if (p === '退右' || p === '清右') {
+          clearSide = 'right';
         } else if (p === '内心' || p === '独白') {
           speaker = `${speaker}(内心)`;
         } else if (CN_TO_EMO[p]) {
@@ -287,18 +332,25 @@
       }
     }
 
-    if (!side) {
-      if (charId && lastSideByChar[charId]) {
-        side = lastSideByChar[charId];
-      } else if (charId && actors[charId]) {
-        side = actors[charId].default_side || (charId === 'ye_zhou' ? 'left' : 'right');
-      } else {
-        side = speaker === '叶舟' ? 'left' : 'right';
-      }
+    if (clearStage) {
+      applyStageClearDirective('全部', lastSideByChar, stageSlots);
+    } else if (clearSide === 'left' || clearSide === 'right') {
+      applyStageClearDirective(clearSide, lastSideByChar, stageSlots);
     }
 
-    if (charId) lastSideByChar[charId] = side;
+    if (!side) {
+      side = autoAssignStageSide(charKey, lastSideByChar, stageSlots);
+    }
+
+    const prevOccupant = stageSlots[side];
+    if (prevOccupant && prevOccupant !== charKey) {
+      delete lastSideByChar[prevOccupant];
+    }
+    stageSlots[side] = charKey;
+    if (charKey) lastSideByChar[charKey] = side;
     const res = { speaker, char: charId, side, emotion, text };
+    if (clearStage) res.clear_stage = true;
+    if (clearSide) res.clear_side = clearSide;
     if (activeCutscene) res.cutscene = activeCutscene;
     return res;
   }
@@ -307,11 +359,16 @@
     const actors = actorLookup();
     const out = [];
     let curCutscene = '';
+    const lastSideByChar = {};
+    const stageSlots = { left: '', right: '' };
 
     for (const line of lines || []) {
       if (line.type === 'directive') {
         const kind = line.kind || '备注';
         const arg = line.arg ?? '';
+        if (['清场', '退场', '立绘退场', 'clear', 'exit'].includes(kind)) {
+          applyStageClearDirective(arg, lastSideByChar, stageSlots);
+        }
         out.push(arg !== '' ? `[${kind}: ${arg}]` : `[${kind}]`);
         continue;
       }
@@ -329,13 +386,27 @@
       const text = line.text || '';
 
       if ((speaker === '旁白' || speaker === '叙述') && !charId) {
+        applyStageClearDirective('全部', lastSideByChar, stageSlots);
         out.push(`旁白: ${text}`);
       } else {
-        const defSide = actors[charId]?.default_side || (speaker === '叶舟' ? 'left' : 'right');
+        const charKey = charId || speaker.replace('(内心)', '');
+        if (line.clear_stage) {
+          applyStageClearDirective('全部', lastSideByChar, stageSlots);
+        } else if (line.clear_side === 'left' || line.clear_side === 'right') {
+          applyStageClearDirective(line.clear_side, lastSideByChar, stageSlots);
+        }
+        const expectedSide = autoAssignStageSide(charKey, lastSideByChar, stageSlots);
         const emoCn = EMO_TO_CN[emotion] || emotion;
         const metaParts = [];
+        if (line.clear_stage) metaParts.push('清场');
+        else if (line.clear_side === 'left') metaParts.push('退左');
+        else if (line.clear_side === 'right') metaParts.push('退右');
         if (emotion && emotion !== 'neutral') metaParts.push(emoCn);
-        if (side !== defSide) metaParts.push(SIDE_TO_CN[side] || side);
+        if (side !== expectedSide) metaParts.push(SIDE_TO_CN[side] || side);
+        const prevOcc = stageSlots[side];
+        if (prevOcc && prevOcc !== charKey) delete lastSideByChar[prevOcc];
+        stageSlots[side] = charKey;
+        if (charKey) lastSideByChar[charKey] = side;
         const meta = metaParts.length ? `(${metaParts.join(', ')})` : '';
         out.push(`${speaker}${meta}: ${text}`);
       }
@@ -768,8 +839,9 @@
       : `<span style="font-size:11.5px; color:var(--ink-muted);">选择角色行后可一键切换表情</span>`;
 
     const sideToggleHtml = curChar
-      ? `<button class="emo-pill" id="btnToggleLineSide" title="切换该句立绘站位">站位: ${curSide === 'left' ? '◀ 左' : '右 ▶'}</button>`
-      : '';
+      ? `<button class="emo-pill" id="btnToggleLineSide" title="切换该句立绘站位">站位: ${curSide === 'left' ? '◀ 左' : '右 ▶'}</button>
+         <button class="emo-pill ${curLine?.clear_stage ? 'active' : ''}" id="btnToggleLineClear" title="说此句时先清空场上原有角色立绘">${curLine?.clear_stage ? '🧹 已设清场' : '🧹 本句清场'}</button>`
+      : `<span style="font-size:11.5px; color:var(--teal); font-weight:600;">✨ 旁白行会自动清空场上原有人物，后续角色重新左右开讲</span>`;
 
     const castToolbarHtml = `
       <div class="cast-toolbar">
@@ -790,6 +862,7 @@
           ${emoPillsHtml}
           ${sideToggleHtml}
           <span style="margin-left:auto; display:flex; gap:4px; flex-wrap:wrap;">
+            <button class="directive-pill" data-insert-dir="clear_stage" title="插入清场或指定左/右角色退场指令">🧹 角色退场/清场</button>
             <button class="directive-pill" data-insert-dir="choice">+ 选项(?)</button>
             <button class="directive-pill" data-insert-dir="cutscene">+ 视差过场</button>
             <button class="directive-pill" data-insert-dir="sfx">+ SFX音效</button>
@@ -924,7 +997,8 @@
             ${line.char ? `
               <select class="card-sel" data-card-emo="${idx}">${emoOpts}</select>
               <button class="mini-icon-btn" data-card-side="${idx}">${line.side === 'left' ? '◀ 左' : '右 ▶'}</button>
-            ` : ''}
+              <button class="mini-icon-btn ${line.clear_stage ? 'active' : ''}" data-card-clear="${idx}" title="此句前先清空场上原有人物立绘">${line.clear_stage ? '🧹已清' : '🧹清场'}</button>
+            ` : `<span class="badge-mini" style="color:var(--teal);">🧹 旁白自动清空同台角色</span>`}
             <select class="card-sel" data-card-cs="${idx}" style="max-width:130px;">${csOpts}</select>
             <div class="line-card-tools">
               <button class="mini-icon-btn" data-card-add-choice="${idx}" title="添加分支选项">+?</button>
@@ -1179,6 +1253,7 @@
     });
 
     $('btnToggleLineSide')?.addEventListener('click', () => toggleCurrentLineSide(ctx));
+    $('btnToggleLineClear')?.addEventListener('click', () => toggleCurrentLineClear(ctx));
 
     // Quick directives
     els.editorPane.querySelectorAll('[data-insert-dir]').forEach((btn) => {
@@ -1350,13 +1425,15 @@
         ? availEmos.map((emo) => `<button class="emo-pill ${curEmo === emo ? 'active' : ''}" data-set-emo="${emo}">${escapeHtml(EMO_TO_CN[emo] || emo)}</button>`).join('')
         : `<span style="font-size:11.5px; color:var(--ink-muted);">选择角色行后可一键切换表情</span>`;
       const sideToggleHtml = curChar
-        ? `<button class="emo-pill" id="btnToggleLineSide" title="切换该句立绘站位">站位: ${curSide === 'left' ? '◀ 左' : '右 ▶'}</button>`
-        : '';
+        ? `<button class="emo-pill" id="btnToggleLineSide" title="切换该句立绘站位">站位: ${curSide === 'left' ? '◀ 左' : '右 ▶'}</button>
+           <button class="emo-pill ${curLine?.clear_stage ? 'active' : ''}" id="btnToggleLineClear" title="说此句时先清空场上原有角色立绘">${curLine?.clear_stage ? '🧹 已设清场' : '🧹 本句清场'}</button>`
+        : `<span style="font-size:11.5px; color:var(--teal); font-weight:600;">✨ 旁白行会自动清空场上原有人物，后续角色重新左右开讲</span>`;
       emoRow.innerHTML = `
         <span class="row-tag">当前行:</span>
         ${emoPillsHtml}
         ${sideToggleHtml}
         <span style="margin-left:auto; display:flex; gap:4px; flex-wrap:wrap;">
+          <button class="directive-pill" data-insert-dir="clear_stage" title="插入清场或指定左/右角色退场指令">🧹 角色退场/清场</button>
           <button class="directive-pill" data-insert-dir="choice">+ 选项(?)</button>
           <button class="directive-pill" data-insert-dir="cutscene">+ 视差过场</button>
           <button class="directive-pill" data-insert-dir="sfx">+ SFX音效</button>
@@ -1368,6 +1445,7 @@
         btn.addEventListener('click', () => applyQuickEmotion(ctx, btn.dataset.setEmo));
       });
       $('btnToggleLineSide')?.addEventListener('click', () => toggleCurrentLineSide(ctx));
+      $('btnToggleLineClear')?.addEventListener('click', () => toggleCurrentLineClear(ctx));
       emoRow.querySelectorAll('[data-insert-dir]').forEach((btn) => {
         btn.addEventListener('click', () => openDirectiveQuickInsert(ctx, btn.dataset.insertDir));
       });
@@ -1500,6 +1578,31 @@
     }
   }
 
+  function toggleCurrentLineClear(ctx) {
+    if (state.editorMode === 'stream') {
+      const ta = $('streamTextarea');
+      if (!ta) return;
+      const line = ctx.lines[state.cursorLineIdx];
+      const willClear = !line?.clear_stage;
+      replaceCurrentRawLinePrefix(ta, (rawLine) => {
+        const m = rawLine.match(/^([^:：(（]+)(?:[(（]([^)）]*)[)）])?\s*[:：]\s*(.*)$/);
+        if (!m) return rawLine;
+        const parts = (m[2] || '').split(/[,，/|]/).map((x) => x.trim()).filter((x) => x && !['清场', '退场', '退左', '清左', '退右', '清右'].includes(x));
+        if (willClear) parts.unshift('清场');
+        const meta = parts.length ? `(${parts.join(', ')})` : '';
+        return `${m[1].trim()}${meta}: ${m[3]}`;
+      });
+    } else {
+      const line = ctx.lines[state.cursorLineIdx];
+      if (!line || line.type === 'directive') return;
+      if (line.clear_stage) delete line.clear_stage;
+      else line.clear_stage = true;
+      markDirty();
+      renderEditor({ preserveScroll: true, scrollTargetIntoView: true });
+      renderPreview();
+    }
+  }
+
   function bindCardsFlowEvents(ctx) {
     $('btnAddFirstCardLine')?.addEventListener('click', () => {
       const actors = actorLookup();
@@ -1555,6 +1658,19 @@
         const idx = Number(btn.dataset.cardSide);
         const line = ctx.lines[idx];
         line.side = line.side === 'left' ? 'right' : 'left';
+        state.cursorLineIdx = idx;
+        markDirty();
+        renderEditor({ preserveScroll: true, scrollTargetIntoView: true });
+        renderPreview();
+      });
+    });
+
+    els.editorPane.querySelectorAll('[data-card-clear]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.cardClear);
+        const line = ctx.lines[idx];
+        if (line.clear_stage) delete line.clear_stage;
+        else line.clear_stage = true;
         state.cursorLineIdx = idx;
         markDirty();
         renderEditor({ preserveScroll: true, scrollTargetIntoView: true });
@@ -1786,15 +1902,31 @@
       if (l.type === 'directive') {
         if (l.kind === '背景' || l.kind === 'bg') {
           if (state.bundle.assets.backgrounds[l.arg]) activeBg = l.arg;
-        } else if (l.kind === '立绘退场') {
-          if (l.arg === '左') leftState = null;
-          else if (l.arg === '右') rightState = null;
-          else if (l.arg === '全部' || l.arg === 'all') { leftState = null; rightState = null; }
+        } else if (['清场', '退场', '立绘退场', 'clear', 'exit'].includes(l.kind)) {
+          if (l.arg === '左' || l.arg === 'left') leftState = null;
+          else if (l.arg === '右' || l.arg === 'right') rightState = null;
+          else if (l.arg && !['全部', 'all', 'both'].includes(l.arg)) {
+            const targetCid = findActorIdByName(l.arg) || l.arg;
+            if (leftState?.char === targetCid || leftState?.char === l.arg) leftState = null;
+            if (rightState?.char === targetCid || rightState?.char === l.arg) rightState = null;
+          } else {
+            leftState = null;
+            rightState = null;
+          }
         }
         continue;
       }
       if (l.cutscene) activeCutscene = l.cutscene;
       else if (i > 0 && lines[i - 1]?.cutscene && !l.cutscene) activeCutscene = sc.default_cutscene || '';
+
+      if (l.clear_stage || !l.char) {
+        leftState = null;
+        rightState = null;
+      } else if (l.clear_side === 'left' || l.clear_side === '左') {
+        leftState = null;
+      } else if (l.clear_side === 'right' || l.clear_side === '右') {
+        rightState = null;
+      }
 
       if (l.char && getActorSprite(l.char, l.emotion || 'neutral')) {
         if (l.side === 'left') leftState = { char: l.char, emotion: l.emotion || 'neutral' };
@@ -2126,6 +2258,34 @@
   }
 
   function openDirectiveQuickInsert(ctx, kind) {
+    if (kind === 'clear_stage') {
+      openModal(`
+        <h2>🧹 角色退场 / 画面清场</h2>
+        <p style="margin:0; font-size:12.5px; color:var(--ink-muted);">
+          <strong>提示：</strong>任何 <code>旁白: ...</code> 台词都会<strong>自动清空场上原有角色立绘</strong>，并让接下来的角色重新从左、右依次开口！<br/>
+          如果不写旁白，也可以直接插入退场指令或在角色括号中写 <code>角色名(清场): 台词</code>。
+        </p>
+        <div class="modal-field">
+          <label>选择退场范围</label>
+          <select id="dirClearSel">
+            <option value="全部">全部清场 — 清空左右两侧所有角色，后续说话人重新分居左右 ([立绘退场: 全部])</option>
+            <option value="左">仅左侧角色退场 ([立绘退场: 左])</option>
+            <option value="右">仅右侧角色退场 ([立绘退场: 右])</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" id="mCancel">取消</button>
+          <button class="btn btn-primary" id="mInsert">插入退场指令</button>
+        </div>
+      `);
+      $('mCancel').addEventListener('click', closeModal);
+      $('mInsert').addEventListener('click', () => {
+        insertRawDirective(ctx, '立绘退场', $('dirClearSel').value);
+        closeModal();
+      });
+      return;
+    }
+
     if (kind === 'choice') {
       if (state.editorMode === 'stream') {
         const ta = $('streamTextarea');

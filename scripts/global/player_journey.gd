@@ -305,6 +305,8 @@ static func memories() -> Array[Dictionary]:
  for step in PhaseTwoContent.FLOW_STEPS:
   if GameState.visited_node_ids.has(step["node"]) and step.has("dialogue"):
    entries.append({"dialogue_id":step["dialogue"],"title":step["title"],"node":step["node"]})
+  if GameState.visited_node_ids.has(step["node"]) and step.has("post_dialogue"):
+   entries.append({"dialogue_id":step["post_dialogue"],"title":str(step["title"]) + " · 战后","node":step["node"]})
  return entries
 
 static func open_memory(dialogue_id: String) -> bool:

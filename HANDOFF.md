@@ -1,6 +1,66 @@
 > **2026-11-14 全案重构最新基线**：[世界观与全案重构设计书](docs/story/2026-11-14-世界观与全案重构设计书.md) 已确认作后续剧本、系统、UI 与素材需求的最高优先级总纲；以下旧 10-28 提示保留溯源。
 > **2026-10-28 序章历史说明**：黄秋枫（原暂称梧桐）序章原始脉络见[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)。
 
+## 2026-11-22 旁白自动清场重置左右站位与剧情工作台角色退场功能
+
+- **状态**：已完成游戏实机 `DialogueScreen` 与剧情流式工作台 `Story Studio` 的**旁白自动清空场上角色立绘、后续角色自动从左→右重新分居两侧对话**，并补齐工具端显式角色退场/清场指令与按钮。**`node --check`、`sync_story.py --export --fresh --verify` 及 Godot `smoke` 回归全通过**。
+- **核心改动**：
+  - [dialogue_screen.gd](scripts/story/dialogue_screen.gd)：在 `_show_next_line()` 中，凡遇到旁白行（`speaker_char == ""`）或 `clear_stage == true` / `clear_side == "all"`，立即隐藏左右两侧人物立绘（`left_char_sprite.visible = false`、`right_char_sprite.visible = false`）并重置 `_last_speaking_key`；同时支持 `clear_side`（`"left"` / `"right"`）单侧退场。
+  - [phase_two_content.gd](scripts/global/phase_two_content.gd)：修正 `campus_morning` 混混逃跑旁白（`小混混迅速逃走了`）后黄秋枫、叶舟、杨子英三人全部挤在左侧（`side: "left"`）的问题，使旁白清场后黄秋枫站左、叶舟与杨子英站右自然面对面交谈。
+  - [app.js](tools/story_studio/app.js)、[index.html](tools/story_studio/index.html) & [sync_story.py](tools/story_studio/sync_story.py)：
+    - **旁白自动清场 + 左右自动分配**：`parseStreamText()` / `parse_stream_text()` 与 `renderPreview()` 在遇到任何 `旁白: ...` 行时自动清空左右立绘槽位与角色站位记忆；清场后新开口的第 1 位角色自动站左（`left`）、第 2 位不同角色自动站右（`right`），无需手动标注 `(左)` / `(右)` 即可让新一组角色左右对谈；`linesToStreamText()` / `lines_to_stream_text()` 同步按相同状态机无损往返序列化。
+    - **显式退场/清场工具支持**：工具栏与气泡卡片新增 `🧹 本句清场` 一键开关与 `🧹 角色退场/清场` 指令插入弹窗（支持 `[立绘退场: 全部/左/右/角色名]`、`[清场]` 及 `角色名(清场): 台词`），`_flatten_engine_dialogue()` 自动将退场指令落为后续台词的 `clear_stage` / `clear_side` 字段写回 `.gd`。
+  - [core_smoke.gd](tools/tests/core_smoke.gd)：新增对任意旁白行（含无显式 `clear_stage` 字段的普通旁白行）自动清空左右立绘、以及旁白后第 1、第 2 名说话人依次站左、站右的回归断言。
+
+## 2026-11-22 战斗画面中心对称重构、手账动态共鸣印章、卡牌齐边与地图昼夜自动切换
+
+- **状态**：已完成 1–2 人编队战斗的 `x = 960` 画面中心对称与头顶血条统一、行动手册左下角动态共鸣印章替换旧卡背、手牌上移贴齐紫边、以及阿瑞忒校园地图按时段自动切换昼夜并移除手动切换钮。**`sync_story.py --verify`、`smoke` 回归及 `1600×900` / `1600×720` 双分辨率实机 OpenGL 截图（各 28 张）全通过并目检确认**。
+- **核心改动**：
+  - [combat_presentation.gd](scripts/combat/combat_presentation.gd) & [enemy_unit_ui.gd](scripts/combat/enemy_unit_ui.gd)：全战斗改以 `TEAM_CENTER_OFFSET := 460.0` 将左队中心固定于 `500`、右队中心固定于 `1420`（1 人宽 `224 px`、2 人共宽 `352 px`），我方主角左移并与 1–2 名敌方严格以画面中心 `x = 960` 对称；停用旧 `PlayerIdentity` / `IdentityPaper` 横幅，我方主战、协战同伴与敌方全部统一改用居中正上方的 `CompactIdentityBox` 血条名牌与芯片行。
+  - [combat_presentation.gd](scripts/combat/combat_presentation.gd) & [combat_screen.gd](scripts/combat/combat_screen.gd)：移除 `DuelDeckBack` 旧卡背，改为手账左栏 `TacticalResonanceSeal`（深靛青 `SealMedallion` 圆盘 + 双层逆向旋转星象光环/红月瞄准环 + 悬浮决斗纹章 `svg_duel_crest_vs.svg` + `companion_assist` / `overclock_redmoon` 帧动画 + 3 格同伴共鸣充能点），出牌时触发弹性脉冲 `pulse_resonance_seal()`；并将 `CardsContainer` 调整至 `(200, 67)`（`CARD_GAP := 8.0`），使卡牌底边恰好落于手账底部紫色边框上缘。
+  - [daylight_ui.gd](scripts/global/daylight_ui.gd) & [combat_screen.gd](scripts/combat/combat_screen.gd)：教学气泡 `FirstBattleHint` 统一居中于 `x = 960`，修正红月超限提示换行。
+  - [campus_life.gd](scripts/campus/campus_life.gd) & [region_map_view.gd](scripts/campus/region_map_view.gd)：`map_concept()` 改为完全由 `DayCycle.period()` 自动决定（昼间 `vermilion`、午后暖昏微调、夜间自动切至 `indigo` 月夜星图并交叉淡入）；删除 `ToggleMapStyle` 手动切换按钮，右上精简为 3 枚按钮并补亮夜图禁用态文字对比度。
+  - [core_smoke.gd](tools/tests/core_smoke.gd) & [capture_scenes.gd](tools/tests/capture_scenes.gd)：更新 `ToggleMapStyle` 移除与昼夜自动切图断言、2v2 与 1v1 中心对称断言、`TacticalResonanceSeal` 与 `CardsContainer` 坐标断言，并新增 `27_campus_map_night.png` 与 `28_combat_1v1_overclock.png` 实机截图。
+- **验收结果**：
+  - `python tools/story_studio/sync_story.py --verify` 退出码 `0`（`indentation_errors: []`）；
+  - `python tools/run_godot_tests.py --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke`：**`1882` 项检查通过、`0` 失败**；
+  - 双分辨率 OpenGL 实机截图：`1600×900`（`28` 张，`26.92s`，0 失败）与 `1600×720`（`28` 张，`24.44s`，0 失败）全通过，已逐张目检 `24_prologue_duel_2v2.png`、`28_combat_1v1_overclock.png`、`05_campus_map.png` 与 `27_campus_map_night.png`。
+
+## 2026-11-22 v19 新序章交付素材（Stage 1 定稿母图 + Stage 2 生产素材）全量实装
+
+- **状态**：已完成主创交付包 `archive/IGA_v19_Prologue_Stage1_Concepts.zip` 与 `archive/IGA_v19_Prologue_Stage2_Production.zip` 的归档、提取、引擎接线与 2v2 操场战台实机布局对齐；`prologue_club_meeting` 按 Stage 2 清单说明继续沿用已审定旧版 `school_room_wide.png`。**Godot 资源无头导入、Story Studio 同步校验、`smoke` 全量回归及 `1600×900` / `1600×720` 双分辨率实机 OpenGL 截图（各 26 张）全通过并逐张目检确认**。
+- **素材合入与归档**：
+  - Stage 1 整页概念定稿与 Stage 2 清单/审核记录归档至 `docs/concepts/v19_prologue/`（已受 `docs/concepts/.gdignore` 保护不触发引擎误导入）。
+  - Stage 2 全部 `26` 张生产素材 + `2` 份 `halfbody/` 中性立绘副本（共 `28` 张 PNG）按清单一一落位并完成 Godot 4.7.2 `--headless --import --quit` 零报错导入：
+    - 角色立绘/头像/档案肖像：`thug_grunt`（小混混）与 `thug_boss`（小混混老大）各 4 套表情半身立绘（`emotions/*/{neutral,happy,surprised,angry}.png`）、`halfbody/*.png`、`avatars/*_{neutral,happy,surprised,angry}.png` 及 `portraits/*.png`。
+    - 场景底图与前景层：`assets/backgrounds/phase_two/` 下 `prologue_sakura_road`、`prologue_sports_field`、`battle_sports_field`（各含 `1920×1080` 标准版与 `2340×1080` 超宽版），以及 `assets/backgrounds/phase_two/overlays/prologue_sports_field_duel_crowd{_wide}.png`（透明操场对决人群与看台观众叠加层）。
+- **代码与工作台实装**：
+  - [phase_two_content.gd](scripts/global/phase_two_content.gd) & [school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd)：新增 `resolve_background_overlay_path()` 与背景之上的 `BackdropOverlay` 图层；仅在 `school_gate`（海选赛开场）按标准/超宽原比例精确叠加 `prologue_sports_field_duel_crowd`，在战后清场 `school_gate_after`（大家都打完离开后）自动隐去。
+  - [combat_presentation.gd](scripts/combat/combat_presentation.gd)、[enemy_unit_ui.gd](scripts/combat/enemy_unit_ui.gd)、[combat_screen.gd](scripts/combat/combat_screen.gd) & [daylight_ui.gd](scripts/global/daylight_ui.gd)：按 Stage 1 `03 操场 2v2 决斗战台` 定稿新增操场战台与镜像 2v2 模式——`is_sports_field_arena()` 下隐藏石质地台与顶部 HUD 底带并做 `-236 * factor` 垂向取景，使 4 名决斗者双脚稳立于绿色草坪浅青裁决线框内；`is_mirrored_2v2()` 下以 `x=960` 镜像排布左队（杨子英 + 叶舟）与右队（柳宇龙 + 姜梓）各合计 `352 px` 的紧凑名牌，教学提示框居中于 `x=960`，目标曲别针外挂顶框不遮字；其余 1v1 / 1v3 / 首领 / 红月战斗布局保持原样兼容。
+  - [sync_story.py](tools/story_studio/sync_story.py)：为 `prologue_sports_field` 挂载 `prologue_sports_field_duel_crowd_wide.png` 叠加层并重导校验 `story_bundle.json` 与 `story_data.js`。
+  - [core_smoke.gd](tools/tests/core_smoke.gd) & [capture_scenes.gd](tools/tests/capture_scenes.gd)：新增 `_test_v19_prologue_assets()` 校验全 `28` 张新资产、覆盖层显隐与 `x=960` 镜像 2v2 布局，并在实机截图序列增补 `26_prologue_thugs.png`。
+- **验收结果**：
+  - `python tools/story_studio/sync_story.py --export --fresh --verify` 退出码 `0`（0 缩进错误）；
+  - `python tools/run_godot_tests.py --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke`：**`1871` 项检查通过、`0` 失败**；
+  - 双分辨率 OpenGL 实机截图：`1600×900`（`26` 张，`24.43s`，0 失败）与 `1600×720`（`26` 张，`22.22s`，0 失败）全通过，已逐张目检 `22_prologue_sakura.png`、`26_prologue_thugs.png`、`23_prologue_sports_field.png`、`24_prologue_duel_2v2.png` 与 `25_prologue_club_meeting.png`。
+
+## 2026-11-21 新序章（`序章.md`）人物/场景/2v2 锁血战斗实装与 v19 素材需求包交付
+
+- **状态**：已完成按 [序章.md](docs/story/user_write/序章.md)（保持原稿零改动）对工程内新序章人物、三幕分镜对话、操场 2v2 柳宇龙锁血剧情杀、战后对话无缝衔接与 Story Studio 的全面实装，并打包交付新序章人物与场景素材需求压缩包 `archive/IGA_Asset_Pack_Brief_v19_Prologue_Characters_And_Scenes.zip`。**`sync_story.py --verify`、`smoke` 回归及 `1600×900` / `1600×720` 双分辨率实机 OpenGL 截图（各 25 张）全通过并逐张目检确认**。
+- **游戏实装与体验改动**：
+  - [phase_two_content.gd](scripts/global/phase_two_content.gd)：同步 `PROLOGUE_TITLE`（序章 · 樱林解围与决斗社团）、7 位主要人物新版设定与新增 `thug_grunt`（小混混）/ `thug_boss`（小混混老大），完整落库 `campus_morning`（28 句含双分支与退场清场）、`school_gate`（33 句，顺手修正第 52 行杨子英组队串角）、`school_gate_after`（10 句战后对话）与 `club_welcome`（26 句）；新增 `resolve_background_path()` 在 v19 新图未交付前安全回退现有高清底图，并在未放置混混立绘前校验 `ResourceLoader.exists()` 实现零报错隐去。
+  - [game_state.gd](scripts/global/game_state.gd)、[save_manager.gd](scripts/global/save_manager.gd)、[dialogue_screen.gd](scripts/story/dialogue_screen.gd) & [school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd)：支持 `post_dialogue` 三段式推进（战前对话 → 2v2 战斗 → 战后对话）、`clear_stage` 双侧立绘清场、`SpeakerPortrait` 从 `emotions/<id>/<emo>.png` 自动等比裁切对应表情头像、及将 `liu_yu_long` 解锁顺延至第一章红月高潮。
+  - [enemy_unit_ui.gd](scripts/combat/enemy_unit_ui.gd)、[combat_screen.gd](scripts/combat/combat_screen.gd)、[combat_skin.gd](scripts/global/combat_skin.gd)、[combat_presentation.gd](scripts/combat/combat_presentation.gd) & [daylight_ui.gd](scripts/global/daylight_ui.gd)：实装 `n_gate` 操场 2v2 对决（叶舟 + 杨子英 vs 柳宇龙 + 姜梓），柳宇龙触发 `hp_lock_min = 1` 锁血 Cut-in 反击 `-999` 剧情杀并无缝衔接 `school_gate_after`；同步修复 `FirstBattleHint` 在双敌编队下的位置与按词换行，避免遮挡铭牌。
+  - [home_panels.gd](scripts/home/home_panels.gd)、[player_journey.gd](scripts/global/player_journey.gd)、[player_workspace.gd](scripts/home/player_workspace.gd)、[node_map.gd](scripts/exploration/node_map.gd) & [sync_story.py](tools/story_studio/sync_story.py)：同步里程碑/电影胶片/节点图文案，并刷新 `story_bundle.json`、`story_data.js` 与 `01_现行主线_序章与第一章.md`。
+- **v19 新序章素材需求压缩包**：
+  - 方案文档：[2026-11-21-新序章人物与场景素材需求方案_v19.md](docs/design/2026-11-21-新序章人物与场景素材需求方案_v19.md)
+  - 打包器：[build_v19_prologue_asset_pack.py](tools/build_v19_prologue_asset_pack.py)
+  - 交付包（位于本地 `archive/`，通过 `zipfile.testzip()`）：`archive/IGA_Asset_Pack_Brief_v19_Prologue_Characters_And_Scenes.zip`（`33` 个条目 / `44,127,267` 字节）：含 `44` 项清单（P0 新增 `thug_grunt`/`thug_boss` 18 件 + Stage 1 整页概念母图 4 张 + Stage 2 洁净生产底图 4 组 8 张 + P1 可选主角 12 枚表情头像与双层视差过场 2 件）、`17` 份角色参考与 `11` 份场景/实机截图参考及零依赖 `06_Tools/qa_check_v19_prologue.py`。
+- **验收结果**：
+  - `python tools/story_studio/sync_story.py --export --fresh --verify` 退出码 `0`（0 缩进错误）；
+  - `python tools/run_godot_tests.py --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke`：**`1825` 项检查通过、`0` 失败**；
+  - 双分辨率 OpenGL 实机截图：`1600×900`（`25` 张，`23.87s`，0 失败）与 `1600×720`（`25` 张，`21.76s`，0 失败）均通过，并已逐张目检 `22_prologue_sakura.png`、`23_prologue_sports_field.png`、`24_prologue_duel_2v2.png` 与 `25_prologue_club_meeting.png`。
+
 ## 2026-11-20 商店 Set B（木框便利贴）与体育馆大赛 Set C（战术终端电子看板）v18 分层资产实装
 
 - **状态**：已将主创选定的 `archive/IGA_v18_ShopB_GymC_Layers.zip` 中全部 **22 张透明分层 UI 组件（商店 Set B 11 件 + 体育馆选拔赛 Set C 11 件）** 提取至 `assets/ui_core/v18_windows/{shop,gym}/` 并完成 Godot 4.7.2 零报错导入与实机皮肤替换。**`smoke` 回归及 `1600×900` / `1600×720` 双分辨率实机 OpenGL 截图全通过并完成目检**。

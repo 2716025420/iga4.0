@@ -22,6 +22,8 @@ static func character_cutin_path(actor_id: String) -> String:
 static func enemy_combat_path(enemy_id: String) -> String:
 	if enemy_id == "liu_yu_long_duel":
 		return character_combat_path("liu_yu_long")
+	if enemy_id == "jiang_zi_duel":
+		return character_combat_path("jiang_zi")
 	var target_id := "ch1_hunter_mech" if enemy_id in ["principal", "boss_frank", "ch1_hunter_mech"] else enemy_id
 	var p := "res://assets/sprites/enemies/phase_three/enemy_%s.png" % target_id
 	if ResourceLoader.exists(p):
@@ -33,7 +35,7 @@ static func enemy_combat_path(enemy_id: String) -> String:
 	return PhaseTwoContent.character_path(target_id)
 
 static func enemy_needs_flip_h(enemy_id: String) -> bool:
-	return enemy_id in ["drone", "preacher", "liu_yu_long_duel"]
+	return enemy_id in ["drone", "preacher", "liu_yu_long_duel", "jiang_zi_duel"]
 
 static func platform_texture(overclock: bool) -> Texture2D:
 	var key := "redmoon" if overclock else "day"
