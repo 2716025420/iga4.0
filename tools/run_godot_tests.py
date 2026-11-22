@@ -65,6 +65,12 @@ def main() -> int:
     if indentation_errors:
         print(json.dumps({"preflight_passed": False, "indentation_errors": indentation_errors}, ensure_ascii=False, indent=2))
         return 1
+    aoci_script = ROOT / "tools/aoci_index.py"
+    if aoci_script.is_file():
+        import tools.aoci_index as aoci_idx
+        aoci_report = aoci_idx.verify_index()
+        if not aoci_report.get("aoci_verified"):
+            aoci_idx.AOCI_CODE.write_text(aoci_idx.build_code_volume_text(aoci_idx.parse_existing_code_volume()), encoding="utf-8")
     reports = []
     for name in SUITES if args.suite == "all" else [args.suite]:
         scene, marker = SUITES[name]

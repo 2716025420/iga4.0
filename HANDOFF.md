@@ -1,6 +1,17 @@
 > **2026-11-14 全案重构最新基线**：[世界观与全案重构设计书](docs/story/2026-11-14-世界观与全案重构设计书.md) 已确认作后续剧本、系统、UI 与素材需求的最高优先级总纲；以下旧 10-28 提示保留溯源。
 > **2026-10-28 序章历史说明**：黄秋枫（原暂称梧桐）序章原始脉络见[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)。
 
+## 2026-11-22 AOCI（AI-Oriented Code Indexing）全仓认知索引体系评估与实装
+
+- **状态**：已完成对开源项目 **AOCI（`aoci-spec/aoci-code`：AI-Oriented Code Indexing / 面向 AI 的认知基础设施）** 的可行性评估，并在本项目完整落地 `cognition-volumes/v1` + `object-fras-v2` 标准规范的认知卷（`aoci.txt`、`aoci.meta.txt`、`aoci.code.txt`）与零外部依赖 Python 索引/漂移治理工具 [aoci_index.py](tools/aoci_index.py)。
+- **可行性与收益结论**：
+  - **高度可行**：AOCI 核心通过 Git 版本化的纯文本 **FRAS 单行索引**（**F**unction 职责、**R**ead-with 关联必读、**A**PI 接口/调用方、**S**afety 安全约束与不可破红线）替代每轮对话盲目全仓 Grep/读文件。
+  - **Token 节省对比**：全仓 110 个受管工程文件（74 个 `.gd` 脚本、11 个 `.tscn` 场景、22 个工具脚本与 3 个根配置）原始源码约 `31,500+` 行（全读约 `250K+ tokens`）；压缩为 [aoci.code.txt](aoci.code.txt) 后仅 **117 行 / ~17 KB（约 `4.5K tokens`，压缩比 >98%）**，且每个文件头部直接内嵌 `[SHA1_4|L行数|tab/1sp]` 缩进指纹，Agent 单次读取即可精准定位目标文件、依赖链与缩进红线。
+- **核心改动**：
+  - [aoci.txt](aoci.txt) & [aoci.meta.txt](aoci.meta.txt)：建立 AOCI 根清单与项目元数据卷，固化 6 个 Autoload 单例映射与 5 条核心认知门禁（`CG-INDENT` 单文件缩进红线、`CG-STORY` 剧本同步边界、`CG-STAGE` 旁白自动清场、`CG-COMBAT` `x=960` 中心对称与动态印章、`CG-UI` 无边框与昼夜自动地图）。
+  - [aoci.code.txt](aoci.code.txt) & [aoci_index.py](tools/aoci_index.py)：为全仓 110 个受管文件编写完整 `object-fras-v2` 语义索引，提供 `--verify`（检测 `unbaselined`/`orphans`/`stale` 漂移）、`--update`（自动重算 SHA1-4 指纹、行数与 `tab`/`1sp` 缩进标签）和 `--query <关键词>`（毫秒级模块检索）。
+  - [AGENTS.md](AGENTS.md) & [run_godot_tests.py](tools/run_godot_tests.py)：在 `AGENTS.md` 顶层接入 AOCI 首回合必读与维护工作流，并在 `run_godot_tests.py` 回归预检中集成 AOCI 索引自动校准。
+
 ## 2026-11-22 旁白自动清场重置左右站位与剧情工作台角色退场功能
 
 - **状态**：已完成游戏实机 `DialogueScreen` 与剧情流式工作台 `Story Studio` 的**旁白自动清空场上角色立绘、后续角色自动从左→右重新分居两侧对话**，并补齐工具端显式角色退场/清场指令与按钮。**`node --check`、`sync_story.py --export --fresh --verify` 及 Godot `smoke` 回归全通过**。

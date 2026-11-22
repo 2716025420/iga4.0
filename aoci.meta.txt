@@ -1,0 +1,19 @@
+#AOCI-META-VOLUME: 1
+#Project-Name: Inorganic General Alien (IGA 4.0)
+#Engine: Godot 4.7.2.stable (gl_compatibility, 1920x1080 design canvas, canvas_items stretch)
+#Repository: 2716025420/iga4.0
+#Entry-Scene: res://scenes/title/title_screen.tscn
+#Autoloads: SaveManager=scripts/global/save_manager.gd | SceneManager=scripts/global/scene_manager.gd | GameState=scripts/global/game_state.gd | DayCycle=scripts/global/day_cycle.gd | CampusLife=scripts/global/campus_life.gd(scripts/campus/campus_life.gd) | AudioManager=scripts/global/audio_manager.gd
+#Managed-Scopes: project.godot, AGENTS.md, HANDOFF.md, scripts/**/*.gd, scenes/**/*.tscn, tools/**/*.{py,gd,js,html,css,mjs,sh}
+#Excluded-Scopes: .godot/**, archive/**, test_artifacts/**, docs/concepts/**, docs/references/**, **/*.uid, **/*.import, tools/story_studio/story_bundle.json, tools/story_studio/story_data.js
+#Cognition-Gates:
+CG-INDENT: Per-file indentation is strictly enforced (pure Tabs `\t` vs single-space ` `). Never mix or flip indentation styles within a `.gd` file; every entry in `aoci.code.txt` tags `[HASH|L<lines>|tab]` or `[HASH|L<lines>|1sp]`.
+CG-STORY: Narrative canon lives in `scripts/global/phase_two_content.gd`, `scripts/campus/campus_life.gd`, `scripts/campus/campus_places.gd`, `scripts/global/exploration_content.gd`, and `scripts/global/school_exploration_routes.gd`, synchronized bi-directionally via `python tools/story_studio/sync_story.py --export --fresh --verify`. Never edit `docs/story/user_write/序章.md`.
+CG-STAGE: Narrator lines (`speaker_char == ""`) or `clear_stage == true` in `DialogueScreen` and Story Studio automatically clear both left and right character portraits and reset subsequent speakers to alternate Left -> Right.
+CG-COMBAT: Combat formation in `CombatPresentation` & `EnemyUnitUI` is strictly center-symmetric around `x = 960` (`TEAM_CENTER_OFFSET = 460`, Left team center `500`, Right team center `1420`) with overhead `CompactIdentityBox` HP plaques (`224x76` solo, `168x76` duo), bottom-left animated `TacticalResonanceSeal`, and `CardsContainer` at `(200, 67)` flush on the purple notebook border.
+CG-UI: All runtime buttons/panels use `SchoolObjectUI.borderless()` with no focus outline; `StudentTerminal` 6 pages share `TerminalProjection`; `RegionMapView` auto-switches day (`vermilion`) and night (`indigo`) by `DayCycle.period()` without manual style toggle buttons.
+#Verification-Commands:
+- Index & Drift Audit: `python tools/aoci_index.py --verify` (or `--update` after adding/modifying files)
+- Story Sync Audit: `python tools/story_studio/sync_story.py --verify`
+- Headless Smoke Suite: `python tools/run_godot_tests.py --godot "<GODOT_BIN>" --suite smoke`
+- OpenGL Visual Captures: `python tools/run_godot_tests.py --godot "<GODOT_BIN>" --suite captures --resolution 1600x900 --captures test_artifacts/screenshots_1600x900`

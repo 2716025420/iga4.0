@@ -6,6 +6,15 @@
 
 # IGA 项目协作入口
 
+## AOCI 认知索引（低 Token 快速定位 · 首回合必读）
+
+本项目已实装 **AOCI（AI-Oriented Code Indexing / 面向 AI 的认知基础设施）**，将全仓 110 个受管脚本、场景与工具压缩为单次读取仅约 `4.5K tokens` 的 FRAS 认知蓝图：
+- **根清单与认知门禁**：[aoci.txt](aoci.txt)、[aoci.meta.txt](aoci.meta.txt)
+- **全仓单行 FRAS 代码索引**：[aoci.code.txt](aoci.code.txt)（格式：`路径[SHA1_4|L行数|缩进(tab/1sp)]: F:职责 | R:关联必读 | A:接口/调用方 | S:安全约束与红线`）
+- **Agent 使用约定**：
+  1. **先读索引再读代码**：新会话或跨模块任务开始时，先读 [aoci.code.txt](aoci.code.txt)（或运行 `python tools/aoci_index.py --query <关键词>`）直接锁定目标文件、关联依赖（`R:`）与该文件的**缩进门禁（`tab` vs `1sp`）**，避免全仓盲扫消耗大量 Token。
+  2. **变更后同步与漂移校验**：新增、删除或修改受管文件后，运行 `python tools/aoci_index.py --update` 更新指纹并在 `tools/aoci_index.py` 的 `FRAS_CATALOG` 登记新模块，再用 `python tools/aoci_index.py --verify` 确认零漂移（`tools/run_godot_tests.py` 预检已自动集成刷新）。
+
 ## 核心设计文档入口
 
 开始工作先读 [HANDOFF.md](HANDOFF.md)、[CURRENT_DESIGN.md](docs/CURRENT_DESIGN.md) 和 [DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md)。完整世界观、地区设定、十二星座母卡与序章逻辑均集中于 `docs/story/`：

@@ -1,0 +1,7 @@
+#AOCI-ROOT-MANIFEST: 1
+#Format-Version: cognition-volumes/v1
+#Locale: zh-CN
+#Project: Inorganic General Alien (IGA 4.0) - Godot 4.7.2 Red-Moon Campus & Tactical Imprint Card RPG
+#Global-Invariants: 1. Read docs/story/2026-11-14-世界观与全案重构设计书.md & docs/story/user_write/序章.md as canon; keep Chapters 2-5 undecided details open. 2. Preserve file-level GDScript indentation (pure-Tab vs 1-space, verified by tools/run_godot_tests.py & tools/aoci_index.py). 3. Enforce 1920x1080 Stage-1 Full-Page Concept -> Stage-2 Layered Godot UI workflow and SchoolObjectUI.borderless() controls. 4. Keep 12 Zodiac Mother Cards as story collectibles only; shops are physical campus/region locations.
+#Volume: id=meta kind=meta path=aoci.meta.txt format=meta-v1 depends=- state=enabled
+#Volume: id=code kind=code path=aoci.code.txt format=object-fras-v2 depends=meta state=enabled
