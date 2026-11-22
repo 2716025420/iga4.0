@@ -15,7 +15,9 @@ const ACTORS: Dictionary = {
 	"lin_zhi_xia": {"name":"林知夏","title":"图书馆管理员","bio":"阿瑞忒图书馆温和细心的图书委员，常整理校史期刊与同学们留下的卡片批注。"},
 	"tang_xiao_man": {"name":"唐小满","title":"校园商店值班员","bio":"精力充沛的校园小店店员，熟知阿瑞忒新上架的刻印卡组与补给趣闻。"},
 	"thug_grunt": {"name":"小混混","title":"樱林堵路跟班","bio":"擅长替老大吹捧助威、嘴上讲规矩却专挑软柿子下手的校园跟班，见对方人多立刻脚底抹油。"},
-	"thug_boss": {"name":"小混混老大","title":"有原则的樱林混混头目","bio":"口头禅『欧啦』、把欺软怕硬与大胆撤退奉为信条的校园小混混头目。"}
+	"thug_boss": {"name":"小混混老大","title":"有原则的樱林混混头目","bio":"口头禅『欧啦』、把欺软怕硬与大胆撤退奉为信条的校园小混混头目。"},
+	"passerby_male": {"name":"路人剪影男","title":"阿瑞忒路人学生","bio":"清晨通学路与校园林荫道上经过的阿瑞忒普通男学生剪影，常充当日常围观或吐槽路人。"},
+	"passerby_female": {"name":"路人剪影女","title":"阿瑞忒路人学生","bio":"清晨通学路与校园林荫道上经过的阿瑞忒普通女学生剪影，常充当日常围观或吐槽路人。"}
 }
 const FLOW_STEPS: Array[Dictionary] = [
 	{"node":"n0","dialogue":"campus_morning","title":"樱林解围","phase":"prologue"},
@@ -247,7 +249,7 @@ static func dialogue_character_path(character_id: String, emotion: String = "neu
 		var rebel_path := CHARACTER_ROOT + ("rebel_operative_unmasked.png" if (actual == "rebel_operative_unmasked" or resolved_emotion == "unmasked") else "rebel_operative_masked.png")
 		if ResourceLoader.exists(rebel_path):
 			return rebel_path
-	if resolved_emotion == "" or not resolved_emotion in ["neutral", "happy", "shy", "surprised", "angry", "worried", "damaged_fiber", "crystal_stasis"]:
+	if resolved_emotion == "" or not resolved_emotion in ["neutral", "happy", "shy", "surprised", "angry", "worried", "dazed", "rally", "crying", "moved", "damaged_fiber", "crystal_stasis"]:
 		resolved_emotion = "neutral"
 	var emotion_path := "res://assets/sprites/characters/phase_two/emotions/%s/%s.png" % [actual, resolved_emotion]
 	if ResourceLoader.exists(emotion_path):
@@ -308,6 +310,16 @@ static func resolve_background_path(key: String, prefer_wide: bool = true) -> St
 				candidates.append(bg_dir + "school_room_wide.png")
 			candidates.append(bg_dir + "school_room.png")
 			candidates.append("res://assets/ui/player_experience/home_room_morning_v1.png")
+		"ch1_library_path":
+			if prefer_wide:
+				candidates.append(bg_dir + "ch1_library_path_wide.png")
+			candidates.append(bg_dir + "ch1_library_path.png")
+			if prefer_wide:
+				candidates.append("res://assets/backgrounds/phase_three/exploration_campus_wide.png")
+			candidates.append("res://assets/backgrounds/phase_three/exploration_campus.png")
+			if prefer_wide:
+				candidates.append(bg_dir + "prologue_sakura_road_wide.png")
+			candidates.append(bg_dir + "prologue_sakura_road.png")
 		_:
 			if prefer_wide:
 				candidates.append("%s%s_wide.png" % [bg_dir, key])
@@ -318,13 +330,18 @@ static func resolve_background_path(key: String, prefer_wide: bool = true) -> St
 	return ""
 
 static func resolve_background_overlay_path(dialogue_id: String, key: String, prefer_wide: bool = true) -> String:
-	if key != "prologue_sports_field" or dialogue_id != "school_gate":
-		return ""
 	var overlay_dir := "res://assets/backgrounds/phase_two/overlays/"
 	var candidates: Array[String] = []
-	if prefer_wide:
-		candidates.append(overlay_dir + "prologue_sports_field_duel_crowd_wide.png")
-	candidates.append(overlay_dir + "prologue_sports_field_duel_crowd.png")
+	if key == "prologue_sports_field" and dialogue_id == "school_gate":
+		if prefer_wide:
+			candidates.append(overlay_dir + "prologue_sports_field_duel_crowd_wide.png")
+		candidates.append(overlay_dir + "prologue_sports_field_duel_crowd.png")
+	elif key == "ch1_library_path" and dialogue_id == "school_affairs":
+		if prefer_wide:
+			candidates.append(overlay_dir + "ch1_library_path_crowd_wide.png")
+		candidates.append(overlay_dir + "ch1_library_path_crowd.png")
+	else:
+		return ""
 	for path in candidates:
 		if ResourceLoader.exists(path):
 			return path

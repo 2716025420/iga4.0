@@ -260,7 +260,7 @@ func _speaker_emotion(data: Dictionary) -> String:
 	if explicit_emotion != "":
 		if explicit_emotion == "concerned":
 			explicit_emotion = "worried"
-		return explicit_emotion if explicit_emotion in ["neutral", "happy", "shy", "surprised", "angry", "worried", "damaged_fiber", "crystal_stasis", "unmasked"] else "neutral"
+		return explicit_emotion if explicit_emotion in ["neutral", "happy", "shy", "surprised", "angry", "worried", "dazed", "rally", "crying", "moved", "damaged_fiber", "crystal_stasis", "unmasked"] else "neutral"
 	var copy := str(data.get("text", "")).to_lower()
 	for keyword in ["danger", "命令", "受伤", "危险", "异常", "停下", "权限"]:
 		if copy.contains(keyword):

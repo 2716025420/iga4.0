@@ -1,6 +1,24 @@
 > **2026-11-14 全案重构最新基线**：[世界观与全案重构设计书](docs/story/2026-11-14-世界观与全案重构设计书.md) 已确认作后续剧本、系统、UI 与素材需求的最高优先级总纲；以下旧 10-28 提示保留溯源。
 > **2026-10-28 序章历史说明**：黄秋枫（原暂称梧桐）序章原始脉络见[黄秋枫序章剧情逻辑](docs/story/2026-10-28-黄秋枫序章剧情逻辑.md)。
 
+## 2026-11-22 第一章「图书馆的偶遇」（`school_affairs.md`）v20 素材需求包与引擎零改代码预埋
+
+- **状态**：已完成对主创最新剧本 [school_affairs.md](docs/story/user_write/school_affairs.md)（保持原稿零改动，保留现行可玩临时 `SCRIPTS["school_affairs"]` 至素材交付后替换）的缺口盘点、设计方案编写、v20 需求压缩包打包及引擎/Story Studio 预埋接线。**ZIP 完整性、`qa_check_v20_library_encounter.py`、`node --check`、`sync_story.py --export --fresh --verify`、`aoci_index.py --verify` 及 Godot `smoke` 回归全通过**。
+- **核心识别与纠偏**：
+  - **连续性空手纠偏**：v19 `thug_boss/{neutral,surprised,angry}` 均手持卡牌，但本幕混混二人组已「所有卡牌都败出去了」，v20 明确补齐 **严禁持卡空手版** `thug_boss/{dazed,rally}` 与 `thug_grunt/{crying,moved}`（含对应 `256×256` 头像共 8 件）。
+  - **路人剪影与场景正位**：新增可复用雾靛青/冷灰蓝无脸阿瑞忒学生剪影 `passerby_male` / `passerby_female`（各 `{neutral,worried}` 半身 + 2 头像 + 1 肖像共 10 件）；明确正文发生于「从社团去图书馆的清晨海风绿荫小路 (`ch1_library_path`)」，区别于室内 `library` 与校门樱道 `prologue_sakura_road`。
+- **交付包与设计文档**：
+  - 设计方案：[2026-11-22-图书馆偶遇人物与场景素材需求方案_v20.md](docs/design/2026-11-22-图书馆偶遇人物与场景素材需求方案_v20.md)
+  - 打包器：[build_v20_library_encounter_asset_pack.py](tools/build_v20_library_encounter_asset_pack.py)
+  - 交付压缩包（位于本地 `archive/`）：`archive/IGA_Asset_Pack_Brief_v20_Library_Encounter.zip`（`29` 个条目 / `34,127,045` 字节，通过 `zipfile.testzip()` 校验）：含 **`28` 项清单（P0 `23` 项 + P1 `5` 项）**——Stage 1 整页概念母图 3 张、Stage 2 `ch1_library_path{,_wide}` 洁净底图 2 张、混混缺漏表情/头像 8 件、男女路人剪影 10 件、P1 `ye_zhou_surprised` 头像 1 件、清晨远景学生透明叠加层 2 件、同行去图书馆双层视差过场 2 件；附 `15` 张角色一致性参考、`8` 张场景/UI/实机参考、零依赖 `06_Tools/qa_check_v20_library_encounter.py`、`07_Script_Reference/school_affairs.md` 及导入替换/触发接线指引。
+- **零改代码预埋与工具同步**：
+  - [phase_two_content.gd](scripts/global/phase_two_content.gd)、[dialogue_screen.gd](scripts/story/dialogue_screen.gd) & [school_dialogue_presentation.gd](scripts/story/school_dialogue_presentation.gd)：预埋 `passerby_male` / `passerby_female` 角色定义、扩展 `dazed` / `rally` / `crying` / `moved` 表情白名单（交付前安全回退）、新增 `ch1_library_path` 背景槽（安全回退 `exploration_campus` / `prologue_sakura_road`）与 `overlays/ch1_library_path_crowd` 可选挂载。
+  - [sync_story.py](tools/story_studio/sync_story.py) & [app.js](tools/story_studio/app.js)：同步新角色、`(恍惚)`/`(燃志)`/`(哭泣)`/`(抹泪)` 中文表情映射与 `ch1_library_path` 背景选项。
+  - [core_smoke.gd](tools/tests/core_smoke.gd) & [aoci_index.py](tools/aoci_index.py)：新增 `_test_v20_library_encounter_hooks()` 并登记 `tools/build_v20_library_encounter_asset_pack.py` 至 AOCI 认知索引。
+- **验收结果**：
+  - `node --check tools/story_studio/app.js`、`python tools/story_studio/sync_story.py --export --fresh --verify` 退出码 `0`（`indentation_errors: []`）；
+  - `python -m tools.run_godot_tests --godot "D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe" --suite smoke`：**`1898` 项检查通过、`0` 失败（`21.59s`）**。
+
 ## 2026-11-22 AOCI（AI-Oriented Code Indexing）全仓认知索引体系评估与实装
 
 - **状态**：已完成对开源项目 **AOCI（`aoci-spec/aoci-code`：AI-Oriented Code Indexing / 面向 AI 的认知基础设施）** 的可行性评估，并在本项目完整落地 `cognition-volumes/v1` + `object-fras-v2` 标准规范的认知卷（`aoci.txt`、`aoci.meta.txt`、`aoci.code.txt`）与零外部依赖 Python 索引/漂移治理工具 [aoci_index.py](tools/aoci_index.py)。

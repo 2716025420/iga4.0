@@ -138,6 +138,7 @@ func update_scene(override_cutscene_id: String = "") -> void:
 		"prologue_sakura_road": "樱林上学路",
 		"prologue_sports_field": "操场海选赛",
 		"prologue_club_meeting": "阿瑞忒社团教室",
+		"ch1_library_path": "清晨海风林荫小路",
 		"morning_road": "上学路",
 		"school_gate": "运动会场边",
 		"school_room": "社团教室",

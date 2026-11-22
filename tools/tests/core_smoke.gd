@@ -51,6 +51,7 @@ func _run() -> void:
 	_test_audio_assets()
 	_test_v18_window_assets()
 	_test_v19_prologue_assets()
+	_test_v20_library_encounter_hooks()
 	await _test_new_prologue_flow()
 
 	print("CORE_SMOKE_RESULT " + JSON.stringify({"checks": checks, "failures": failures, "renderer": DisplayServer.get_name()}))
@@ -535,6 +536,23 @@ func _test_v19_prologue_assets() -> void:
 	check(PhaseTwoContent.resolve_background_path("battle_sports_field", true) == "res://assets/backgrounds/phase_two/battle_sports_field_wide.png", "battle sports field resolves to v19 wide bg")
 	check(PhaseTwoContent.resolve_background_overlay_path("school_gate", "prologue_sports_field", true) == "res://assets/backgrounds/phase_two/overlays/prologue_sports_field_duel_crowd_wide.png", "school_gate mounts crowd overlay")
 	check(PhaseTwoContent.resolve_background_overlay_path("school_gate_after", "prologue_sports_field", true) == "", "school_gate_after omits crowd overlay")
+
+
+func _test_v20_library_encounter_hooks() -> void:
+	check(PhaseTwoContent.ACTORS.has("passerby_male") and PhaseTwoContent.ACTORS.has("passerby_female"), "v20 registers passerby silhouette actors")
+	for emo in ["dazed", "rally"]:
+		var boss_p := PhaseTwoContent.dialogue_character_path("thug_boss", emo)
+		check(boss_p != "" and ResourceLoader.exists(boss_p), "thug_boss resolves cleanly for v20 emotion " + emo)
+	for emo in ["crying", "moved"]:
+		var grunt_p := PhaseTwoContent.dialogue_character_path("thug_grunt", emo)
+		check(grunt_p != "" and ResourceLoader.exists(grunt_p), "thug_grunt resolves cleanly for v20 emotion " + emo)
+	for cid in ["passerby_male", "passerby_female"]:
+		var pass_p := PhaseTwoContent.dialogue_character_path(cid, "neutral")
+		check(pass_p == "" or ResourceLoader.exists(pass_p), "passerby silhouette resolves without error: " + cid)
+	var path_bg := PhaseTwoContent.resolve_background_path("ch1_library_path", true)
+	check(path_bg != "" and ResourceLoader.exists(path_bg), "ch1_library_path resolves with safe fallback")
+	var path_ov := PhaseTwoContent.resolve_background_overlay_path("school_affairs", "ch1_library_path", true)
+	check(path_ov == "" or ResourceLoader.exists(path_ov), "ch1_library_path optional crowd overlay resolves cleanly")
 
 
 func _test_new_prologue_flow() -> void:

@@ -599,6 +599,12 @@ FRAS_CATALOG: dict[str, dict[str, str]] = {
         "A": "CLI packager -> archive/",
         "S": "Outputs to ignored archive/ directory.",
     },
+    "tools/build_v20_library_encounter_asset_pack.py": {
+        "F": "Asset brief packager for v20 Ch1 Library Encounter (school_affairs.md): empty-handed thug emotions, passerby silhouettes, and ch1_library_path scenes",
+        "R": "docs/design/2026-11-22-图书馆偶遇人物与场景素材需求方案_v20.md,docs/story/user_write/school_affairs.md",
+        "A": "CLI packager -> archive/",
+        "S": "Outputs to ignored archive/ directory.",
+    },
     "tools/cloud/check.sh": {
         "F": "Linux cloud headless import & startup sanity script",
         "R": "tools/cloud/setup.sh,docs/CLOUD_DEVELOPMENT.md",

@@ -33,6 +33,10 @@ EMOTION_TO_CN = {
     "angry": "愤怒",
     "worried": "担忧",
     "concerned": "担忧",
+    "dazed": "恍惚",
+    "rally": "燃志",
+    "crying": "哭泣",
+    "moved": "抹泪",
     "damaged_fiber": "光纤受损",
     "crystal_stasis": "结晶休眠",
     "unmasked": "摘面具",
@@ -40,6 +44,12 @@ EMOTION_TO_CN = {
 CN_TO_EMOTION = {v: k for k, v in EMOTION_TO_CN.items()}
 CN_TO_EMOTION["蒙面"] = "neutral"
 CN_TO_EMOTION["默认"] = "neutral"
+CN_TO_EMOTION["失神"] = "dazed"
+CN_TO_EMOTION["挺胸"] = "rally"
+CN_TO_EMOTION["振作"] = "rally"
+CN_TO_EMOTION["大哭"] = "crying"
+CN_TO_EMOTION["感动"] = "moved"
+CN_TO_EMOTION["擦泪"] = "moved"
 
 SIDE_TO_CN = {"left": "左", "right": "右"}
 CN_TO_SIDE = {"左": "left", "右": "right", "left": "left", "right": "right"}
@@ -49,6 +59,7 @@ BG_CHOICES = [
     {"id": "prologue_sports_field", "label": "序章 · 操场海选赛", "phase2_key": "prologue_sports_field"},
     {"id": "battle_sports_field", "label": "序章 · 操场 2v2 对决战台", "phase2_key": "battle_sports_field"},
     {"id": "prologue_club_meeting", "label": "序章 · 决斗社团首次会议", "phase2_key": "prologue_club_meeting"},
+    {"id": "ch1_library_path", "label": "第一章 · 清晨海风林荫小路（通往图书馆）", "phase2_key": "ch1_library_path"},
     {"id": "morning_road", "label": "上学樱道（旧版底图）", "phase2_key": "morning_road"},
     {"id": "school_gate", "label": "运动会 / 校门（旧版底图）", "phase2_key": "school_gate"},
     {"id": "school_room", "label": "社团教室（白）", "phase2_key": "school_room"},
@@ -97,6 +108,7 @@ PHASE_2_VALID_BGS = {
     "prologue_sports_field",
     "battle_sports_field",
     "prologue_club_meeting",
+    "ch1_library_path",
     "morning_road",
     "school_gate",
     "school_room",
@@ -354,6 +366,8 @@ def _build_assets_manifest(actors: dict[str, Any], enemies: list[dict[str, Any]]
     all_char_ids = list(actors.keys()) + [
         "thug_grunt",
         "thug_boss",
+        "passerby_male",
+        "passerby_female",
         "rebel_operative_masked",
         "rebel_operative_unmasked",
         "alliance_operative",
@@ -405,7 +419,7 @@ def _build_assets_manifest(actors: dict[str, Any], enemies: list[dict[str, Any]]
             emotions["neutral"] = f"assets/sprites/enemies/phase_three/enemy_{raw_id}.png"
 
         # Avatars matching DialogueScreen._refresh_speaker_avatar()
-        for emo_key in ["neutral", "happy", "shy", "surprised", "angry", "worried", "damaged_fiber", "crystal_stasis", "unmasked"]:
+        for emo_key in ["neutral", "happy", "shy", "surprised", "angry", "worried", "dazed", "rally", "crying", "moved", "damaged_fiber", "crystal_stasis", "unmasked"]:
             av_key = "rebel_operative_unmasked" if (raw_id in ["rebel_operative_masked", "alliance_operative"] and emo_key == "unmasked") else actual_id
             v7_av = char_root / "avatars" / f"{av_key}_{emo_key}.png"
             v7_neu = char_root / "avatars" / f"{av_key}_neutral.png"
@@ -431,6 +445,7 @@ def _build_assets_manifest(actors: dict[str, Any], enemies: list[dict[str, Any]]
         "prologue_sports_field",
         "battle_sports_field",
         "prologue_club_meeting",
+        "ch1_library_path",
         "morning_road",
         "school_gate",
         "school_room",
@@ -449,6 +464,12 @@ def _build_assets_manifest(actors: dict[str, Any], enemies: list[dict[str, Any]]
                 ov = ov_wide if ov_wide.exists() else ov_std
                 if ov.exists():
                     layers.append(f"assets/backgrounds/phase_two/overlays/{ov.name}")
+            elif name == "ch1_library_path":
+                ov_wide = phase2_bg_dir / "overlays" / "ch1_library_path_crowd_wide.png"
+                ov_std = phase2_bg_dir / "overlays" / "ch1_library_path_crowd.png"
+                ov = ov_wide if ov_wide.exists() else ov_std
+                if ov.exists():
+                    layers.append(f"assets/backgrounds/phase_two/overlays/{ov.name}")
             bg_assets[name] = {"layers": layers}
 
     fallback_bgs = {
@@ -456,6 +477,7 @@ def _build_assets_manifest(actors: dict[str, Any], enemies: list[dict[str, Any]]
         "prologue_sports_field": "assets/backgrounds/phase_two/school_gate_wide.png",
         "battle_sports_field": "assets/backgrounds/phase_two/battle_campus_wide.png",
         "prologue_club_meeting": "assets/backgrounds/phase_two/school_room_wide.png",
+        "ch1_library_path": "assets/backgrounds/phase_three/exploration_campus_wide.png",
     }
     for key, rel in fallback_bgs.items():
         if key not in bg_assets and (ROOT / rel).exists():
@@ -1494,7 +1516,7 @@ def _gd_line_dict(line: dict[str, Any]) -> str:
         "side": str(line.get("side", "left")),
     }
     emo = str(line.get("emotion", "neutral") or "neutral")
-    if emo != "neutral" or ordered["char"] in ["ye_zhou", "huang_qiufeng", "yang_zi_ying", "liu_yu_long", "jiang_zi", "lin_zhi_xia", "tang_xiao_man", "thug_grunt", "thug_boss"]:
+    if emo != "neutral" or ordered["char"] in ["ye_zhou", "huang_qiufeng", "yang_zi_ying", "liu_yu_long", "jiang_zi", "lin_zhi_xia", "tang_xiao_man", "thug_grunt", "thug_boss", "passerby_male", "passerby_female"]:
         ordered["emotion"] = emo
     if line.get("clear_stage") or ordered["char"] == "":
         ordered["clear_stage"] = True
@@ -1617,6 +1639,7 @@ def apply_bundle_to_gdscript(bundle: dict[str, Any]) -> dict[str, Any]:
         "prologue_sports_field": [],
         "battle_sports_field": [],
         "prologue_club_meeting": [],
+        "ch1_library_path": [],
         "morning_road": [],
         "school_gate": [],
         "school_room": [],
@@ -1688,7 +1711,7 @@ def apply_bundle_to_gdscript(bundle: dict[str, Any]) -> dict[str, Any]:
 
     # Update background_key(dialogue_id) cleanly with Tab indent
     bg_fn_lines = ["static func background_key(dialogue_id: String) -> String:", "\tmatch dialogue_id:"]
-    for bg_key in ["prologue_sakura_road", "prologue_sports_field", "battle_sports_field", "prologue_club_meeting", "school_gate", "school_room", "morning_road", "battle_campus", "battle_red_moon_lockdown"]:
+    for bg_key in ["prologue_sakura_road", "prologue_sports_field", "battle_sports_field", "prologue_club_meeting", "ch1_library_path", "school_gate", "school_room", "morning_road", "battle_campus", "battle_red_moon_lockdown"]:
         ids = bg_groups.get(bg_key, [])
         if ids:
             joined = ", ".join(json.dumps(x, ensure_ascii=False) for x in ids)

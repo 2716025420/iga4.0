@@ -13,6 +13,10 @@
     angry: '愤怒',
     worried: '担忧',
     concerned: '担忧',
+    dazed: '恍惚',
+    rally: '燃志',
+    crying: '哭泣',
+    moved: '抹泪',
     damaged_fiber: '光纤受损',
     crystal_stasis: '结晶休眠',
     unmasked: '摘面具',
@@ -29,6 +33,16 @@
     生气: 'angry',
     担忧: 'worried',
     担心: 'worried',
+    恍惚: 'dazed',
+    失神: 'dazed',
+    燃志: 'rally',
+    挺胸: 'rally',
+    振作: 'rally',
+    哭泣: 'crying',
+    大哭: 'crying',
+    抹泪: 'moved',
+    感动: 'moved',
+    擦泪: 'moved',
     光纤受损: 'damaged_fiber',
     结晶休眠: 'crystal_stasis',
     摘面具: 'unmasked',
@@ -167,7 +181,7 @@
     }
     const keys = Object.keys(charAssets.emotions);
     if (!keys.length) return [];
-    const ordered = ['neutral', 'happy', 'shy', 'surprised', 'angry', 'worried', 'damaged_fiber', 'crystal_stasis', 'unmasked']
+    const ordered = ['neutral', 'happy', 'shy', 'surprised', 'angry', 'worried', 'dazed', 'rally', 'crying', 'moved', 'damaged_fiber', 'crystal_stasis', 'unmasked']
       .filter((k) => keys.includes(k));
     return ordered.length ? ordered : keys;
   }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-11-22 17:21:25",
+  "exported_at": "2026-11-22 22:40:54",
   "project": "IGA (Inorganic General Alien)",
   "titles": {
     "prologue_title": "序章 · 樱林解围与决斗社团",
@@ -1156,7 +1156,7 @@
         "target_type": "phase_two_flow",
         "phase": "第一章 · 红月高潮",
         "phase_key": "climax",
-        "title": "黄昏轻吻",
+        "title": "成为我一个人的英雄",
         "location": "old_park",
         "enemy": "",
         "briefing_flag": "",
@@ -1166,11 +1166,18 @@
         "note": "主线节点 n_dusk",
         "lines": [
           {
+            "speaker": "旁白",
+            "char": "",
+            "side": "left",
+            "emotion": "neutral",
+            "text": ""
+          },
+          {
             "speaker": "叶舟",
             "char": "ye_zhou",
             "side": "left",
             "emotion": "neutral",
-            "text": "社团的值日与整备已经全部完成了。夕阳把旧公园的红枫和梧桐大道染成金色，秋枫果然站在走廊尽头的长椅边。"
+            "text": ""
           },
           {
             "speaker": "黄秋枫",
